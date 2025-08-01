@@ -166,7 +166,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         </tr>
                         <tr>
                             <td><strong>Rate:</strong></td>
-                            <td><?php echo formatCurrency($contract['rate_amount']); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
+                                                                        <td><?php echo formatCurrency($contract['rate_amount'], null, getCurrentCompanyId()); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Required Hours:</strong></td>
@@ -208,7 +208,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Amount Earned</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_earned); ?></div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_earned, null, getCurrentCompanyId()); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -225,7 +225,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 Amount Paid</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_paid); ?></div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_paid, null, getCurrentCompanyId()); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-credit-card fa-2x text-gray-300"></i>
@@ -242,7 +242,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Remaining Amount</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($remaining_amount); ?></div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($remaining_amount, null, getCurrentCompanyId()); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
@@ -276,7 +276,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                 <div class="col-md-4 text-end">
                     <h6>Current Month</h6>
                     <p class="mb-1"><strong><?php echo number_format($current_month_hours, 1); ?> hours</strong></p>
-                    <p class="mb-0"><strong><?php echo formatCurrency($current_month_amount); ?></strong></p>
+                                                        <p class="mb-0"><strong><?php echo formatCurrency($current_month_amount, null, getCurrentCompanyId()); ?></strong></p>
                 </div>
             </div>
         </div>
@@ -333,7 +333,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                 <tr>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatDate($wh['date']); ?></strong>
+                                            <strong><?php echo formatDate($wh['date'], getCurrentCompanyId()); ?></strong>
                                             <br><small class="text-muted"><?php echo date('l', strtotime($wh['date'])); ?></small>
                                         </div>
                                     </td>
@@ -352,18 +352,18 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                         <div>
                                             <?php 
                                             if ($contract['contract_type'] === 'hourly') {
-                                                echo formatCurrency($contract['rate_amount']) . '/hr';
+                                                echo formatCurrency($contract['rate_amount'], null, getCurrentCompanyId()) . '/hr';
                                             } elseif ($contract['contract_type'] === 'daily') {
-                                                echo formatCurrency($contract['rate_amount'] / $contract['working_hours_per_day']) . '/hr';
+                                                echo formatCurrency($contract['rate_amount'] / $contract['working_hours_per_day'], null, getCurrentCompanyId()) . '/hr';
                                             } else {
-                                                echo formatCurrency($contract['rate_amount'] / ($contract['total_hours_required'] ?: 270)) . '/hr';
+                                                echo formatCurrency($contract['rate_amount'] / ($contract['total_hours_required'] ?: 270), null, getCurrentCompanyId()) . '/hr';
                                             }
                                             ?>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong class="text-success"><?php echo formatCurrency($daily_amount); ?></strong>
+                                            <strong class="text-success"><?php echo formatCurrency($daily_amount, null, getCurrentCompanyId()); ?></strong>
                                         </div>
                                     </td>
                                     <td>
@@ -396,7 +396,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                 <td colspan="2"><strong>Total</strong></td>
                                 <td class="text-center"><strong><?php echo number_format($total_hours_worked, 1); ?> hours</strong></td>
                                 <td></td>
-                                <td><strong><?php echo formatCurrency($total_amount_earned); ?></strong></td>
+                                <td><strong><?php echo formatCurrency($total_amount_earned, null, getCurrentCompanyId()); ?></strong></td>
                                 <td colspan="2"></td>
                             </tr>
                         </tfoot>
@@ -439,8 +439,8 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <tbody>
                             <?php foreach ($payments as $payment): ?>
                                 <tr>
-                                    <td><?php echo formatDate($payment['payment_date']); ?></td>
-                                    <td><strong><?php echo formatCurrency($payment['amount']); ?></strong></td>
+                                    <td><?php echo formatDate($payment['payment_date'], getCurrentCompanyId()); ?></td>
+                                    <td><strong><?php echo formatCurrency($payment['amount'], null, getCurrentCompanyId()); ?></strong></td>
                                     <td>
                                         <span class="badge <?php 
                                             echo $payment['payment_method'] === 'credit_card' ? 'bg-primary' : 'bg-success'; 
@@ -475,7 +475,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <tfoot>
                             <tr class="table-success">
                                 <td><strong>Total Paid</strong></td>
-                                <td><strong><?php echo formatCurrency($total_amount_paid); ?></strong></td>
+                                <td><strong><?php echo formatCurrency($total_amount_paid, null, getCurrentCompanyId()); ?></strong></td>
                                 <td colspan="4"></td>
                             </tr>
                         </tfoot>

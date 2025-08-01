@@ -434,3 +434,99 @@ CREATE TABLE contract_payments (
     FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE,
     UNIQUE KEY unique_payment_code_per_company (company_id, payment_code)
 );
+
+-- Currency Table
+CREATE TABLE currencies (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    currency_code VARCHAR(3) NOT NULL UNIQUE,
+    currency_name VARCHAR(50) NOT NULL,
+    currency_symbol VARCHAR(5) NOT NULL,
+    exchange_rate_to_usd DECIMAL(10,4) DEFAULT 1.0000,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Date Format Table
+CREATE TABLE date_formats (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    format_code VARCHAR(20) NOT NULL UNIQUE,
+    format_name VARCHAR(50) NOT NULL,
+    format_pattern VARCHAR(20) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Company Settings Table
+CREATE TABLE company_settings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    default_currency_id INT NOT NULL,
+    default_date_format_id INT NOT NULL,
+    timezone VARCHAR(50) DEFAULT 'UTC',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    FOREIGN KEY (default_currency_id) REFERENCES currencies(id),
+    FOREIGN KEY (default_date_format_id) REFERENCES date_formats(id),
+    UNIQUE KEY unique_company_settings (company_id)
+);
+
+-- Modify existing tables to include currency_id
+ALTER TABLE employees ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE employees ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE contracts ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE contracts ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE parking_spaces ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE parking_spaces ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE rental_areas ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE rental_areas ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE expenses ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE expenses ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE salary_payments ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE salary_payments ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE contract_payments ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE contract_payments ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE parking_rentals ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE parking_rentals ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE area_rentals ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE area_rentals ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE user_payments ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE user_payments ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+ALTER TABLE company_payments ADD COLUMN currency_id INT DEFAULT 1;
+ALTER TABLE company_payments ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+
+-- Insert default currencies
+INSERT INTO currencies (currency_code, currency_name, currency_symbol, exchange_rate_to_usd) VALUES 
+('USD', 'US Dollar', '$', 1.0000),
+('AFN', 'Afghan Afghani', '؋', 0.0115),
+('EUR', 'Euro', '€', 1.0850),
+('GBP', 'British Pound', '£', 1.2650),
+('CAD', 'Canadian Dollar', 'C$', 0.7400),
+('AUD', 'Australian Dollar', 'A$', 0.6600);
+
+-- Insert date formats
+INSERT INTO date_formats (format_code, format_name, format_pattern) VALUES 
+('gregorian', 'Gregorian (YYYY-MM-DD)', 'Y-m-d'),
+('shamsi', 'Shamsi (YYYY/MM/DD)', 'Y/m/d'),
+('european', 'European (DD/MM/YYYY)', 'd/m/Y'),
+('american', 'American (MM/DD/YYYY)', 'm/d/Y'),
+('iso', 'ISO (YYYY-MM-DD)', 'Y-m-d');
+
+-- Insert default company settings for existing companies
+INSERT INTO company_settings (company_id, default_currency_id, default_date_format_id) VALUES 
+(1, 1, 1), -- ABC Construction: USD, Gregorian
+(2, 1, 1), -- XYZ Builders: USD, Gregorian
+(3, 1, 1), -- City Construction: USD, Gregorian
+(4, 1, 1); -- Metro Builders: USD, Gregorian

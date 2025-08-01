@@ -375,4 +375,155 @@ function setSystemSetting($key, $value, $type = 'string') {
     ");
     return $stmt->execute([$key, $value, $type]);
 }
+
+// Currency and Date Format Functions
+function getCompanyCurrency($company_id = null) {
+    global $conn;
+    if (!$company_id) {
+        $company_id = getCurrentCompanyId();
+    }
+    
+    $stmt = $conn->prepare("
+        SELECT c.* FROM currencies c
+        JOIN company_settings cs ON c.id = cs.default_currency_id
+        WHERE cs.company_id = ?
+    ");
+    $stmt->execute([$company_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['currency_code' => 'USD', 'currency_symbol' => '$', 'exchange_rate_to_usd' => 1.0000];
+}
+
+function getCompanyDateFormat($company_id = null) {
+    global $conn;
+    if (!$company_id) {
+        $company_id = getCurrentCompanyId();
+    }
+    
+    $stmt = $conn->prepare("
+        SELECT df.* FROM date_formats df
+        JOIN company_settings cs ON df.id = cs.default_date_format_id
+        WHERE cs.company_id = ?
+    ");
+    $stmt->execute([$company_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['format_code' => 'gregorian', 'format_pattern' => 'Y-m-d'];
+}
+
+function formatCurrency($amount, $currency_id = null, $company_id = null) {
+    if ($amount === null || $amount === '') {
+        return '';
+    }
+    
+    $currency = getCompanyCurrency($company_id);
+    $symbol = $currency['currency_symbol'];
+    $formatted = number_format($amount, 2);
+    
+    // Handle different currency symbol positions
+    if ($currency['currency_code'] === 'USD' || $currency['currency_code'] === 'CAD' || $currency['currency_code'] === 'AUD') {
+        return $symbol . $formatted;
+    } elseif ($currency['currency_code'] === 'EUR' || $currency['currency_code'] === 'GBP') {
+        return $formatted . ' ' . $symbol;
+    } else {
+        return $formatted . ' ' . $symbol;
+    }
+}
+
+function formatDate($date, $company_id = null) {
+    if (!$date) {
+        return '';
+    }
+    
+    $dateFormat = getCompanyDateFormat($company_id);
+    $pattern = $dateFormat['format_pattern'];
+    
+    // Convert to DateTime object
+    $dateObj = new DateTime($date);
+    
+    // Handle Shamsi date conversion
+    if ($dateFormat['format_code'] === 'shamsi') {
+        return convertToShamsi($dateObj);
+    }
+    
+    return $dateObj->format($pattern);
+}
+
+function convertToShamsi($dateObj) {
+    // Simple Shamsi conversion (for demonstration)
+    // In production, you might want to use a proper Persian calendar library
+    $year = (int)$dateObj->format('Y');
+    $month = (int)$dateObj->format('m');
+    $day = (int)$dateObj->format('d');
+    
+    // Basic conversion (this is simplified - for production use a proper library)
+    $shamsiYear = $year - 621;
+    $shamsiMonth = $month;
+    $shamsiDay = $day;
+    
+    return sprintf('%04d/%02d/%02d', $shamsiYear, $shamsiMonth, $shamsiDay);
+}
+
+function convertFromShamsi($shamsiDate) {
+    // Convert Shamsi date back to Gregorian
+    // This is simplified - for production use a proper Persian calendar library
+    $parts = explode('/', $shamsiDate);
+    if (count($parts) === 3) {
+        $shamsiYear = (int)$parts[0];
+        $shamsiMonth = (int)$parts[1];
+        $shamsiDay = (int)$parts[2];
+        
+        $gregorianYear = $shamsiYear + 621;
+        $gregorianMonth = $shamsiMonth;
+        $gregorianDay = $shamsiDay;
+        
+        return sprintf('%04d-%02d-%02d', $gregorianYear, $gregorianMonth, $gregorianDay);
+    }
+    
+    return $shamsiDate; // Return as is if conversion fails
+}
+
+function getAvailableCurrencies() {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM currencies WHERE is_active = 1 ORDER BY currency_code");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getAvailableDateFormats() {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM date_formats WHERE is_active = 1 ORDER BY format_name");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function updateCompanySettings($company_id, $currency_id, $date_format_id) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        INSERT INTO company_settings (company_id, default_currency_id, default_date_format_id) 
+        VALUES (?, ?, ?) 
+        ON DUPLICATE KEY UPDATE 
+        default_currency_id = VALUES(default_currency_id),
+        default_date_format_id = VALUES(default_date_format_id)
+    ");
+    
+    return $stmt->execute([$company_id, $currency_id, $date_format_id]);
+}
+
+function convertCurrency($amount, $from_currency_id, $to_currency_id) {
+    global $conn;
+    
+    if ($from_currency_id === $to_currency_id) {
+        return $amount;
+    }
+    
+    // Get exchange rates
+    $stmt = $conn->prepare("SELECT exchange_rate_to_usd FROM currencies WHERE id = ?");
+    $stmt->execute([$from_currency_id]);
+    $from_rate = $stmt->fetch(PDO::FETCH_ASSOC)['exchange_rate_to_usd'];
+    
+    $stmt->execute([$to_currency_id]);
+    $to_rate = $stmt->fetch(PDO::FETCH_ASSOC)['exchange_rate_to_usd'];
+    
+    // Convert to USD first, then to target currency
+    $usd_amount = $amount / $from_rate;
+    return $usd_amount * $to_rate;
+}
 ?>

@@ -286,3 +286,65 @@ UPDATE companies SET employee_count = (SELECT COUNT(*) FROM employees WHERE comp
 -- Update company subscription status for trial companies
 UPDATE companies SET subscription_status = 'trial' WHERE id = 3;
 UPDATE companies SET subscription_status = 'suspended' WHERE id = 4;
+
+-- Update company settings with different currencies and date formats
+UPDATE company_settings SET default_currency_id = 1, default_date_format_id = 1 WHERE company_id = 1; -- ABC Construction: USD, Gregorian
+UPDATE company_settings SET default_currency_id = 2, default_date_format_id = 2 WHERE company_id = 2; -- XYZ Builders: AFN, Shamsi
+UPDATE company_settings SET default_currency_id = 1, default_date_format_id = 3 WHERE company_id = 3; -- City Construction: USD, European
+UPDATE company_settings SET default_currency_id = 3, default_date_format_id = 1 WHERE company_id = 4; -- Metro Builders: EUR, Gregorian
+
+-- Update existing data with currency information
+UPDATE employees SET currency_id = 1 WHERE company_id = 1;
+UPDATE employees SET currency_id = 2 WHERE company_id = 2;
+UPDATE employees SET currency_id = 1 WHERE company_id = 3;
+UPDATE employees SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE contracts SET currency_id = 1 WHERE company_id = 1;
+UPDATE contracts SET currency_id = 2 WHERE company_id = 2;
+UPDATE contracts SET currency_id = 1 WHERE company_id = 3;
+UPDATE contracts SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE parking_spaces SET currency_id = 1 WHERE company_id = 1;
+UPDATE parking_spaces SET currency_id = 2 WHERE company_id = 2;
+UPDATE parking_spaces SET currency_id = 1 WHERE company_id = 3;
+UPDATE parking_spaces SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE rental_areas SET currency_id = 1 WHERE company_id = 1;
+UPDATE rental_areas SET currency_id = 2 WHERE company_id = 2;
+UPDATE rental_areas SET currency_id = 1 WHERE company_id = 3;
+UPDATE rental_areas SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE expenses SET currency_id = 1 WHERE company_id = 1;
+UPDATE expenses SET currency_id = 2 WHERE company_id = 2;
+UPDATE expenses SET currency_id = 1 WHERE company_id = 3;
+UPDATE expenses SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE salary_payments SET currency_id = 1 WHERE company_id = 1;
+UPDATE salary_payments SET currency_id = 2 WHERE company_id = 2;
+UPDATE salary_payments SET currency_id = 1 WHERE company_id = 3;
+UPDATE salary_payments SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE contract_payments SET currency_id = 1 WHERE company_id = 1;
+UPDATE contract_payments SET currency_id = 2 WHERE company_id = 2;
+UPDATE contract_payments SET currency_id = 1 WHERE company_id = 3;
+UPDATE contract_payments SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE parking_rentals SET currency_id = 1 WHERE company_id = 1;
+UPDATE parking_rentals SET currency_id = 2 WHERE company_id = 2;
+UPDATE parking_rentals SET currency_id = 1 WHERE company_id = 3;
+UPDATE parking_rentals SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE area_rentals SET currency_id = 1 WHERE company_id = 1;
+UPDATE area_rentals SET currency_id = 2 WHERE company_id = 2;
+UPDATE area_rentals SET currency_id = 1 WHERE company_id = 3;
+UPDATE area_rentals SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE user_payments SET currency_id = 1 WHERE company_id = 1;
+UPDATE user_payments SET currency_id = 2 WHERE company_id = 2;
+UPDATE user_payments SET currency_id = 1 WHERE company_id = 3;
+UPDATE user_payments SET currency_id = 3 WHERE company_id = 4;
+
+UPDATE company_payments SET currency_id = 1 WHERE company_id = 1;
+UPDATE company_payments SET currency_id = 2 WHERE company_id = 2;
+UPDATE company_payments SET currency_id = 1 WHERE company_id = 3;
+UPDATE company_payments SET currency_id = 3 WHERE company_id = 4;

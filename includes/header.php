@@ -224,6 +224,11 @@
                                     <i class="fas fa-user-cog"></i> Users
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="../settings.php">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
                             
                         <?php elseif (isEmployee()): ?>
                             <!-- Employee Menu -->
