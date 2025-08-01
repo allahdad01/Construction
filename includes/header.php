@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo getCompanyLanguage()['language_code'] ?? 'en'; ?>" dir="<?php echo getLanguageDirection(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -113,6 +113,45 @@
         .bg-secondary {
             background-color: #858796 !important;
         }
+        
+        /* RTL Support */
+        [dir="rtl"] .sidebar {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .main-content {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        [dir="rtl"] .nav-link {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .dropdown-menu {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .btn-group {
+            direction: rtl;
+        }
+        
+        [dir="rtl"] .table th,
+        [dir="rtl"] .table td {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .form-control {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .input-group-text {
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+        
+        [dir="rtl"] .input-group .form-control:not(:last-child) {
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
     </style>
 </head>
 <body>
@@ -140,7 +179,7 @@
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                                <i class="fas fa-tachometer-alt"></i> <?php echo __('dashboard'); ?>
                             </a>
                         </li>
                         
@@ -148,27 +187,27 @@
                             <!-- Super Admin Menu -->
                             <li class="nav-item">
                                 <a class="nav-link" href="../super-admin/">
-                                    <i class="fas fa-crown"></i> Super Admin
+                                    <i class="fas fa-crown"></i> <?php echo __('super_admin'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../super-admin/companies/">
-                                    <i class="fas fa-building"></i> Companies
+                                    <i class="fas fa-building"></i> <?php echo __('company_management'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../super-admin/subscription-plans/">
-                                    <i class="fas fa-list"></i> Subscription Plans
+                                    <i class="fas fa-list"></i> <?php echo __('subscription_plans'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../super-admin/payments/">
-                                    <i class="fas fa-money-bill"></i> Payments
+                                    <i class="fas fa-money-bill"></i> <?php echo __('payments'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../super-admin/settings/">
-                                    <i class="fas fa-cogs"></i> System Settings
+                                    <i class="fas fa-cogs"></i> <?php echo __('system_settings'); ?>
                                 </a>
                             </li>
                             
@@ -176,57 +215,57 @@
                             <!-- Company Admin Menu -->
                             <li class="nav-item">
                                 <a class="nav-link" href="../employees/">
-                                    <i class="fas fa-users"></i> Employees
+                                    <i class="fas fa-users"></i> <?php echo __('employees'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../machines/">
-                                    <i class="fas fa-truck"></i> Machines
+                                    <i class="fas fa-truck"></i> <?php echo __('machines'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../projects/">
-                                    <i class="fas fa-project-diagram"></i> Projects
+                                    <i class="fas fa-project-diagram"></i> <?php echo __('projects'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../contracts/">
-                                    <i class="fas fa-file-contract"></i> Contracts
+                                    <i class="fas fa-file-contract"></i> <?php echo __('contracts'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../parking/">
-                                    <i class="fas fa-parking"></i> Parking
+                                    <i class="fas fa-parking"></i> <?php echo __('parking'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../area-rentals/">
-                                    <i class="fas fa-map-marked-alt"></i> Area Rentals
+                                    <i class="fas fa-map-marked-alt"></i> <?php echo __('area_rentals'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../expenses/">
-                                    <i class="fas fa-dollar-sign"></i> Expenses
+                                    <i class="fas fa-dollar-sign"></i> <?php echo __('expenses'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../salary-payments/">
-                                    <i class="fas fa-money-bill-wave"></i> Salary Payments
+                                    <i class="fas fa-money-bill-wave"></i> <?php echo __('salary_payments'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../reports/">
-                                    <i class="fas fa-chart-bar"></i> Reports
+                                    <i class="fas fa-chart-bar"></i> <?php echo __('reports'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../users/">
-                                    <i class="fas fa-user-cog"></i> Users
+                                    <i class="fas fa-user-cog"></i> <?php echo __('users'); ?>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="../settings.php">
-                                    <i class="fas fa-cog"></i> Settings
+                                    <i class="fas fa-cog"></i> <?php echo __('settings'); ?>
                                 </a>
                             </li>
                             

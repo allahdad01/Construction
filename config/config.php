@@ -526,4 +526,139 @@ function convertCurrency($amount, $from_currency_id, $to_currency_id) {
     $usd_amount = $amount / $from_rate;
     return $usd_amount * $to_rate;
 }
+
+// Language Functions
+function getCompanyLanguage($company_id = null) {
+    global $conn;
+    if (!$company_id) {
+        $company_id = getCurrentCompanyId();
+    }
+    
+    $stmt = $conn->prepare("
+        SELECT l.* FROM languages l
+        JOIN company_settings cs ON l.id = cs.default_language_id
+        WHERE cs.company_id = ?
+    ");
+    $stmt->execute([$company_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['language_code' => 'en', 'direction' => 'ltr'];
+}
+
+function getTranslation($key, $company_id = null) {
+    global $conn;
+    if (!$company_id) {
+        $company_id = getCurrentCompanyId();
+    }
+    
+    $language = getCompanyLanguage($company_id);
+    $language_id = $language['id'] ?? 1;
+    
+    $stmt = $conn->prepare("
+        SELECT translation_value FROM language_translations 
+        WHERE language_id = ? AND translation_key = ?
+    ");
+    $stmt->execute([$language_id, $key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result ? $result['translation_value'] : $key;
+}
+
+function __($key, $company_id = null) {
+    return getTranslation($key, $company_id);
+}
+
+function getAvailableLanguages() {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM languages WHERE is_active = 1 ORDER BY language_name");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function updateCompanyLanguage($company_id, $language_id) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        UPDATE company_settings 
+        SET default_language_id = ? 
+        WHERE company_id = ?
+    ");
+    
+    return $stmt->execute([$language_id, $company_id]);
+}
+
+function getLanguageDirection($company_id = null) {
+    $language = getCompanyLanguage($company_id);
+    return $language['direction'] ?? 'ltr';
+}
+
+function isRTL($company_id = null) {
+    return getLanguageDirection($company_id) === 'rtl';
+}
+
+function getLanguageName($language_code) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT language_name, language_name_native FROM languages WHERE language_code = ?");
+    $stmt->execute([$language_code]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['language_name_native'] . ' (' . $result['language_name'] . ')' : $language_code;
+}
+
+function addLanguage($language_code, $language_name, $language_name_native, $direction = 'ltr') {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        INSERT INTO languages (language_code, language_name, language_name_native, direction) 
+        VALUES (?, ?, ?, ?)
+    ");
+    
+    return $stmt->execute([$language_code, $language_name, $language_name_native, $direction]);
+}
+
+function addTranslation($language_id, $translation_key, $translation_value) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        INSERT INTO language_translations (language_id, translation_key, translation_value) 
+        VALUES (?, ?, ?) 
+        ON DUPLICATE KEY UPDATE translation_value = VALUES(translation_value)
+    ");
+    
+    return $stmt->execute([$language_id, $translation_key, $translation_value]);
+}
+
+function getTranslationsForLanguage($language_id) {
+    global $conn;
+    $stmt = $conn->prepare("
+        SELECT translation_key, translation_value 
+        FROM language_translations 
+        WHERE language_id = ? 
+        ORDER BY translation_key
+    ");
+    $stmt->execute([$language_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getMissingTranslations($language_id) {
+    global $conn;
+    
+    // Get all translation keys from default language (English)
+    $stmt = $conn->prepare("
+        SELECT DISTINCT translation_key 
+        FROM language_translations 
+        WHERE language_id = 1
+    ");
+    $stmt->execute();
+    $all_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Get existing translations for the target language
+    $stmt = $conn->prepare("
+        SELECT translation_key 
+        FROM language_translations 
+        WHERE language_id = ?
+    ");
+    $stmt->execute([$language_id]);
+    $existing_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Return missing keys
+    return array_diff($all_keys, $existing_keys);
+}
 ?>

@@ -17,14 +17,17 @@ $success = '';
 $company_id = getCurrentCompanyId();
 $current_currency = getCompanyCurrency($company_id);
 $current_date_format = getCompanyDateFormat($company_id);
+$current_language = getCompanyLanguage($company_id);
 
 // Get available options
 $currencies = getAvailableCurrencies();
 $date_formats = getAvailableDateFormats();
+$languages = getAvailableLanguages();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency_id = (int)($_POST['currency_id'] ?? 0);
     $date_format_id = (int)($_POST['date_format_id'] ?? 0);
+    $language_id = (int)($_POST['language_id'] ?? 0);
     $timezone = trim($_POST['timezone'] ?? 'UTC');
     
     // Validation
@@ -32,10 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please select a valid currency.';
     } elseif ($date_format_id <= 0) {
         $error = 'Please select a valid date format.';
+    } elseif ($language_id <= 0) {
+        $error = 'Please select a valid language.';
     } else {
         try {
             // Update company settings
             if (updateCompanySettings($company_id, $currency_id, $date_format_id)) {
+                // Update language separately
+                updateCompanyLanguage($company_id, $language_id);
+                
                 $success = 'Company settings updated successfully!';
                 
                 // Refresh current settings
@@ -127,6 +135,29 @@ $company = getCurrentCompany();
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label for="language_id" class="form-label">
+                                        <i class="fas fa-language"></i> Language *
+                                    </label>
+                                    <select class="form-control" id="language_id" name="language_id" required>
+                                        <option value="">Select Language</option>
+                                        <?php foreach ($languages as $language): ?>
+                                            <option value="<?php echo $language['id']; ?>" 
+                                                    <?php echo $current_language['id'] == $language['id'] ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($language['language_name_native']); ?> 
+                                                (<?php echo htmlspecialchars($language['language_name']); ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="text-muted">
+                                        This language will be used for all text throughout the system.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
                                     <label for="timezone" class="form-label">
                                         <i class="fas fa-clock"></i> Timezone
                                     </label>
@@ -154,6 +185,8 @@ $company = getCurrentCompany();
                                         <strong>Currency:</strong> <?php echo htmlspecialchars($current_currency['currency_name']); ?> 
                                         (<?php echo htmlspecialchars($current_currency['currency_symbol']); ?>)<br>
                                         <strong>Date Format:</strong> <?php echo htmlspecialchars($current_date_format['format_name']); ?><br>
+                                        <strong>Language:</strong> <?php echo htmlspecialchars($current_language['language_name_native']); ?> 
+                                        (<?php echo htmlspecialchars($current_language['language_name']); ?>)<br>
                                         <strong>Example:</strong> <?php echo formatDate(date('Y-m-d')); ?>
                                     </div>
                                 </div>
@@ -195,6 +228,16 @@ $company = getCurrentCompany();
                         <li><i class="fas fa-calendar text-info"></i> <strong>Shamsi:</strong> 1402/10/04</li>
                         <li><i class="fas fa-calendar text-info"></i> <strong>European:</strong> 25/12/2023</li>
                         <li><i class="fas fa-calendar text-info"></i> <strong>American:</strong> 12/25/2023</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h6>Language Settings</h6>
+                    <p>Available languages:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-language text-info"></i> <strong>English:</strong> Default language</li>
+                        <li><i class="fas fa-language text-info"></i> <strong>Dari:</strong> دری (Afghan Persian)</li>
+                        <li><i class="fas fa-language text-info"></i> <strong>Pashto:</strong> پښتو (Afghan Pashto)</li>
                     </ul>
                     
                     <hr>
@@ -288,6 +331,47 @@ $company = getCurrentCompany();
                                     } else {
                                         echo $dateObj->format($format['format_pattern']);
                                     }
+                                    ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Preview -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Language Preview</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <?php foreach ($languages as $language): ?>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-left-info">
+                            <div class="card-body">
+                                <h6><?php echo htmlspecialchars($language['language_name_native']); ?> 
+                                    (<?php echo htmlspecialchars($language['language_name']); ?>)</h6>
+                                <p class="mb-1">
+                                    <strong>Code:</strong> <?php echo htmlspecialchars($language['language_code']); ?>
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Direction:</strong> <?php echo strtoupper($language['direction']); ?>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Example:</strong> 
+                                    <?php 
+                                    // Show some sample translations
+                                    $sample_key = 'dashboard';
+                                    $stmt = $conn->prepare("
+                                        SELECT translation_value FROM language_translations 
+                                        WHERE language_id = ? AND translation_key = ?
+                                    ");
+                                    $stmt->execute([$language['id'], $sample_key]);
+                                    $translation = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    echo $translation ? htmlspecialchars($translation['translation_value']) : $sample_key;
                                     ?>
                                 </p>
                             </div>
