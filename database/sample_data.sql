@@ -262,6 +262,24 @@ INSERT INTO user_payments (company_id, user_id, payment_code, payment_type, rent
 (2, 10, 'UP011', 'area_rental', 2, 6000.00, '2023-07-01', 'bank_transfer', 'paid', 'July area rental payment'),
 (2, 10, 'UP012', 'area_rental', 2, 6000.00, '2023-08-01', 'bank_transfer', 'pending', 'August area rental payment');
 
+-- Insert sample contract payments
+INSERT INTO contract_payments (company_id, contract_id, payment_code, payment_date, amount, payment_method, reference_number, status, notes) VALUES 
+-- ABC Construction Contract Payments
+(1, 1, 'PAY000001', '2023-06-15', 12000.00, 'bank_transfer', 'TXN-2023-001', 'completed', 'June payment for hourly contract'),
+(1, 1, 'PAY000002', '2023-07-15', 15000.00, 'credit_card', 'TXN-2023-002', 'completed', 'July payment for hourly contract'),
+(1, 2, 'PAY000003', '2023-06-20', 20000.00, 'bank_transfer', 'TXN-2023-003', 'completed', 'June payment for daily contract'),
+(1, 2, 'PAY000004', '2023-07-20', 18000.00, 'bank_transfer', 'TXN-2023-004', 'completed', 'July payment for daily contract'),
+(1, 3, 'PAY000005', '2023-06-30', 15000.00, 'credit_card', 'TXN-2023-005', 'completed', 'June payment for monthly contract'),
+
+-- XYZ Builders Contract Payments
+(2, 4, 'PAY000006', '2023-06-15', 8000.00, 'bank_transfer', 'TXN-2023-006', 'completed', 'June payment for hourly contract'),
+(2, 4, 'PAY000007', '2023-07-15', 10000.00, 'credit_card', 'TXN-2023-007', 'completed', 'July payment for hourly contract'),
+(2, 5, 'PAY000008', '2023-06-25', 15000.00, 'bank_transfer', 'TXN-2023-008', 'completed', 'June payment for daily contract'),
+
+-- City Construction Contract Payments
+(3, 6, 'PAY000009', '2023-06-15', 5000.00, 'bank_transfer', 'TXN-2023-009', 'completed', 'June payment for hourly contract'),
+(3, 6, 'PAY000010', '2023-07-15', 6000.00, 'credit_card', 'TXN-2023-010', 'pending', 'July payment for hourly contract');
+
 -- Update company employee counts
 UPDATE companies SET employee_count = (SELECT COUNT(*) FROM employees WHERE company_id = companies.id);
 

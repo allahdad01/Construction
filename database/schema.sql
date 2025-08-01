@@ -415,3 +415,22 @@ INSERT INTO system_settings (setting_key, setting_value, setting_type, descripti
 -- Insert super admin user
 INSERT INTO users (username, email, password_hash, first_name, last_name, role) VALUES 
 ('superadmin', 'admin@construction-saas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Super', 'Admin', 'super_admin');
+
+-- Contract Payments Table
+CREATE TABLE contract_payments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    contract_id INT NOT NULL,
+    payment_code VARCHAR(20) NOT NULL,
+    payment_date DATE NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('bank_transfer', 'credit_card', 'cash', 'check', 'paypal') NOT NULL,
+    reference_number VARCHAR(100),
+    status ENUM('completed', 'pending', 'failed') DEFAULT 'completed',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_payment_code_per_company (company_id, payment_code)
+);

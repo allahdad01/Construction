@@ -373,8 +373,8 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="working-hours.php?contract_id=<?php echo $contract['id']; ?>" 
-                                               class="btn btn-sm btn-success" title="Working Hours">
+                                            <a href="timesheet.php?contract_id=<?php echo $contract['id']; ?>" 
+                                               class="btn btn-sm btn-success" title="Timesheet">
                                                 <i class="fas fa-clock"></i>
                                             </a>
                                             <?php if ($contract['status'] === 'active'): ?>
