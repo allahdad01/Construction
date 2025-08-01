@@ -3,8 +3,9 @@ require_once '../../config/config.php';
 require_once '../../config/database.php';
 require_once '../../includes/header.php';
 
-// Check if user is authenticated
+// Check if user is authenticated and has appropriate role
 requireAuth();
+requireAnyRole(['super_admin', 'company_admin']);
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -20,8 +21,8 @@ $type_filter = $_GET['type'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
 // Build query
-$where_conditions = [];
-$params = [];
+$where_conditions = ['company_id = ?'];
+$params = [getCurrentCompanyId()];
 
 if (!empty($search)) {
     $where_conditions[] = "(name LIKE ? OR machine_code LIKE ? OR model LIKE ?)";
@@ -40,7 +41,7 @@ if (!empty($status_filter)) {
     $params[] = $status_filter;
 }
 
-$where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+$where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
 
 // Get total count
 $count_sql = "SELECT COUNT(*) as total FROM machines $where_clause";
@@ -57,14 +58,112 @@ $params[] = $offset;
 $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get statistics
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ?");
+$stmt->execute([getCurrentCompanyId()]);
+$total_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'available'");
+$stmt->execute([getCurrentCompanyId()]);
+$available_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'in_use'");
+$stmt->execute([getCurrentCompanyId()]);
+$in_use_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'maintenance'");
+$stmt->execute([getCurrentCompanyId()]);
+$maintenance_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+// Get total value
+$stmt = $conn->prepare("SELECT SUM(current_value) as total FROM machines WHERE company_id = ? AND status != 'retired'");
+$stmt->execute([getCurrentCompanyId()]);
+$total_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+// Get machine types for filter
+$stmt = $conn->prepare("SELECT DISTINCT type FROM machines WHERE company_id = ? ORDER BY type");
+$stmt->execute([getCurrentCompanyId()]);
+$machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Machines</h1>
+        <h1 class="h3 mb-0 text-gray-800">Machine Management</h1>
         <a href="add.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Add Machine
         </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Machines</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_machines; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Available</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $available_machines; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                In Use</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $in_use_machines; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-cogs fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Value</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_value); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Search and Filter -->
@@ -82,13 +181,12 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="col-md-2">
                     <select class="form-control" name="type">
                         <option value="">All Types</option>
-                        <option value="excavator" <?php echo $type_filter === 'excavator' ? 'selected' : ''; ?>>Excavator</option>
-                        <option value="bulldozer" <?php echo $type_filter === 'bulldozer' ? 'selected' : ''; ?>>Bulldozer</option>
-                        <option value="crane" <?php echo $type_filter === 'crane' ? 'selected' : ''; ?>>Crane</option>
-                        <option value="loader" <?php echo $type_filter === 'loader' ? 'selected' : ''; ?>>Loader</option>
-                        <option value="truck" <?php echo $type_filter === 'truck' ? 'selected' : ''; ?>>Truck</option>
-                        <option value="compactor" <?php echo $type_filter === 'compactor' ? 'selected' : ''; ?>>Compactor</option>
-                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>>Other</option>
+                        <?php foreach ($machine_types as $type): ?>
+                            <option value="<?php echo htmlspecialchars($type); ?>" 
+                                    <?php echo $type_filter === $type ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($type); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -117,7 +215,7 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Machines Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Machine List</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Machine Inventory</h6>
         </div>
         <div class="card-body">
             <?php if (empty($machines)): ?>
@@ -133,13 +231,12 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Code</th>
-                                <th>Name</th>
+                                <th>Machine Code</th>
+                                <th>Name & Model</th>
                                 <th>Type</th>
-                                <th>Model</th>
+                                <th>Specifications</th>
+                                <th>Value</th>
                                 <th>Status</th>
-                                <th>Purchase Cost</th>
-                                <th>Current Value</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -152,28 +249,50 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td>
                                         <div>
                                             <strong><?php echo htmlspecialchars($machine['name']); ?></strong>
-                                            <?php if (!empty($machine['year_manufactured'])): ?>
-                                                <br><small class="text-muted">Year: <?php echo htmlspecialchars($machine['year_manufactured']); ?></small>
-                                            <?php endif; ?>
+                                            <br><small class="text-muted">
+                                                <?php echo htmlspecialchars($machine['model']); ?>
+                                                <?php if ($machine['year_manufactured']): ?>
+                                                    (<?php echo $machine['year_manufactured']; ?>)
+                                                <?php endif; ?>
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
                                         <span class="badge bg-info">
-                                            <?php echo ucfirst(htmlspecialchars($machine['type'])); ?>
+                                            <?php echo htmlspecialchars($machine['type']); ?>
                                         </span>
                                     </td>
-                                    <td><?php echo htmlspecialchars($machine['model'] ?? 'N/A'); ?></td>
+                                    <td>
+                                        <div>
+                                            <?php if ($machine['capacity']): ?>
+                                                <strong>Capacity:</strong> <?php echo htmlspecialchars($machine['capacity']); ?><br>
+                                            <?php endif; ?>
+                                            <?php if ($machine['fuel_type']): ?>
+                                                <small class="text-muted">
+                                                    Fuel: <?php echo ucfirst($machine['fuel_type']); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong><?php echo formatCurrency($machine['current_value']); ?></strong>
+                                            <?php if ($machine['purchase_cost']): ?>
+                                                <br><small class="text-muted">
+                                                    Purchase: <?php echo formatCurrency($machine['purchase_cost']); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
                                     <td>
                                         <span class="badge <?php 
                                             echo $machine['status'] === 'available' ? 'bg-success' : 
-                                                ($machine['status'] === 'in_use' ? 'bg-primary' : 
-                                                ($machine['status'] === 'maintenance' ? 'bg-warning' : 'bg-danger')); 
+                                                ($machine['status'] === 'in_use' ? 'bg-info' : 
+                                                ($machine['status'] === 'maintenance' ? 'bg-warning' : 'bg-secondary')); 
                                         ?>">
                                             <?php echo ucfirst(str_replace('_', ' ', $machine['status'])); ?>
                                         </span>
                                     </td>
-                                    <td><?php echo !empty($machine['purchase_cost']) ? formatCurrency($machine['purchase_cost']) : 'N/A'; ?></td>
-                                    <td><?php echo !empty($machine['current_value']) ? formatCurrency($machine['current_value']) : 'N/A'; ?></td>
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="view.php?id=<?php echo $machine['id']; ?>" 
@@ -184,11 +303,25 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <a href="contracts.php?machine_id=<?php echo $machine['id']; ?>" 
+                                               class="btn btn-sm btn-success" title="Contracts">
+                                                <i class="fas fa-file-contract"></i>
+                                            </a>
+                                            <a href="maintenance.php?machine_id=<?php echo $machine['id']; ?>" 
+                                               class="btn btn-sm btn-primary" title="Maintenance">
+                                                <i class="fas fa-tools"></i>
+                                            </a>
                                             <?php if ($machine['status'] !== 'retired'): ?>
                                                 <a href="retire.php?id=<?php echo $machine['id']; ?>" 
                                                    class="btn btn-sm btn-danger" title="Retire"
                                                    onclick="return confirmDelete('Are you sure you want to retire this machine?')">
                                                     <i class="fas fa-times"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="reactivate.php?id=<?php echo $machine['id']; ?>" 
+                                                   class="btn btn-sm btn-success" title="Reactivate"
+                                                   onclick="return confirmDelete('Are you sure you want to reactivate this machine?')">
+                                                    <i class="fas fa-check"></i>
                                                 </a>
                                             <?php endif; ?>
                                         </div>
@@ -233,95 +366,71 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Statistics -->
+    <!-- Quick Actions and Statistics -->
     <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Machines</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_records; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-truck fa-2x text-gray-300"></i>
-                        </div>
+                    <div class="list-group">
+                        <a href="add.php" class="list-group-item list-group-item-action">
+                            <i class="fas fa-plus"></i> Add New Machine
+                        </a>
+                        <a href="contracts/" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-contract"></i> Manage Contracts
+                        </a>
+                        <a href="maintenance/" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tools"></i> Maintenance Schedule
+                        </a>
+                        <a href="reports/" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-bar"></i> Machine Reports
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-
-        <?php
-        // Get statistics
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM machines WHERE status = 'available'");
-        $stmt->execute();
-        $available_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM machines WHERE status = 'in_use'");
-        $stmt->execute();
-        $in_use_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM machines WHERE status = 'maintenance'");
-        $stmt->execute();
-        $maintenance_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $stmt = $conn->prepare("SELECT SUM(current_value) as total_value FROM machines WHERE status != 'retired'");
-        $stmt->execute();
-        $total_value = $stmt->fetch(PDO::FETCH_ASSOC)['total_value'] ?? 0;
-        ?>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+        
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Machine Statistics</h6>
+                </div>
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Available</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $available_count; ?></div>
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>Status Breakdown</h6>
+                            <p><strong>Available:</strong> <?php echo $available_machines; ?></p>
+                            <p><strong>In Use:</strong> <?php echo $in_use_machines; ?></p>
+                            <p><strong>Maintenance:</strong> <?php echo $maintenance_machines; ?></p>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        <div class="col-6">
+                            <h6>Value Overview</h6>
+                            <p><strong>Total Value:</strong> <?php echo formatCurrency($total_value); ?></p>
+                            <p><strong>Average Value:</strong> 
+                                <?php echo $total_machines > 0 ? formatCurrency($total_value / $total_machines) : '$0.00'; ?>
+                            </p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                In Use</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $in_use_count; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-cog fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Value</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_value); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
+                    <hr>
+                    <div class="text-center">
+                        <h6>Utilization Rate</h6>
+                        <h4 class="text-info">
+                            <?php echo $total_machines > 0 ? round(($in_use_machines / $total_machines) * 100, 1) : 0; ?>%
+                        </h4>
+                        <small class="text-muted">Machines currently in use</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function confirmDelete(message) {
+    return confirm(message);
+}
+</script>
 
 <?php require_once '../../includes/footer.php'; ?>

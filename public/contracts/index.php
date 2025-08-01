@@ -3,8 +3,9 @@ require_once '../../config/config.php';
 require_once '../../config/database.php';
 require_once '../../includes/header.php';
 
-// Check if user is authenticated
+// Check if user is authenticated and has appropriate role
 requireAuth();
+requireAnyRole(['super_admin', 'company_admin']);
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -16,12 +17,12 @@ $offset = ($page - 1) * $limit;
 
 // Search functionality
 $search = $_GET['search'] ?? '';
-$type_filter = $_GET['contract_type'] ?? '';
+$type_filter = $_GET['type'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
 // Build query
-$where_conditions = [];
-$params = [];
+$where_conditions = ['c.company_id = ?'];
+$params = [getCurrentCompanyId()];
 
 if (!empty($search)) {
     $where_conditions[] = "(c.contract_code LIKE ? OR p.name LIKE ? OR m.name LIKE ?)";
@@ -40,24 +41,24 @@ if (!empty($status_filter)) {
     $params[] = $status_filter;
 }
 
-$where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+$where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
 
 // Get total count
-$count_sql = "SELECT COUNT(*) as total FROM contracts c 
-              LEFT JOIN projects p ON c.project_id = p.id 
-              LEFT JOIN machines m ON c.machine_id = m.id 
-              $where_clause";
+$count_sql = "SELECT COUNT(*) as total FROM contracts c $where_clause";
 $stmt = $conn->prepare($count_sql);
 $stmt->execute($params);
 $total_records = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $limit);
 
 // Get contracts with related data
-$sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code 
-        FROM contracts c 
-        LEFT JOIN projects p ON c.project_id = p.id 
-        LEFT JOIN machines m ON c.machine_id = m.id 
-        $where_clause 
+$sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code,
+               COALESCE(SUM(wh.hours_worked), 0) as total_hours_worked
+        FROM contracts c
+        LEFT JOIN projects p ON c.project_id = p.id
+        LEFT JOIN machines m ON c.machine_id = m.id
+        LEFT JOIN working_hours wh ON c.id = wh.contract_id
+        $where_clause
+        GROUP BY c.id
         ORDER BY c.created_at DESC 
         LIMIT ? OFFSET ?";
 $params[] = $limit;
@@ -67,35 +68,165 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate working hours for each contract
+// Calculate progress for each contract
 foreach ($contracts as &$contract) {
-    // Get total hours worked for this contract
-    $stmt = $conn->prepare("SELECT SUM(hours_worked) as total_hours FROM working_hours WHERE contract_id = ?");
-    $stmt->execute([$contract['id']]);
-    $contract['total_hours_worked'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_hours'] ?? 0;
-    
-    // Calculate completion percentage
     if ($contract['contract_type'] === 'hourly') {
-        $contract['completion_percentage'] = $contract['total_hours_required'] > 0 ? 
+        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
             min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
     } elseif ($contract['contract_type'] === 'daily') {
-        $total_days_worked = ceil($contract['total_hours_worked'] / $contract['working_hours_per_day']);
-        $contract['completion_percentage'] = $contract['total_days_required'] > 0 ? 
+        $total_days_worked = $contract['total_hours_worked'] / $contract['working_hours_per_day'];
+        $contract['progress_percentage'] = $contract['total_days_required'] > 0 ? 
             min(100, ($total_days_worked / $contract['total_days_required']) * 100) : 0;
     } elseif ($contract['contract_type'] === 'monthly') {
-        $total_days_worked = ceil($contract['total_hours_worked'] / $contract['working_hours_per_day']);
-        $contract['completion_percentage'] = $contract['total_days_required'] > 0 ? 
-            min(100, ($total_days_worked / $contract['total_days_required']) * 100) : 0;
+        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
+            min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
     }
 }
+
+// Get statistics
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ?");
+$stmt->execute([getCurrentCompanyId()]);
+$total_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ? AND status = 'active'");
+$stmt->execute([getCurrentCompanyId()]);
+$active_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ? AND status = 'completed'");
+$stmt->execute([getCurrentCompanyId()]);
+$completed_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$stmt = $conn->prepare("SELECT SUM(total_amount) as total FROM contracts WHERE company_id = ? AND status = 'active'");
+$stmt->execute([getCurrentCompanyId()]);
+$total_contract_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+// Get contract type breakdown
+$stmt = $conn->prepare("
+    SELECT contract_type, COUNT(*) as count 
+    FROM contracts 
+    WHERE company_id = ? 
+    GROUP BY contract_type
+");
+$stmt->execute([getCurrentCompanyId()]);
+$contract_types = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get monthly revenue data for chart
+$stmt = $conn->prepare("
+    SELECT DATE_FORMAT(created_at, '%Y-%m') as month, 
+           SUM(total_amount) as revenue,
+           COUNT(*) as contract_count
+    FROM contracts 
+    WHERE company_id = ? 
+    AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
+    GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+    ORDER BY month
+");
+$stmt->execute([getCurrentCompanyId()]);
+$monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Contracts</h1>
+        <h1 class="h3 mb-0 text-gray-800">Contract Management</h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> New Contract
+            <i class="fas fa-plus"></i> Add Contract
         </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Contracts</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_contracts; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-contract fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active Contracts</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_contracts; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-play-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Completed</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $completed_contracts; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Value</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_contract_value); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Contract Revenue</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" width="100%" height="40"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Contract Types</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="contractTypeChart" width="100%" height="40"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Search and Filter -->
@@ -107,11 +238,11 @@ foreach ($contracts as &$contract) {
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by contract code, project, or machine" 
+                           placeholder="Search by code, project, or machine" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
-                    <select class="form-control" name="contract_type">
+                    <select class="form-control" name="type">
                         <option value="">All Types</option>
                         <option value="hourly" <?php echo $type_filter === 'hourly' ? 'selected' : ''; ?>>Hourly</option>
                         <option value="daily" <?php echo $type_filter === 'daily' ? 'selected' : ''; ?>>Daily</option>
@@ -151,7 +282,7 @@ foreach ($contracts as &$contract) {
                     <i class="fas fa-file-contract fa-3x text-gray-300 mb-3"></i>
                     <p class="text-gray-500">No contracts found.</p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create First Contract
+                        <i class="fas fa-plus"></i> Add First Contract
                     </a>
                 </div>
             <?php else: ?>
@@ -160,12 +291,10 @@ foreach ($contracts as &$contract) {
                         <thead>
                             <tr>
                                 <th>Contract Code</th>
-                                <th>Project</th>
-                                <th>Machine</th>
-                                <th>Type</th>
-                                <th>Rate</th>
-                                <th>Working Hours</th>
+                                <th>Project & Machine</th>
+                                <th>Type & Rate</th>
                                 <th>Progress</th>
+                                <th>Value</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -177,47 +306,53 @@ foreach ($contracts as &$contract) {
                                         <strong><?php echo htmlspecialchars($contract['contract_code']); ?></strong>
                                     </td>
                                     <td>
-                                        <?php echo htmlspecialchars($contract['project_name'] ?? 'N/A'); ?>
-                                    </td>
-                                    <td>
                                         <div>
-                                            <strong><?php echo htmlspecialchars($contract['machine_name'] ?? 'N/A'); ?></strong>
-                                            <?php if (!empty($contract['machine_code'])): ?>
-                                                <br><small class="text-muted"><?php echo htmlspecialchars($contract['machine_code']); ?></small>
-                                            <?php endif; ?>
+                                            <strong><?php echo htmlspecialchars($contract['project_name'] ?? 'N/A'); ?></strong>
+                                            <br><small class="text-muted">
+                                                <?php echo htmlspecialchars($contract['machine_name'] ?? 'N/A'); ?>
+                                                (<?php echo htmlspecialchars($contract['machine_code'] ?? 'N/A'); ?>)
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge <?php 
-                                            echo $contract['contract_type'] === 'hourly' ? 'bg-primary' : 
-                                                ($contract['contract_type'] === 'daily' ? 'bg-success' : 'bg-info'); 
-                                        ?>">
-                                            <?php echo ucfirst($contract['contract_type']); ?>
-                                        </span>
-                                    </td>
-                                    <td><?php echo formatCurrency($contract['rate_amount']); ?></td>
-                                    <td>
                                         <div>
-                                            <strong><?php echo number_format($contract['total_hours_worked'], 1); ?> hrs</strong>
-                                            <?php if ($contract['contract_type'] === 'hourly'): ?>
-                                                <br><small class="text-muted">of <?php echo $contract['total_hours_required']; ?> hrs</small>
-                                            <?php elseif ($contract['contract_type'] === 'daily'): ?>
-                                                <br><small class="text-muted"><?php echo ceil($contract['total_hours_worked'] / $contract['working_hours_per_day']); ?> days of <?php echo $contract['total_days_required']; ?></small>
-                                            <?php elseif ($contract['contract_type'] === 'monthly'): ?>
-                                                <br><small class="text-muted"><?php echo ceil($contract['total_hours_worked'] / $contract['working_hours_per_day']); ?> days of <?php echo $contract['total_days_required']; ?></small>
-                                            <?php endif; ?>
+                                            <span class="badge <?php 
+                                                echo $contract['contract_type'] === 'hourly' ? 'bg-primary' : 
+                                                    ($contract['contract_type'] === 'daily' ? 'bg-success' : 'bg-info'); 
+                                            ?>">
+                                                <?php echo ucfirst($contract['contract_type']); ?>
+                                            </span>
+                                            <br><small class="text-muted">
+                                                <?php echo formatCurrency($contract['rate_amount']); ?> 
+                                                <?php echo $contract['contract_type'] === 'hourly' ? '/hr' : 
+                                                    ($contract['contract_type'] === 'daily' ? '/day' : '/month'); ?>
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar <?php 
-                                                echo $contract['completion_percentage'] >= 100 ? 'bg-success' : 
-                                                    ($contract['completion_percentage'] >= 75 ? 'bg-info' : 
-                                                    ($contract['completion_percentage'] >= 50 ? 'bg-warning' : 'bg-danger')); 
-                                            ?>" 
-                                                 style="width: <?php echo $contract['completion_percentage']; ?>%">
-                                                <?php echo number_format($contract['completion_percentage'], 1); ?>%
+                                        <div class="mb-2">
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar <?php 
+                                                    echo $contract['progress_percentage'] >= 100 ? 'bg-success' : 
+                                                        ($contract['progress_percentage'] >= 75 ? 'bg-info' : 
+                                                        ($contract['progress_percentage'] >= 50 ? 'bg-warning' : 'bg-danger')); 
+                                                ?>" 
+                                                style="width: <?php echo $contract['progress_percentage']; ?>%">
+                                                    <?php echo round($contract['progress_percentage'], 1); ?>%
+                                                </div>
                                             </div>
+                                            <small class="text-muted">
+                                                <?php echo $contract['total_hours_worked']; ?> / 
+                                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong><?php echo formatCurrency($contract['total_amount']); ?></strong>
+                                            <br><small class="text-muted">
+                                                Paid: <?php echo formatCurrency($contract['amount_paid']); ?>
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
@@ -263,7 +398,7 @@ foreach ($contracts as &$contract) {
                         <ul class="pagination justify-content-center">
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&contract_type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                         Previous
                                     </a>
                                 </li>
@@ -271,7 +406,7 @@ foreach ($contracts as &$contract) {
                             
                             <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
                                 <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&contract_type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                         <?php echo $i; ?>
                                     </a>
                                 </li>
@@ -279,7 +414,7 @@ foreach ($contracts as &$contract) {
                             
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&contract_type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                         Next
                                     </a>
                                 </li>
@@ -290,96 +425,79 @@ foreach ($contracts as &$contract) {
             <?php endif; ?>
         </div>
     </div>
-
-    <!-- Statistics -->
-    <div class="row">
-        <?php
-        // Get statistics
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM contracts WHERE status = 'active'");
-        $stmt->execute();
-        $active_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM contracts WHERE status = 'completed'");
-        $stmt->execute();
-        $completed_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $stmt = $conn->prepare("SELECT SUM(total_amount) as total_revenue FROM contracts WHERE status = 'active'");
-        $stmt->execute();
-        $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total_revenue'] ?? 0;
-
-        $stmt = $conn->prepare("SELECT SUM(amount_paid) as total_paid FROM contracts");
-        $stmt->execute();
-        $total_paid = $stmt->fetch(PDO::FETCH_ASSOC)['total_paid'] ?? 0;
-        ?>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Contracts</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_records; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-contract fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Contracts</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_count; ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-play-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Total Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_revenue); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Amount Paid</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_paid); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: <?php echo json_encode(array_column($monthly_data, 'month')); ?>,
+        datasets: [{
+            label: 'Revenue',
+            data: <?php echo json_encode(array_column($monthly_data, 'revenue')); ?>,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Revenue: $' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Contract Type Chart
+const typeCtx = document.getElementById('contractTypeChart').getContext('2d');
+const typeChart = new Chart(typeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: <?php echo json_encode(array_column($contract_types, 'contract_type')); ?>,
+        datasets: [{
+            data: <?php echo json_encode(array_column($contract_types, 'count')); ?>,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 205, 86, 0.8)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function confirmDelete(message) {
+    return confirm(message);
+}
+</script>
 
 <?php require_once '../../includes/footer.php'; ?>

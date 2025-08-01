@@ -1,163 +1,162 @@
 <?php
-/**
- * Construction Company SaaS Platform Setup Script
- * Run this script to check system requirements and set up the application
- */
+require_once 'config/config.php';
 
-echo "==========================================\n";
-echo "Construction Company SaaS Platform Setup\n";
-echo "==========================================\n\n";
-
-// Check PHP version
-echo "Checking PHP version...\n";
-if (version_compare(PHP_VERSION, '7.4.0', '>=')) {
-    echo "✓ PHP version " . PHP_VERSION . " is supported\n";
-} else {
-    echo "✗ PHP version " . PHP_VERSION . " is not supported. Please upgrade to PHP 7.4 or higher.\n";
-    exit(1);
+// Check if already set up
+if (file_exists('config/database.php')) {
+    echo "System appears to be already set up. If you need to reset, please delete config/database.php and try again.\n";
+    exit();
 }
 
-// Check required PHP extensions
-echo "\nChecking PHP extensions...\n";
-$required_extensions = ['pdo', 'pdo_mysql', 'json', 'mbstring'];
-$missing_extensions = [];
+echo "=== Construction Company Multi-Tenant SaaS Platform Setup ===\n\n";
 
-foreach ($required_extensions as $ext) {
-    if (extension_loaded($ext)) {
-        echo "✓ $ext extension is loaded\n";
-    } else {
-        echo "✗ $ext extension is missing\n";
-        $missing_extensions[] = $ext;
-    }
+// Database configuration
+echo "Please provide your database configuration:\n";
+echo "Database Host (default: localhost): ";
+$host = trim(fgets(STDIN)) ?: 'localhost';
+
+echo "Database Name: ";
+$database = trim(fgets(STDIN));
+if (empty($database)) {
+    echo "Database name is required!\n";
+    exit();
 }
 
-if (!empty($missing_extensions)) {
-    echo "\nPlease install the missing extensions:\n";
-    foreach ($missing_extensions as $ext) {
-        echo "- $ext\n";
-    }
-    exit(1);
+echo "Database Username: ";
+$username = trim(fgets(STDIN));
+if (empty($username)) {
+    echo "Database username is required!\n";
+    exit();
 }
 
-// Check if config files exist
-echo "\nChecking configuration files...\n";
-$config_files = [
-    'config/config.php' => 'Main configuration file',
-    'config/database.php' => 'Database configuration file',
-    'database/schema.sql' => 'Database schema file'
-];
+echo "Database Password: ";
+$password = trim(fgets(STDIN));
 
-foreach ($config_files as $file => $description) {
-    if (file_exists($file)) {
-        echo "✓ $description exists\n";
-    } else {
-        echo "✗ $description is missing\n";
-    }
-}
-
-// Check if directories exist
-echo "\nChecking directory structure...\n";
-$directories = [
-    'public' => 'Public web directory',
-    'includes' => 'Include files directory',
-    'config' => 'Configuration directory',
-    'database' => 'Database files directory'
-];
-
-foreach ($directories as $dir => $description) {
-    if (is_dir($dir)) {
-        echo "✓ $description exists\n";
-    } else {
-        echo "✗ $description is missing\n";
-    }
-}
+echo "Database Port (default: 3306): ";
+$port = trim(fgets(STDIN)) ?: '3306';
 
 // Test database connection
-echo "\nTesting database connection...\n";
 try {
-    require_once 'config/database.php';
-    $db = new Database();
-    $conn = $db->getConnection();
-    
-    if ($conn) {
-        echo "✓ Database connection successful\n";
-        
-        // Check if tables exist
-        $stmt = $conn->prepare("SHOW TABLES");
-        $stmt->execute();
-        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        $required_tables = [
-            'employees', 'machines', 'projects', 'contracts', 
-            'working_hours', 'parking_spaces', 'parking_rentals',
-            'rental_areas', 'area_rentals', 'expenses', 
-            'salary_payments', 'users'
-        ];
-        
-        $missing_tables = array_diff($required_tables, $tables);
-        
-        if (empty($missing_tables)) {
-            echo "✓ All required database tables exist\n";
-        } else {
-            echo "✗ Missing database tables:\n";
-            foreach ($missing_tables as $table) {
-                echo "  - $table\n";
+    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$database", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "\n✓ Database connection successful!\n";
+} catch (PDOException $e) {
+    echo "\n✗ Database connection failed: " . $e->getMessage() . "\n";
+    exit();
+}
+
+// Create database configuration file
+$config_content = "<?php
+class Database {
+    private \$host = '$host';
+    private \$database = '$database';
+    private \$username = '$username';
+    private \$password = '$password';
+    private \$port = '$port';
+    private \$conn = null;
+
+    public function getConnection() {
+        if (\$this->conn === null) {
+            try {
+                \$this->conn = new PDO(
+                    'mysql:host=' . \$this->host . ';port=' . \$this->port . ';dbname=' . \$this->database,
+                    \$this->username,
+                    \$this->password
+                );
+                \$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException \$e) {
+                throw new Exception('Database connection failed: ' . \$e->getMessage());
             }
-            echo "\nPlease import the database schema from database/schema.sql\n";
         }
-        
-    } else {
-        echo "✗ Database connection failed\n";
-    }
-} catch (Exception $e) {
-    echo "✗ Database connection error: " . $e->getMessage() . "\n";
-    echo "Please check your database configuration in config/database.php\n";
-}
-
-// Check file permissions
-echo "\nChecking file permissions...\n";
-$writable_dirs = ['public', 'config'];
-foreach ($writable_dirs as $dir) {
-    if (is_writable($dir)) {
-        echo "✓ $dir directory is writable\n";
-    } else {
-        echo "✗ $dir directory is not writable\n";
+        return \$this->conn;
     }
 }
+?>";
 
-// Create .htaccess file if it doesn't exist
-echo "\nSetting up .htaccess file...\n";
-$htaccess_content = "RewriteEngine On\n";
-$htaccess_content .= "RewriteCond %{REQUEST_FILENAME} !-f\n";
-$htaccess_content .= "RewriteCond %{REQUEST_FILENAME} !-d\n";
-$htaccess_content .= "RewriteRule ^(.*)$ index.php [QSA,L]\n\n";
-$htaccess_content .= "# Security headers\n";
-$htaccess_content .= "Header always set X-Content-Type-Options nosniff\n";
-$htaccess_content .= "Header always set X-Frame-Options DENY\n";
-$htaccess_content .= "Header always set X-XSS-Protection \"1; mode=block\"\n";
+if (file_put_contents('config/database.php', $config_content)) {
+    echo "✓ Database configuration file created!\n";
+} else {
+    echo "✗ Failed to create database configuration file!\n";
+    exit();
+}
+
+// Import database schema
+echo "\nImporting database schema...\n";
+$schema_file = 'database/schema.sql';
+if (file_exists($schema_file)) {
+    $schema = file_get_contents($schema_file);
+    try {
+        $pdo->exec($schema);
+        echo "✓ Database schema imported successfully!\n";
+    } catch (PDOException $e) {
+        echo "✗ Failed to import schema: " . $e->getMessage() . "\n";
+        exit();
+    }
+} else {
+    echo "✗ Schema file not found: $schema_file\n";
+    exit();
+}
+
+// Import sample data
+echo "\nImporting sample data...\n";
+$sample_file = 'database/sample_data.sql';
+if (file_exists($sample_file)) {
+    $sample_data = file_get_contents($sample_file);
+    try {
+        $pdo->exec($sample_data);
+        echo "✓ Sample data imported successfully!\n";
+    } catch (PDOException $e) {
+        echo "✗ Failed to import sample data: " . $e->getMessage() . "\n";
+        exit();
+    }
+} else {
+    echo "⚠ Sample data file not found: $sample_file\n";
+}
+
+// Create .htaccess file for security
+$htaccess_content = "RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection \"1; mode=block\"
+Header always set Referrer-Policy \"strict-origin-when-cross-origin\"
+
+# Prevent access to sensitive files
+<Files \"*.sql\">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files \"*.log\">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files \"config/*\">
+    Order allow,deny
+    Deny from all
+</Files>";
 
 if (file_put_contents('public/.htaccess', $htaccess_content)) {
-    echo "✓ .htaccess file created successfully\n";
+    echo "✓ Security .htaccess file created!\n";
 } else {
-    echo "✗ Failed to create .htaccess file\n";
+    echo "⚠ Failed to create .htaccess file!\n";
 }
 
-// Display setup summary
-echo "\n==========================================\n";
-echo "Setup Summary\n";
-echo "==========================================\n";
-echo "If all checks passed, your application should be ready to use.\n\n";
-
-echo "Next steps:\n";
-echo "1. Access the application at: http://your-domain.com/public/\n";
-echo "2. Login with default credentials:\n";
-echo "   Username: admin\n";
-echo "   Password: password\n";
-echo "3. Change the default password immediately\n";
-echo "4. Configure your web server to point to the 'public' directory\n\n";
-
-echo "For detailed installation instructions, see INSTALL.md\n";
-echo "For troubleshooting, check the error logs of your web server\n\n";
-
-echo "Setup completed!\n";
+echo "\n=== Setup Complete! ===\n\n";
+echo "Your Construction Company Multi-Tenant SaaS Platform is now ready!\n\n";
+echo "Default login credentials:\n";
+echo "Super Admin: admin@construction-saas.com / password\n";
+echo "Company Admin: admin@abc-construction.com / password\n";
+echo "Driver: driver1@abc-construction.com / password\n\n";
+echo "Access your application at: http://your-domain.com/public/\n";
+echo "Make sure to change the default passwords after first login!\n\n";
+echo "For security, please:\n";
+echo "1. Change default passwords\n";
+echo "2. Configure your web server properly\n";
+echo "3. Set up SSL certificate\n";
+echo "4. Regular backups of your database\n";
 ?>
