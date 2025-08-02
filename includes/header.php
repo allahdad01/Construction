@@ -268,6 +268,13 @@
                                     <i class="fas fa-cog"></i> <?php echo __('settings'); ?>
                                 </a>
                             </li>
+                            <?php if (isSuperAdmin()): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="../super-admin/settings/">
+                                    <i class="fas fa-cogs"></i> Platform Settings
+                                </a>
+                            </li>
+                            <?php endif; ?>
                             
                         <?php elseif (isEmployee()): ?>
                             <!-- Employee Menu -->

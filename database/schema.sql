@@ -12,7 +12,9 @@ CREATE TABLE companies (
     company_code VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
+    website VARCHAR(255),
     address TEXT,
+    description TEXT,
     subscription_plan_id INT DEFAULT 1,
     subscription_status VARCHAR(20) DEFAULT 'trial',
     trial_start_date DATE DEFAULT CURRENT_DATE,
@@ -384,15 +386,12 @@ CREATE TABLE date_formats (
 CREATE TABLE company_settings (
     id INT PRIMARY KEY AUTO_INCREMENT,
     company_id INT NOT NULL,
-    default_currency_id INT NOT NULL,
-    default_date_format_id INT NOT NULL,
-    timezone VARCHAR(50) DEFAULT 'UTC',
+    setting_key VARCHAR(100) NOT NULL,
+    setting_value TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (default_currency_id) REFERENCES currencies(id),
-    FOREIGN KEY (default_date_format_id) REFERENCES date_formats(id),
-    UNIQUE KEY unique_company_settings (company_id)
+    UNIQUE KEY unique_company_setting (company_id, setting_key)
 );
 
 -- Languages Table
