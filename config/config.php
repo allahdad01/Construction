@@ -4,16 +4,31 @@
  * Construction Company Multi-Tenant SaaS Platform
  */
 
-// Application settings
-define('APP_NAME', 'Construction Company SaaS');
-define('APP_VERSION', '2.0.0');
-define('APP_URL', 'http://localhost');
+// Load environment variables
+if (file_exists(__DIR__ . '/../.env')) {
+    $env = parse_ini_file(__DIR__ . '/../.env');
+    foreach ($env as $key => $value) {
+        $_ENV[$key] = $value;
+    }
+}
 
-// Database settings
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'construction_saas');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// Application Configuration
+define('APP_NAME', 'Construction SaaS Platform');
+define('APP_VERSION', '1.0.0');
+define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
+define('APP_DEBUG', $_ENV['APP_DEBUG'] ?? 'true');
+define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost');
+
+// Database Configuration
+define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
+define('DB_NAME', $_ENV['DB_NAME'] ?? 'construction_saas');
+define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASSWORD'] ?? '');
+define('DB_PORT', $_ENV['DB_PORT'] ?? '3306');
+
+// Security Configuration
+define('SESSION_SECRET', $_ENV['SESSION_SECRET'] ?? 'your-secret-key-change-this');
+define('ENCRYPTION_KEY', $_ENV['ENCRYPTION_KEY'] ?? 'your-encryption-key-change-this');
 
 // Session settings
 define('SESSION_NAME', 'construction_saas_session');
@@ -48,19 +63,27 @@ define('DEFAULT_LEAVE_DAYS_PER_YEAR', 20);
 // Salary calculation settings
 define('SALARY_CALCULATION_DAYS', 30); // Company standard 30-day month
 
-// Multi-tenant settings
-define('TRIAL_PERIOD_DAYS', 14);
-define('DEFAULT_SUBSCRIPTION_PLAN', 'basic');
+// Multi-tenant Configuration
+define('TRIAL_PERIOD_DAYS', 30);
+define('DEFAULT_SUBSCRIPTION_PLAN', 1);
 
-// Error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Error Reporting
+if (APP_DEBUG === 'true') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
 
-// Start session
+// Session Configuration
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', APP_ENV === 'production' ? 1 : 0);
+ini_set('session.use_strict_mode', 1);
 session_name(SESSION_NAME);
 session_start();
 
-// Set timezone
+// Timezone
 date_default_timezone_set('UTC');
 
 // Helper functions

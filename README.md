@@ -1,315 +1,270 @@
-# Construction Company Multi-Tenant SaaS Platform
+# Construction SaaS Platform
 
-A comprehensive SaaS platform for construction companies to manage employees, machines, contracts, parking, area rentals, and financial operations with multi-tenant architecture.
+A comprehensive multi-tenant SaaS platform for construction companies with support for multi-currency, multi-date formats, and multi-language functionality.
 
-## 🏗️ **Platform Overview**
+## 🌟 Features
 
-This multi-tenant SaaS platform allows construction companies to manage their operations efficiently while providing different user roles and access levels. The system supports company isolation, subscription management, and role-based access control.
+- **Multi-Tenant Architecture**: Isolated company data and settings
+- **Multi-Currency Support**: USD, AFN, EUR, GBP, CAD, AUD
+- **Multi-Date Formats**: Gregorian, Shamsi, European, American, ISO
+- **Multi-Language Support**: English, Dari, Pashto with RTL support
+- **Employee Management**: Drivers, assistants, salary calculations
+- **Machine Management**: Company-owned equipment tracking
+- **Contract Management**: Hourly, daily, monthly contracts
+- **Timesheet System**: Comprehensive work hour tracking
+- **Parking Management**: Space rental and billing
+- **Expense Tracking**: Company expense management
+- **Payment Tracking**: Salary and contract payments
+- **Role-Based Access**: Super admin, company admin, employees, renters
 
-## 🎯 **Key Features**
+## 🚀 Quick Deploy to Render
 
-### **Multi-Tenant Architecture**
-- **Company Isolation**: Each company has its own data and users
-- **Subscription Management**: Different plans (Basic, Professional, Enterprise)
-- **Trial Periods**: 14-day trial for new companies
-- **Usage Limits**: Configurable limits per subscription plan
+### Option 1: One-Click Deploy (Recommended)
 
-### **User Roles & Access**
+[![Deploy to Render](https://render.com/images/deploy-to-render/button.svg)](https://render.com/deploy/schema-render?repo=https://github.com/yourusername/construction-saas-platform)
 
-#### **1. Super Admin**
-- Manage all companies and subscriptions
-- System-wide settings and configuration
-- Subscription plan management
-- Payment tracking and revenue analytics
-- Company suspension/activation
+### Option 2: Manual Deploy
 
-#### **2. Company Admin**
-- Manage company employees (drivers, driver assistants)
-- Machine inventory management
-- Contract and project management
-- Parking space and area rental management
-- Expense tracking and salary payments
-- User management within company
+1. **Fork this repository** to your GitHub account
+2. **Connect to Render**:
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the repository
 
-#### **3. Employees (Drivers & Driver Assistants)**
-- View salary information and payment history
-- Track working days and leave days
-- View attendance records
-- Access to personal dashboard
+3. **Configure the service**:
+   - **Name**: `construction-saas-platform`
+   - **Environment**: `PHP`
+   - **Build Command**: `composer install`
+   - **Start Command**: `vendor/bin/heroku-php-apache2 public/`
 
-#### **4. Renters (Parking, Area, Container)**
-- View rental agreements and payment history
-- Track payment status and amounts
-- Access to personal dashboard
+4. **Add Environment Variables**:
+   ```
+   PHP_VERSION=8.1.0
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://your-app-name.onrender.com
+   SESSION_SECRET=your-secret-key
+   ENCRYPTION_KEY=your-encryption-key
+   ```
 
-## 💰 **Salary & Payment Calculations**
+5. **Create Database**:
+   - Go to "New +" → "PostgreSQL" or "MySQL"
+   - Name: `construction-saas-db`
+   - Connect it to your web service
 
-### **Employee Salary System**
-- **Daily Rate Calculation**: `Monthly Salary ÷ 30 days`
-- **Working Days**: Track actual days worked vs. leave days
-- **Leave Management**: Pause work days during leave periods
-- **Pro-rated Salary**: Calculate based on actual working days
+6. **Deploy**:
+   - Click "Create Web Service"
+   - Wait for deployment to complete
+   - Visit your app URL
 
-**Example:**
-- Monthly Salary: $15,000
-- Daily Rate: $15,000 ÷ 30 = $500
-- If employee works 15 days: $500 × 15 = $7,500
+## 📋 Prerequisites
 
-### **Rental & Parking Calculations**
-- **Daily Rate**: `Monthly Rate ÷ 30 days`
-- **Pro-rated Billing**: Based on actual usage days
-- **Payment Tracking**: Monitor paid vs. pending amounts
+- **GitHub Account**: To host your code
+- **Render Account**: For hosting and database
+- **Domain (Optional)**: For custom domain
 
-**Example:**
-- Monthly Parking Rate: $15,000
-- Daily Rate: $15,000 ÷ 30 = $500
-- If used for 10 days: $500 × 10 = $5,000
+## 🛠️ Local Development
 
-## 🚧 **Contract Management**
-
-### **Three Contract Types**
-
-#### **1. Hourly Contracts**
-- Track actual hours worked daily
-- Real-time progress monitoring
-- Flexible hour tracking
-
-#### **2. Daily Contracts**
-- Standard 9-hour working day
-- Track deviations and make-up hours
-- Accumulate until complete days
-- Calculate based on complete days worked
-
-#### **3. Monthly Contracts**
-- Fixed monthly amount (e.g., $15,000)
-- Required hours: 30 days × 9 hours = 270 hours
-- Full payment upon completing required hours
-- Progress tracking against target hours
-
-## 🏢 **Company Management**
-
-### **Subscription Plans**
-
-| Plan | Price | Employees | Machines | Projects | Features |
-|------|-------|-----------|----------|----------|----------|
-| Basic | $99/month | 25 | 50 | 25 | Employee & Machine Management |
-| Professional | $199/month | 100 | 200 | 100 | + Contracts & Parking |
-| Enterprise | $399/month | 500 | 1000 | 500 | + Area Rental & API Access |
-
-### **Company Features**
-- **Trial Period**: 14 days for new companies
-- **Usage Limits**: Based on subscription plan
-- **Status Management**: Active, Trial, Suspended, Cancelled
-- **Payment Tracking**: Monitor subscription payments
-
-## 👥 **User Management**
-
-### **Employee Types**
-- **Drivers**: Vehicle operators with salary tracking
-- **Driver Assistants**: Support staff with similar benefits
-- **Leave Management**: Track leave days and work day pauses
-- **Attendance Tracking**: Daily check-in/check-out system
-
-### **Renter Types**
-- **Parking Users**: Machine parking space renters
-- **Area Renters**: Space rental for containers/equipment
-- **Container Renters**: Container storage space users
-
-## 📊 **Dashboard Features**
-
-### **Super Admin Dashboard**
-- Total companies and active subscriptions
-- Monthly revenue and payment tracking
-- Subscription plan statistics
-- Recent companies and payments
-
-### **Company Admin Dashboard**
-- Active employees and machines
-- Active contracts and monthly expenses
-- Quick access to all management modules
-- Company subscription status
-
-### **Employee Dashboard**
-- Monthly salary and daily rate
-- Current month working/leave days
-- Salary payment status
-- Quick access to attendance and leave
-
-### **Renter Dashboard**
-- Active parking and area rentals
-- Total and pending payments
-- Rental history and status
-- Payment tracking
-
-## 🗄️ **Database Schema**
-
-### **Core Tables**
-- `companies`: Multi-tenant company data
-- `users`: System users with role-based access
-- `employees`: Company-specific employee records
-- `machines`: Equipment inventory per company
-- `contracts`: Project contracts with working hours
-- `parking_spaces`: Parking space management
-- `rental_areas`: Area rental management
-- `expenses`: Company expense tracking
-- `salary_payments`: Employee salary payments
-- `user_payments`: Renter payment tracking
-
-### **Key Features**
-- **Company Isolation**: All tables include `company_id`
-- **Role-based Access**: User roles determine permissions
-- **Audit Trail**: Created/updated timestamps
-- **Data Integrity**: Foreign key constraints
-
-## 🔐 **Security Features**
-
-### **Authentication & Authorization**
-- Session-based authentication
-- Role-based access control
-- Company data isolation
-- Password hashing with `password_verify()`
-
-### **Data Protection**
-- SQL injection prevention with prepared statements
-- XSS protection with `htmlspecialchars()`
-- Input validation and sanitization
-- CSRF protection
-
-## 🚀 **Installation**
-
-### **Prerequisites**
-- PHP 7.4+ with PDO extension
+### Requirements
+- PHP 7.4+
 - MySQL 5.7+ or MariaDB 10.2+
+- Composer
 - Web server (Apache/Nginx)
-- Composer (for dependencies)
 
-### **Quick Setup**
+### Installation
 
-1. **Clone the repository**
+1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd construction-saas
+   git clone https://github.com/yourusername/construction-saas-platform.git
+   cd construction-saas-platform
    ```
 
-2. **Import database schema**
+2. **Install dependencies**:
    ```bash
-   mysql -u username -p construction_saas < database/schema.sql
+   composer install
    ```
 
-3. **Configure database connection**
-   Edit `config/database.php` with your database credentials
-
-4. **Set file permissions**
-   ```bash
-   chmod 755 public/
-   chmod 644 config/
+3. **Create database**:
+   ```sql
+   CREATE DATABASE construction_saas;
    ```
 
-5. **Access the application**
-   Navigate to `http://your-domain.com/public/`
+4. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
 
-6. **Login with default credentials**
-   - **Super Admin**: `superadmin` / `password`
-   - **Company Admin**: Create via super admin panel
+5. **Run deployment script**:
+   ```bash
+   php deploy.php
+   ```
 
-## 📁 **Project Structure**
+6. **Start development server**:
+   ```bash
+   php -S localhost:8000 -t public
+   ```
 
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Application
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-app-name.onrender.com
+
+# Database
+DB_HOST=your-db-host
+DB_PORT=3306
+DB_NAME=construction_saas
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+
+# Security
+SESSION_SECRET=your-secret-key
+ENCRYPTION_KEY=your-encryption-key
 ```
-construction-saas/
-├── config/
-│   ├── config.php          # Main configuration
-│   └── database.php        # Database connection
-├── database/
-│   └── schema.sql          # Database schema
-├── includes/
-│   ├── header.php          # Common header
-│   └── footer.php          # Common footer
-├── public/
-│   ├── dashboard.php       # User dashboard
-│   ├── login.php          # Authentication
-│   ├── logout.php         # Logout
-│   ├── super-admin/       # Super admin modules
-│   ├── employees/         # Employee management
-│   ├── machines/          # Machine management
-│   ├── contracts/         # Contract management
-│   ├── parking/           # Parking management
-│   ├── area-rentals/      # Area rental management
-│   ├── expenses/          # Expense management
-│   └── salary-payments/   # Salary payment management
-├── README.md              # This file
-├── INSTALL.md             # Installation guide
-└── setup.php              # Setup script
-```
 
-## 🔧 **Configuration**
+### Database Setup
 
-### **Environment Variables**
-- Database connection settings
-- Application constants
-- Subscription plan limits
-- Trial period duration
+The deployment script will automatically:
+- Create all required tables
+- Insert initial data
+- Create super admin user
+- Set up sample companies and data
 
-### **System Settings**
-- Default working hours per day
-- Leave days per year
-- Salary calculation days
-- Currency and timezone settings
+## 👤 Default Login
 
-## 📈 **Usage Examples**
+After deployment, you can log in with:
 
-### **Adding a New Company**
-1. Super admin creates company via admin panel
-2. System generates company admin user
-3. Company admin logs in and sets up employees
-4. Employees can access their dashboards
+**Super Admin**:
+- Email: `superadmin@construction.com`
+- Password: `admin123`
 
-### **Employee Leave Management**
-1. Employee goes on leave → work days pause
-2. Employee returns → work days resume
-3. System calculates pro-rated salary
-4. Leave days deducted from total
+**Sample Company Admin**:
+- Email: `admin@abc-construction.com`
+- Password: `admin123`
 
-### **Contract Progress Tracking**
-1. Create contract with working hours requirement
-2. Track daily hours worked
-3. Monitor progress against target
-4. Calculate completion percentage
+## 📊 Sample Data
 
-## 🤝 **Support & Documentation**
+The system comes with sample data including:
+- 4 sample companies
+- Multiple employees and machines
+- Sample contracts and timesheets
+- Parking spaces and rentals
+- Expenses and payments
 
-### **Additional Documentation**
-- `INSTALL.md`: Detailed installation guide
-- `PROJECT_STRUCTURE.md`: Architecture overview
-- `API_DOCUMENTATION.md`: API endpoints (if applicable)
+## 🌍 Multi-Language Support
 
-### **Troubleshooting**
-- Check database connection settings
-- Verify file permissions
-- Review error logs
-- Ensure PHP extensions are enabled
+The platform supports:
+- **English** (LTR)
+- **Dari** (RTL) - Afghan Persian
+- **Pashto** (RTL) - Afghan Pashto
 
-## 📄 **License**
+Companies can set their preferred language in settings.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 💰 Multi-Currency Support
 
-## 🆕 **Version History**
+Supported currencies:
+- **USD** ($) - US Dollar
+- **AFN** (؋) - Afghan Afghani
+- **EUR** (€) - Euro
+- **GBP** (£) - British Pound
+- **CAD** (C$) - Canadian Dollar
+- **AUD** (A$) - Australian Dollar
 
-### **v2.0.0 - Multi-Tenant SaaS**
-- ✅ Multi-tenant architecture
-- ✅ Role-based access control
-- ✅ Subscription management
-- ✅ Company isolation
-- ✅ User-specific dashboards
-- ✅ Leave management system
-- ✅ Payment tracking
-- ✅ Super admin panel
+## 📅 Multi-Date Format Support
 
-### **v1.0.0 - Basic Platform**
-- ✅ Employee management
-- ✅ Machine tracking
-- ✅ Contract management
-- ✅ Basic reporting
+Supported date formats:
+- **Gregorian** (YYYY-MM-DD)
+- **Shamsi** (YYYY/MM/DD) - Persian calendar
+- **European** (DD/MM/YYYY)
+- **American** (MM/DD/YYYY)
+- **ISO** (YYYY-MM-DD)
+
+## 🔒 Security Features
+
+- **Multi-tenant isolation**: Company data is completely separated
+- **Role-based access control**: Different permissions for different user types
+- **SQL injection protection**: Prepared statements throughout
+- **XSS protection**: Input sanitization and output escaping
+- **CSRF protection**: Session-based security
+- **Password hashing**: Secure password storage
+
+## 📈 Business Benefits
+
+- **International Operations**: Multi-currency and multi-language support
+- **Compliance**: Local currency and date format requirements
+- **User Experience**: Familiar interfaces in local languages
+- **Scalability**: Multi-tenant architecture supports unlimited companies
+- **Cost Efficiency**: Shared infrastructure with isolated data
+
+## 🚀 Deployment Checklist
+
+Before deploying to production:
+
+- [ ] Update environment variables
+- [ ] Set secure session and encryption keys
+- [ ] Configure database connection
+- [ ] Test deployment script
+- [ ] Verify all features work
+- [ ] Set up monitoring
+- [ ] Configure backups
+- [ ] Test user roles and permissions
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+**Database Connection Failed**:
+- Check database credentials in environment variables
+- Verify database is accessible from your deployment
+- Check firewall settings
+
+**Deployment Fails**:
+- Check PHP version compatibility
+- Verify all required extensions are installed
+- Check build logs for specific errors
+
+**Language/Currency Not Working**:
+- Verify database tables are created
+- Check if sample data is inserted
+- Verify company settings are configured
+
+### Debug Information
+
+Check the deployment logs in Render dashboard for detailed error messages.
+
+## 📚 Documentation
+
+- [Multi-Currency & Multi-Date System](MULTI_CURRENCY_DATE_SYSTEM.md)
+- [Multi-Language System](MULTI_LANGUAGE_SYSTEM.md)
+- [Timesheet System](TIMESHEET_SYSTEM.md)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue on GitHub
+- Check the documentation files
+- Review the troubleshooting section
 
 ---
 
-**Built with ❤️ for Construction Companies**
+**Built with ❤️ for construction companies worldwide**

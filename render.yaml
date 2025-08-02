@@ -1,0 +1,46 @@
+databases:
+  - name: construction-saas-db
+    databaseName: construction_saas
+    user: construction_user
+    plan: free
+
+services:
+  - type: web
+    name: construction-saas-platform
+    env: php
+    plan: free
+    buildCommand: composer install
+    startCommand: vendor/bin/heroku-php-apache2 public/
+    envVars:
+      - key: PHP_VERSION
+        value: 8.1.0
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: DB_HOST
+        fromDatabase:
+          name: construction-saas-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: construction-saas-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: construction-saas-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: construction-saas-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: construction-saas-db
+          property: password
+      - key: APP_URL
+        value: https://construction-saas-platform.onrender.com
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
