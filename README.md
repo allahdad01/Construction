@@ -34,13 +34,12 @@ A comprehensive multi-tenant SaaS platform for construction companies with suppo
 
 3. **Configure the service**:
    - **Name**: `construction-saas-platform`
-   - **Environment**: `PHP`
-   - **Build Command**: `composer install`
-   - **Start Command**: `vendor/bin/heroku-php-apache2 public/`
+   - **Environment**: `Docker`
+   - **Dockerfile Path**: `./Dockerfile`
+   - **Auto-Deploy**: Enabled
 
 4. **Add Environment Variables**:
    ```
-   PHP_VERSION=8.1.0
    APP_ENV=production
    APP_DEBUG=false
    APP_URL=https://your-app-name.onrender.com
@@ -55,24 +54,16 @@ A comprehensive multi-tenant SaaS platform for construction companies with suppo
 
 6. **Deploy**:
    - Click "Create Web Service"
-   - Wait for deployment to complete
+   - Wait for Docker build to complete
    - Visit your app URL
 
-## 📋 Prerequisites
+## 🐳 Local Development with Docker
 
-- **GitHub Account**: To host your code
-- **Render Account**: For hosting and database
-- **Domain (Optional)**: For custom domain
+### Prerequisites
+- Docker
+- Docker Compose
 
-## 🛠️ Local Development
-
-### Requirements
-- PHP 7.4+
-- MySQL 5.7+ or MariaDB 10.2+
-- Composer
-- Web server (Apache/Nginx)
-
-### Installation
+### Quick Start
 
 1. **Clone the repository**:
    ```bash
@@ -80,31 +71,41 @@ A comprehensive multi-tenant SaaS platform for construction companies with suppo
    cd construction-saas-platform
    ```
 
-2. **Install dependencies**:
+2. **Start with Docker Compose**:
    ```bash
-   composer install
+   docker-compose up -d
    ```
 
-3. **Create database**:
-   ```sql
-   CREATE DATABASE construction_saas;
+3. **Access the application**:
+   - URL: `http://localhost:8000`
+   - Database: `localhost:3306`
+
+4. **Run deployment script**:
+   ```bash
+   docker-compose exec app php deploy.php
    ```
 
-4. **Configure environment**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
+### Development Commands
 
-5. **Run deployment script**:
-   ```bash
-   php deploy.php
-   ```
+```bash
+# Start services
+docker-compose up -d
 
-6. **Start development server**:
-   ```bash
-   php -S localhost:8000 -t public
-   ```
+# View logs
+docker-compose logs -f app
+
+# Stop services
+docker-compose down
+
+# Rebuild after changes
+docker-compose up -d --build
+
+# Access container shell
+docker-compose exec app bash
+
+# Run deployment script
+docker-compose exec app php deploy.php
+```
 
 ## 🔧 Configuration
 
@@ -211,7 +212,7 @@ Before deploying to production:
 - [ ] Update environment variables
 - [ ] Set secure session and encryption keys
 - [ ] Configure database connection
-- [ ] Test deployment script
+- [ ] Test Docker build locally
 - [ ] Verify all features work
 - [ ] Set up monitoring
 - [ ] Configure backups
@@ -221,15 +222,15 @@ Before deploying to production:
 
 ### Common Issues
 
+**Docker Build Fails**:
+- Check Dockerfile syntax
+- Verify all required files are present
+- Check build logs for specific errors
+
 **Database Connection Failed**:
 - Check database credentials in environment variables
 - Verify database is accessible from your deployment
 - Check firewall settings
-
-**Deployment Fails**:
-- Check PHP version compatibility
-- Verify all required extensions are installed
-- Check build logs for specific errors
 
 **Language/Currency Not Working**:
 - Verify database tables are created
@@ -238,7 +239,23 @@ Before deploying to production:
 
 ### Debug Information
 
-Check the deployment logs in Render dashboard for detailed error messages.
+```bash
+# Check Docker containers
+docker-compose ps
+
+# View application logs
+docker-compose logs app
+
+# Check database connection
+docker-compose exec app php -r "
+require 'config/database.php';
+\$db = new Database();
+var_dump(\$db->testConnection());
+"
+
+# Run deployment manually
+docker-compose exec app php deploy.php
+```
 
 ## 📚 Documentation
 
@@ -251,7 +268,7 @@ Check the deployment logs in Render dashboard for detailed error messages.
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test thoroughly with Docker
 5. Submit a pull request
 
 ## 📄 License

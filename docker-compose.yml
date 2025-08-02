@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=construction_saas
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - SESSION_SECRET=dev-secret-key
+      - ENCRYPTION_KEY=dev-encryption-key
+    depends_on:
+      - db
+    volumes:
+      - ./public/uploads:/var/www/html/public/uploads
+    networks:
+      - construction-network
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=construction_saas
+      - MYSQL_USER=construction_user
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/sample_data.sql:/docker-entrypoint-initdb.d/02-sample-data.sql
+    networks:
+      - construction-network
+
+volumes:
+  mysql_data:
+
+networks:
+  construction-network:
+    driver: bridge

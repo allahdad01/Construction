@@ -7,13 +7,10 @@ databases:
 services:
   - type: web
     name: construction-saas-platform
-    env: php
+    env: docker
     plan: free
-    buildCommand: composer install
-    startCommand: vendor/bin/heroku-php-apache2 public/
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: PHP_VERSION
-        value: 8.1.0
       - key: APP_ENV
         value: production
       - key: APP_DEBUG

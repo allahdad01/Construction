@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Development files
+.env
+.env.*
+*.log
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+cache/
+tmp/
+
+# Uploads (will be created at runtime)
+uploads/
+public/uploads/
+
+# Database files
+*.sql
+*.sqlite
+
+# Backup files
+*.bak
+*.backup
+
+# Node modules (if any)
+node_modules/
+
+# Build files
+build/
+dist/
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
