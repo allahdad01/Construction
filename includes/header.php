@@ -1,369 +1,731 @@
+<?php
+require_once '../config/config.php';
+require_once '../config/database.php';
+
+// Check if user is authenticated
+if (!isAuthenticated()) {
+    header('Location: ../login.php');
+    exit;
+}
+
+$current_user = getCurrentUser();
+$company_id = getCurrentCompanyId();
+$is_super_admin = isSuperAdmin();
+$is_company_admin = isCompanyAdmin();
+$is_employee = isEmployee();
+$is_renter = isRenter();
+
+// Get system settings for branding
+$db = new Database();
+$conn = $db->getConnection();
+
+function getSystemSetting($conn, $key, $default = '') {
+    $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
+    $stmt->execute([$key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['setting_value'] : $default;
+}
+
+$platform_name = getSystemSetting($conn, 'platform_name', 'Construction SaaS Platform');
+$platform_logo = getSystemSetting($conn, 'platform_logo', '');
+$primary_color = getSystemSetting($conn, 'primary_color', '#4e73df');
+$secondary_color = getSystemSetting($conn, 'secondary_color', '#858796');
+$accent_color = getSystemSetting($conn, 'accent_color', '#1cc88a');
+$theme_mode = getSystemSetting($conn, 'theme_mode', 'light');
+$sidebar_style = getSystemSetting($conn, 'sidebar_style', 'default');
+
+// Get company settings
+function getCompanySetting($conn, $company_id, $key, $default = '') {
+    $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
+    $stmt->execute([$company_id, $key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['setting_value'] : $default;
+}
+
+$company_currency_id = getCompanySetting($conn, $company_id, 'currency_id', '1');
+$company_date_format_id = getCompanySetting($conn, $company_id, 'date_format_id', '1');
+$company_language_id = getCompanySetting($conn, $company_id, 'default_language_id', '1');
+$company_timezone = getCompanySetting($conn, $company_id, 'timezone', 'UTC');
+
+// Set timezone
+date_default_timezone_set($company_timezone);
+?>
 <!DOCTYPE html>
-<html lang="<?php echo getCompanyLanguage()['language_code'] ?? 'en'; ?>" dir="<?php echo getLanguageDirection(); ?>">
+<html lang="en" dir="<?php echo isRTL() ? 'rtl' : 'ltr'; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo APP_NAME; ?></title>
+    <title><?php echo htmlspecialchars($platform_name); ?></title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
     <style>
+        :root {
+            --primary-color: <?php echo $primary_color; ?>;
+            --secondary-color: <?php echo $secondary_color; ?>;
+            --accent-color: <?php echo $accent_color; ?>;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white-color: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --border-radius: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --border-radius-xl: 1rem;
+            --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --box-shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --box-shadow-xl: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+            --transition: all 0.15s ease-in-out;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: var(--gray-700);
+            background-color: var(--gray-100);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Modern Sidebar */
         .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #667eea 100%);
+            color: white;
+            z-index: 1030;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow-lg);
+            overflow-y: auto;
         }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            height: 40px;
+            width: auto;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
             margin: 0.25rem 0;
-            transition: all 0.3s ease;
         }
-        
-        .sidebar .nav-link:hover {
-            color: #fff;
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: 0.375rem;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: white;
             background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
+            transform: translateX(4px);
         }
-        
-        .sidebar .nav-link.active {
-            color: #fff;
+
+        .nav-link.active {
+            color: white;
             background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
-        .sidebar .nav-link i {
+
+        .nav-link i {
             width: 20px;
-            margin-right: 10px;
+            margin-right: 0.75rem;
+            font-size: 1rem;
         }
-        
-        .topbar {
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
         }
-        
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.25rem;
+        }
+
+        /* Main Content */
         .main-content {
-            background: #f8f9fc;
+            margin-left: 280px;
             min-height: 100vh;
+            transition: var(--transition);
+            background-color: var(--gray-100);
         }
-        
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        /* Top Navigation */
+        .top-navbar {
+            background: white;
+            box-shadow: var(--box-shadow);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--gray-600);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background-color: var(--gray-100);
+        }
+
+        /* User Dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .user-dropdown-toggle:hover {
+            background-color: var(--gray-100);
+            color: var(--primary-color);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        /* Cards */
         .card {
             border: none;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            background: white;
         }
-        
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
+
+        .card:hover {
+            box-shadow: var(--box-shadow-lg);
+            transform: translateY(-2px);
         }
-        
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
         }
-        
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
+
+        .card-body {
+            padding: 1.5rem;
         }
-        
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
+
+        /* Buttons */
+        .btn {
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+            border: none;
         }
-        
-        .text-gray-300 {
-            color: #dddfeb !important;
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #667eea);
+            color: white;
         }
-        
-        .text-gray-800 {
-            color: #5a5c69 !important;
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4a5fd8, #5a6fd8);
+            transform: translateY(-1px);
+            box-shadow: var(--box-shadow-lg);
         }
-        
-        .btn-group .btn {
-            margin-right: 2px;
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
         }
-        
-        .table th {
-            background-color: #f8f9fc;
-            border-top: none;
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
         }
-        
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #e74c3c);
+        }
+
+        /* Forms */
+        .form-control {
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-300);
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        .table {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), #667eea);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table tbody tr {
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--gray-100);
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: var(--border-radius);
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+
+        /* Badges */
         .badge {
-            font-size: 0.75em;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
         }
-        
-        .bg-success {
-            background-color: #1cc88a !important;
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-navbar {
+                padding: 1rem;
+            }
         }
-        
-        .bg-warning {
-            background-color: #f6c23e !important;
+
+        /* Dark Mode Support */
+        [data-theme="dark"] {
+            --gray-100: #1a1a1a;
+            --gray-200: #2d2d2d;
+            --gray-300: #404040;
+            --gray-400: #525252;
+            --gray-500: #737373;
+            --gray-600: #a3a3a3;
+            --gray-700: #d4d4d4;
+            --gray-800: #e5e5e5;
+            --gray-900: #f5f5f5;
+            --white-color: #1a1a1a;
         }
-        
-        .bg-danger {
-            background-color: #e74a3b !important;
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
-        
-        .bg-info {
-            background-color: #36b9cc !important;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        
-        .bg-secondary {
-            background-color: #858796 !important;
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        
-        /* RTL Support */
-        [dir="rtl"] .sidebar {
-            text-align: right;
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-200);
         }
-        
-        [dir="rtl"] .main-content {
-            direction: rtl;
-            text-align: right;
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 4px;
         }
-        
-        [dir="rtl"] .nav-link {
-            text-align: right;
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
         }
-        
-        [dir="rtl"] .dropdown-menu {
-            text-align: right;
+
+        /* Utility Classes */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        [dir="rtl"] .btn-group {
-            direction: rtl;
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color), #667eea);
         }
-        
-        [dir="rtl"] .table th,
-        [dir="rtl"] .table td {
-            text-align: right;
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
         }
-        
-        [dir="rtl"] .form-control {
-            text-align: right;
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
         }
-        
-        [dir="rtl"] .input-group-text {
-            border-radius: 0 0.375rem 0.375rem 0;
+
+        .bg-gradient-danger {
+            background: linear-gradient(135deg, var(--danger-color), #e74c3c);
         }
-        
-        [dir="rtl"] .input-group .form-control:not(:last-child) {
-            border-radius: 0.375rem 0 0 0.375rem;
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white"><?php echo APP_NAME; ?></h4>
-                        <?php if (isAuthenticated()): ?>
-                            <small class="text-white-50">
-                                <?php 
-                                $user = getCurrentUser();
-                                $company = getCurrentCompany();
-                                echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
-                                if ($company) {
-                                    echo '<br>' . htmlspecialchars($company['company_name']);
-                                }
-                                ?>
-                            </small>
-                        <?php endif; ?>
+<body data-theme="<?php echo $theme_mode; ?>">
+    <!-- Sidebar -->
+    <nav class="sidebar <?php echo $sidebar_style; ?>" id="sidebar">
+        <div class="sidebar-header">
+            <?php if ($platform_logo): ?>
+                <img src="../<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
+            <?php endif; ?>
+            <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="../dashboard/">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span><?php echo __('dashboard'); ?></span>
+                </a>
+            </li>
+            
+            <?php if ($is_super_admin): ?>
+                <!-- Super Admin Menu -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="../super-admin/companies/">
+                        <i class="fas fa-building"></i>
+                        <span>Companies</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'subscription-plans') !== false ? 'active' : ''; ?>" href="../super-admin/subscription-plans/">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Subscription Plans</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="../super-admin/languages/">
+                        <i class="fas fa-language"></i>
+                        <span>Languages</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="../reports/">
+                        <i class="fas fa-chart-bar"></i>
+                        <span><?php echo __('reports'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="../super-admin/settings/">
+                        <i class="fas fa-cogs"></i>
+                        <span>Platform Settings</span>
+                    </a>
+                </li>
+                
+            <?php elseif ($is_company_admin): ?>
+                <!-- Company Admin Menu -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="../employees/">
+                        <i class="fas fa-users"></i>
+                        <span><?php echo __('employees'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="../machines/">
+                        <i class="fas fa-truck"></i>
+                        <span><?php echo __('machines'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="../contracts/">
+                        <i class="fas fa-file-contract"></i>
+                        <span><?php echo __('contracts'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="../parking/">
+                        <i class="fas fa-parking"></i>
+                        <span><?php echo __('parking'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="../area-rentals/">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span><?php echo __('area_rentals'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="../expenses/">
+                        <i class="fas fa-receipt"></i>
+                        <span><?php echo __('expenses'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="../salary-payments/">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span><?php echo __('salary_payments'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="../reports/">
+                        <i class="fas fa-chart-bar"></i>
+                        <span><?php echo __('reports'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="../users/">
+                        <i class="fas fa-user-cog"></i>
+                        <span><?php echo __('users'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="../settings/">
+                        <i class="fas fa-cog"></i>
+                        <span><?php echo __('settings'); ?></span>
+                    </a>
+                </li>
+                
+            <?php elseif ($is_employee): ?>
+                <!-- Employee Menu -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="../attendance/">
+                        <i class="fas fa-clock"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="../salary/">
+                        <i class="fas fa-money-bill"></i>
+                        <span>Salary</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="../leave/">
+                        <i class="fas fa-calendar-times"></i>
+                        <span>Leave</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                
+            <?php elseif ($is_renter): ?>
+                <!-- Renter Menu -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
+                        <i class="fas fa-list"></i>
+                        <span>My Rentals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
+                        <i class="fas fa-money-bill"></i>
+                        <span>Payments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            
+            <!-- Common Menu Items -->
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../logout.php">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Top Navigation -->
+        <nav class="top-navbar">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-link d-md-none" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
                     </div>
                     
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="../dashboard.php">
-                                <i class="fas fa-tachometer-alt"></i> <?php echo __('dashboard'); ?>
+                    <div class="d-flex align-items-center">
+                        <!-- Notifications -->
+                        <div class="dropdown me-3">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger rounded-pill">3</span>
                             </a>
-                        </li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li><a class="dropdown-item" href="#">New contract assigned</a></li>
+                                <li><a class="dropdown-item" href="#">Payment received</a></li>
+                                <li><a class="dropdown-item" href="#">System maintenance</a></li>
+                            </ul>
+                        </div>
                         
-                        <?php if (isSuperAdmin()): ?>
-                            <!-- Super Admin Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/">
-                                    <i class="fas fa-crown"></i> <?php echo __('super_admin'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/companies/">
-                                    <i class="fas fa-building"></i> <?php echo __('company_management'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/subscription-plans/">
-                                    <i class="fas fa-list"></i> <?php echo __('subscription_plans'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/payments/">
-                                    <i class="fas fa-money-bill"></i> <?php echo __('payments'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/settings/">
-                                    <i class="fas fa-cogs"></i> <?php echo __('system_settings'); ?>
-                                </a>
-                            </li>
-                            
-                        <?php elseif (isCompanyAdmin()): ?>
-                            <!-- Company Admin Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="../employees/">
-                                    <i class="fas fa-users"></i> <?php echo __('employees'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../machines/">
-                                    <i class="fas fa-truck"></i> <?php echo __('machines'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../projects/">
-                                    <i class="fas fa-project-diagram"></i> <?php echo __('projects'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../contracts/">
-                                    <i class="fas fa-file-contract"></i> <?php echo __('contracts'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../parking/">
-                                    <i class="fas fa-parking"></i> <?php echo __('parking'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../area-rentals/">
-                                    <i class="fas fa-map-marked-alt"></i> <?php echo __('area_rentals'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../expenses/">
-                                    <i class="fas fa-dollar-sign"></i> <?php echo __('expenses'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../salary-payments/">
-                                    <i class="fas fa-money-bill-wave"></i> <?php echo __('salary_payments'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../reports/">
-                                    <i class="fas fa-chart-bar"></i> <?php echo __('reports'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../users/">
-                                    <i class="fas fa-user-cog"></i> <?php echo __('users'); ?>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../settings.php">
-                                    <i class="fas fa-cog"></i> <?php echo __('settings'); ?>
-                                </a>
-                            </li>
-                            <?php if (isSuperAdmin()): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../super-admin/settings/">
-                                    <i class="fas fa-cogs"></i> Platform Settings
-                                </a>
-                            </li>
-                            <?php endif; ?>
-                            
-                        <?php elseif (isEmployee()): ?>
-                            <!-- Employee Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="../attendance/">
-                                    <i class="fas fa-clock"></i> Attendance
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../salary/">
-                                    <i class="fas fa-money-bill"></i> Salary
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../leave/">
-                                    <i class="fas fa-calendar-times"></i> Leave
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../profile/">
-                                    <i class="fas fa-user"></i> Profile
-                                </a>
-                            </li>
-                            
-                        <?php elseif (isRenter()): ?>
-                            <!-- Renter Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="../rentals/">
-                                    <i class="fas fa-list"></i> My Rentals
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../payments/">
-                                    <i class="fas fa-money-bill"></i> Payments
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="../profile/">
-                                    <i class="fas fa-user"></i> Profile
-                                </a>
-                            </li>
-                            
-                        <?php endif; ?>
-                        
-                        <!-- Common Menu Items -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="../profile/">
-                                <i class="fas fa-user"></i> Profile
+                        <!-- User Dropdown -->
+                        <div class="dropdown">
+                            <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
+                                </div>
+                                <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                                <i class="fas fa-chevron-down ms-2"></i>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="../logout.php">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand-lg navbar-light topbar mb-4">
-                    <div class="container-fluid">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        
-                        <div class="navbar-nav ms-auto">
-                            <div class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle"></i>
-                                    <?php 
-                                    if (isAuthenticated()) {
-                                        $user = getCurrentUser();
-                                        echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
-                                    }
-                                    ?>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="../profile/"><i class="fas fa-user"></i> Profile</a></li>
-                                    <li><a class="dropdown-item" href="../settings/"><i class="fas fa-cog"></i> Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                                </ul>
-                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="../profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="../settings/"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="../logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
                         </div>
                     </div>
-                </nav>
-                
-                <!-- Page content -->
-                <div class="container-fluid">
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
