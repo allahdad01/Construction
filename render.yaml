@@ -1,9 +1,3 @@
-databases:
-  - name: construction-saas-db
-    databaseName: construction_saas
-    user: construction_user
-    plan: free
-
 services:
   - type: web
     name: construction-saas-platform
@@ -41,3 +35,9 @@ services:
         generateValue: true
       - key: ENCRYPTION_KEY
         generateValue: true
+
+databases:
+  - name: construction-saas-db
+    databaseName: construction_saas
+    user: construction_lbwy_user
+    plan: free

@@ -18,19 +18,19 @@ class Database {
         $this->db_name = $_ENV['DB_NAME'] ?? 'construction_saas';
         $this->username = $_ENV['DB_USER'] ?? 'root';
         $this->password = $_ENV['DB_PASSWORD'] ?? '';
-        $this->port = $_ENV['DB_PORT'] ?? '3306';
+        $this->port = $_ENV['DB_PORT'] ?? '5432'; // Default to PostgreSQL port
     }
 
     public function getConnection() {
         $this->conn = null;
 
         try {
-            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db_name};charset=utf8mb4";
+            // Use PostgreSQL DSN for Render deployment
+            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name};user={$this->username};password={$this->password}";
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+                PDO::ATTR_EMULATE_PREPARES => false
             ];
             
             $this->conn = new PDO($dsn, $this->username, $this->password, $options);

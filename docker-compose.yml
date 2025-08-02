@@ -10,9 +10,9 @@ services:
       - APP_DEBUG=true
       - APP_URL=http://localhost:8000
       - DB_HOST=db
-      - DB_PORT=3306
+      - DB_PORT=5432
       - DB_NAME=construction_saas
-      - DB_USER=root
+      - DB_USER=postgres
       - DB_PASSWORD=password
       - SESSION_SECRET=dev-secret-key
       - ENCRYPTION_KEY=dev-encryption-key
@@ -24,23 +24,22 @@ services:
       - construction-network
 
   db:
-    image: mysql:8.0
+    image: postgres:15
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=construction_saas
-      - MYSQL_USER=construction_user
-      - MYSQL_PASSWORD=password
+      - POSTGRES_DB=construction_saas
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./database/sample_data.sql:/docker-entrypoint-initdb.d/02-sample-data.sql
     networks:
       - construction-network
 
 volumes:
-  mysql_data:
+  postgres_data:
 
 networks:
   construction-network:

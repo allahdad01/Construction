@@ -1,7 +1,7 @@
 <?php
 /**
  * Deployment Script for Construction SaaS Platform
- * This script sets up the database schema and initial data
+ * This script sets up the database schema and initial data for PostgreSQL
  */
 
 require_once 'config/config.php';
@@ -64,18 +64,24 @@ class Deployment {
     private function createTables() {
         try {
             $schema = file_get_contents('database/schema.sql');
-            $statements = explode(';', $schema);
+            if (!$schema) {
+                $this->errors[] = "Could not read schema.sql file";
+                return false;
+            }
+
+            // Split the schema into individual statements
+            $statements = array_filter(array_map('trim', explode(';', $schema)));
             
             foreach ($statements as $statement) {
-                $statement = trim($statement);
                 if (!empty($statement)) {
                     $this->conn->exec($statement);
                 }
             }
             
+            $this->success[] = "Database tables created successfully.";
             return true;
         } catch (Exception $e) {
-            $this->errors[] = "Failed to create tables: " . $e->getMessage();
+            $this->errors[] = "Error creating tables: " . $e->getMessage();
             return false;
         }
     }
@@ -83,18 +89,24 @@ class Deployment {
     private function insertInitialData() {
         try {
             $sampleData = file_get_contents('database/sample_data.sql');
-            $statements = explode(';', $sampleData);
+            if (!$sampleData) {
+                $this->errors[] = "Could not read sample_data.sql file";
+                return false;
+            }
+
+            // Split the sample data into individual statements
+            $statements = array_filter(array_map('trim', explode(';', $sampleData)));
             
             foreach ($statements as $statement) {
-                $statement = trim($statement);
                 if (!empty($statement)) {
                     $this->conn->exec($statement);
                 }
             }
             
+            $this->success[] = "Initial data inserted successfully.";
             return true;
         } catch (Exception $e) {
-            $this->errors[] = "Failed to insert initial data: " . $e->getMessage();
+            $this->errors[] = "Error inserting initial data: " . $e->getMessage();
             return false;
         }
     }
@@ -102,43 +114,70 @@ class Deployment {
     private function createSuperAdmin() {
         try {
             // Check if super admin already exists
-            $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = 'superadmin@construction.com'");
-            $stmt->execute();
+            $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute(['superadmin@construction.com']);
             
             if ($stmt->fetch()) {
-                return true; // Super admin already exists
+                $this->success[] = "Super admin user already exists.";
+                return true;
             }
 
             // Create super admin user
-            $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
+            $password = password_hash('admin123', PASSWORD_DEFAULT);
             $stmt = $this->conn->prepare("
-                INSERT INTO users (email, password, first_name, last_name, role, is_active, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                INSERT INTO users (email, password, first_name, last_name, role, is_active) 
+                VALUES (?, ?, 'Super', 'Admin', 'super_admin', TRUE)
             ");
             
-            $stmt->execute([
-                'superadmin@construction.com',
-                $hashedPassword,
-                'Super',
-                'Admin',
-                'super_admin',
-                1
-            ]);
-            
-            return true;
+            if ($stmt->execute(['superadmin@construction.com', $password])) {
+                $this->success[] = "Super admin user created successfully.";
+                return true;
+            } else {
+                $this->errors[] = "Failed to create super admin user.";
+                return false;
+            }
         } catch (Exception $e) {
-            $this->errors[] = "Failed to create super admin: " . $e->getMessage();
+            $this->errors[] = "Error creating super admin: " . $e->getMessage();
             return false;
         }
     }
 
     private function setupSampleData() {
         try {
-            // This method can be extended to add more sample data
-            // For now, the sample data is already included in the schema
+            // Create sample companies if they don't exist
+            $companies = [
+                [
+                    'company_code' => 'ABC001',
+                    'company_name' => 'ABC Construction',
+                    'email' => 'admin@abc-construction.com',
+                    'phone' => '+1-555-0101'
+                ],
+                [
+                    'company_code' => 'XYZ002',
+                    'company_name' => 'XYZ Builders',
+                    'email' => 'admin@xyz-builders.com',
+                    'phone' => '+1-555-0102'
+                ]
+            ];
+
+            foreach ($companies as $company) {
+                $stmt = $this->conn->prepare("
+                    INSERT INTO companies (company_code, company_name, email, phone) 
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT (company_code) DO NOTHING
+                ");
+                $stmt->execute([
+                    $company['company_code'],
+                    $company['company_name'],
+                    $company['email'],
+                    $company['phone']
+                ]);
+            }
+
+            $this->success[] = "Sample data setup completed.";
             return true;
         } catch (Exception $e) {
-            $this->errors[] = "Failed to setup sample data: " . $e->getMessage();
+            $this->errors[] = "Error setting up sample data: " . $e->getMessage();
             return false;
         }
     }
@@ -146,37 +185,33 @@ class Deployment {
     private function verifyDeployment() {
         try {
             // Check if essential tables exist
-            $tables = ['users', 'companies', 'employees', 'contracts', 'languages'];
+            $tables = ['companies', 'users', 'employees', 'machines', 'contracts'];
             
             foreach ($tables as $table) {
-                $stmt = $this->conn->prepare("SHOW TABLES LIKE ?");
-                $stmt->execute([$table]);
-                if (!$stmt->fetch()) {
-                    $this->errors[] = "Table '$table' not found.";
+                $stmt = $this->conn->prepare("SELECT COUNT(*) FROM $table");
+                $stmt->execute();
+                $count = $stmt->fetchColumn();
+                
+                if ($count === false) {
+                    $this->errors[] = "Table $table does not exist or is not accessible.";
                     return false;
                 }
             }
-            
+
             // Check if super admin exists
-            $stmt = $this->conn->prepare("SELECT id FROM users WHERE role = 'super_admin'");
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE role = 'super_admin'");
             $stmt->execute();
-            if (!$stmt->fetch()) {
+            $adminCount = $stmt->fetchColumn();
+            
+            if ($adminCount == 0) {
                 $this->errors[] = "Super admin user not found.";
                 return false;
             }
-            
-            // Check if languages exist
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM languages");
-            $stmt->execute();
-            $result = $stmt->fetch();
-            if ($result['count'] < 3) {
-                $this->errors[] = "Languages not properly set up.";
-                return false;
-            }
-            
+
+            $this->success[] = "Deployment verification completed successfully.";
             return true;
         } catch (Exception $e) {
-            $this->errors[] = "Verification failed: " . $e->getMessage();
+            $this->errors[] = "Error during verification: " . $e->getMessage();
             return false;
         }
     }
