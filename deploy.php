@@ -1,7 +1,7 @@
 <?php
 /**
  * Deployment Script for Construction SaaS Platform
- * This script sets up the database schema and initial data for PostgreSQL
+ * This script sets up the database schema and initial data for MySQL
  */
 
 require_once 'config/config.php';
@@ -164,7 +164,7 @@ class Deployment {
                 $stmt = $this->conn->prepare("
                     INSERT INTO companies (company_code, company_name, email, phone) 
                     VALUES (?, ?, ?, ?)
-                    ON CONFLICT (company_code) DO NOTHING
+                    ON DUPLICATE KEY UPDATE company_name = company_name
                 ");
                 $stmt->execute([
                     $company['company_code'],

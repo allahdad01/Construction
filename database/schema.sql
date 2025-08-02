@@ -1,62 +1,63 @@
--- Construction SaaS Platform Database Schema (PostgreSQL)
+-- Construction SaaS Platform Database Schema (MySQL)
 -- Multi-tenant SaaS platform for construction companies
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Create database
+CREATE DATABASE IF NOT EXISTS construction_saas;
+USE construction_saas;
 
 -- Companies Table
 CREATE TABLE companies (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     company_name VARCHAR(100) NOT NULL,
     company_code VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
     address TEXT,
-    subscription_plan_id INTEGER DEFAULT 1,
+    subscription_plan_id INT DEFAULT 1,
     subscription_status VARCHAR(20) DEFAULT 'trial',
     trial_start_date DATE DEFAULT CURRENT_DATE,
-    trial_end_date DATE DEFAULT (CURRENT_DATE + INTERVAL '30 days'),
+    trial_end_date DATE DEFAULT DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Subscription Plans Table
 CREATE TABLE subscription_plans (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     plan_name VARCHAR(50) NOT NULL,
     plan_code VARCHAR(20) UNIQUE NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    max_employees INTEGER DEFAULT 25,
-    max_machines INTEGER DEFAULT 50,
-    max_projects INTEGER DEFAULT 25,
+    max_employees INT DEFAULT 25,
+    max_machines INT DEFAULT 50,
+    max_projects INT DEFAULT 25,
     features TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Users Table
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'employee',
     is_active BOOLEAN DEFAULT TRUE,
-    last_login TIMESTAMP,
+    last_login TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 -- Employees Table
 CREATE TABLE employees (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    user_id INTEGER,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    user_id INT,
     employee_code VARCHAR(20) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
@@ -67,38 +68,38 @@ CREATE TABLE employees (
     monthly_salary DECIMAL(10,2) NOT NULL,
     daily_rate DECIMAL(10,2) GENERATED ALWAYS AS (monthly_salary / 30) STORED,
     hire_date DATE NOT NULL,
-    leave_days_used INTEGER DEFAULT 0,
-    leave_days_remaining INTEGER DEFAULT 20,
+    leave_days_used INT DEFAULT 0,
+    leave_days_remaining INT DEFAULT 20,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    UNIQUE(company_id, employee_code)
+    UNIQUE KEY unique_employee_per_company (company_id, employee_code)
 );
 
 -- Machines Table
 CREATE TABLE machines (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     machine_code VARCHAR(20) NOT NULL,
     machine_name VARCHAR(100) NOT NULL,
     machine_type VARCHAR(50) NOT NULL,
     model VARCHAR(100),
-    year INTEGER,
+    year INT,
     capacity VARCHAR(50),
     fuel_type VARCHAR(20),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, machine_code)
+    UNIQUE KEY unique_machine_per_company (company_id, machine_code)
 );
 
 -- Projects Table
 CREATE TABLE projects (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     project_code VARCHAR(20) NOT NULL,
     project_name VARCHAR(100) NOT NULL,
     client_name VARCHAR(100),
@@ -108,55 +109,55 @@ CREATE TABLE projects (
     status VARCHAR(20) DEFAULT 'active',
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, project_code)
+    UNIQUE KEY unique_project_per_company (company_id, project_code)
 );
 
 -- Contracts Table
 CREATE TABLE contracts (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    project_id INTEGER NOT NULL,
-    machine_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    project_id INT NOT NULL,
+    machine_id INT NOT NULL,
     contract_code VARCHAR(20) NOT NULL,
     contract_type VARCHAR(20) NOT NULL DEFAULT 'hourly',
     rate_amount DECIMAL(10,2) NOT NULL,
-    working_hours_per_day INTEGER DEFAULT 9,
-    total_hours_required INTEGER,
+    working_hours_per_day INT DEFAULT 9,
+    total_hours_required INT,
     start_date DATE NOT NULL,
     end_date DATE,
     status VARCHAR(20) DEFAULT 'active',
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (machine_id) REFERENCES machines(id) ON DELETE CASCADE,
-    UNIQUE(company_id, contract_code)
+    UNIQUE KEY unique_contract_per_company (company_id, contract_code)
 );
 
 -- Working Hours Table
 CREATE TABLE working_hours (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    contract_id INTEGER NOT NULL,
-    employee_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    contract_id INT NOT NULL,
+    employee_id INT NOT NULL,
     date DATE NOT NULL,
     hours_worked DECIMAL(4,2) NOT NULL,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE,
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    UNIQUE(contract_id, employee_id, date)
+    UNIQUE KEY unique_working_hours (contract_id, employee_id, date)
 );
 
 -- Parking Spaces Table
 CREATE TABLE parking_spaces (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     space_code VARCHAR(20) NOT NULL,
     space_name VARCHAR(100) NOT NULL,
     location TEXT,
@@ -165,16 +166,16 @@ CREATE TABLE parking_spaces (
     daily_rate DECIMAL(10,2) GENERATED ALWAYS AS (monthly_rate / 30) STORED,
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, space_code)
+    UNIQUE KEY unique_space_per_company (company_id, space_code)
 );
 
 -- Parking Rentals Table
 CREATE TABLE parking_rentals (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    parking_space_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    parking_space_id INT NOT NULL,
     renter_name VARCHAR(100) NOT NULL,
     renter_email VARCHAR(100),
     renter_phone VARCHAR(20),
@@ -187,15 +188,15 @@ CREATE TABLE parking_rentals (
     status VARCHAR(20) DEFAULT 'active',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (parking_space_id) REFERENCES parking_spaces(id) ON DELETE CASCADE
 );
 
 -- Rental Areas Table
 CREATE TABLE rental_areas (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     area_code VARCHAR(20) NOT NULL,
     area_name VARCHAR(100) NOT NULL,
     location TEXT,
@@ -204,16 +205,16 @@ CREATE TABLE rental_areas (
     daily_rate DECIMAL(10,2) GENERATED ALWAYS AS (monthly_rate / 30) STORED,
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, area_code)
+    UNIQUE KEY unique_area_per_company (company_id, area_code)
 );
 
 -- Area Rentals Table
 CREATE TABLE area_rentals (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    rental_area_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    rental_area_id INT NOT NULL,
     renter_name VARCHAR(100) NOT NULL,
     renter_email VARCHAR(100),
     renter_phone VARCHAR(20),
@@ -226,15 +227,15 @@ CREATE TABLE area_rentals (
     status VARCHAR(20) DEFAULT 'active',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (rental_area_id) REFERENCES rental_areas(id) ON DELETE CASCADE
 );
 
 -- Expenses Table
 CREATE TABLE expenses (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     expense_code VARCHAR(20) NOT NULL,
     expense_date DATE NOT NULL,
     category VARCHAR(50) NOT NULL,
@@ -244,22 +245,22 @@ CREATE TABLE expenses (
     reference_number VARCHAR(100),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, expense_code)
+    UNIQUE KEY unique_expense_per_company (company_id, expense_code)
 );
 
 -- Salary Payments Table
 CREATE TABLE salary_payments (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    employee_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
     payment_code VARCHAR(20) NOT NULL,
     payment_date DATE NOT NULL,
-    month INTEGER NOT NULL,
-    year INTEGER NOT NULL,
-    working_days INTEGER NOT NULL,
-    leave_days INTEGER DEFAULT 0,
+    month INT NOT NULL,
+    year INT NOT NULL,
+    working_days INT NOT NULL,
+    leave_days INT DEFAULT 0,
     daily_rate DECIMAL(10,2) NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL,
     paid_amount DECIMAL(10,2) DEFAULT 0,
@@ -267,17 +268,17 @@ CREATE TABLE salary_payments (
     reference_number VARCHAR(100),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    UNIQUE(company_id, payment_code)
+    UNIQUE KEY unique_payment_per_company (company_id, payment_code)
 );
 
 -- User Payments Table
 CREATE TABLE user_payments (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    user_id INT NOT NULL,
     payment_code VARCHAR(20) NOT NULL,
     payment_date DATE NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -286,16 +287,16 @@ CREATE TABLE user_payments (
     status VARCHAR(20) DEFAULT 'completed',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE(company_id, payment_code)
+    UNIQUE KEY unique_user_payment_per_company (company_id, payment_code)
 );
 
 -- Company Payments Table
 CREATE TABLE company_payments (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
     payment_code VARCHAR(20) NOT NULL,
     payment_date DATE NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -304,16 +305,16 @@ CREATE TABLE company_payments (
     status VARCHAR(20) DEFAULT 'completed',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    UNIQUE(company_id, payment_code)
+    UNIQUE KEY unique_company_payment_per_company (company_id, payment_code)
 );
 
 -- Employee Attendance Table
 CREATE TABLE employee_attendance (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    employee_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
     date DATE NOT NULL,
     check_in TIME,
     check_out TIME,
@@ -321,27 +322,27 @@ CREATE TABLE employee_attendance (
     status VARCHAR(20) DEFAULT 'present',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    UNIQUE(employee_id, date)
+    UNIQUE KEY unique_attendance_per_day (employee_id, date)
 );
 
 -- System Settings Table
 CREATE TABLE system_settings (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     setting_key VARCHAR(100) UNIQUE NOT NULL,
     setting_value TEXT,
     setting_type VARCHAR(20) DEFAULT 'string',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Contract Payments Table
 CREATE TABLE contract_payments (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    contract_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    contract_id INT NOT NULL,
     payment_code VARCHAR(20) NOT NULL,
     payment_date DATE NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -350,53 +351,53 @@ CREATE TABLE contract_payments (
     status VARCHAR(20) DEFAULT 'completed',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE,
-    UNIQUE(company_id, payment_code)
+    UNIQUE KEY unique_contract_payment_per_company (company_id, payment_code)
 );
 
 -- Currency Table
 CREATE TABLE currencies (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     currency_code VARCHAR(3) UNIQUE NOT NULL,
     currency_name VARCHAR(50) NOT NULL,
     currency_symbol VARCHAR(5) NOT NULL,
     exchange_rate_to_usd DECIMAL(10,4) DEFAULT 1.0000,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Date Format Table
 CREATE TABLE date_formats (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     format_code VARCHAR(20) UNIQUE NOT NULL,
     format_name VARCHAR(50) NOT NULL,
     format_pattern VARCHAR(20) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Company Settings Table
 CREATE TABLE company_settings (
-    id SERIAL PRIMARY KEY,
-    company_id INTEGER NOT NULL,
-    default_currency_id INTEGER NOT NULL,
-    default_date_format_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    default_currency_id INT NOT NULL,
+    default_date_format_id INT NOT NULL,
     timezone VARCHAR(50) DEFAULT 'UTC',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     FOREIGN KEY (default_currency_id) REFERENCES currencies(id),
     FOREIGN KEY (default_date_format_id) REFERENCES date_formats(id),
-    UNIQUE(company_id)
+    UNIQUE KEY unique_company_settings (company_id)
 );
 
 -- Languages Table
 CREATE TABLE languages (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     language_code VARCHAR(5) UNIQUE NOT NULL,
     language_name VARCHAR(50) NOT NULL,
     language_name_native VARCHAR(50) NOT NULL,
@@ -404,19 +405,19 @@ CREATE TABLE languages (
     is_active BOOLEAN DEFAULT TRUE,
     is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Language Translations Table
 CREATE TABLE language_translations (
-    id SERIAL PRIMARY KEY,
-    language_id INTEGER NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    language_id INT NOT NULL,
     translation_key VARCHAR(100) NOT NULL,
     translation_value TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (language_id) REFERENCES languages(id) ON DELETE CASCADE,
-    UNIQUE(language_id, translation_key)
+    UNIQUE KEY unique_translation_per_language (language_id, translation_key)
 );
 
 -- Insert default subscription plans
