@@ -18,16 +18,22 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['machine_name', 'machine_type', 'model', 'year', 'current_value'];
+        $required_fields = ['name', 'type', 'model', 'year_manufactured', 'purchase_cost'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
         }
 
-        // Validate current value
-        if (!is_numeric($_POST['current_value']) || $_POST['current_value'] <= 0) {
-            throw new Exception("Current value must be a positive number.");
+        // Validate purchase cost
+        if (!is_numeric($_POST['purchase_cost']) || $_POST['purchase_cost'] <= 0) {
+            throw new Exception("Purchase cost must be a positive number.");
+        }
+
+        // Validate year
+        $current_year = date('Y');
+        if ($_POST['year_manufactured'] < 1900 || $_POST['year_manufactured'] > $current_year + 1) {
+            throw new Exception("Year must be between 1900 and " . ($current_year + 1));
         }
 
         // Generate machine code
@@ -39,25 +45,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create machine record
         $stmt = $conn->prepare("
             INSERT INTO machines (
-                company_id, machine_code, machine_name, machine_type, model, 
-                year, manufacturer, serial_number, current_value, 
-                purchase_date, status, location, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?, NOW())
+                company_id, machine_code, name, type, model,
+                year_manufactured, capacity, fuel_type, status,
+                purchase_date, purchase_cost, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?, NOW())
         ");
 
         $stmt->execute([
             $company_id,
             $machine_code,
-            $_POST['machine_name'],
-            $_POST['machine_type'],
+            $_POST['name'],
+            $_POST['type'],
             $_POST['model'],
-            $_POST['year'],
-            $_POST['manufacturer'] ?? '',
-            $_POST['serial_number'] ?? '',
-            $_POST['current_value'],
+            $_POST['year_manufactured'],
+            $_POST['capacity'] ?? '',
+            $_POST['fuel_type'] ?? '',
             $_POST['purchase_date'] ?? null,
-            $_POST['location'] ?? '',
-            $_POST['notes'] ?? ''
+            $_POST['purchase_cost']
         ]);
 
         $machine_id = $conn->lastInsertId();
@@ -66,10 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->commit();
 
         $success = "Machine added successfully! Machine Code: $machine_code";
-        
+
         // Redirect to view page after 2 seconds
         header("refresh:2;url=view.php?id=$machine_id");
-        
+
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollBack();
@@ -80,19 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Helper function to generate machine code
 function generateMachineCode($company_id) {
     global $conn;
-    
+
     // Get company prefix
     $stmt = $conn->prepare("SELECT company_code FROM companies WHERE id = ?");
     $stmt->execute([$company_id]);
     $company_code = $stmt->fetch(PDO::FETCH_ASSOC)['company_code'];
-    
+
     // Get next machine number
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM machines WHERE company_id = ?");
     $stmt->execute([$company_id]);
     $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
+
     $next_number = $count + 1;
-    return strtoupper($company_code) . 'MCH' . str_pad($next_number, 4, '0', STR_PAD_LEFT);
+    return strtoupper($company_code) . 'MCH' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
 }
 ?>
 
@@ -133,25 +137,25 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="machine_name" class="form-label">Machine Name *</label>
-                                    <input type="text" class="form-control" id="machine_name" name="machine_name" 
-                                           value="<?php echo htmlspecialchars($_POST['machine_name'] ?? ''); ?>" 
+                                    <label for="name" class="form-label">Machine Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
                                            required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="machine_type" class="form-label">Machine Type *</label>
-                                    <select class="form-control" id="machine_type" name="machine_type" required>
+                                    <label for="type" class="form-label">Machine Type *</label>
+                                    <select class="form-control" id="type" name="type" required>
                                         <option value="">Select Type</option>
-                                        <option value="excavator" <?php echo ($_POST['machine_type'] ?? '') === 'excavator' ? 'selected' : ''; ?>>Excavator</option>
-                                        <option value="bulldozer" <?php echo ($_POST['machine_type'] ?? '') === 'bulldozer' ? 'selected' : ''; ?>>Bulldozer</option>
-                                        <option value="loader" <?php echo ($_POST['machine_type'] ?? '') === 'loader' ? 'selected' : ''; ?>>Loader</option>
-                                        <option value="crane" <?php echo ($_POST['machine_type'] ?? '') === 'crane' ? 'selected' : ''; ?>>Crane</option>
-                                        <option value="dump_truck" <?php echo ($_POST['machine_type'] ?? '') === 'dump_truck' ? 'selected' : ''; ?>>Dump Truck</option>
-                                        <option value="concrete_mixer" <?php echo ($_POST['machine_type'] ?? '') === 'concrete_mixer' ? 'selected' : ''; ?>>Concrete Mixer</option>
-                                        <option value="compactor" <?php echo ($_POST['machine_type'] ?? '') === 'compactor' ? 'selected' : ''; ?>>Compactor</option>
-                                        <option value="other" <?php echo ($_POST['machine_type'] ?? '') === 'other' ? 'selected' : ''; ?>>Other</option>
+                                        <option value="excavator" <?php echo ($_POST['type'] ?? '') === 'excavator' ? 'selected' : ''; ?>>Excavator</option>
+                                        <option value="bulldozer" <?php echo ($_POST['type'] ?? '') === 'bulldozer' ? 'selected' : ''; ?>>Bulldozer</option>
+                                        <option value="loader" <?php echo ($_POST['type'] ?? '') === 'loader' ? 'selected' : ''; ?>>Loader</option>
+                                        <option value="crane" <?php echo ($_POST['type'] ?? '') === 'crane' ? 'selected' : ''; ?>>Crane</option>
+                                        <option value="dump_truck" <?php echo ($_POST['type'] ?? '') === 'dump_truck' ? 'selected' : ''; ?>>Dump Truck</option>
+                                        <option value="concrete_mixer" <?php echo ($_POST['type'] ?? '') === 'concrete_mixer' ? 'selected' : ''; ?>>Concrete Mixer</option>
+                                        <option value="compactor" <?php echo ($_POST['type'] ?? '') === 'compactor' ? 'selected' : ''; ?>>Compactor</option>
+                                        <option value="other" <?php echo ($_POST['type'] ?? '') === 'other' ? 'selected' : ''; ?>>Other</option>
                                     </select>
                                 </div>
                             </div>
@@ -161,16 +165,16 @@ function generateMachineCode($company_id) {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="model" class="form-label">Model *</label>
-                                    <input type="text" class="form-control" id="model" name="model" 
-                                           value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>" 
+                                    <input type="text" class="form-control" id="model" name="model"
+                                           value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>"
                                            required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="year" class="form-label">Year *</label>
-                                    <input type="number" class="form-control" id="year" name="year" 
-                                           value="<?php echo htmlspecialchars($_POST['year'] ?? ''); ?>" 
+                                    <label for="year_manufactured" class="form-label">Year Manufactured *</label>
+                                    <input type="number" class="form-control" id="year_manufactured" name="year_manufactured"
+                                           value="<?php echo htmlspecialchars($_POST['year_manufactured'] ?? ''); ?>"
                                            min="1900" max="<?php echo date('Y') + 1; ?>" required>
                                 </div>
                             </div>
@@ -179,16 +183,23 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="manufacturer" class="form-label">Manufacturer</label>
-                                    <input type="text" class="form-control" id="manufacturer" name="manufacturer" 
-                                           value="<?php echo htmlspecialchars($_POST['manufacturer'] ?? ''); ?>">
+                                    <label for="capacity" class="form-label">Capacity</label>
+                                    <input type="text" class="form-control" id="capacity" name="capacity"
+                                           value="<?php echo htmlspecialchars($_POST['capacity'] ?? ''); ?>"
+                                           placeholder="e.g., 20 tons, 10 cubic yards">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="serial_number" class="form-label">Serial Number</label>
-                                    <input type="text" class="form-control" id="serial_number" name="serial_number" 
-                                           value="<?php echo htmlspecialchars($_POST['serial_number'] ?? ''); ?>">
+                                    <label for="fuel_type" class="form-label">Fuel Type</label>
+                                    <select class="form-control" id="fuel_type" name="fuel_type">
+                                        <option value="">Select Fuel Type</option>
+                                        <option value="diesel" <?php echo ($_POST['fuel_type'] ?? '') === 'diesel' ? 'selected' : ''; ?>>Diesel</option>
+                                        <option value="gasoline" <?php echo ($_POST['fuel_type'] ?? '') === 'gasoline' ? 'selected' : ''; ?>>Gasoline</option>
+                                        <option value="electric" <?php echo ($_POST['fuel_type'] ?? '') === 'electric' ? 'selected' : ''; ?>>Electric</option>
+                                        <option value="hybrid" <?php echo ($_POST['fuel_type'] ?? '') === 'hybrid' ? 'selected' : ''; ?>>Hybrid</option>
+                                        <option value="other" <?php echo ($_POST['fuel_type'] ?? '') === 'other' ? 'selected' : ''; ?>>Other</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -196,11 +207,11 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="current_value" class="form-label">Current Value *</label>
+                                    <label for="purchase_cost" class="form-label">Purchase Cost *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="current_value" name="current_value" 
-                                               value="<?php echo htmlspecialchars($_POST['current_value'] ?? ''); ?>" 
+                                        <input type="number" class="form-control" id="purchase_cost" name="purchase_cost"
+                                               value="<?php echo htmlspecialchars($_POST['purchase_cost'] ?? ''); ?>"
                                                step="0.01" min="0" required>
                                     </div>
                                 </div>
@@ -208,7 +219,7 @@ function generateMachineCode($company_id) {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="purchase_date" class="form-label">Purchase Date</label>
-                                    <input type="date" class="form-control" id="purchase_date" name="purchase_date" 
+                                    <input type="date" class="form-control" id="purchase_date" name="purchase_date"
                                            value="<?php echo htmlspecialchars($_POST['purchase_date'] ?? ''); ?>">
                                 </div>
                             </div>
@@ -217,24 +228,17 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="location" class="form-label">Location</label>
-                                    <input type="text" class="form-control" id="location" name="location" 
-                                           value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" 
-                                           placeholder="e.g., Site A, Warehouse B">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
                                     <label class="form-label">Machine Code</label>
                                     <input type="text" class="form-control" id="machine_code_preview" readonly>
                                     <div class="form-text">Will be automatically generated</div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Status</label>
+                                    <input type="text" class="form-control" value="Available" readonly>
+                                </div>
+                            </div>
                         </div>
 
                         <hr>
@@ -263,7 +267,7 @@ function generateMachineCode($company_id) {
                         <h6><i class="fas fa-info-circle text-info"></i> Machine Code</h6>
                         <p class="text-muted">A unique machine code will be automatically generated.</p>
                     </div>
-                    
+
                     <div class="mb-3">
                         <h6><i class="fas fa-truck text-primary"></i> Machine Types</h6>
                         <ul class="text-muted">
@@ -276,10 +280,10 @@ function generateMachineCode($company_id) {
                             <li><strong>Compactor:</strong> For compacting soil</li>
                         </ul>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <h6><i class="fas fa-dollar-sign text-success"></i> Value Tracking</h6>
-                        <p class="text-muted">Track the current market value of your machines for insurance and accounting purposes.</p>
+                        <h6><i class="fas fa-dollar-sign text-success"></i> Cost Tracking</h6>
+                        <p class="text-muted">Track the purchase cost of your machines for accounting and depreciation purposes.</p>
                     </div>
                 </div>
             </div>
@@ -313,20 +317,20 @@ function generateMachineCode($company_id) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('machineForm');
-    const machineNameInput = document.getElementById('machine_name');
-    const machineTypeInput = document.getElementById('machine_type');
+    const machineNameInput = document.getElementById('name');
+    const machineTypeInput = document.getElementById('type');
     const machineCodePreview = document.getElementById('machine_code_preview');
 
     // Form validation
     form.addEventListener('submit', function(e) {
         let isValid = true;
         const requiredFields = form.querySelectorAll('[required]');
-        
+
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 isValid = false;
                 field.classList.add('is-invalid');
-                
+
                 // Add error message if not exists
                 if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
                     const errorDiv = document.createElement('div');
@@ -343,32 +347,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Value validation
-        const currentValue = parseFloat(document.getElementById('current_value').value);
-        if (document.getElementById('current_value').value && (isNaN(currentValue) || currentValue <= 0)) {
+        // Purchase cost validation
+        const purchaseCost = parseFloat(document.getElementById('purchase_cost').value);
+        if (document.getElementById('purchase_cost').value && (isNaN(purchaseCost) || purchaseCost <= 0)) {
             isValid = false;
-            document.getElementById('current_value').classList.add('is-invalid');
-            
-            if (!document.getElementById('current_value').nextElementSibling || !document.getElementById('current_value').nextElementSibling.classList.contains('invalid-feedback')) {
+            document.getElementById('purchase_cost').classList.add('is-invalid');
+
+            if (!document.getElementById('purchase_cost').nextElementSibling || !document.getElementById('purchase_cost').nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = 'Value must be a positive number.';
-                document.getElementById('current_value').parentNode.appendChild(errorDiv);
+                errorDiv.textContent = 'Purchase cost must be a positive number.';
+                document.getElementById('purchase_cost').parentNode.appendChild(errorDiv);
             }
         }
 
         // Year validation
-        const year = parseInt(document.getElementById('year').value);
+        const year = parseInt(document.getElementById('year_manufactured').value);
         const currentYear = new Date().getFullYear();
-        if (document.getElementById('year').value && (year < 1900 || year > currentYear + 1)) {
+        if (document.getElementById('year_manufactured').value && (year < 1900 || year > currentYear + 1)) {
             isValid = false;
-            document.getElementById('year').classList.add('is-invalid');
-            
-            if (!document.getElementById('year').nextElementSibling || !document.getElementById('year').nextElementSibling.classList.contains('invalid-feedback')) {
+            document.getElementById('year_manufactured').classList.add('is-invalid');
+
+            if (!document.getElementById('year_manufactured').nextElementSibling || !document.getElementById('year_manufactured').nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
                 errorDiv.textContent = `Year must be between 1900 and ${currentYear + 1}.`;
-                document.getElementById('year').parentNode.appendChild(errorDiv);
+                document.getElementById('year_manufactured').parentNode.appendChild(errorDiv);
             }
         }
 
@@ -410,17 +414,17 @@ document.addEventListener('DOMContentLoaded', function() {
             errorMessage = 'This field is required.';
         }
 
-        // Value validation
-        if (field.name === 'current_value' && value) {
+        // Purchase cost validation
+        if (field.name === 'purchase_cost' && value) {
             const val = parseFloat(value);
             if (isNaN(val) || val <= 0) {
                 isValid = false;
-                errorMessage = 'Value must be a positive number.';
+                errorMessage = 'Purchase cost must be a positive number.';
             }
         }
 
         // Year validation
-        if (field.name === 'year' && value) {
+        if (field.name === 'year_manufactured' && value) {
             const year = parseInt(value);
             const currentYear = new Date().getFullYear();
             if (year < 1900 || year > currentYear + 1) {
@@ -443,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateMachineCodePreview() {
         const machineName = machineNameInput.value.trim();
         const machineType = machineTypeInput.value;
-        
+
         if (machineName && machineType) {
             // This would be the actual generation logic
             const preview = 'MCH' + machineName.substring(0, 3).toUpperCase() + machineType.substring(0, 3).toUpperCase() + '001';

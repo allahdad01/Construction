@@ -25,7 +25,7 @@ if (!$employee_id) {
 // Get employee details
 $stmt = $conn->prepare("
     SELECT e.*, u.email as user_email, u.status as user_status
-    FROM employees e 
+    FROM employees e
     LEFT JOIN users u ON e.user_id = u.id
     WHERE e.id = ? AND e.company_id = ?
 ");
@@ -41,7 +41,7 @@ if (!$employee) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['first_name', 'last_name', 'employee_type', 'monthly_salary'];
+        $required_fields = ['name', 'position', 'monthly_salary'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
@@ -58,31 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Update employee record
         $stmt = $conn->prepare("
-            UPDATE employees SET 
-                first_name = ?, 
-                last_name = ?, 
-                employee_type = ?, 
-                email = ?, 
-                phone = ?, 
-                address = ?, 
-                monthly_salary = ?, 
-                daily_rate = ?, 
+            UPDATE employees SET
+                name = ?,
+                position = ?,
+                email = ?,
+                phone = ?,
+                monthly_salary = ?,
+                hire_date = ?,
                 status = ?,
                 updated_at = NOW()
             WHERE id = ? AND company_id = ?
         ");
 
-        $daily_rate = $_POST['monthly_salary'] / 30; // Calculate daily rate
-        
         $stmt->execute([
-            $_POST['first_name'],
-            $_POST['last_name'],
-            $_POST['employee_type'],
+            $_POST['name'],
+            $_POST['position'],
             $_POST['email'] ?? '',
             $_POST['phone'] ?? '',
-            $_POST['address'] ?? '',
             $_POST['monthly_salary'],
-            $daily_rate,
+            $_POST['hire_date'] ?? $employee['hire_date'],
             $_POST['status'] ?? 'active',
             $employee_id,
             $company_id
@@ -97,19 +91,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Email already exists in the system.");
             }
 
-            // Update user email
-            $stmt = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
-            $stmt->execute([$_POST['email'], $employee['user_id']]);
+            // Update user email and name
+            $name_parts = explode(' ', trim($_POST['name']), 2);
+            $first_name = $name_parts[0];
+            $last_name = isset($name_parts[1]) ? $name_parts[1] : '';
+
+            $stmt = $conn->prepare("UPDATE users SET email = ?, first_name = ?, last_name = ? WHERE id = ?");
+            $stmt->execute([$_POST['email'], $first_name, $last_name, $employee['user_id']]);
         }
 
         // Commit transaction
         $conn->commit();
 
         $success = "Employee updated successfully!";
-        
+
         // Redirect to view page after 2 seconds
         header("refresh:2;url=view.php?id=$employee_id");
-        
+
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollBack();
@@ -160,68 +158,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="first_name" class="form-label">First Name *</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name" 
-                                           value="<?php echo htmlspecialchars($employee['first_name']); ?>" 
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           value="<?php echo htmlspecialchars($employee['name']); ?>"
                                            required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="last_name" class="form-label">Last Name *</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name" 
-                                           value="<?php echo htmlspecialchars($employee['last_name']); ?>" 
-                                           required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" 
+                                    <input type="email" class="form-control" id="email" name="email"
                                            value="<?php echo htmlspecialchars($employee['email']); ?>">
                                     <div class="form-text">This will update the user account email if changed.</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" 
-                                           value="<?php echo htmlspecialchars($employee['phone']); ?>">
-                                </div>
-                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="employee_type" class="form-label">Employee Type *</label>
-                                    <select class="form-control" id="employee_type" name="employee_type" required>
-                                        <option value="">Select Type</option>
-                                        <option value="driver" <?php echo $employee['employee_type'] === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                                        <option value="driver_assistant" <?php echo $employee['employee_type'] === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                           value="<?php echo htmlspecialchars($employee['phone']); ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="position" class="form-label">Position *</label>
+                                    <select class="form-control" id="position" name="position" required>
+                                        <option value="">Select Position</option>
+                                        <option value="driver" <?php echo $employee['position'] === 'driver' ? 'selected' : ''; ?>>Driver</option>
+                                        <option value="driver_assistant" <?php echo $employee['position'] === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
+                                        <option value="operator" <?php echo $employee['position'] === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
+                                        <option value="supervisor" <?php echo $employee['position'] === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
+                                        <option value="technician" <?php echo $employee['position'] === 'technician' ? 'selected' : ''; ?>>Technician</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="monthly_salary" class="form-label">Monthly Salary *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="monthly_salary" name="monthly_salary" 
-                                               value="<?php echo htmlspecialchars($employee['monthly_salary']); ?>" 
+                                        <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
+                                               value="<?php echo htmlspecialchars($employee['monthly_salary']); ?>"
                                                step="0.01" min="0" required>
                                     </div>
                                     <div class="form-text">Daily rate will be calculated automatically (Monthly Salary ÷ 30)</div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($employee['address']); ?></textarea>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hire_date" class="form-label">Hire Date</label>
+                                    <input type="date" class="form-control" id="hire_date" name="hire_date"
+                                           value="<?php echo htmlspecialchars($employee['hire_date']); ?>">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -247,14 +242,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Daily Rate</label>
-                                    <input type="text" class="form-control" id="daily_rate_display" 
+                                    <input type="text" class="form-control" id="daily_rate_display"
                                            value="$<?php echo number_format($employee['daily_rate'], 2); ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Created Date</label>
-                                    <input type="text" class="form-control" 
+                                    <input type="text" class="form-control"
                                            value="<?php echo date('M j, Y', strtotime($employee['created_at'])); ?>" readonly>
                                 </div>
                             </div>
@@ -285,13 +280,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="text-center mb-3">
                         <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
                             <span class="text-white font-weight-bold" style="font-size: 1.5rem;">
-                                <?php echo strtoupper(substr($employee['first_name'], 0, 1) . substr($employee['last_name'], 0, 1)); ?>
+                                <?php
+                                $name_parts = explode(' ', $employee['name']);
+                                echo strtoupper(substr($name_parts[0], 0, 1) . (isset($name_parts[1]) ? substr($name_parts[1], 0, 1) : ''));
+                                ?>
                             </span>
                         </div>
-                        <h5 class="mt-2"><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h5>
+                        <h5 class="mt-2"><?php echo htmlspecialchars($employee['name']); ?></h5>
                         <p class="text-muted"><?php echo htmlspecialchars($employee['employee_code']); ?></p>
                     </div>
-                    
+
                     <div class="row text-center">
                         <div class="col-6">
                             <h6 class="text-success">$<?php echo number_format($employee['monthly_salary'], 2); ?></h6>
@@ -302,20 +300,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <small class="text-muted">Daily Rate</small>
                         </div>
                     </div>
-                    
+
                     <hr>
-                    
+
                     <div class="mb-2">
-                        <strong>Type:</strong> <?php echo ucfirst(str_replace('_', ' ', $employee['employee_type'])); ?>
+                        <strong>Position:</strong> <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
                     </div>
                     <div class="mb-2">
-                        <strong>Status:</strong> 
+                        <strong>Status:</strong>
                         <span class="badge bg-<?php echo $employee['status'] === 'active' ? 'success' : 'secondary'; ?>">
                             <?php echo ucfirst($employee['status']); ?>
                         </span>
                     </div>
                     <div class="mb-2">
-                        <strong>User Account:</strong> 
+                        <strong>User Account:</strong>
                         <?php if ($employee['user_id']): ?>
                             <span class="badge bg-success">Active</span>
                         <?php else: ?>
@@ -358,17 +356,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h6><i class="fas fa-info-circle text-info"></i> Employee Code</h6>
                         <p class="text-muted">Employee codes are automatically generated and cannot be changed.</p>
                     </div>
-                    
+
                     <div class="mb-3">
                         <h6><i class="fas fa-calculator text-success"></i> Salary Calculation</h6>
                         <p class="text-muted">Daily rate is calculated as: Monthly Salary ÷ 30 days</p>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <h6><i class="fas fa-user-tag text-primary"></i> Employee Types</h6>
+                        <h6><i class="fas fa-user-tag text-primary"></i> Positions</h6>
                         <ul class="text-muted">
                             <li><strong>Driver:</strong> Primary machine operator</li>
                             <li><strong>Driver Assistant:</strong> Supports driver operations</li>
+                            <li><strong>Machine Operator:</strong> Specialized machinery operator</li>
+                            <li><strong>Supervisor:</strong> Oversees operations</li>
+                            <li><strong>Technician:</strong> Maintains equipment</li>
                         </ul>
                     </div>
                 </div>
@@ -394,12 +395,12 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         let isValid = true;
         const requiredFields = form.querySelectorAll('[required]');
-        
+
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 isValid = false;
                 field.classList.add('is-invalid');
-                
+
                 // Add error message if not exists
                 if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
                     const errorDiv = document.createElement('div');
@@ -421,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (monthlySalaryInput.value && (isNaN(salary) || salary <= 0)) {
             isValid = false;
             monthlySalaryInput.classList.add('is-invalid');
-            
+
             if (!monthlySalaryInput.nextElementSibling || !monthlySalaryInput.nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';

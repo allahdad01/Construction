@@ -132,8 +132,8 @@ if (isset($_POST['change_password'])) {
 
 // Get user details with employee information if applicable
 $stmt = $conn->prepare("
-    SELECT u.*, e.phone, e.address, e.employee_code, e.employee_type, e.monthly_salary, e.daily_rate
-    FROM users u 
+    SELECT u.*, e.phone, e.address, e.employee_code, e.position, e.monthly_salary, e.daily_rate
+    FROM users u
     LEFT JOIN employees e ON u.id = e.user_id AND e.company_id = ?
     WHERE u.id = ?
 ");
@@ -324,9 +324,9 @@ $company_info = $stmt->fetch(PDO::FETCH_ASSOC);
                         <strong>Member Since:</strong> <?php echo date('M j, Y', strtotime($user_details['created_at'])); ?>
                     </div>
                     
-                    <?php if ($user_details['employee_type']): ?>
+                    <?php if ($user_details['position']): ?>
                     <div class="mb-2">
-                        <strong>Employee Type:</strong> <?php echo ucfirst(str_replace('_', ' ', $user_details['employee_type'])); ?>
+                        <strong>Position:</strong> <?php echo ucfirst(str_replace('_', ' ', $user_details['position'])); ?>
                     </div>
                     <?php endif; ?>
                     

@@ -40,8 +40,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
 // Get search and filter parameters
 $search = $_GET['search'] ?? '';
+$position_filter = $_GET['position'] ?? '';
 $status_filter = $_GET['status'] ?? '';
-$type_filter = $_GET['type'] ?? '';
 $page = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 10;
 $offset = ($page - 1) * $per_page;
@@ -51,9 +51,14 @@ $where_conditions = ["e.company_id = ?"];
 $params = [$company_id];
 
 if (!empty($search)) {
-    $where_conditions[] = "(e.first_name LIKE ? OR e.last_name LIKE ? OR e.employee_code LIKE ? OR e.email LIKE ?)";
+    $where_conditions[] = "(e.name LIKE ? OR e.employee_code LIKE ? OR e.email LIKE ?)";
     $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
+    $params = array_merge($params, [$search_param, $search_param, $search_param]);
+}
+
+if (!empty($position_filter)) {
+    $where_conditions[] = "e.position = ?";
+    $params[] = $position_filter;
 }
 
 if (!empty($status_filter)) {
@@ -61,17 +66,12 @@ if (!empty($status_filter)) {
     $params[] = $status_filter;
 }
 
-if (!empty($type_filter)) {
-    $where_conditions[] = "e.employee_type = ?";
-    $params[] = $type_filter;
-}
-
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get total count for pagination
 $count_stmt = $conn->prepare("
-    SELECT COUNT(*) as total 
-    FROM employees e 
+    SELECT COUNT(*) as total
+    FROM employees e
     WHERE $where_clause
 ");
 $count_stmt->execute($params);
@@ -81,10 +81,10 @@ $total_pages = ceil($total_records / $per_page);
 // Get employees with pagination
 $stmt = $conn->prepare("
     SELECT e.*, u.email as user_email, u.status as user_status
-    FROM employees e 
+    FROM employees e
     LEFT JOIN users u ON e.user_id = u.id
     WHERE $where_clause
-    ORDER BY e.created_at DESC 
+    ORDER BY e.created_at DESC
     LIMIT ? OFFSET ?
 ");
 $params[] = $per_page;
@@ -94,13 +94,15 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
 $stats_stmt = $conn->prepare("
-    SELECT 
+    SELECT
         COUNT(*) as total_employees,
         COUNT(CASE WHEN status = 'active' THEN 1 END) as active_employees,
         COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive_employees,
-        COUNT(CASE WHEN employee_type = 'driver' THEN 1 END) as drivers,
-        COUNT(CASE WHEN employee_type = 'driver_assistant' THEN 1 END) as assistants
-    FROM employees 
+        COUNT(CASE WHEN position = 'driver' THEN 1 END) as drivers,
+        COUNT(CASE WHEN position = 'driver_assistant' THEN 1 END) as assistants,
+        AVG(monthly_salary) as avg_salary,
+        SUM(monthly_salary) as total_salary
+    FROM employees
     WHERE company_id = ?
 ");
 $stats_stmt->execute([$company_id]);
@@ -193,7 +195,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['assistants']; ?></div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -215,19 +217,22 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                            placeholder="Search by name, code, or email">
                 </div>
                 <div class="col-md-3">
+                    <label for="position" class="form-label">Position</label>
+                    <select class="form-control" id="position" name="position">
+                        <option value="">All Positions</option>
+                        <option value="driver" <?php echo $position_filter === 'driver' ? 'selected' : ''; ?>>Driver</option>
+                        <option value="driver_assistant" <?php echo $position_filter === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
+                        <option value="operator" <?php echo $position_filter === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
+                        <option value="supervisor" <?php echo $position_filter === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
+                        <option value="technician" <?php echo $position_filter === 'technician' ? 'selected' : ''; ?>>Technician</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label for="status" class="form-label">Status</label>
                     <select class="form-control" id="status" name="status">
                         <option value="">All Status</option>
                         <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
                         <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="type" class="form-label">Type</label>
-                    <select class="form-control" id="type" name="type">
-                        <option value="">All Types</option>
-                        <option value="driver" <?php echo $type_filter === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                        <option value="driver_assistant" <?php echo $type_filter === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -281,7 +286,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                             <tr>
                                 <th>Employee Code</th>
                                 <th>Name</th>
-                                <th>Type</th>
+                                <th>Position</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Status</th>
@@ -297,22 +302,21 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-3">
-                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                <span class="text-white font-weight-bold">
-                                                    <?php echo strtoupper(substr($employee['first_name'], 0, 1) . substr($employee['last_name'], 0, 1)); ?>
-                                                </span>
-                                            </div>
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <?php 
+                                            $name_parts = explode(' ', $employee['name']);
+                                            echo strtoupper(substr($name_parts[0], 0, 1) . (isset($name_parts[1]) ? substr($name_parts[1], 0, 1) : ''));
+                                            ?>
                                         </div>
                                         <div>
-                                            <h6 class="mb-0"><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h6>
-                                            <small class="text-muted">ID: <?php echo $employee['id']; ?></small>
+                                            <h6 class="mb-0"><?php echo htmlspecialchars($employee['name']); ?></h6>
+                                            <small class="text-muted"><?php echo htmlspecialchars($employee['employee_code']); ?></small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?php echo $employee['employee_type'] === 'driver' ? 'info' : 'warning'; ?>">
-                                        <?php echo ucfirst(str_replace('_', ' ', $employee['employee_type'])); ?>
+                                    <span class="badge bg-<?php echo $employee['position'] === 'driver' ? 'info' : 'warning'; ?>">
+                                        <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -357,7 +361,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?>')"
+                                                onclick="confirmDelete(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>')"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -375,7 +379,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <ul class="pagination justify-content-center">
                         <?php if ($page > 1): ?>
                             <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&position=<?php echo urlencode($position_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                     Previous
                                 </a>
                             </li>
@@ -383,7 +387,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         
                         <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
                             <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&position=<?php echo urlencode($position_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                     <?php echo $i; ?>
                                 </a>
                             </li>
@@ -391,7 +395,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         
                         <?php if ($page < $total_pages): ?>
                             <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&position=<?php echo urlencode($position_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                     Next
                                 </a>
                             </li>

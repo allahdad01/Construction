@@ -18,11 +18,16 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['first_name', 'last_name', 'employee_type', 'monthly_salary', 'email'];
+        $required_fields = ['name', 'position', 'monthly_salary', 'email'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
+        }
+
+        // Validate salary
+        if (!is_numeric($_POST['monthly_salary']) || $_POST['monthly_salary'] <= 0) {
+            throw new Exception("Monthly salary must be a positive number.");
         }
 
         // Validate email format
@@ -37,51 +42,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Email already exists in the system.");
         }
 
-        // Validate salary
-        if (!is_numeric($_POST['monthly_salary']) || $_POST['monthly_salary'] <= 0) {
-            throw new Exception("Monthly salary must be a positive number.");
-        }
-
         // Generate employee code
         $employee_code = generateEmployeeCode($company_id);
+
+        // Generate random password
+        $password = generateRandomPassword();
 
         // Start transaction
         $conn->beginTransaction();
 
         // Create user account
-        $user_password = password_hash(generateRandomPassword(), PASSWORD_DEFAULT);
-        $user_role = $_POST['employee_type'] === 'driver' ? 'driver' : 'driver_assistant';
-        
+        $user_role = $_POST['position'] === 'driver' ? 'driver' : 'driver_assistant';
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
         $stmt = $conn->prepare("
-            INSERT INTO users (email, password, role, company_id, status, created_at) 
-            VALUES (?, ?, ?, ?, 'active', NOW())
+            INSERT INTO users (company_id, email, password_hash, first_name, last_name, phone, role, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
         ");
-        $stmt->execute([$_POST['email'], $user_password, $user_role, $company_id]);
+
+        // Split name into first and last name
+        $name_parts = explode(' ', trim($_POST['name']), 2);
+        $first_name = $name_parts[0];
+        $last_name = isset($name_parts[1]) ? $name_parts[1] : '';
+
+        $stmt->execute([
+            $company_id,
+            $_POST['email'],
+            $hashed_password,
+            $first_name,
+            $last_name,
+            $_POST['phone'] ?? '',
+            $user_role
+        ]);
+
         $user_id = $conn->lastInsertId();
 
         // Create employee record
         $stmt = $conn->prepare("
             INSERT INTO employees (
-                company_id, user_id, first_name, last_name, employee_code, 
-                employee_type, email, phone, address, monthly_salary, 
-                daily_rate, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
+                company_id, user_id, employee_code, name, email, phone,
+                position, monthly_salary, hire_date, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
         ");
 
-        $daily_rate = $_POST['monthly_salary'] / 30; // Calculate daily rate
-        
         $stmt->execute([
             $company_id,
             $user_id,
-            $_POST['first_name'],
-            $_POST['last_name'],
             $employee_code,
-            $_POST['employee_type'],
+            $_POST['name'],
             $_POST['email'],
             $_POST['phone'] ?? '',
-            $_POST['address'] ?? '',
+            $_POST['position'],
             $_POST['monthly_salary'],
-            $daily_rate
+            $_POST['hire_date'] ?? date('Y-m-d'),
         ]);
 
         $employee_id = $conn->lastInsertId();
@@ -89,11 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $conn->commit();
 
-        $success = "Employee added successfully! Employee Code: $employee_code";
-        
-        // Redirect to view page after 2 seconds
-        header("refresh:2;url=view.php?id=$employee_id");
-        
+        $success = "Employee added successfully! Employee Code: $employee_code<br>Login credentials sent to: " . htmlspecialchars($_POST['email']);
+
+        // Redirect to view page after 3 seconds
+        header("refresh:3;url=view.php?id=$employee_id");
+
     } catch (Exception $e) {
         // Rollback transaction on error
         $conn->rollBack();
@@ -104,19 +117,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Helper function to generate employee code
 function generateEmployeeCode($company_id) {
     global $conn;
-    
+
     // Get company prefix
     $stmt = $conn->prepare("SELECT company_code FROM companies WHERE id = ?");
     $stmt->execute([$company_id]);
     $company_code = $stmt->fetch(PDO::FETCH_ASSOC)['company_code'];
-    
+
     // Get next employee number
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM employees WHERE company_id = ?");
     $stmt->execute([$company_id]);
     $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    
+
     $next_number = $count + 1;
-    return strtoupper($company_code) . 'EMP' . str_pad($next_number, 4, '0', STR_PAD_LEFT);
+    return strtoupper($company_code) . 'EMP' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
 }
 
 // Helper function to generate random password
@@ -151,7 +164,7 @@ function generateRandomPassword($length = 8) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle me-2"></i>
-            <?php echo htmlspecialchars($success); ?>
+            <?php echo $success; ?>
         </div>
     <?php endif; ?>
 
@@ -167,37 +180,18 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="first_name" class="form-label">First Name *</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name" 
-                                           value="<?php echo htmlspecialchars($_POST['first_name'] ?? ''); ?>" 
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
                                            required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="last_name" class="form-label">Last Name *</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name" 
-                                           value="<?php echo htmlspecialchars($_POST['last_name'] ?? ''); ?>" 
-                                           required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address *</label>
-                                    <input type="email" class="form-control" id="email" name="email" 
-                                           value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" 
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                            required>
-                                    <div class="form-text">This will be used as login credentials.</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" 
-                                           value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
@@ -205,46 +199,44 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="employee_type" class="form-label">Employee Type *</label>
-                                    <select class="form-control" id="employee_type" name="employee_type" required>
-                                        <option value="">Select Type</option>
-                                        <option value="driver" <?php echo ($_POST['employee_type'] ?? '') === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                                        <option value="driver_assistant" <?php echo ($_POST['employee_type'] ?? '') === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                           value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="position" class="form-label">Position *</label>
+                                    <select class="form-control" id="position" name="position" required>
+                                        <option value="">Select Position</option>
+                                        <option value="driver" <?php echo ($_POST['position'] ?? '') === 'driver' ? 'selected' : ''; ?>>Driver</option>
+                                        <option value="driver_assistant" <?php echo ($_POST['position'] ?? '') === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
+                                        <option value="operator" <?php echo ($_POST['position'] ?? '') === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
+                                        <option value="supervisor" <?php echo ($_POST['position'] ?? '') === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
+                                        <option value="technician" <?php echo ($_POST['position'] ?? '') === 'technician' ? 'selected' : ''; ?>>Technician</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="monthly_salary" class="form-label">Monthly Salary *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="monthly_salary" name="monthly_salary" 
-                                               value="<?php echo htmlspecialchars($_POST['monthly_salary'] ?? ''); ?>" 
+                                        <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
+                                               value="<?php echo htmlspecialchars($_POST['monthly_salary'] ?? ''); ?>"
                                                step="0.01" min="0" required>
                                     </div>
                                     <div class="form-text">Daily rate will be calculated automatically (Monthly Salary ÷ 30)</div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="hire_date" class="form-label">Hire Date</label>
-                                    <input type="date" class="form-control" id="hire_date" name="hire_date" 
+                                    <input type="date" class="form-control" id="hire_date" name="hire_date"
                                            value="<?php echo htmlspecialchars($_POST['hire_date'] ?? date('Y-m-d')); ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="emergency_contact" class="form-label">Emergency Contact</label>
-                                    <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" 
-                                           value="<?php echo htmlspecialchars($_POST['emergency_contact'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
@@ -252,16 +244,15 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="emergency_phone" class="form-label">Emergency Phone</label>
-                                    <input type="tel" class="form-control" id="emergency_phone" name="emergency_phone" 
-                                           value="<?php echo htmlspecialchars($_POST['emergency_phone'] ?? ''); ?>">
+                                    <label class="form-label">Employee Code</label>
+                                    <input type="text" class="form-control" id="employee_code_preview" readonly>
+                                    <div class="form-text">Will be automatically generated</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="emergency_relationship" class="form-label">Relationship</label>
-                                    <input type="text" class="form-control" id="emergency_relationship" name="emergency_relationship" 
-                                           value="<?php echo htmlspecialchars($_POST['emergency_relationship'] ?? ''); ?>">
+                                    <label class="form-label">Daily Rate</label>
+                                    <input type="text" class="form-control" id="daily_rate_display" readonly>
                                 </div>
                             </div>
                         </div>
@@ -292,23 +283,53 @@ function generateRandomPassword($length = 8) {
                         <h6><i class="fas fa-info-circle text-info"></i> Employee Code</h6>
                         <p class="text-muted">A unique employee code will be automatically generated.</p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <h6><i class="fas fa-key text-warning"></i> Login Credentials</h6>
-                        <p class="text-muted">A user account will be created with the provided email address. A random password will be generated.</p>
-                    </div>
-                    
+
                     <div class="mb-3">
                         <h6><i class="fas fa-calculator text-success"></i> Salary Calculation</h6>
                         <p class="text-muted">Daily rate is calculated as: Monthly Salary ÷ 30 days</p>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <h6><i class="fas fa-user-tag text-primary"></i> Employee Types</h6>
-                        <ul class="text-muted">
-                            <li><strong>Driver:</strong> Primary machine operator</li>
-                            <li><strong>Driver Assistant:</strong> Supports driver operations</li>
-                        </ul>
+                        <h6><i class="fas fa-user-tag text-primary"></i> User Account</h6>
+                        <p class="text-muted">A user account will be created automatically with login credentials.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-envelope text-warning"></i> Email Notification</h6>
+                        <p class="text-muted">Login credentials will be sent to the employee's email address.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Position Guide -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Position Guide</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary">Driver</h6>
+                        <p class="text-muted small">Primary machine operator responsible for driving and operating vehicles.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-info">Driver Assistant</h6>
+                        <p class="text-muted small">Supports driver operations and assists with machine maintenance.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-success">Machine Operator</h6>
+                        <p class="text-muted small">Specialized operator for specific types of machinery.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-warning">Supervisor</h6>
+                        <p class="text-muted small">Oversees operations and manages team activities.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-danger">Technician</h6>
+                        <p class="text-muted small">Maintains and repairs machinery and equipment.</p>
                     </div>
                 </div>
             </div>
@@ -329,8 +350,8 @@ function generateRandomPassword($length = 8) {
                         <a href="../contracts/" class="list-group-item list-group-item-action">
                             <i class="fas fa-file-contract me-2"></i>Manage Contracts
                         </a>
-                        <a href="../reports/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                        <a href="../attendance/" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clock me-2"></i>Track Attendance
                         </a>
                     </div>
                 </div>
@@ -342,33 +363,47 @@ function generateRandomPassword($length = 8) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('employeeForm');
+    const nameInput = document.getElementById('name');
+    const positionSelect = document.getElementById('position');
     const monthlySalaryInput = document.getElementById('monthly_salary');
-    const employeeTypeSelect = document.getElementById('employee_type');
-    const emailInput = document.getElementById('email');
+    const employeeCodePreview = document.getElementById('employee_code_preview');
+    const dailyRateDisplay = document.getElementById('daily_rate_display');
+
+    // Real-time employee code preview
+    function updateEmployeeCodePreview() {
+        const name = nameInput.value.trim();
+        const position = positionSelect.value;
+
+        if (name && position) {
+            const nameParts = name.split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.length > 1 ? nameParts[1] : '';
+            const preview = 'EMP' + firstName.substring(0, 3).toUpperCase() + lastName.substring(0, 3).toUpperCase() + '001';
+            employeeCodePreview.value = preview;
+        }
+    }
 
     // Real-time salary calculation
-    monthlySalaryInput.addEventListener('input', function() {
-        const salary = parseFloat(this.value) || 0;
+    function updateDailyRate() {
+        const salary = parseFloat(monthlySalaryInput.value) || 0;
         const dailyRate = salary / 30;
-        
-        // Update any daily rate display if needed
-        const dailyRateElement = document.getElementById('daily_rate');
-        if (dailyRateElement) {
-            dailyRateElement.textContent = '$' + dailyRate.toFixed(2);
-        }
-    });
+        dailyRateDisplay.value = '$' + dailyRate.toFixed(2);
+    }
+
+    nameInput.addEventListener('input', updateEmployeeCodePreview);
+    positionSelect.addEventListener('change', updateEmployeeCodePreview);
+    monthlySalaryInput.addEventListener('input', updateDailyRate);
 
     // Form validation
     form.addEventListener('submit', function(e) {
         let isValid = true;
         const requiredFields = form.querySelectorAll('[required]');
-        
+
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 isValid = false;
                 field.classList.add('is-invalid');
-                
-                // Add error message if not exists
+
                 if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback';
@@ -384,30 +419,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Email validation
-        if (emailInput.value && !isValidEmail(emailInput.value)) {
-            isValid = false;
-            emailInput.classList.add('is-invalid');
-            
-            if (!emailInput.nextElementSibling || !emailInput.nextElementSibling.classList.contains('invalid-feedback')) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = 'Please enter a valid email address.';
-                emailInput.parentNode.appendChild(errorDiv);
-            }
-        }
-
         // Salary validation
         const salary = parseFloat(monthlySalaryInput.value);
         if (monthlySalaryInput.value && (isNaN(salary) || salary <= 0)) {
             isValid = false;
             monthlySalaryInput.classList.add('is-invalid');
-            
+
             if (!monthlySalaryInput.nextElementSibling || !monthlySalaryInput.nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
                 errorDiv.textContent = 'Salary must be a positive number.';
                 monthlySalaryInput.parentNode.appendChild(errorDiv);
+            }
+        }
+
+        // Email validation
+        const emailInput = document.getElementById('email');
+        if (emailInput.value && !isValidEmail(emailInput.value)) {
+            isValid = false;
+            emailInput.classList.add('is-invalid');
+
+            if (!emailInput.nextElementSibling || !emailInput.nextElementSibling.classList.contains('invalid-feedback')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = 'Please enter a valid email address.';
+                emailInput.parentNode.appendChild(errorDiv);
             }
         }
 
@@ -455,19 +491,19 @@ document.addEventListener('DOMContentLoaded', function() {
             errorMessage = 'This field is required.';
         }
 
+        // Salary validation
+        if (field.name === 'monthly_salary' && value) {
+            const val = parseFloat(value);
+            if (isNaN(val) || val <= 0) {
+                isValid = false;
+                errorMessage = 'Salary must be a positive number.';
+            }
+        }
+
         // Email validation
         if (field.type === 'email' && value && !isValidEmail(value)) {
             isValid = false;
             errorMessage = 'Please enter a valid email address.';
-        }
-
-        // Salary validation
-        if (field.name === 'monthly_salary' && value) {
-            const salary = parseFloat(value);
-            if (isNaN(salary) || salary <= 0) {
-                isValid = false;
-                errorMessage = 'Salary must be a positive number.';
-            }
         }
 
         // Apply validation result
@@ -479,24 +515,6 @@ document.addEventListener('DOMContentLoaded', function() {
             field.parentNode.appendChild(errorDiv);
         }
     }
-
-    // Auto-generate employee code preview
-    const firstNameInput = document.getElementById('first_name');
-    const lastNameInput = document.getElementById('last_name');
-    
-    function updateEmployeeCodePreview() {
-        const firstName = firstNameInput.value.trim();
-        const lastName = lastNameInput.value.trim();
-        
-        if (firstName && lastName) {
-            // This would be the actual generation logic
-            const preview = 'EMP' + firstName.substring(0, 1).toUpperCase() + lastName.substring(0, 1).toUpperCase() + '001';
-            // You could display this in a preview element
-        }
-    }
-
-    firstNameInput.addEventListener('input', updateEmployeeCodePreview);
-    lastNameInput.addEventListener('input', updateEmployeeCodePreview);
 });
 </script>
 
