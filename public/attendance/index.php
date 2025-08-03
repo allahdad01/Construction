@@ -43,9 +43,9 @@ $where_conditions = ["ea.company_id = ?"];
 $params = [$company_id];
 
 if (!empty($search)) {
-    $where_conditions[] = "(e.first_name LIKE ? OR e.last_name LIKE ? OR e.employee_code LIKE ?)";
+    $where_conditions[] = "(e.name LIKE ? OR e.employee_code LIKE ?)";
     $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param]);
+    $params = array_merge($params, [$search_param, $search_param]);
 }
 
 if (!empty($employee_filter)) {
@@ -53,21 +53,21 @@ if (!empty($employee_filter)) {
     $params[] = $employee_filter;
 }
 
-if (!empty($date_filter)) {
-    $where_conditions[] = "DATE(ea.attendance_date) = ?";
-    $params[] = $date_filter;
-}
-
 if (!empty($status_filter)) {
     $where_conditions[] = "ea.status = ?";
     $params[] = $status_filter;
+}
+
+if (!empty($date_filter)) {
+    $where_conditions[] = "DATE(ea.date) = ?";
+    $params[] = $date_filter;
 }
 
 $where_clause = implode(' AND ', $where_conditions);
 
 // Get total count for pagination
 $count_stmt = $conn->prepare("
-    SELECT COUNT(*) as total 
+    SELECT COUNT(*) as total
     FROM employee_attendance ea
     LEFT JOIN employees e ON ea.employee_id = e.id
     WHERE $where_clause
@@ -78,12 +78,11 @@ $total_pages = ceil($total_records / $per_page);
 
 // Get attendance records with pagination
 $stmt = $conn->prepare("
-    SELECT ea.*, 
-           e.first_name, e.last_name, e.employee_code, e.employee_type
+    SELECT ea.*, e.name, e.employee_code, e.position
     FROM employee_attendance ea
     LEFT JOIN employees e ON ea.employee_id = e.id
     WHERE $where_clause
-    ORDER BY ea.attendance_date DESC, ea.check_in_time DESC
+    ORDER BY ea.date DESC, ea.check_in_time DESC
     LIMIT ? OFFSET ?
 ");
 $params[] = $per_page;
@@ -105,8 +104,8 @@ $stats_stmt = $conn->prepare("
 $stats_stmt->execute([$company_id]);
 $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get employees for filter
-$stmt = $conn->prepare("SELECT id, first_name, last_name, employee_code FROM employees WHERE company_id = ? ORDER BY first_name");
+// Get employee list for filter
+$stmt = $conn->prepare("SELECT id, name, employee_code FROM employees WHERE company_id = ? ORDER BY name");
 $stmt->execute([$company_id]);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -224,7 +223,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <option value="">All Employees</option>
                         <?php foreach ($employees as $employee): ?>
                         <option value="<?php echo $employee['id']; ?>" <?php echo $employee_filter == $employee['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?>
+                            <?php echo htmlspecialchars($employee['name']); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -309,19 +308,20 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                            <span class="text-white font-weight-bold">
-                                                <?php echo strtoupper(substr($record['first_name'], 0, 1) . substr($record['last_name'], 0, 1)); ?>
-                                            </span>
+                                            <?php 
+                                            $name_parts = explode(' ', $record['name']);
+                                            echo strtoupper(substr($name_parts[0], 0, 1) . (isset($name_parts[1]) ? substr($name_parts[1], 0, 1) : ''));
+                                            ?>
                                         </div>
                                         <div>
-                                            <h6 class="mb-0"><?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?></h6>
+                                            <h6 class="mb-0"><?php echo htmlspecialchars($record['name']); ?></h6>
                                             <small class="text-muted"><?php echo htmlspecialchars($record['employee_code']); ?></small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <small class="text-muted">
-                                        <?php echo date('M j, Y', strtotime($record['attendance_date'])); ?>
+                                        <?php echo date('M j, Y', strtotime($record['date'])); ?>
                                     </small>
                                 </td>
                                 <td>
@@ -365,7 +365,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $record['id']; ?>, '<?php echo htmlspecialchars($record['first_name'] . ' ' . $record['last_name']); ?>')"
+                                                onclick="confirmDelete(<?php echo $record['id']; ?>, '<?php echo htmlspecialchars($record['name']); ?>')"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>

@@ -294,7 +294,7 @@ function generateCSVReport($conn, $report_type, $start_date, $end_date, $is_supe
         
         // Get employee data
         $stmt = $conn->prepare("
-            SELECT e.first_name, e.last_name, e.position, 
+            SELECT e.name, e.position, 
                    SUM(wh.hours_worked) as total_hours, e.monthly_salary
             FROM employees e
             LEFT JOIN working_hours wh ON e.id = wh.employee_id 
@@ -307,7 +307,7 @@ function generateCSVReport($conn, $report_type, $start_date, $end_date, $is_supe
         
         foreach ($employee_data as $row) {
             fputcsv($output, [
-                $row['first_name'] . ' ' . $row['last_name'],
+                $row['name'],
                 $row['position'],
                 $row['total_hours'] ?? 0,
                 $row['monthly_salary']

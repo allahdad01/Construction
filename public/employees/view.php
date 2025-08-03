@@ -24,8 +24,8 @@ if (!$employee_id) {
 
 // Get employee details
 $stmt = $conn->prepare("
-    SELECT e.*, u.email as user_email, u.status as user_status, u.created_at as user_created_at
-    FROM employees e 
+    SELECT e.*, u.email as user_email, u.status as user_status
+    FROM employees e
     LEFT JOIN users u ON e.user_id = u.id
     WHERE e.id = ? AND e.company_id = ?
 ");
@@ -124,17 +124,18 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                     <div class="row align-items-center">
                         <div class="col-md-2 text-center">
                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
-                                <span class="text-white font-weight-bold" style="font-size: 2rem;">
-                                    <?php echo strtoupper(substr($employee['first_name'], 0, 1) . substr($employee['last_name'], 0, 1)); ?>
-                                </span>
+                                <?php 
+                                $name_parts = explode(' ', $employee['name']);
+                                echo strtoupper(substr($name_parts[0], 0, 1) . (isset($name_parts[1]) ? substr($name_parts[1], 0, 1) : ''));
+                                ?>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h3 class="mb-1"><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h3>
+                            <h3 class="mb-1"><?php echo htmlspecialchars($employee['name']); ?></h3>
                             <p class="text-muted mb-2">
                                 <span class="badge bg-primary"><?php echo htmlspecialchars($employee['employee_code']); ?></span>
-                                <span class="badge bg-<?php echo $employee['employee_type'] === 'driver' ? 'info' : 'warning'; ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $employee['employee_type'])); ?>
+                                <span class="badge bg-<?php echo $employee['position'] === 'driver' ? 'info' : 'warning'; ?>">
+                                    <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
                                 </span>
                                 <span class="badge bg-<?php echo $employee['status'] === 'active' ? 'success' : 'secondary'; ?>">
                                     <?php echo ucfirst($employee['status']); ?>

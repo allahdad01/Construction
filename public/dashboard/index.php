@@ -129,7 +129,7 @@ $stmt = $conn->prepare("
     FROM contracts c 
     WHERE c.company_id = ? 
     UNION ALL
-    SELECT 'employee' as type, CONCAT(e.first_name, ' ', e.last_name) as title, e.created_at as date, 'New employee added' as description
+            SELECT 'employee' as type, CONCAT(e.name) as title, e.created_at as date, 'New employee added' as description
     FROM employees e 
     WHERE e.company_id = ? 
     UNION ALL

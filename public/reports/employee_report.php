@@ -271,7 +271,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                 <?php foreach ($employee_data as $employee): ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></strong>
+                                        <strong><?php echo htmlspecialchars($employee['name']); ?></strong>
                                         <?php if ($is_super_admin): ?>
                                         <br><small class="text-muted"><?php echo htmlspecialchars($employee['company_name']); ?></small>
                                         <?php endif; ?>
@@ -334,7 +334,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                                 #<?php echo $index + 1; ?> Performer</div>
                                             <div class="h6 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?>
+                                                <?php echo htmlspecialchars($employee['name']); ?>
                                             </div>
                                             <div class="text-xs text-muted">
                                                 <?php echo number_format($employee['total_hours'], 1); ?> hours

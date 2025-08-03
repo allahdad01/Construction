@@ -125,7 +125,7 @@ class Deployment {
             // Create super admin user
             $password = password_hash('admin123', PASSWORD_DEFAULT);
             $stmt = $this->conn->prepare("
-                INSERT INTO users (email, password, first_name, last_name, role, is_active) 
+                INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) 
                 VALUES (?, ?, 'Super', 'Admin', 'super_admin', TRUE)
             ");
             

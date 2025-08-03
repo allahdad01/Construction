@@ -302,7 +302,7 @@ try {
                                          FROM expenses 
                                          WHERE company_id = ? AND expense_date BETWEEN ? AND ?)
                                         UNION ALL
-                                        (SELECT payment_date as date, CONCAT('Salary - ', e.first_name, ' ', e.last_name) as description,
+                                        (SELECT payment_date as date, CONCAT('Salary - ', e.name) as description,
                                                 paid_amount as amount, 'Salary' as type, 'Completed' as status
                                          FROM salary_payments sp
                                          JOIN employees e ON sp.employee_id = e.id

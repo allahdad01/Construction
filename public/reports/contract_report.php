@@ -264,7 +264,7 @@ try {
                                     </td>
                                     <td><?php echo htmlspecialchars($contract['project_name']); ?></td>
                                     <td><?php echo htmlspecialchars($contract['machine_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($contract['first_name'] . ' ' . $contract['last_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($contract['name']); ?></td>
                                     <td>
                                         <span class="badge badge-<?php 
                                             echo $contract['contract_type'] === 'hourly' ? 'primary' : 
