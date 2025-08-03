@@ -241,7 +241,7 @@ INSERT INTO company_payments (company_id, payment_code, amount, currency, paymen
 
 -- XYZ Builders Payments
 (2, 'PAY004', 199.00, 'USD', 'credit_card', 'completed', '2023-06-01', '2023-06-30', 'professional', 'TXN-2023-004', '2023-06-01', 'June subscription payment'),
-(2, 'PAY005', 199.00, 'USD', 'credit_card', 'completed', '2023-05-01', '2023-05-31', 'professional', 'TXN-2023-005', '2023-05-01', 'May subscription payment'),
+(2, 'PAY005', 199.00, 'USD', 'credit_card', 'completed', '2023-05-01', '2023-05-31', 'professional', 'TXN-2023-005', '2023-05-01', 'May subscription payment');
 
 -- City Construction Payments (Trial - no payments yet)
 -- Metro Builders Payments (Suspended - no recent payments)
