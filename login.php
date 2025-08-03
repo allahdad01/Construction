@@ -45,7 +45,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             
             // Redirect based on role
             if ($user['role'] === 'super_admin') {
-                header('Location: public/super-admin/dashboard/');
+                header('Location: public/super-admin/');
             } else {
                 header('Location: public/dashboard/');
             }

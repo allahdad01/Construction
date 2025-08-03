@@ -4,7 +4,13 @@ require_once '../config/database.php';
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
-    header('Location: ../login.php');
+    // Determine the correct path to login.php based on current location
+    $current_path = $_SERVER['REQUEST_URI'];
+    if (strpos($current_path, '/public/super-admin/') !== false) {
+        header('Location: ../../login.php');
+    } else {
+        header('Location: ../login.php');
+    }
     exit;
 }
 
