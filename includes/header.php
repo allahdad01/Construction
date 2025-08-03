@@ -4,13 +4,17 @@ require_once '../config/database.php';
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
-    // Determine the correct path to login.php based on current location
-    $current_path = $_SERVER['REQUEST_URI'];
-    if (strpos($current_path, '/public/super-admin/') !== false) {
-        header('Location: ../../login.php');
-    } else {
-        header('Location: ../login.php');
-    }
+    // Get the current script path to determine the correct relative path to login.php
+    $script_path = $_SERVER['SCRIPT_NAME'];
+    $path_parts = explode('/', $script_path);
+    
+    // Count how many levels deep we are
+    $depth = count(array_filter($path_parts)) - 1; // -1 because first element is empty
+    
+    // Build the relative path to login.php
+    $login_path = str_repeat('../', $depth) . 'login.php';
+    
+    header('Location: ' . $login_path);
     exit;
 }
 

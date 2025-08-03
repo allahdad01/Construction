@@ -135,7 +135,7 @@ function checkSessionTimeout() {
     $timeout = getSystemSetting('session_timeout', 30) * 60; // Convert to seconds
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
         session_destroy();
-        header('Location: /login.php');
+        header('Location: login.php');
         exit;
     }
     $_SESSION['last_activity'] = time();
@@ -143,7 +143,7 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: /login.php');
+        header('Location: login.php');
         exit();
     }
     checkSessionTimeout();
@@ -194,7 +194,7 @@ function hasAnyRole($roles) {
 function requireRole($role) {
     requireAuth();
     if (!hasRole($role)) {
-        header('Location: /unauthorized.php');
+        header('Location: unauthorized.php');
         exit();
     }
 }
@@ -202,7 +202,7 @@ function requireRole($role) {
 function requireAnyRole($roles) {
     requireAuth();
     if (!hasAnyRole($roles)) {
-        header('Location: /unauthorized.php');
+        header('Location: unauthorized.php');
         exit();
     }
 }
