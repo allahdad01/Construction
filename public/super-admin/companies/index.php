@@ -226,30 +226,30 @@ foreach ($companies as &$company) {
                                     <td><?php echo formatDate($company['created_at']); ?></td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="view.php?id=<?php echo $company['id']; ?>" 
+                                            <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" 
                                                class="btn btn-sm btn-info" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="edit.php?id=<?php echo $company['id']; ?>" 
+                                            <a href="/constract360/construction/public/super-admin/companies/edit.php?id=<?php echo $company['id']; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="users.php?company_id=<?php echo $company['id']; ?>" 
+                                            <a href="/constract360/construction/public/super-admin/companies/users.php?company_id=<?php echo $company['id']; ?>" 
                                                class="btn btn-sm btn-success" title="Users">
                                                 <i class="fas fa-users"></i>
                                             </a>
-                                            <a href="payments.php?company_id=<?php echo $company['id']; ?>" 
+                                            <a href="/constract360/construction/public/super-admin/companies/payments.php?company_id=<?php echo $company['id']; ?>" 
                                                class="btn btn-sm btn-primary" title="Payments">
                                                 <i class="fas fa-money-bill"></i>
                                             </a>
                                             <?php if ($company['subscription_status'] === 'active'): ?>
-                                                <a href="suspend.php?id=<?php echo $company['id']; ?>" 
+                                                <a href="/constract360/construction/public/super-admin/companies/suspend.php?id=<?php echo $company['id']; ?>" 
                                                    class="btn btn-sm btn-danger" title="Suspend"
                                                    onclick="return confirmDelete('Are you sure you want to suspend this company?')">
                                                     <i class="fas fa-pause"></i>
                                                 </a>
                                             <?php elseif ($company['subscription_status'] === 'suspended'): ?>
-                                                <a href="activate.php?id=<?php echo $company['id']; ?>" 
+                                                <a href="/constract360/construction/public/super-admin/companies/activate.php?id=<?php echo $company['id']; ?>" 
                                                    class="btn btn-sm btn-success" title="Activate"
                                                    onclick="return confirmDelete('Are you sure you want to activate this company?')">
                                                     <i class="fas fa-play"></i>

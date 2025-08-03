@@ -209,13 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get current settings
-function getSystemSettingLocal($conn, $key, $default = '') {
-    $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
-    $stmt->execute([$key]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['setting_value'] : $default;
-}
+// Get current settings using the global function from header.php
 
 // Get all current settings
 $current_settings = [
