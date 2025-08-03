@@ -422,12 +422,18 @@ function getCompanyCurrency($company_id = null) {
         $company_id = getCurrentCompanyId();
     }
     
+    // Get the default currency ID from company_settings using key-value structure
     $stmt = $conn->prepare("
-        SELECT c.* FROM currencies c
-        JOIN company_settings cs ON c.id = cs.default_currency_id
-        WHERE cs.company_id = ?
+        SELECT setting_value FROM company_settings 
+        WHERE company_id = ? AND setting_key = 'default_currency_id'
     ");
     $stmt->execute([$company_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $currency_id = $result ? $result['setting_value'] : 1; // Default to USD (ID 1)
+    
+    // Get the currency details
+    $stmt = $conn->prepare("SELECT * FROM currencies WHERE id = ?");
+    $stmt->execute([$currency_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['currency_code' => 'USD', 'currency_symbol' => '$', 'exchange_rate_to_usd' => 1.0000];
 }
 
@@ -437,12 +443,18 @@ function getCompanyDateFormat($company_id = null) {
         $company_id = getCurrentCompanyId();
     }
     
+    // Get the default date format ID from company_settings using key-value structure
     $stmt = $conn->prepare("
-        SELECT df.* FROM date_formats df
-        JOIN company_settings cs ON df.id = cs.default_date_format_id
-        WHERE cs.company_id = ?
+        SELECT setting_value FROM company_settings 
+        WHERE company_id = ? AND setting_key = 'default_date_format_id'
     ");
     $stmt->execute([$company_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $date_format_id = $result ? $result['setting_value'] : 1; // Default to Gregorian (ID 1)
+    
+    // Get the date format details
+    $stmt = $conn->prepare("SELECT * FROM date_formats WHERE id = ?");
+    $stmt->execute([$date_format_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['format_code' => 'gregorian', 'format_pattern' => 'Y-m-d'];
 }
 
@@ -535,15 +547,22 @@ function getAvailableDateFormats() {
 function updateCompanySettings($company_id, $currency_id, $date_format_id) {
     global $conn;
     
+    // Update currency setting
     $stmt = $conn->prepare("
-        INSERT INTO company_settings (company_id, default_currency_id, default_date_format_id) 
-        VALUES (?, ?, ?) 
-        ON DUPLICATE KEY UPDATE 
-        default_currency_id = VALUES(default_currency_id),
-        default_date_format_id = VALUES(default_date_format_id)
+        INSERT INTO company_settings (company_id, setting_key, setting_value) 
+        VALUES (?, 'default_currency_id', ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    ");
+    $stmt->execute([$company_id, $currency_id]);
+    
+    // Update date format setting
+    $stmt = $conn->prepare("
+        INSERT INTO company_settings (company_id, setting_key, setting_value) 
+        VALUES (?, 'default_date_format_id', ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
     ");
     
-    return $stmt->execute([$company_id, $currency_id, $date_format_id]);
+    return $stmt->execute([$company_id, $date_format_id]);
 }
 
 function convertCurrency($amount, $from_currency_id, $to_currency_id) {
