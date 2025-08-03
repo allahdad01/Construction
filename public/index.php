@@ -124,6 +124,7 @@ if (isset($_SESSION['user_id'])) {
             align-items: center;
             position: relative;
             color: white;
+            z-index: 1;
         }
 
         .hero-content {
@@ -201,6 +202,8 @@ if (isset($_SESSION['user_id'])) {
         .features-section {
             padding: 100px 0;
             background: white;
+            position: relative;
+            z-index: 10;
         }
 
         .feature-card {
@@ -212,6 +215,7 @@ if (isset($_SESSION['user_id'])) {
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            margin-bottom: 30px;
         }
 
         .feature-card::before {
@@ -233,6 +237,17 @@ if (isset($_SESSION['user_id'])) {
         .feature-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card h4 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: var(--gray-600);
+            line-height: 1.6;
         }
 
         .feature-icon {
@@ -259,6 +274,8 @@ if (isset($_SESSION['user_id'])) {
             background: linear-gradient(135deg, var(--construction-gray), var(--dark-color));
             color: white;
             padding: 80px 0;
+            position: relative;
+            z-index: 10;
         }
 
         .stat-item {
@@ -271,6 +288,7 @@ if (isset($_SESSION['user_id'])) {
             font-weight: 900;
             color: var(--construction-orange);
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .stat-label {
@@ -282,6 +300,8 @@ if (isset($_SESSION['user_id'])) {
         .testimonials-section {
             background: var(--light-color);
             padding: 100px 0;
+            position: relative;
+            z-index: 10;
         }
 
         .testimonial-card {
@@ -291,6 +311,12 @@ if (isset($_SESSION['user_id'])) {
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             position: relative;
             margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
         }
 
         .testimonial-card::before {
@@ -309,13 +335,36 @@ if (isset($_SESSION['user_id'])) {
             color: white;
             padding: 100px 0;
             text-align: center;
+            position: relative;
+            z-index: 10;
         }
 
         /* Footer */
         .footer {
-            background: var(--dark-color);
+            background: linear-gradient(135deg, var(--construction-gray), var(--dark-color));
             color: white;
             padding: 60px 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer h5, .footer h6 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .footer p, .footer li, .footer a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer a:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer .list-unstyled li {
+            margin-bottom: 10px;
         }
 
         /* Animations */
@@ -502,8 +551,8 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
             
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-users"></i>
@@ -513,7 +562,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-truck"></i>
@@ -523,7 +572,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-file-contract"></i>
@@ -533,7 +582,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-chart-pie"></i>
@@ -543,7 +592,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-globe"></i>
@@ -553,7 +602,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-mobile-alt"></i>
@@ -843,9 +892,10 @@ if (isset($_SESSION['user_id'])) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                    const offsetTop = target.offsetTop - 80; // Account for fixed header
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
                     });
                 }
             });

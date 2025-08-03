@@ -81,7 +81,9 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_secure', APP_ENV === 'production' ? 1 : 0);
 ini_set('session.use_strict_mode', 1);
 session_name(SESSION_NAME);
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Timezone
 date_default_timezone_set('UTC');
