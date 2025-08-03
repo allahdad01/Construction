@@ -133,7 +133,7 @@ $stmt = $conn->prepare("
     FROM employees e 
     WHERE e.company_id = ? 
     UNION ALL
-    SELECT 'machine' as type, m.machine_name as title, m.created_at as date, 'New machine added' as description
+                SELECT 'machine' as type, m.name as title, m.created_at as date, 'New machine added' as description
     FROM machines m 
     WHERE m.company_id = ? 
     ORDER BY date DESC 

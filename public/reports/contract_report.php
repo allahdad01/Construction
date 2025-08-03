@@ -23,9 +23,8 @@ try {
                 ct.status,
                 c.company_name,
                 p.project_name,
-                m.machine_name,
-                e.first_name,
-                e.last_name,
+                m.name as machine_name,
+                e.name as employee_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
                 COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
                 COUNT(DISTINCT wh.date) as working_days
@@ -55,9 +54,8 @@ try {
                 ct.end_date,
                 ct.status,
                 p.project_name,
-                m.machine_name,
-                e.first_name,
-                e.last_name,
+                m.name as machine_name,
+                e.name as employee_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
                 COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
                 COUNT(DISTINCT wh.date) as working_days,
@@ -264,7 +262,7 @@ try {
                                     </td>
                                     <td><?php echo htmlspecialchars($contract['project_name']); ?></td>
                                     <td><?php echo htmlspecialchars($contract['machine_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($contract['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($contract['employee_name']); ?></td>
                                     <td>
                                         <span class="badge badge-<?php 
                                             echo $contract['contract_type'] === 'hourly' ? 'primary' : 

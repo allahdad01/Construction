@@ -14,15 +14,13 @@ try {
         $stmt = $conn->prepare("
             SELECT 
                 e.id,
-                e.first_name,
-                e.last_name,
+                e.name,
                 e.position,
-                e.employee_type,
                 e.monthly_salary,
                 e.daily_rate,
                 e.hire_date,
-                e.leave_days_used,
-                e.leave_days_remaining,
+                e.used_leave_days,
+                e.remaining_leave_days,
                 c.company_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
                 COUNT(DISTINCT wh.date) as working_days
@@ -42,15 +40,13 @@ try {
         $stmt = $conn->prepare("
             SELECT 
                 e.id,
-                e.first_name,
-                e.last_name,
+                e.name,
                 e.position,
-                e.employee_type,
                 e.monthly_salary,
                 e.daily_rate,
                 e.hire_date,
-                e.leave_days_used,
-                e.leave_days_remaining,
+                e.used_leave_days,
+                e.remaining_leave_days,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
                 COUNT(DISTINCT wh.date) as working_days,
                 COALESCE(SUM(wh.hours_worked * c.rate_amount / c.working_hours_per_day), 0) as earnings
@@ -67,15 +63,14 @@ try {
         
         // Get attendance data
         $stmt = $conn->prepare("
-            SELECT 
-                e.id,
-                e.first_name,
-                e.last_name,
-                COUNT(a.id) as present_days,
-                COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as absent_days,
-                COUNT(CASE WHEN a.status = 'leave' THEN 1 END) as leave_days,
-                AVG(a.hours_worked) as avg_hours_per_day
-            FROM employees e
+                    SELECT 
+            e.id,
+            e.name,
+            COUNT(a.id) as present_days,
+            COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as absent_days,
+            COUNT(CASE WHEN a.status = 'leave' THEN 1 END) as leave_days,
+            AVG(a.working_hours) as avg_hours_per_day
+        FROM employees e
             LEFT JOIN employee_attendance a ON e.id = a.employee_id 
                 AND a.date BETWEEN ? AND ?
             WHERE e.company_id = ? AND e.is_active = 1
@@ -88,7 +83,7 @@ try {
     // Get performance metrics
     $stmt = $conn->prepare("
         SELECT 
-            e.employee_type,
+            e.position,
             COUNT(*) as count,
             AVG(e.monthly_salary) as avg_salary,
             AVG(COALESCE(wh.hours_worked, 0)) as avg_hours
@@ -97,7 +92,7 @@ try {
             AND wh.date BETWEEN ? AND ?
         WHERE e.is_active = 1
         " . (!$is_super_admin ? "AND e.company_id = ?" : "") . "
-        GROUP BY e.employee_type
+        GROUP BY e.position
     ");
     
     if ($is_super_admin) {
@@ -178,7 +173,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                             <tbody>
                                 <?php foreach ($performance_data as $type): ?>
                                 <tr>
-                                    <td><?php echo ucfirst($type['employee_type']); ?></td>
+                                    <td><?php echo ucfirst($type['position']); ?></td>
                                     <td><?php echo number_format($type['count']); ?></td>
                                     <td><?php echo formatCurrency($type['avg_salary']); ?></td>
                                     <td><?php echo number_format($type['avg_hours'], 1); ?></td>
@@ -278,8 +273,8 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                     </td>
                                     <td><?php echo htmlspecialchars($employee['position']); ?></td>
                                     <td>
-                                        <span class="badge badge-<?php echo $employee['employee_type'] === 'driver' ? 'primary' : 'info'; ?>">
-                                            <?php echo ucfirst($employee['employee_type']); ?>
+                                        <span class="badge badge-<?php echo $employee['position'] === 'driver' ? 'primary' : 'info'; ?>">
+                                            <?php echo ucfirst($employee['position']); ?>
                                         </span>
                                     </td>
                                     <td><?php echo formatCurrency($employee['monthly_salary']); ?></td>
@@ -288,8 +283,8 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                     <?php if (!$is_super_admin): ?>
                                     <td class="text-success"><?php echo formatCurrency($employee['earnings']); ?></td>
                                     <?php endif; ?>
-                                    <td><?php echo number_format($employee['leave_days_used']); ?> days</td>
-                                    <td><?php echo number_format($employee['leave_days_remaining']); ?> days</td>
+                                    <td><?php echo number_format($employee['used_leave_days']); ?> days</td>
+                                    <td><?php echo number_format($employee['remaining_leave_days']); ?> days</td>
                                     <td>
                                         <?php
                                         $performance = 0;
@@ -362,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const employeeChart = new Chart(employeeCtx, {
         type: 'bar',
         data: {
-            labels: <?php echo json_encode(array_slice(array_column($employee_data, 'first_name'), 0, 10)); ?>,
+            labels: <?php echo json_encode(array_slice(array_column($employee_data, 'name'), 0, 10)); ?>,
             datasets: [{
                 label: 'Working Hours',
                 data: <?php echo json_encode(array_slice(array_column($employee_data, 'total_hours'), 0, 10)); ?>,

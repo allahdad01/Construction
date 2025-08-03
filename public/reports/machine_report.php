@@ -160,7 +160,7 @@ try {
                             <tbody>
                                 <?php foreach ($machine_types as $type): ?>
                                 <tr>
-                                    <td><?php echo ucfirst($type['machine_type']); ?></td>
+                                    <td><?php echo ucfirst($type['type']); ?></td>
                                     <td><?php echo number_format($type['count']); ?></td>
                                     <td><?php echo number_format($type['avg_year'], 0); ?></td>
                                     <td><?php echo number_format($type['total_hours'], 1); ?></td>
@@ -247,22 +247,22 @@ try {
                                 <tr>
                                     <td>
                                         <strong><?php echo htmlspecialchars($machine['machine_code']); ?></strong>
-                                        <br><small class="text-muted"><?php echo htmlspecialchars($machine['machine_name']); ?></small>
+                                        <br><small class="text-muted"><?php echo htmlspecialchars($machine['name']); ?></small>
                                         <?php if ($is_super_admin): ?>
                                         <br><small class="text-muted"><?php echo htmlspecialchars($machine['company_name']); ?></small>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <span class="badge badge-<?php 
-                                            echo $machine['machine_type'] === 'excavator' ? 'primary' : 
-                                                ($machine['machine_type'] === 'bulldozer' ? 'success' : 
-                                                ($machine['machine_type'] === 'crane' ? 'info' : 'warning')); 
+                                            echo $machine['type'] === 'excavator' ? 'primary' : 
+                                                ($machine['type'] === 'bulldozer' ? 'success' : 
+                                                ($machine['type'] === 'crane' ? 'info' : 'warning')); 
                                         ?>">
-                                            <?php echo ucfirst($machine['machine_type']); ?>
+                                            <?php echo ucfirst($machine['type']); ?>
                                         </span>
                                     </td>
                                     <td><?php echo htmlspecialchars($machine['model']); ?></td>
-                                    <td><?php echo $machine['year']; ?></td>
+                                    <td><?php echo $machine['year_manufactured']; ?></td>
                                     <td><?php echo htmlspecialchars($machine['capacity']); ?></td>
                                     <td><?php echo ucfirst($machine['fuel_type']); ?></td>
                                     <td><?php echo number_format($machine['active_contracts']); ?></td>
