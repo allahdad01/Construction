@@ -77,7 +77,7 @@ $stmt->execute([getCurrentCompanyId()]);
 $maintenance_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 // Get total value
-$stmt = $conn->prepare("SELECT SUM(current_value) as total FROM machines WHERE company_id = ? AND status != 'retired'");
+$stmt = $conn->prepare("SELECT SUM(purchase_cost) as total FROM machines WHERE company_id = ? AND status != 'retired'");
 $stmt->execute([getCurrentCompanyId()]);
 $total_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 

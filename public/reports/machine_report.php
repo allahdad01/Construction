@@ -15,10 +15,10 @@ try {
             SELECT 
                 m.id,
                 m.machine_code,
-                m.machine_name,
-                m.machine_type,
+                m.name,
+                m.type,
                 m.model,
-                m.year,
+                m.year_manufactured,
                 m.capacity,
                 m.fuel_type,
                 m.is_active,
@@ -40,26 +40,26 @@ try {
     } else {
         // Company-specific machine data
         $stmt = $conn->prepare("
-            SELECT 
-                m.id,
-                m.machine_code,
-                m.machine_name,
-                m.machine_type,
-                m.model,
-                m.year,
-                m.capacity,
-                m.fuel_type,
-                m.is_active,
-                COUNT(DISTINCT ct.id) as active_contracts,
-                COALESCE(SUM(wh.hours_worked), 0) as total_hours,
-                COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
-                COUNT(DISTINCT wh.date) as working_days
-            FROM machines m
-            LEFT JOIN contracts ct ON m.id = ct.machine_id AND ct.status = 'active'
-            LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
-            WHERE m.company_id = ? AND m.is_active = 1
-            GROUP BY m.id
-            ORDER BY total_hours DESC
+                    SELECT 
+            m.id,
+            m.machine_code,
+            m.name,
+            m.type,
+            m.model,
+            m.year_manufactured,
+            m.capacity,
+            m.fuel_type,
+            m.is_active,
+            COUNT(DISTINCT ct.id) as active_contracts,
+            COALESCE(SUM(wh.hours_worked), 0) as total_hours,
+            COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
+            COUNT(DISTINCT wh.date) as working_days
+        FROM machines m
+        LEFT JOIN contracts ct ON m.id = ct.machine_id AND ct.status = 'active'
+        LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
+        WHERE m.company_id = ? AND m.is_active = 1
+        GROUP BY m.id
+        ORDER BY total_hours DESC
         ");
         $stmt->execute([$start_date, $end_date, $company_id]);
         $machine_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -68,9 +68,9 @@ try {
     // Get machine type statistics
     $stmt = $conn->prepare("
         SELECT 
-            machine_type,
+            type,
             COUNT(*) as count,
-            AVG(year) as avg_year,
+            AVG(year_manufactured) as avg_year,
             SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
             SUM(COALESCE(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day, 0)) as total_earnings
         FROM machines m
@@ -78,7 +78,7 @@ try {
         LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
         WHERE m.is_active = 1
         " . (!$is_super_admin ? "AND m.company_id = ?" : "") . "
-        GROUP BY machine_type
+        GROUP BY type
     ");
     
     if ($is_super_admin) {
