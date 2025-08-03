@@ -291,11 +291,16 @@ UPDATE companies SET employee_count = (SELECT COUNT(*) FROM employees WHERE comp
 UPDATE companies SET subscription_status = 'trial' WHERE id = 3;
 UPDATE companies SET subscription_status = 'suspended' WHERE id = 4;
 
--- Update company settings with different currencies and date formats
-UPDATE company_settings SET default_currency_id = 1, default_date_format_id = 1 WHERE company_id = 1; -- ABC Construction: USD, Gregorian
-UPDATE company_settings SET default_currency_id = 2, default_date_format_id = 2 WHERE company_id = 2; -- XYZ Builders: AFN, Shamsi
-UPDATE company_settings SET default_currency_id = 1, default_date_format_id = 3 WHERE company_id = 3; -- City Construction: USD, European
-UPDATE company_settings SET default_currency_id = 3, default_date_format_id = 1 WHERE company_id = 4; -- Metro Builders: EUR, Gregorian
+-- Insert company settings with different currencies and date formats
+INSERT INTO company_settings (company_id, setting_key, setting_value) VALUES 
+(1, 'default_currency_id', '1'), -- ABC Construction: USD
+(1, 'default_date_format_id', '1'), -- ABC Construction: Gregorian
+(2, 'default_currency_id', '2'), -- XYZ Builders: AFN
+(2, 'default_date_format_id', '2'), -- XYZ Builders: Shamsi
+(3, 'default_currency_id', '1'), -- City Construction: USD
+(3, 'default_date_format_id', '3'), -- City Construction: European
+(4, 'default_currency_id', '3'), -- Metro Builders: EUR
+(4, 'default_date_format_id', '1'); -- Metro Builders: Gregorian
 
 -- Update existing data with currency information
 UPDATE employees SET currency_id = 1 WHERE company_id = 1;
