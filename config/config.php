@@ -573,12 +573,18 @@ function getCompanyLanguage($company_id = null) {
         $company_id = getCurrentCompanyId();
     }
     
+    // Get the default language ID from company_settings using key-value structure
     $stmt = $conn->prepare("
-        SELECT l.* FROM languages l
-        JOIN company_settings cs ON l.id = cs.default_language_id
-        WHERE cs.company_id = ?
+        SELECT setting_value FROM company_settings 
+        WHERE company_id = ? AND setting_key = 'default_language_id'
     ");
     $stmt->execute([$company_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $language_id = $result ? $result['setting_value'] : 1; // Default to English (ID 1)
+    
+    // Get the language details
+    $stmt = $conn->prepare("SELECT * FROM languages WHERE id = ?");
+    $stmt->execute([$language_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['language_code' => 'en', 'direction' => 'ltr'];
 }
 
@@ -615,13 +621,14 @@ function getAvailableLanguages() {
 function updateCompanyLanguage($company_id, $language_id) {
     global $conn;
     
+    // Use INSERT ... ON DUPLICATE KEY UPDATE for key-value structure
     $stmt = $conn->prepare("
-        UPDATE company_settings 
-        SET default_language_id = ? 
-        WHERE company_id = ?
+        INSERT INTO company_settings (company_id, setting_key, setting_value) 
+        VALUES (?, 'default_language_id', ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
     ");
     
-    return $stmt->execute([$language_id, $company_id]);
+    return $stmt->execute([$company_id, $language_id]);
 }
 
 function getLanguageDirection($company_id = null) {

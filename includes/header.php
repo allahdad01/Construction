@@ -1,6 +1,9 @@
 <?php
-// Config files should be included by the calling script before including this header
-// This prevents duplicate includes and path issues
+// Determine the correct path to config files
+$base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
+
+require_once $base_path . 'config.php';
+require_once $base_path . 'database.php';
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
