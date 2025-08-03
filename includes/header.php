@@ -1,16 +1,6 @@
 <?php
-// Determine the correct path to config files based on current script location
-$script_path = $_SERVER['SCRIPT_NAME'];
-$path_parts = explode('/', $script_path);
-
-// Count how many levels deep we are
-$depth = count(array_filter($path_parts)) - 1; // -1 because first element is empty
-
-// Build the relative path to config files
-$config_path = str_repeat('../', $depth) . 'config/';
-
-require_once $config_path . 'config.php';
-require_once $config_path . 'database.php';
+// Config files should be included by the calling script before including this header
+// This prevents duplicate includes and path issues
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
