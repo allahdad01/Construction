@@ -10,27 +10,30 @@ INSERT INTO companies (company_code, company_name, contact_person, contact_email
 ('COMP004', 'Metro Builders', 'Lisa Brown', 'lisa@metro-builders.com', '+1 (555) 456-7890', '321 Elm St', 'Houston', 'TX', 'USA', 'professional', 'suspended', NULL, 100, 200, 100);
 
 -- Insert sample users
-INSERT INTO users (company_id, username, email, password_hash, first_name, last_name, phone, role, status) VALUES 
+INSERT INTO users (company_id, username, email, password_hash, first_name, last_name, phone, role, status, is_active) VALUES 
 -- Company 1 (ABC Construction) - Enterprise
-(1, 'admin1', 'admin@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John', 'Smith', '+1 (555) 123-4567', 'company_admin', 'active'),
-(1, 'driver1', 'driver1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Tom', 'Davis', '+1 (555) 111-1111', 'driver', 'active'),
-(1, 'driver2', 'driver2@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jerry', 'Wilson', '+1 (555) 222-2222', 'driver', 'active'),
-(1, 'assistant1', 'assistant1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mary', 'Johnson', '+1 (555) 333-3333', 'driver_assistant', 'active'),
-(1, 'parking1', 'parking1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob', 'Miller', '+1 (555) 444-4444', 'parking_user', 'active'),
-(1, 'area1', 'area1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice', 'Brown', '+1 (555) 555-5555', 'area_renter', 'active'),
+(1, 'admin1', 'admin@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John', 'Smith', '+1 (555) 123-4567', 'company_admin', 'active', TRUE),
+(1, 'driver1', 'driver1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Tom', 'Davis', '+1 (555) 111-1111', 'driver', 'active', TRUE),
+(1, 'driver2', 'driver2@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jerry', 'Wilson', '+1 (555) 222-2222', 'driver', 'active', TRUE),
+(1, 'assistant1', 'assistant1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mary', 'Johnson', '+1 (555) 333-3333', 'driver_assistant', 'active', TRUE),
+(1, 'parking1', 'parking1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob', 'Miller', '+1 (555) 444-4444', 'parking_user', 'active', TRUE),
+(1, 'area1', 'area1@abc-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice', 'Brown', '+1 (555) 555-5555', 'area_renter', 'active', TRUE),
 
 -- Company 2 (XYZ Builders) - Professional
-(2, 'admin2', 'admin@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah', 'Johnson', '+1 (555) 234-5678', 'company_admin', 'active'),
-(2, 'driver3', 'driver3@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'David', 'Clark', '+1 (555) 666-6666', 'driver', 'active'),
-(2, 'assistant2', 'assistant2@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emma', 'Taylor', '+1 (555) 777-7777', 'driver_assistant', 'active'),
-(2, 'parking2', 'parking2@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Frank', 'Anderson', '+1 (555) 888-8888', 'parking_user', 'active'),
+(2, 'admin2', 'admin@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah', 'Johnson', '+1 (555) 234-5678', 'company_admin', 'active', TRUE),
+(2, 'driver3', 'driver3@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'David', 'Clark', '+1 (555) 666-6666', 'driver', 'active', TRUE),
+(2, 'assistant2', 'assistant2@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Emma', 'Taylor', '+1 (555) 777-7777', 'driver_assistant', 'active', TRUE),
+(2, 'parking2', 'parking2@xyz-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Frank', 'Anderson', '+1 (555) 888-8888', 'parking_user', 'active', TRUE),
 
 -- Company 3 (City Construction) - Basic (Trial)
-(3, 'admin3', 'admin@city-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mike', 'Wilson', '+1 (555) 345-6789', 'company_admin', 'active'),
-(3, 'driver4', 'driver4@city-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Grace', 'Lee', '+1 (555) 999-9999', 'driver', 'active'),
+(3, 'admin3', 'admin@city-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mike', 'Wilson', '+1 (555) 345-6789', 'company_admin', 'active', TRUE),
+(3, 'driver4', 'driver4@city-construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Grace', 'Lee', '+1 (555) 999-9999', 'driver', 'active', TRUE),
 
 -- Company 4 (Metro Builders) - Suspended
-(4, 'admin4', 'admin@metro-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Lisa', 'Brown', '+1 (555) 456-7890', 'company_admin', 'suspended');
+(4, 'admin4', 'admin@metro-builders.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Lisa', 'Brown', '+1 (555) 456-7890', 'company_admin', 'suspended', FALSE);
+
+-- Super Admin User (System-wide)
+(NULL, 'superadmin', 'superadmin@construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Super', 'Admin', '+1 (555) 000-0000', 'super_admin', 'active', TRUE);
 
 -- Insert sample employees
 INSERT INTO employees (company_id, user_id, employee_code, name, email, phone, position, monthly_salary, hire_date, status, total_leave_days, used_leave_days, remaining_leave_days) VALUES 
