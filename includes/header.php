@@ -1,6 +1,16 @@
 <?php
-require_once '../config/config.php';
-require_once '../config/database.php';
+// Determine the correct path to config files based on current script location
+$script_path = $_SERVER['SCRIPT_NAME'];
+$path_parts = explode('/', $script_path);
+
+// Count how many levels deep we are
+$depth = count(array_filter($path_parts)) - 1; // -1 because first element is empty
+
+// Build the relative path to config files
+$config_path = str_repeat('../', $depth) . 'config/';
+
+require_once $config_path . 'config.php';
+require_once $config_path . 'database.php';
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
