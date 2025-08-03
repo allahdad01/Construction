@@ -6,6 +6,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Clear remember me token if exists
+if (isset($_COOKIE['remember_token'])) {
+    $db = new Database();
+    $conn = $db->getConnection();
+    
+    // Delete token from database
+    $stmt = $conn->prepare("DELETE FROM remember_tokens WHERE token = ?");
+    $stmt->execute([$_COOKIE['remember_token']]);
+    
+    // Delete cookie
+    setcookie('remember_token', '', time() - 3600, '/');
+}
+
 // Clear all session variables
 $_SESSION = array();
 
@@ -22,6 +35,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redirect to login page
-header('Location: login.php');
+header('Location: /login.php');
 exit();
 ?>

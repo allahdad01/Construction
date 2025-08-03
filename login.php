@@ -9,6 +9,55 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Check for remember me token
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        
+        // Get user by remember token
+        $stmt = $conn->prepare("
+            SELECT u.*, c.company_name, c.company_code, c.subscription_status, c.is_active as company_active
+            FROM users u
+            LEFT JOIN companies c ON u.company_id = c.id
+            LEFT JOIN remember_tokens rt ON u.id = rt.user_id
+            WHERE rt.token = ? AND rt.expires_at > NOW() AND u.is_active = TRUE
+        ");
+        $stmt->execute([$_COOKIE['remember_token']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            // Regenerate session ID for security
+            session_regenerate_id(true);
+            
+            // Set session variables
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['company_id'] = $user['company_id'];
+            $_SESSION['company_name'] = $user['company_name'];
+            $_SESSION['company_code'] = $user['company_code'];
+            $_SESSION['last_activity'] = time();
+            
+            // Update last login
+            $stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+            $stmt->execute([$user['id']]);
+            
+            // Redirect based on role
+            if ($user['role'] === 'super_admin') {
+                header('Location: public/super-admin/dashboard/');
+            } else {
+                header('Location: public/dashboard/');
+            }
+            exit;
+        }
+    } catch (Exception $e) {
+        // Clear invalid remember token
+        setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($user['company_id'] && !$user['company_active']) {
                     $error = 'Your company account has been suspended. Please contact your administrator.';
                 } else {
+                    // Regenerate session ID for security
+                    session_regenerate_id(true);
+                    
                     // Set session variables
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
@@ -46,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['company_id'] = $user['company_id'];
                     $_SESSION['company_name'] = $user['company_name'];
                     $_SESSION['company_code'] = $user['company_code'];
+                    $_SESSION['last_activity'] = time();
 
                     // Update last login
                     $stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
@@ -54,10 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Set remember me cookie if requested
                     if ($remember_me) {
                         $token = bin2hex(random_bytes(32));
-                        setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/'); // 30 days
+                        $expires_at = date('Y-m-d H:i:s', time() + (30 * 24 * 60 * 60)); // 30 days
                         
-                        // Store token in database (you might want to create a remember_tokens table)
-                        // For now, we'll just set the cookie
+                        // Store token in database
+                        $stmt = $conn->prepare("INSERT INTO remember_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
+                        $stmt->execute([$user['id'], $token, $expires_at]);
+                        
+                        // Set cookie
+                        setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/', '', true, true);
                     }
 
                     // Redirect based on role

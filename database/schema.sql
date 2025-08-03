@@ -770,6 +770,19 @@ INSERT INTO language_translations (language_id, translation_key, translation_val
 (3, 'area_renter', 'د ساحې کرایه کوونکی'),
 (3, 'container_renter', 'د کانتینر کرایه کوونکی');
 
+-- Remember tokens table for "Remember Me" functionality
+CREATE TABLE remember_tokens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_token (token),
+    INDEX idx_user_token (user_id, token),
+    INDEX idx_expires_at (expires_at)
+);
+
 -- Create super admin user
 INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) VALUES 
 ('superadmin@construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Super', 'Admin', 'super_admin', TRUE);

@@ -126,11 +126,22 @@ function isAuthenticated() {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
+function checkSessionTimeout() {
+    $timeout = getSystemSetting('session_timeout', 30) * 60; // Convert to seconds
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
+        session_destroy();
+        header('Location: /login.php');
+        exit;
+    }
+    $_SESSION['last_activity'] = time();
+}
+
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: login.php');
+        header('Location: /login.php');
         exit();
     }
+    checkSessionTimeout();
 }
 
 function getCurrentUser() {
@@ -178,7 +189,7 @@ function hasAnyRole($roles) {
 function requireRole($role) {
     requireAuth();
     if (!hasRole($role)) {
-        header('Location: unauthorized.php');
+        header('Location: /unauthorized.php');
         exit();
     }
 }
@@ -186,7 +197,7 @@ function requireRole($role) {
 function requireAnyRole($roles) {
     requireAuth();
     if (!hasAnyRole($roles)) {
-        header('Location: unauthorized.php');
+        header('Location: /unauthorized.php');
         exit();
     }
 }
@@ -222,7 +233,7 @@ function isCompanyActive() {
 function requireActiveCompany() {
     requireAuth();
     if (!isCompanyActive()) {
-        header('Location: subscription-expired.php');
+        header('Location: /subscription-expired.php');
         exit();
     }
 }
@@ -615,6 +626,28 @@ function getLanguageDirection($company_id = null) {
 
 function isRTL($company_id = null) {
     return getLanguageDirection($company_id) === 'rtl';
+}
+
+// CSRF Protection Functions
+function generateCSRFToken() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function validateCSRFToken($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function requireCSRFToken() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $token = $_POST['csrf_token'] ?? '';
+        if (!validateCSRFToken($token)) {
+            http_response_code(403);
+            die('CSRF token validation failed');
+        }
+    }
 }
 
 function getLanguageName($language_code) {
