@@ -1,11 +1,6 @@
 <?php
 require_once '../config/config.php';
 
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Clear remember me token if exists
 if (isset($_COOKIE['remember_token'])) {
     $db = new Database();

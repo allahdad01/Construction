@@ -4,6 +4,20 @@
  * Construction Company Multi-Tenant SaaS Platform
  */
 
+// Session Configuration - MUST BE FIRST BEFORE ANY OUTPUT
+if (session_status() === PHP_SESSION_NONE) {
+    // Session settings
+    define('SESSION_NAME', 'construction_saas_session');
+    define('SESSION_LIFETIME', 3600); // 1 hour
+    
+    // Configure session before starting
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', 0); // Will be set to 1 in production
+    ini_set('session.use_strict_mode', 1);
+    session_name(SESSION_NAME);
+    session_start();
+}
+
 // Load environment variables
 if (file_exists(__DIR__ . '/../.env')) {
     $env = parse_ini_file(__DIR__ . '/../.env');
@@ -29,10 +43,6 @@ define('DB_PORT', $_ENV['DB_PORT'] ?? '3306');
 // Security Configuration
 define('SESSION_SECRET', $_ENV['SESSION_SECRET'] ?? 'your-secret-key-change-this');
 define('ENCRYPTION_KEY', $_ENV['ENCRYPTION_KEY'] ?? 'your-encryption-key-change-this');
-
-// Session settings
-define('SESSION_NAME', 'construction_saas_session');
-define('SESSION_LIFETIME', 3600); // 1 hour
 
 // File upload settings
 define('UPLOAD_MAX_SIZE', 5242880); // 5MB
@@ -76,14 +86,7 @@ if (APP_DEBUG === 'true') {
     ini_set('display_errors', 0);
 }
 
-// Session Configuration
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', APP_ENV === 'production' ? 1 : 0);
-ini_set('session.use_strict_mode', 1);
-session_name(SESSION_NAME);
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Session already configured at the top of the file
 
 // Timezone
 date_default_timezone_set('UTC');
