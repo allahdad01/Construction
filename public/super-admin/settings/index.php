@@ -210,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get current settings
-function getSystemSetting($conn, $key, $default = '') {
+function getSystemSettingLocal($conn, $key, $default = '') {
     $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
     $stmt->execute([$key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -219,32 +219,32 @@ function getSystemSetting($conn, $key, $default = '') {
 
 // Get all current settings
 $current_settings = [
-    'platform_name' => getSystemSetting($conn, 'platform_name', 'Construction SaaS Platform'),
-    'platform_description' => getSystemSetting($conn, 'platform_description', 'Comprehensive construction management platform'),
-    'contact_email' => getSystemSetting($conn, 'contact_email', 'admin@construction.com'),
-    'support_phone' => getSystemSetting($conn, 'support_phone', '+1-555-0123'),
-    'website_url' => getSystemSetting($conn, 'website_url', 'https://construction.com'),
-    'platform_logo' => getSystemSetting($conn, 'platform_logo', ''),
-    'primary_color' => getSystemSetting($conn, 'primary_color', '#4e73df'),
-    'secondary_color' => getSystemSetting($conn, 'secondary_color', '#858796'),
-    'accent_color' => getSystemSetting($conn, 'accent_color', '#1cc88a'),
-    'sidebar_style' => getSystemSetting($conn, 'sidebar_style', 'default'),
-    'theme_mode' => getSystemSetting($conn, 'theme_mode', 'light'),
-    'session_timeout' => getSystemSetting($conn, 'session_timeout', '30'),
-    'max_login_attempts' => getSystemSetting($conn, 'max_login_attempts', '5'),
-    'password_min_length' => getSystemSetting($conn, 'password_min_length', '8'),
-    'require_strong_password' => getSystemSetting($conn, 'require_strong_password', '1'),
-    'enable_two_factor' => getSystemSetting($conn, 'enable_two_factor', '0'),
-    'maintenance_mode' => getSystemSetting($conn, 'maintenance_mode', '0'),
-    'email_notifications' => getSystemSetting($conn, 'email_notifications', '1'),
-    'sms_notifications' => getSystemSetting($conn, 'sms_notifications', '0'),
-    'push_notifications' => getSystemSetting($conn, 'push_notifications', '1'),
-    'notification_sound' => getSystemSetting($conn, 'notification_sound', '1'),
-    'smtp_host' => getSystemSetting($conn, 'smtp_host', ''),
-    'smtp_port' => getSystemSetting($conn, 'smtp_port', '587'),
-    'smtp_username' => getSystemSetting($conn, 'smtp_username', ''),
-    'smtp_password' => getSystemSetting($conn, 'smtp_password', ''),
-    'smtp_encryption' => getSystemSetting($conn, 'smtp_encryption', 'tls')
+    'platform_name' => getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform'),
+    'platform_description' => getSystemSettingLocal($conn, 'platform_description', 'Comprehensive construction management platform'),
+    'contact_email' => getSystemSettingLocal($conn, 'contact_email', 'admin@construction.com'),
+    'support_phone' => getSystemSettingLocal($conn, 'support_phone', '+1-555-0123'),
+    'website_url' => getSystemSettingLocal($conn, 'website_url', 'https://construction.com'),
+    'platform_logo' => getSystemSettingLocal($conn, 'platform_logo', ''),
+    'primary_color' => getSystemSettingLocal($conn, 'primary_color', '#4e73df'),
+    'secondary_color' => getSystemSettingLocal($conn, 'secondary_color', '#858796'),
+    'accent_color' => getSystemSettingLocal($conn, 'accent_color', '#1cc88a'),
+    'sidebar_style' => getSystemSettingLocal($conn, 'sidebar_style', 'default'),
+    'theme_mode' => getSystemSettingLocal($conn, 'theme_mode', 'light'),
+    'session_timeout' => getSystemSettingLocal($conn, 'session_timeout', '30'),
+    'max_login_attempts' => getSystemSettingLocal($conn, 'max_login_attempts', '5'),
+    'password_min_length' => getSystemSettingLocal($conn, 'password_min_length', '8'),
+    'require_strong_password' => getSystemSettingLocal($conn, 'require_strong_password', '1'),
+    'enable_two_factor' => getSystemSettingLocal($conn, 'enable_two_factor', '0'),
+    'maintenance_mode' => getSystemSettingLocal($conn, 'maintenance_mode', '0'),
+    'email_notifications' => getSystemSettingLocal($conn, 'email_notifications', '1'),
+    'sms_notifications' => getSystemSettingLocal($conn, 'sms_notifications', '0'),
+    'push_notifications' => getSystemSettingLocal($conn, 'push_notifications', '1'),
+    'notification_sound' => getSystemSettingLocal($conn, 'notification_sound', '1'),
+    'smtp_host' => getSystemSettingLocal($conn, 'smtp_host', ''),
+    'smtp_port' => getSystemSettingLocal($conn, 'smtp_port', '587'),
+    'smtp_username' => getSystemSettingLocal($conn, 'smtp_username', ''),
+    'smtp_password' => getSystemSettingLocal($conn, 'smtp_password', ''),
+    'smtp_encryption' => getSystemSettingLocal($conn, 'smtp_encryption', 'tls')
 ];
 ?>
 

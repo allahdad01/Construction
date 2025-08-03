@@ -86,16 +86,16 @@ session_start();
 // Timezone
 date_default_timezone_set('UTC');
 
-// Helper functions
-function formatCurrency($amount) {
+// Basic Helper functions (legacy - use the enhanced versions below)
+function formatCurrencyBasic($amount) {
     return CURRENCY_SYMBOL . number_format($amount, 2);
 }
 
-function formatDate($date) {
+function formatDateBasic($date) {
     return date(DATE_FORMAT, strtotime($date));
 }
 
-function formatDateTime($datetime) {
+function formatDateTimeBasic($datetime) {
     return date(DATETIME_FORMAT, strtotime($datetime));
 }
 

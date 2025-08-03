@@ -19,33 +19,33 @@ $is_renter = isRenter();
 $db = new Database();
 $conn = $db->getConnection();
 
-function getSystemSetting($conn, $key, $default = '') {
+function getSystemSettingLocal($conn, $key, $default = '') {
     $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
     $stmt->execute([$key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['setting_value'] : $default;
 }
 
-$platform_name = getSystemSetting($conn, 'platform_name', 'Construction SaaS Platform');
-$platform_logo = getSystemSetting($conn, 'platform_logo', '');
-$primary_color = getSystemSetting($conn, 'primary_color', '#4e73df');
-$secondary_color = getSystemSetting($conn, 'secondary_color', '#858796');
-$accent_color = getSystemSetting($conn, 'accent_color', '#1cc88a');
-$theme_mode = getSystemSetting($conn, 'theme_mode', 'light');
-$sidebar_style = getSystemSetting($conn, 'sidebar_style', 'default');
+$platform_name = getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform');
+$platform_logo = getSystemSettingLocal($conn, 'platform_logo', '');
+$primary_color = getSystemSettingLocal($conn, 'primary_color', '#4e73df');
+$secondary_color = getSystemSettingLocal($conn, 'secondary_color', '#858796');
+$accent_color = getSystemSettingLocal($conn, 'accent_color', '#1cc88a');
+$theme_mode = getSystemSettingLocal($conn, 'theme_mode', 'light');
+$sidebar_style = getSystemSettingLocal($conn, 'sidebar_style', 'default');
 
 // Get company settings
-function getCompanySetting($conn, $company_id, $key, $default = '') {
+function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
     $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
     $stmt->execute([$company_id, $key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['setting_value'] : $default;
 }
 
-$company_currency_id = getCompanySetting($conn, $company_id, 'currency_id', '1');
-$company_date_format_id = getCompanySetting($conn, $company_id, 'date_format_id', '1');
-$company_language_id = getCompanySetting($conn, $company_id, 'default_language_id', '1');
-$company_timezone = getCompanySetting($conn, $company_id, 'timezone', 'UTC');
+$company_currency_id = getCompanySettingLocal($conn, $company_id, 'currency_id', '1');
+$company_date_format_id = getCompanySettingLocal($conn, $company_id, 'date_format_id', '1');
+$company_language_id = getCompanySettingLocal($conn, $company_id, 'default_language_id', '1');
+$company_timezone = getCompanySettingLocal($conn, $company_id, 'timezone', 'UTC');
 
 // Set timezone
 date_default_timezone_set($company_timezone);

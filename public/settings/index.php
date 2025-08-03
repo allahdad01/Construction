@@ -175,7 +175,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Get company settings
-function getCompanySetting($conn, $company_id, $key, $default = '') {
+function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
     $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
     $stmt->execute([$company_id, $key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -199,32 +199,32 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get current company settings
 $current_settings = [
-    'currency_id' => getCompanySetting($conn, $company_id, 'currency_id', '1'),
-    'date_format_id' => getCompanySetting($conn, $company_id, 'date_format_id', '1'),
-    'default_language_id' => getCompanySetting($conn, $company_id, 'default_language_id', '1'),
-    'timezone' => getCompanySetting($conn, $company_id, 'timezone', 'UTC'),
-    'working_hours_start' => getCompanySetting($conn, $company_id, 'working_hours_start', '08:00'),
-    'working_hours_end' => getCompanySetting($conn, $company_id, 'working_hours_end', '17:00'),
-    'weekend_days' => json_decode(getCompanySetting($conn, $company_id, 'weekend_days', '["saturday","sunday"]'), true),
-    'email_notifications' => getCompanySetting($conn, $company_id, 'email_notifications', '1'),
-    'sms_notifications' => getCompanySetting($conn, $company_id, 'sms_notifications', '0'),
-    'push_notifications' => getCompanySetting($conn, $company_id, 'push_notifications', '1'),
-    'notification_sound' => getCompanySetting($conn, $company_id, 'notification_sound', '1'),
-    'auto_reminders' => getCompanySetting($conn, $company_id, 'auto_reminders', '1'),
-    'reminder_frequency' => getCompanySetting($conn, $company_id, 'reminder_frequency', 'daily'),
-    'session_timeout' => getCompanySetting($conn, $company_id, 'session_timeout', '30'),
-    'max_login_attempts' => getCompanySetting($conn, $company_id, 'max_login_attempts', '5'),
-    'password_min_length' => getCompanySetting($conn, $company_id, 'password_min_length', '8'),
-    'require_strong_password' => getCompanySetting($conn, $company_id, 'require_strong_password', '1'),
-    'enable_two_factor' => getCompanySetting($conn, $company_id, 'enable_two_factor', '0'),
-    'ip_whitelist' => getCompanySetting($conn, $company_id, 'ip_whitelist', ''),
-    'smtp_host' => getCompanySetting($conn, $company_id, 'smtp_host', ''),
-    'smtp_port' => getCompanySetting($conn, $company_id, 'smtp_port', '587'),
-    'smtp_username' => getCompanySetting($conn, $company_id, 'smtp_username', ''),
-    'smtp_password' => getCompanySetting($conn, $company_id, 'smtp_password', ''),
-    'smtp_encryption' => getCompanySetting($conn, $company_id, 'smtp_encryption', 'tls'),
-    'api_key' => getCompanySetting($conn, $company_id, 'api_key', ''),
-    'webhook_url' => getCompanySetting($conn, $company_id, 'webhook_url', '')
+    'currency_id' => getCompanySettingLocal($conn, $company_id, 'currency_id', '1'),
+    'date_format_id' => getCompanySettingLocal($conn, $company_id, 'date_format_id', '1'),
+    'default_language_id' => getCompanySettingLocal($conn, $company_id, 'default_language_id', '1'),
+    'timezone' => getCompanySettingLocal($conn, $company_id, 'timezone', 'UTC'),
+    'working_hours_start' => getCompanySettingLocal($conn, $company_id, 'working_hours_start', '08:00'),
+    'working_hours_end' => getCompanySettingLocal($conn, $company_id, 'working_hours_end', '17:00'),
+    'weekend_days' => json_decode(getCompanySettingLocal($conn, $company_id, 'weekend_days', '["saturday","sunday"]'), true),
+    'email_notifications' => getCompanySettingLocal($conn, $company_id, 'email_notifications', '1'),
+    'sms_notifications' => getCompanySettingLocal($conn, $company_id, 'sms_notifications', '0'),
+    'push_notifications' => getCompanySettingLocal($conn, $company_id, 'push_notifications', '1'),
+    'notification_sound' => getCompanySettingLocal($conn, $company_id, 'notification_sound', '1'),
+    'auto_reminders' => getCompanySettingLocal($conn, $company_id, 'auto_reminders', '1'),
+    'reminder_frequency' => getCompanySettingLocal($conn, $company_id, 'reminder_frequency', 'daily'),
+    'session_timeout' => getCompanySettingLocal($conn, $company_id, 'session_timeout', '30'),
+    'max_login_attempts' => getCompanySettingLocal($conn, $company_id, 'max_login_attempts', '5'),
+    'password_min_length' => getCompanySettingLocal($conn, $company_id, 'password_min_length', '8'),
+    'require_strong_password' => getCompanySettingLocal($conn, $company_id, 'require_strong_password', '1'),
+    'enable_two_factor' => getCompanySettingLocal($conn, $company_id, 'enable_two_factor', '0'),
+    'ip_whitelist' => getCompanySettingLocal($conn, $company_id, 'ip_whitelist', ''),
+    'smtp_host' => getCompanySettingLocal($conn, $company_id, 'smtp_host', ''),
+    'smtp_port' => getCompanySettingLocal($conn, $company_id, 'smtp_port', '587'),
+    'smtp_username' => getCompanySettingLocal($conn, $company_id, 'smtp_username', ''),
+    'smtp_password' => getCompanySettingLocal($conn, $company_id, 'smtp_password', ''),
+    'smtp_encryption' => getCompanySettingLocal($conn, $company_id, 'smtp_encryption', 'tls'),
+    'api_key' => getCompanySettingLocal($conn, $company_id, 'api_key', ''),
+    'webhook_url' => getCompanySettingLocal($conn, $company_id, 'webhook_url', '')
 ];
 
 // Get timezone list
