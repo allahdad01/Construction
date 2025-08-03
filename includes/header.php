@@ -5,6 +5,24 @@ $base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'confi
 require_once $base_path . 'config.php';
 require_once $base_path . 'database.php';
 
+// Handle language switching
+if (isset($_GET['change_language']) && isAuthenticated()) {
+    $new_language_id = (int)$_GET['change_language'];
+    $company_id = getCurrentCompanyId();
+    
+    if ($company_id) {
+        updateCompanyLanguage($company_id, $new_language_id);
+    }
+    
+    // Redirect back to the same page without the parameter
+    $redirect_url = $_SERVER['REQUEST_URI'];
+    $redirect_url = preg_replace('/[?&]change_language=\d+/', '', $redirect_url);
+    $redirect_url = rtrim($redirect_url, '?&');
+    
+    header('Location: ' . $redirect_url);
+    exit;
+}
+
 // Check if user is authenticated
 if (!isAuthenticated()) {
     // Get the current script path to determine the correct relative path to login.php
@@ -731,6 +749,25 @@ date_default_timezone_set($company_timezone);
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="../profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
                                 <li><a class="dropdown-item" href="../settings/"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Language</h6></li>
+                                <?php
+                                $available_languages = getAvailableLanguages();
+                                $current_language = getCompanyLanguage();
+                                foreach ($available_languages as $lang):
+                                    $is_active = ($current_language['id'] == $lang['id']);
+                                ?>
+                                <li>
+                                    <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
+                                       href="?change_language=<?php echo $lang['id']; ?>">
+                                        <i class="fas fa-language me-2"></i>
+                                        <?php echo htmlspecialchars($lang['language_name_native']); ?>
+                                        <?php if ($is_active): ?>
+                                            <i class="fas fa-check ms-auto"></i>
+                                        <?php endif; ?>
+                                    </a>
+                                </li>
+                                <?php endforeach; ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="../logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                             </ul>
