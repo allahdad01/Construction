@@ -65,22 +65,44 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get statistics - only super admin expenses
+// Get multi-currency statistics - only super admin expenses
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = 1");
 $stmt->execute();
 $total_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE company_id = 1");
+// Get expenses by currency
+$stmt = $conn->prepare("
+    SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
+    FROM expenses 
+    WHERE company_id = 1 
+    GROUP BY currency
+");
 $stmt->execute();
-$total_amount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+// Get monthly expenses by currency
+$stmt = $conn->prepare("
+    SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
+    FROM expenses 
+    WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+    GROUP BY currency
+");
 $stmt->execute();
-$monthly_amount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$monthly_expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
-$stmt->execute();
-$monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+// Calculate totals in USD for display
+$total_amount_usd = 0;
+$monthly_amount_usd = 0;
+
+foreach ($expenses_by_currency as $expense) {
+    $total_amount_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
+}
+
+foreach ($monthly_expenses_by_currency as $expense) {
+    $monthly_amount_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
+}
+
+$monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'));
 ?>
 
 <div class="container-fluid">
@@ -116,8 +138,8 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total Amount</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount); ?></div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total Amount (USD)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -132,8 +154,8 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($monthly_amount); ?></div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month (USD)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -155,6 +177,61 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                             <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Currency Breakdown -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Total Expenses by Currency</h6>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($expenses_by_currency)): ?>
+                        <?php foreach ($expenses_by_currency as $expense): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary me-2"><?php echo $expense['currency']; ?></span>
+                                <strong><?php echo formatCurrencyAmount($expense['total_amount'], $expense['currency']); ?></strong>
+                                <small class="text-muted">(<?php echo $expense['count']; ?> expenses)</small>
+                            </div>
+                        <?php endforeach; ?>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Total (USD):</strong></span>
+                            <strong class="text-danger"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></strong>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted">No expenses found</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">This Month by Currency</h6>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($monthly_expenses_by_currency)): ?>
+                        <?php foreach ($monthly_expenses_by_currency as $expense): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-warning me-2"><?php echo $expense['currency']; ?></span>
+                                <strong><?php echo formatCurrencyAmount($expense['total_amount'], $expense['currency']); ?></strong>
+                                <small class="text-muted">(<?php echo $expense['count']; ?> expenses)</small>
+                            </div>
+                        <?php endforeach; ?>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Monthly Total (USD):</strong></span>
+                            <strong class="text-warning"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></strong>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted">No expenses this month</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

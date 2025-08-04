@@ -169,8 +169,19 @@ if (!$expense) {
                     </div>
                     <div class="mb-3">
                         <strong>Amount:</strong> 
-                        <span class="text-danger fw-bold"><?php echo formatCurrency($expense['amount']); ?></span>
+                        <span class="text-danger fw-bold"><?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?></span>
                     </div>
+                    <div class="mb-3">
+                        <strong>Currency:</strong> 
+                        <span class="badge bg-primary"><?php echo htmlspecialchars($expense['currency'] ?? 'USD'); ?></span>
+                    </div>
+                    <?php if (($expense['currency'] ?? 'USD') !== 'USD'): ?>
+                    <div class="mb-3">
+                        <strong>Amount (USD):</strong> 
+                        <span class="text-info fw-bold"><?php echo formatCurrencyAmount(convertCurrencyByCode($expense['amount'], $expense['currency'] ?? 'USD', 'USD'), 'USD'); ?></span>
+                        <small class="text-muted">(converted)</small>
+                    </div>
+                    <?php endif; ?>
                     <div class="mb-3">
                         <strong>Date:</strong> <?php echo formatDate($expense['expense_date']); ?>
                     </div>
