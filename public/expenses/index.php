@@ -121,9 +121,9 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Expense Management</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('expense_management'); ?></h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add Expense
+            <i class="fas fa-plus"></i> <?php echo __('add_expense'); ?>
         </a>
     </div>
 
@@ -135,7 +135,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Expenses</div>
+                                <?php echo __('total_expenses'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_expenses; ?></div>
                         </div>
                         <div class="col-auto">
@@ -152,7 +152,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Monthly Expenses</div>
+                                <?php echo __('monthly_expenses'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($monthly_expenses); ?></div>
                         </div>
                         <div class="col-auto">
@@ -169,7 +169,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Top Category</div>
+                                <?php echo __('top_category'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo $top_category ? ucfirst($top_category['category']) : 'N/A'; ?>
                             </div>
@@ -188,7 +188,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Recent (7 days)</div>
+                                <?php echo __('recent_7_days'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($recent_expenses); ?></div>
                         </div>
                         <div class="col-auto">
@@ -203,18 +203,18 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by description, code, or reference" 
+                           placeholder="<?php echo __('search_by_description_code_reference'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="category">
-                        <option value="">All Categories</option>
+                        <option value=""><?php echo __('all_categories'); ?></option>
                         <?php foreach ($expense_categories as $category): ?>
                             <option value="<?php echo htmlspecialchars($category); ?>" 
                                     <?php echo $category_filter === $category ? 'selected' : ''; ?>>
@@ -225,11 +225,11 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_from" 
-                           placeholder="From Date" value="<?php echo htmlspecialchars($date_from); ?>">
+                           placeholder="<?php echo __('from_date'); ?>" value="<?php echo htmlspecialchars($date_from); ?>">
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_to" 
-                           placeholder="To Date" value="<?php echo htmlspecialchars($date_to); ?>">
+                           placeholder="<?php echo __('to_date'); ?>" value="<?php echo htmlspecialchars($date_to); ?>">
                 </div>
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary w-100">
@@ -238,7 +238,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 </div>
                 <div class="col-md-2">
                     <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -248,15 +248,15 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
     <!-- Expenses Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Expense List</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('expense_list'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($expenses)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-receipt fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No expenses found.</p>
+                    <p class="text-gray-500"><?php echo __('no_expenses_found'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Expense
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_expense'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -264,14 +264,14 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Expense Code</th>
-                                <th>Description</th>
-                                <th>Category</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Payment Method</th>
-                                <th>Reference</th>
-                                <th>Actions</th>
+                                <th><?php echo __('expense_code'); ?></th>
+                                <th><?php echo __('description'); ?></th>
+                                <th><?php echo __('category'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('payment_method'); ?></th>
+                                <th><?php echo __('reference'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -334,7 +334,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                             </a>
                                             <a href="delete.php?id=<?php echo $expense['id']; ?>" 
                                                class="btn btn-sm btn-danger" title="Delete"
-                                               onclick="return confirmDelete('Are you sure you want to delete this expense?')">
+                                               onclick="return confirmDelete('<?php echo __('confirm_delete_expense'); ?>')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -352,7 +352,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -368,7 +368,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -382,18 +382,18 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
     <!-- Category Breakdown -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Category Breakdown</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('category_breakdown'); ?></h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Count</th>
-                            <th>Total Amount</th>
-                            <th>Percentage</th>
-                            <th>Progress</th>
+                            <th><?php echo __('category'); ?></th>
+                            <th><?php echo __('count'); ?></th>
+                            <th><?php echo __('total_amount'); ?></th>
+                            <th><?php echo __('percentage'); ?></th>
+                            <th><?php echo __('progress'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
