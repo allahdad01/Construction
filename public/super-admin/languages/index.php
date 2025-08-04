@@ -22,9 +22,9 @@ if (isset($_GET['toggle']) && isset($_GET['id'])) {
         $is_active = $action === 'activate' ? 1 : 0;
         $stmt = $conn->prepare("UPDATE languages SET is_active = ? WHERE id = ?");
         if ($stmt->execute([$is_active, $language_id])) {
-            $success = 'Language ' . $action . 'd successfully!';
+            $success = __('language_action_successful', ['action' => $action]);
         } else {
-            $error = 'Failed to ' . $action . ' language.';
+            $error = __('language_action_failed', ['action' => $action]);
         }
     }
 }
@@ -37,9 +37,9 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Language Management</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('language_management'); ?></h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add New Language
+            <i class="fas fa-plus"></i> <?php echo __('add_new_language'); ?>
         </a>
     </div>
 
@@ -63,7 +63,7 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Languages</div>
+                                <?php echo __('total_languages'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo count($languages); ?></div>
                         </div>
                         <div class="col-auto">
@@ -80,7 +80,7 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Languages</div>
+                                <?php echo __('active_languages'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo count(array_filter($languages, function($lang) { return $lang['is_active']; })); ?>
                             </div>
@@ -99,7 +99,7 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                RTL Languages</div>
+                                <?php echo __('rtl_languages'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo count(array_filter($languages, function($lang) { return $lang['direction'] === 'rtl'; })); ?>
                             </div>
@@ -118,11 +118,11 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Default Language</div>
+                                <?php echo __('default_language'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php 
                                 $default_lang = array_filter($languages, function($lang) { return $lang['is_default']; });
-                                echo $default_lang ? reset($default_lang)['language_name'] : 'None';
+                                echo $default_lang ? reset($default_lang)['language_name'] : __('none');
                                 ?>
                             </div>
                         </div>
@@ -138,15 +138,15 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Languages Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Languages</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('languages'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($languages)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-language fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No languages found.</p>
+                    <p class="text-gray-500"><?php echo __('no_languages_found'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Language
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_language'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -154,12 +154,12 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Language</th>
-                                <th>Code</th>
-                                <th>Direction</th>
-                                <th>Status</th>
-                                <th>Translations</th>
-                                <th>Actions</th>
+                                <th><?php echo __('language'); ?></th>
+                                <th><?php echo __('code'); ?></th>
+                                <th><?php echo __('direction'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('translations'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,10 +187,10 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <span class="badge <?php 
                                             echo $language['is_active'] ? 'bg-success' : 'bg-secondary'; 
                                         ?>">
-                                            <?php echo $language['is_active'] ? 'Active' : 'Inactive'; ?>
+                                            <?php echo $language['is_active'] ? __('active') : __('inactive'); ?>
                                         </span>
                                         <?php if ($language['is_default']): ?>
-                                            <br><small class="text-muted">Default</small>
+                                            <br><small class="text-muted"><?php echo __('default'); ?></small>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -200,34 +200,34 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         $stmt->execute([$language['id']]);
                                         $translation_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                                         ?>
-                                        <span class="badge bg-info"><?php echo $translation_count; ?> translations</span>
+                                        <span class="badge bg-info"><?php echo $translation_count; ?> <?php echo __('translations'); ?></span>
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="translations.php?language_id=<?php echo $language['id']; ?>" 
-                                               class="btn btn-sm btn-info" title="Manage Translations">
+                                               class="btn btn-sm btn-info" title="<?php echo __('manage_translations'); ?>">
                                                 <i class="fas fa-language"></i>
                                             </a>
                                             <a href="edit.php?id=<?php echo $language['id']; ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit">
+                                               class="btn btn-sm btn-warning" title="<?php echo __('edit'); ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($language['is_active']): ?>
                                                 <a href="?toggle=deactivate&id=<?php echo $language['id']; ?>" 
-                                                   class="btn btn-sm btn-secondary" title="Deactivate"
-                                                   onclick="return confirm('Are you sure you want to deactivate this language?')">
+                                                   class="btn btn-sm btn-secondary" title="<?php echo __('deactivate'); ?>"
+                                                   onclick="return confirm('<?php echo __('confirm_deactivate_language'); ?>')">
                                                     <i class="fas fa-eye-slash"></i>
                                                 </a>
                                             <?php else: ?>
                                                 <a href="?toggle=activate&id=<?php echo $language['id']; ?>" 
-                                                   class="btn btn-sm btn-success" title="Activate">
+                                                   class="btn btn-sm btn-success" title="<?php echo __('activate'); ?>">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             <?php endif; ?>
                                             <?php if (!$language['is_default']): ?>
                                                 <a href="delete.php?id=<?php echo $language['id']; ?>" 
-                                                   class="btn btn-sm btn-danger" title="Delete"
-                                                   onclick="return confirm('Are you sure you want to delete this language? This will also delete all translations.')">
+                                                   class="btn btn-sm btn-danger" title="<?php echo __('delete'); ?>"
+                                                   onclick="return confirm('<?php echo __('confirm_delete_language'); ?>')">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             <?php endif; ?>
@@ -247,21 +247,21 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
                         <a href="add.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-plus"></i> Add New Language
+                            <i class="fas fa-plus"></i> <?php echo __('add_new_language'); ?>
                         </a>
                         <a href="translations.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-language"></i> Manage All Translations
+                            <i class="fas fa-language"></i> <?php echo __('manage_all_translations'); ?>
                         </a>
                         <a href="import.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-upload"></i> Import Translations
+                            <i class="fas fa-upload"></i> <?php echo __('import_translations'); ?>
                         </a>
                         <a href="export.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-download"></i> Export Translations
+                            <i class="fas fa-download"></i> <?php echo __('export_translations'); ?>
                         </a>
                     </div>
                 </div>
@@ -271,25 +271,25 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Language Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('language_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6">
-                            <h6>Direction Breakdown</h6>
+                            <h6><?php echo __('direction_breakdown'); ?></h6>
                             <p><strong>LTR:</strong> <?php echo count(array_filter($languages, function($lang) { return $lang['direction'] === 'ltr'; })); ?></p>
                             <p><strong>RTL:</strong> <?php echo count(array_filter($languages, function($lang) { return $lang['direction'] === 'rtl'; })); ?></p>
                         </div>
                         <div class="col-6">
-                            <h6>Status Breakdown</h6>
-                            <p><strong>Active:</strong> <?php echo count(array_filter($languages, function($lang) { return $lang['is_active']; })); ?></p>
-                            <p><strong>Inactive:</strong> <?php echo count(array_filter($languages, function($lang) { return !$lang['is_active']; })); ?></p>
+                            <h6><?php echo __('status_breakdown'); ?></h6>
+                            <p><strong><?php echo __('active'); ?>:</strong> <?php echo count(array_filter($languages, function($lang) { return $lang['is_active']; })); ?></p>
+                            <p><strong><?php echo __('inactive'); ?>:</strong> <?php echo count(array_filter($languages, function($lang) { return !$lang['is_active']; })); ?></p>
                         </div>
                     </div>
                     <hr>
                     <div class="text-center">
-                        <h6>Translation Coverage</h6>
-                        <small class="text-muted">Average translations per language</small>
+                        <h6><?php echo __('translation_coverage'); ?></h6>
+                        <small class="text-muted"><?php echo __('average_translations_per_language'); ?></small>
                         <?php 
                         $total_translations = 0;
                         foreach ($languages as $lang) {
