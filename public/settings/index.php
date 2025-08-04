@@ -33,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Validate required fields
             if (empty($company_name)) {
-                throw new Exception('Company name is required.');
+                throw new Exception(__('company_name_required'));
             }
             
             if (!empty($company_email) && !filter_var($company_email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception('Invalid email format.');
+                throw new Exception(__('invalid_email_format'));
             }
             
             // Update company information
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$company_name, $company_email, $company_phone, $company_address, $company_website, $company_description, $company_id]);
             
-            $success = 'Company information updated successfully!';
+            $success = __('company_information_updated_successfully');
             
         } elseif ($action === 'update_preferences') {
             // Update company preferences
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $working_hours_start, $working_hours_end, json_encode($weekend_days), $company_id
             ]);
             
-            $success = 'Company preferences updated successfully!';
+            $success = __('company_preferences_updated_successfully');
             
         } elseif ($action === 'update_notifications') {
             // Update company notification settings
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$company_id, $key, $value, $value]);
             }
             
-            $success = 'Notification settings updated successfully!';
+            $success = __('notification_settings_updated_successfully');
             
         } elseif ($action === 'update_security') {
             // Update company security settings
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$company_id, $key, $value, $value]);
             }
             
-            $success = 'Security settings updated successfully!';
+            $success = __('security_settings_updated_successfully');
             
         } elseif ($action === 'update_integrations') {
             // Update company integration settings
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$company_id, $key, $value, $value]);
             }
             
-            $success = 'Integration settings updated successfully!';
+            $success = __('integration_settings_updated_successfully');
         }
         
     } catch (Exception $e) {
@@ -234,7 +234,7 @@ $timezones = DateTimeZone::listIdentifiers();
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-cogs"></i> Company Settings
+            <i class="fas fa-cogs"></i> <?php echo __('company_settings'); ?>
         </h1>
     </div>
 
@@ -254,27 +254,27 @@ $timezones = DateTimeZone::listIdentifiers();
                     <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="company-info-tab" data-bs-toggle="tab" data-bs-target="#company-info" type="button" role="tab">
-                                <i class="fas fa-building"></i> Company Info
+                                <i class="fas fa-building"></i> <?php echo __('company_info'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">
-                                <i class="fas fa-sliders-h"></i> Preferences
+                                <i class="fas fa-sliders-h"></i> <?php echo __('preferences'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
-                                <i class="fas fa-bell"></i> Notifications
+                                <i class="fas fa-bell"></i> <?php echo __('notifications'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
-                                <i class="fas fa-shield-alt"></i> Security
+                                <i class="fas fa-shield-alt"></i> <?php echo __('security'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="integrations-tab" data-bs-toggle="tab" data-bs-target="#integrations" type="button" role="tab">
-                                <i class="fas fa-plug"></i> Integrations
+                                <i class="fas fa-plug"></i> <?php echo __('integrations'); ?>
                             </button>
                         </li>
                     </ul>
@@ -290,14 +290,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="company_name" class="form-label">Company Name *</label>
+                                            <label for="company_name" class="form-label"><?php echo __('company_name'); ?> *</label>
                                             <input type="text" class="form-control" id="company_name" name="company_name" 
                                                    value="<?php echo htmlspecialchars($company['company_name']); ?>" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="company_email" class="form-label">Company Email</label>
+                                            <label for="company_email" class="form-label"><?php echo __('company_email'); ?></label>
                                             <input type="email" class="form-control" id="company_email" name="company_email" 
                                                    value="<?php echo htmlspecialchars($company['email']); ?>">
                                         </div>
@@ -307,14 +307,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="company_phone" class="form-label">Company Phone</label>
+                                            <label for="company_phone" class="form-label"><?php echo __('company_phone'); ?></label>
                                             <input type="text" class="form-control" id="company_phone" name="company_phone" 
                                                    value="<?php echo htmlspecialchars($company['phone']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="company_website" class="form-label">Company Website</label>
+                                            <label for="company_website" class="form-label"><?php echo __('company_website'); ?></label>
                                             <input type="url" class="form-control" id="company_website" name="company_website" 
                                                    value="<?php echo htmlspecialchars($company['website'] ?? ''); ?>">
                                         </div>
@@ -322,17 +322,17 @@ $timezones = DateTimeZone::listIdentifiers();
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="company_address" class="form-label">Company Address</label>
+                                    <label for="company_address" class="form-label"><?php echo __('company_address'); ?></label>
                                     <textarea class="form-control" id="company_address" name="company_address" rows="3"><?php echo htmlspecialchars($company['address']); ?></textarea>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="company_description" class="form-label">Company Description</label>
+                                    <label for="company_description" class="form-label"><?php echo __('company_description'); ?></label>
                                     <textarea class="form-control" id="company_description" name="company_description" rows="4"><?php echo htmlspecialchars($company['description'] ?? ''); ?></textarea>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Company Info
+                                    <i class="fas fa-save"></i> <?php echo __('update_company_info'); ?>
                                 </button>
                             </form>
                         </div>
