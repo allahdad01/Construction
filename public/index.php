@@ -1621,15 +1621,16 @@ $current_settings = [
                 return;
             }
             
-            if (savedLanguage) {
-                // Update display without server call on page load
-                const languageMap = {
-                    'en': 'English',
-                    'ps': 'پښتو'
-                };
-                currentLanguageSpan.textContent = languageMap[savedLanguage] || 'English';
-                console.log('Updated language display to:', languageMap[savedLanguage] || 'English');
-            }
+                            if (savedLanguage) {
+                    // Update display without server call on page load
+                    const languageMap = {
+                        'en': 'English',
+                        'da': 'دری',
+                        'ps': 'پښتو'
+                    };
+                    currentLanguageSpan.textContent = languageMap[savedLanguage] || 'English';
+                    console.log('Updated language display to:', languageMap[savedLanguage] || 'English');
+                }
         });
 
         // Initialize particles

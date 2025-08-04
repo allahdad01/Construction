@@ -94,10 +94,37 @@ $stmt = $conn->prepare("SELECT id, company_name FROM companies WHERE is_active =
 $stmt->execute();
 $companies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get statistics
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM company_payments");
+// Get multi-currency statistics
+$stmt = $conn->prepare("
+    SELECT 
+        currency,
+        COUNT(*) as count,
+        SUM(amount) as total_amount,
+        SUM(CASE WHEN payment_status = 'completed' THEN amount ELSE 0 END) as completed_amount,
+        SUM(CASE WHEN payment_status = 'pending' THEN amount ELSE 0 END) as pending_amount
+    FROM company_payments 
+    GROUP BY currency
+");
 $stmt->execute();
-$total_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$currency_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate totals in USD
+$total_received_usd = 0;
+$total_pending_usd = 0;
+$total_received_afn = 0;
+$total_pending_afn = 0;
+
+foreach ($currency_stats as $stat) {
+    if ($stat['currency'] === 'USD') {
+        $total_received_usd = $stat['completed_amount'];
+        $total_pending_usd = $stat['pending_amount'];
+    } elseif ($stat['currency'] === 'AFN') {
+        $total_received_afn = $stat['completed_amount'];
+        $total_pending_afn = $stat['pending_amount'];
+    }
+}
+
+$total_payments = array_sum(array_column($currency_stats, 'count'));
 
 // Get USD statistics
 $stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'completed' AND currency = 'USD'");

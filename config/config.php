@@ -900,4 +900,7 @@ function getMissingTranslations($language_id) {
     // Return missing keys
     return array_diff($all_keys, $existing_keys);
 }
+
+// Include currency helper functions
+require_once __DIR__ . '/currency_helper.php';
 ?>
