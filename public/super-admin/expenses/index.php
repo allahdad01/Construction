@@ -90,16 +90,26 @@ $stmt = $conn->prepare("
 $stmt->execute();
 $monthly_expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate totals (no currency conversion)
+// Calculate totals by currency (separate currencies)
 $total_amount_usd = 0;
+$total_amount_afn = 0;
 $monthly_amount_usd = 0;
+$monthly_amount_afn = 0;
 
 foreach ($expenses_by_currency as $expense) {
-    $total_amount_usd += $expense['total_amount'];
+    if ($expense['currency'] === 'USD') {
+        $total_amount_usd += $expense['total_amount'];
+    } elseif ($expense['currency'] === 'AFN') {
+        $total_amount_afn += $expense['total_amount'];
+    }
 }
 
 foreach ($monthly_expenses_by_currency as $expense) {
-    $monthly_amount_usd += $expense['total_amount'];
+    if ($expense['currency'] === 'USD') {
+        $monthly_amount_usd += $expense['total_amount'];
+    } elseif ($expense['currency'] === 'AFN') {
+        $monthly_amount_afn += $expense['total_amount'];
+    }
 }
 
 $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'));
@@ -138,7 +148,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total Amount (USD)</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total USD</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -150,15 +160,47 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total AFN</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_amount_afn, 'AFN'); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month (USD)</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Monthly USD</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Monthly AFN</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($monthly_amount_afn, 'AFN'); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -205,15 +247,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span><strong>Total (AFN):</strong></span>
-                            <strong class="text-primary"><?php 
-                                $total_afn = 0;
-                                foreach ($expenses_by_currency as $expense) {
-                                    if ($expense['currency'] === 'AFN') {
-                                        $total_afn += $expense['total_amount'];
-                                    }
-                                }
-                                echo formatCurrencyAmount($total_afn, 'AFN');
-                            ?></strong>
+                            <strong class="text-primary"><?php echo formatCurrencyAmount($total_amount_afn, 'AFN'); ?></strong>
                         </div>
                     <?php else: ?>
                         <p class="text-muted">No expenses found</p>
@@ -243,15 +277,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span><strong>Monthly Total (AFN):</strong></span>
-                            <strong class="text-warning"><?php 
-                                $monthly_afn = 0;
-                                foreach ($monthly_expenses_by_currency as $expense) {
-                                    if ($expense['currency'] === 'AFN') {
-                                        $monthly_afn += $expense['total_amount'];
-                                    }
-                                }
-                                echo formatCurrencyAmount($monthly_afn, 'AFN');
-                            ?></strong>
+                            <strong class="text-warning"><?php echo formatCurrencyAmount($monthly_amount_afn, 'AFN'); ?></strong>
                         </div>
                     <?php else: ?>
                         <p class="text-muted">No expenses this month</p>
