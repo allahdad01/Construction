@@ -87,14 +87,46 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get payment statistics
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE company_id = ? AND payment_status = 'completed'");
+// Get payment statistics by currency
+$stmt = $conn->prepare("
+    SELECT currency, SUM(amount) as total 
+    FROM company_payments 
+    WHERE company_id = ? AND payment_status = 'completed'
+    GROUP BY currency
+");
 $stmt->execute([$company_id]);
-$total_paid = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$completed_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE company_id = ? AND payment_status = 'pending'");
+$stmt = $conn->prepare("
+    SELECT currency, SUM(amount) as total 
+    FROM company_payments 
+    WHERE company_id = ? AND payment_status = 'pending'
+    GROUP BY currency
+");
 $stmt->execute([$company_id]);
-$total_pending = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$pending_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate totals by currency
+$total_paid_usd = 0;
+$total_paid_afn = 0;
+$total_pending_usd = 0;
+$total_pending_afn = 0;
+
+foreach ($completed_by_currency as $payment) {
+    if ($payment['currency'] === 'USD') {
+        $total_paid_usd += $payment['total'];
+    } elseif ($payment['currency'] === 'AFN') {
+        $total_paid_afn += $payment['total'];
+    }
+}
+
+foreach ($pending_by_currency as $payment) {
+    if ($payment['currency'] === 'USD') {
+        $total_pending_usd += $payment['total'];
+    } elseif ($payment['currency'] === 'AFN') {
+        $total_pending_afn += $payment['total'];
+    }
+}
 
 $stmt = $conn->prepare("SELECT COUNT(*) as count FROM company_payments WHERE company_id = ? AND payment_status = 'completed'");
 $stmt->execute([$company_id]);
@@ -130,11 +162,27 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Paid</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_paid); ?></div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Paid (USD)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_paid_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Paid (AFN)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_paid_afn, 'AFN'); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -146,8 +194,8 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Amount</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_pending); ?></div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending (USD)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_pending_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -158,6 +206,25 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pending (AFN)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_pending_afn, 'AFN'); ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Counts -->
+    <div class="row">
+        <div class="col-xl-6 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -173,12 +240,12 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pending Payments</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Payments</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $pending_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -329,6 +396,15 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                                             <a href="/constract360/construction/public/super-admin/companies/payment-view.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-info" title="View">
                                                 <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/constract360/construction/public/super-admin/companies/payment-edit.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                               class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="/constract360/construction/public/super-admin/companies/payment-delete.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                               class="btn btn-sm btn-danger" title="Delete"
+                                               onclick="return confirmDelete('Are you sure you want to delete this payment?')">
+                                                <i class="fas fa-trash"></i>
                                             </a>
                                             <?php if ($payment['payment_status'] === 'pending'): ?>
                                                 <a href="/constract360/construction/public/super-admin/companies/payment-approve.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
