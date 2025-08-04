@@ -104,9 +104,9 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Parking Space Management</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('parking_space_management'); ?></h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add Parking Space
+            <i class="fas fa-plus"></i> <?php echo __('add_parking_space'); ?>
         </a>
     </div>
 
@@ -118,7 +118,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Spaces</div>
+                                <?php echo __('total_spaces'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -135,7 +135,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Available</div>
+                                <?php echo __('available'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $available_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -152,7 +152,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Active Rentals</div>
+                                <?php echo __('active_rentals'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_rentals; ?></div>
                         </div>
                         <div class="col-auto">
@@ -169,7 +169,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Monthly Revenue</div>
+                                <?php echo __('monthly_revenue'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_revenue); ?></div>
                         </div>
                         <div class="col-auto">
@@ -184,38 +184,38 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by space name or code" 
+                           placeholder="<?php echo __('search_by_space_name_or_code'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="type">
-                        <option value="">All Types</option>
-                        <option value="machine" <?php echo $type_filter === 'machine' ? 'selected' : ''; ?>>Machine</option>
-                        <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>>Container</option>
-                        <option value="equipment" <?php echo $type_filter === 'equipment' ? 'selected' : ''; ?>>Equipment</option>
+                        <option value=""><?php echo __('all_types'); ?></option>
+                        <option value="machine" <?php echo $type_filter === 'machine' ? 'selected' : ''; ?>><?php echo __('machine'); ?></option>
+                        <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>><?php echo __('container'); ?></option>
+                        <option value="equipment" <?php echo $type_filter === 'equipment' ? 'selected' : ''; ?>><?php echo __('equipment'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>Available</option>
-                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>Occupied</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>><?php echo __('available'); ?></option>
+                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>><?php echo __('occupied'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                 </div>
                 <div class="col-md-2">
                     <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -225,15 +225,15 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     <!-- Parking Spaces Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Parking Spaces</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_spaces'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($parking_spaces)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-parking fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No parking spaces found.</p>
+                    <p class="text-gray-500"><?php echo __('no_parking_spaces_found'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Parking Space
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_parking_space'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -241,13 +241,13 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Space Code</th>
-                                <th>Space Name</th>
-                                <th>Type & Size</th>
-                                <th>Rate</th>
-                                <th>Status</th>
-                                <th>Active Rentals</th>
-                                <th>Actions</th>
+                                <th><?php echo __('space_code'); ?></th>
+                                <th><?php echo __('space_name'); ?></th>
+                                <th><?php echo __('type_size'); ?></th>
+                                <th><?php echo __('rate'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('active_rentals'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -277,7 +277,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                                     <td>
                                         <div>
                                             <strong><?php echo formatCurrency($space['monthly_rate']); ?></strong>
-                                            <br><small class="text-muted">per month</small>
+                                            <br><small class="text-muted"><?php echo __('per_month'); ?></small>
                                         </div>
                                     </td>
                                     <td>
@@ -290,7 +290,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                                     <td>
                                         <div class="text-center">
                                             <span class="badge bg-info">
-                                                <?php echo $space['active_rentals']; ?> active
+                                                <?php echo $space['active_rentals']; ?> <?php echo __('active'); ?>
                                             </span>
                                         </div>
                                     </td>
@@ -327,7 +327,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -343,7 +343,7 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -359,21 +359,21 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
                         <a href="add.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-plus"></i> Add New Parking Space
+                            <i class="fas fa-plus"></i> <?php echo __('add_new_parking_space'); ?>
                         </a>
                         <a href="rentals/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-list"></i> Manage All Rentals
+                            <i class="fas fa-list"></i> <?php echo __('manage_all_rentals'); ?>
                         </a>
                         <a href="add-rental.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-key"></i> Create New Rental
+                            <i class="fas fa-key"></i> <?php echo __('create_new_rental'); ?>
                         </a>
                         <a href="reports/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-chart-bar"></i> Parking Reports
+                            <i class="fas fa-chart-bar"></i> <?php echo __('parking_reports'); ?>
                         </a>
                     </div>
                 </div>
@@ -383,29 +383,29 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Parking Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6">
-                            <h6>Space Breakdown</h6>
-                            <p><strong>Available:</strong> <?php echo $available_spaces; ?></p>
-                            <p><strong>Occupied:</strong> <?php echo $occupied_spaces; ?></p>
-                            <p><strong>Total:</strong> <?php echo $total_spaces; ?></p>
+                            <h6><?php echo __('space_breakdown'); ?></h6>
+                            <p><strong><?php echo __('available'); ?>:</strong> <?php echo $available_spaces; ?></p>
+                            <p><strong><?php echo __('occupied'); ?>:</strong> <?php echo $occupied_spaces; ?></p>
+                            <p><strong><?php echo __('total'); ?>:</strong> <?php echo $total_spaces; ?></p>
                         </div>
                         <div class="col-6">
-                            <h6>Revenue Overview</h6>
-                            <p><strong>Monthly Revenue:</strong> <?php echo formatCurrency($total_revenue); ?></p>
-                            <p><strong>Active Rentals:</strong> <?php echo $active_rentals; ?></p>
+                            <h6><?php echo __('revenue_overview'); ?></h6>
+                            <p><strong><?php echo __('monthly_revenue'); ?>:</strong> <?php echo formatCurrency($total_revenue); ?></p>
+                            <p><strong><?php echo __('active_rentals'); ?>:</strong> <?php echo $active_rentals; ?></p>
                         </div>
                     </div>
                     <hr>
                     <div class="text-center">
-                        <h6>Occupancy Rate</h6>
+                        <h6><?php echo __('occupancy_rate'); ?></h6>
                         <h4 class="text-info">
                             <?php echo $total_spaces > 0 ? round(($occupied_spaces / $total_spaces) * 100, 1) : 0; ?>%
                         </h4>
-                        <small class="text-muted">Spaces currently occupied</small>
+                        <small class="text-muted"><?php echo __('spaces_currently_occupied'); ?></small>
                     </div>
                 </div>
             </div>
