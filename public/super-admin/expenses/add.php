@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create expense record
         $stmt = $conn->prepare("
             INSERT INTO expenses (
-                company_id, expense_code, category, description, amount, expense_date, 
+                company_id, expense_code, category, description, amount, currency, expense_date, 
                 payment_method, reference_number, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['expense_type'],
             $_POST['description'],
             $_POST['amount'],
+            $_POST['currency'] ?? 'USD',
             $_POST['expense_date'],
             $_POST['payment_method'],
             $_POST['reference_number'] ?: null,
@@ -142,6 +143,29 @@ function generateExpenseCode() {
                                     <input type="number" class="form-control" id="amount" name="amount" 
                                            value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>" 
                                            step="0.01" min="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">Currency *</label>
+                                    <select class="form-control" id="currency" name="currency" required>
+                                        <option value="">Select Currency</option>
+                                        <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
+                                        <option value="AFN" <?php echo ($_POST['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
+                                        <option value="EUR" <?php echo ($_POST['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
+                                        <option value="GBP" <?php echo ($_POST['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="expense_date" class="form-label">Expense Date *</label>
+                                    <input type="date" class="form-control" id="expense_date" name="expense_date" 
+                                           value="<?php echo htmlspecialchars($_POST['expense_date'] ?? date('Y-m-d')); ?>" 
+                                           required>
                                 </div>
                             </div>
                         </div>

@@ -81,15 +81,23 @@ if (!$expense) {
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Amount</label>
                                 <p class="form-control-plaintext">
-                                    <strong class="text-danger"><?php echo formatCurrency($expense['amount']); ?></strong>
+                                    <strong class="text-danger"><?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?></strong>
                                 </p>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Currency</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-secondary"><?php echo htmlspecialchars($expense['currency'] ?? 'USD'); ?></span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Expense Date</label>
                                 <p class="form-control-plaintext"><?php echo formatDate($expense['expense_date']); ?></p>

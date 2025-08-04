@@ -229,6 +229,7 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                 <th>Type</th>
                                 <th>Description</th>
                                 <th>Amount</th>
+                                <th>Currency</th>
                                 <th>Date</th>
                                 <th>Payment Method</th>
                                 <th>Receipt</th>
@@ -249,8 +250,13 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                     <td><?php echo htmlspecialchars($expense['description']); ?></td>
                                     <td>
                                         <strong class="text-danger">
-                                            <?php echo formatCurrency($expense['amount']); ?>
+                                            <?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?>
                                         </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            <?php echo htmlspecialchars($expense['currency'] ?? 'USD'); ?>
+                                        </span>
                                     </td>
                                     <td><?php echo formatDate($expense['expense_date']); ?></td>
                                     <td>

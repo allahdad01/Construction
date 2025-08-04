@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update expense record
         $stmt = $conn->prepare("
             UPDATE expenses SET 
-                category = ?, description = ?, amount = ?, expense_date = ?, 
+                category = ?, description = ?, amount = ?, currency = ?, expense_date = ?, 
                 payment_method = ?, reference_number = ?, notes = ?, updated_at = NOW()
             WHERE id = ? AND company_id = 1
         ");
@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['expense_type'],
             $_POST['description'],
             $_POST['amount'],
+            $_POST['currency'] ?? 'USD',
             $_POST['expense_date'],
             $_POST['payment_method'],
             $_POST['reference_number'] ?: null,
@@ -149,14 +150,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
-                            <input type="text" class="form-control" id="description" name="description" 
-                                   value="<?php echo htmlspecialchars($_POST['description'] ?? $expense['description']); ?>" 
-                                   placeholder="Brief description of the expense" required>
-                        </div>
-
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">Currency *</label>
+                                    <select class="form-control" id="currency" name="currency" required>
+                                        <option value="">Select Currency</option>
+                                        <option value="USD" <?php echo ($_POST['currency'] ?? $expense['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
+                                        <option value="AFN" <?php echo ($_POST['currency'] ?? $expense['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
+                                        <option value="EUR" <?php echo ($_POST['currency'] ?? $expense['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
+                                        <option value="GBP" <?php echo ($_POST['currency'] ?? $expense['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="expense_date" class="form-label">Expense Date *</label>
@@ -165,6 +171,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                            required>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <input type="text" class="form-control" id="description" name="description" 
+                                   value="<?php echo htmlspecialchars($_POST['description'] ?? $expense['description']); ?>" 
+                                   placeholder="Brief description of the expense" required>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="payment_method" class="form-label">Payment Method *</label>
