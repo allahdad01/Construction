@@ -605,6 +605,14 @@ function getCompanyLanguage($company_id = null) {
         $company_id = getCurrentCompanyId();
     }
     
+    // If no company_id (public pages), use session or default to English
+    if (!$company_id) {
+        $session_language = $_SESSION['current_language'] ?? 1;
+        $stmt = $conn->prepare("SELECT * FROM languages WHERE id = ?");
+        $stmt->execute([$session_language]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['language_code' => 'en', 'direction' => 'ltr'];
+    }
+    
     // Get the default language ID from company_settings using key-value structure
     $stmt = $conn->prepare("
         SELECT setting_value FROM company_settings 
@@ -626,14 +634,19 @@ function getTranslation($key, $company_id = null, $params = []) {
         $company_id = getCurrentCompanyId();
     }
     
-    $language = getCompanyLanguage($company_id);
-    $language_id = $language['id'] ?? 1;
+    // If no company_id (public pages), use session language
+    if (!$company_id) {
+        $current_language = $_SESSION['current_language'] ?? 1;
+    } else {
+        $language = getCompanyLanguage($company_id);
+        $current_language = $language['id'] ?? 1;
+    }
     
     $stmt = $conn->prepare("
         SELECT translation_value FROM language_translations 
         WHERE language_id = ? AND translation_key = ?
     ");
-    $stmt->execute([$language_id, $key]);
+    $stmt->execute([$current_language, $key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
     $translation = $result ? $result['translation_value'] : $key;
@@ -699,6 +712,11 @@ function getAvailableLanguages() {
 
 function updateCompanyLanguage($company_id, $language_id) {
     global $conn;
+    
+    // Don't update if no company_id
+    if (!$company_id) {
+        return false;
+    }
     
     // Use INSERT ... ON DUPLICATE KEY UPDATE for key-value structure
     $stmt = $conn->prepare("
@@ -809,8 +827,10 @@ function changeLanguage($language_id, $company_id = null) {
     // Update session
     $_SESSION['current_language'] = $language_id;
     
-    // Update company settings
-    updateCompanyLanguage($company_id, $language_id);
+    // Update company settings only if we have a company_id
+    if ($company_id) {
+        updateCompanyLanguage($company_id, $language_id);
+    }
 }
 
 function getLanguageName($language_code) {

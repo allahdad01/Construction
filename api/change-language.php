@@ -35,7 +35,13 @@ try {
     }
     
     // Use the enhanced changeLanguage function
-    changeLanguage($language['id']);
+    // For public pages (like landing page), we don't have a company_id
+    if (isset($_SESSION['user_id']) && isset($_SESSION['company_id'])) {
+        changeLanguage($language['id']);
+    } else {
+        // For public pages, just update session
+        $_SESSION['current_language'] = $language['id'];
+    }
     
     echo json_encode([
         'success' => true,
