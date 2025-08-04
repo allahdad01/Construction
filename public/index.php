@@ -338,7 +338,7 @@ $current_language = $_SESSION['current_language'] ?? 'en';
 
         /* Pricing Section */
         .pricing-section {
-            background: linear-gradient(135deg, var(--construction-gray), var(--dark-color));
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
             padding: 80px 0;
             position: relative;
@@ -445,6 +445,106 @@ $current_language = $_SESSION['current_language'] ?? 'en';
             margin-top: auto;
         }
 
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 80px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .contact-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--construction-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .contact-details h6 {
+            color: var(--construction-orange);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .contact-details p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .social-links {
+            margin-top: 30px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            background: var(--construction-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: white;
+            color: var(--construction-orange);
+            transform: translateY(-3px);
+        }
+
+        .contact-form {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-form .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .contact-form .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .contact-form .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--construction-orange);
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        }
+
+        .contact-form .form-label {
+            color: white;
+            font-weight: 500;
+        }
+
         /* Testimonials Section */
         .testimonials-section {
             background: var(--light-color);
@@ -490,7 +590,7 @@ $current_language = $_SESSION['current_language'] ?? 'en';
 
         /* Footer */
         .footer {
-            background: linear-gradient(135deg, var(--construction-gray), var(--dark-color));
+            background: linear-gradient(135deg, #1a252f, #2c3e50);
             color: white;
             padding: 60px 0 30px;
             position: relative;
@@ -1006,20 +1106,164 @@ $current_language = $_SESSION['current_language'] ?? 'en';
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section" id="contact">
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
         <div class="container">
-            <div class="row justify-content-center text-center">
-                <div class="col-lg-8" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">Ready to Transform Your Construction Business?</h2>
-                    <p class="lead mb-5">Join hundreds of construction companies already using our platform to streamline their operations.</p>
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a href="../login.php" class="btn btn-light btn-lg">
-                            <i class="fas fa-rocket me-2"></i>Start Free Trial
-                        </a>
-                        <a href="#contact" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-phone me-2"></i>Contact Sales
-                        </a>
+            <?php if (isset($_GET['contact']) && $_GET['contact'] === 'success'): ?>
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Thank you for your message! We'll get back to you soon.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php elseif (isset($_GET['contact']) && $_GET['contact'] === 'error'): ?>
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <?php echo htmlspecialchars($_GET['message'] ?? 'An error occurred. Please try again.'); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+            
+            <div class="row text-center mb-5">
+                <div class="col-12" data-aos="fade-up">
+                    <h2 class="display-4 fw-bold mb-4">Get In Touch</h2>
+                    <p class="lead text-muted">Ready to transform your construction business? Contact us today!</p>
+                </div>
+            </div>
+            
+            <div class="row g-5">
+                <!-- Contact Information -->
+                <div class="col-lg-4" data-aos="fade-right">
+                    <div class="contact-info">
+                        <h4 class="mb-4">Contact Information</h4>
+                        
+                        <div class="contact-item mb-3">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h6>Address</h6>
+                                <p><?php echo htmlspecialchars($current_settings['contact_address'] ?? '123 Construction Street, Building City, BC 12345'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item mb-3">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h6>Phone</h6>
+                                <p><?php echo htmlspecialchars($current_settings['contact_phone'] ?? '+1 (555) 123-4567'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item mb-3">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h6>Email</h6>
+                                <p><?php echo htmlspecialchars($current_settings['contact_email'] ?? 'info@constructionsaas.com'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item mb-4">
+                            <div class="contact-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h6>Website</h6>
+                                <p><?php echo htmlspecialchars($current_settings['contact_website'] ?? 'www.constructionsaas.com'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Media Links -->
+                        <div class="social-links">
+                            <h6 class="mb-3">Follow Us</h6>
+                            <div class="d-flex gap-3">
+                                <?php if (!empty($current_settings['contact_facebook'])): ?>
+                                <a href="<?php echo htmlspecialchars($current_settings['contact_facebook']); ?>" class="social-link" target="_blank">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($current_settings['contact_twitter'])): ?>
+                                <a href="<?php echo htmlspecialchars($current_settings['contact_twitter']); ?>" class="social-link" target="_blank">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($current_settings['contact_linkedin'])): ?>
+                                <a href="<?php echo htmlspecialchars($current_settings['contact_linkedin']); ?>" class="social-link" target="_blank">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($current_settings['contact_instagram'])): ?>
+                                <a href="<?php echo htmlspecialchars($current_settings['contact_instagram']); ?>" class="social-link" target="_blank">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Form -->
+                <div class="col-lg-8" data-aos="fade-left">
+                    <div class="contact-form">
+                        <h4 class="mb-4">Send us a Message</h4>
+                        <form id="contactForm" method="POST" action="../api/contact-submit.php">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="company" class="form-label">Company Name</label>
+                                        <input type="text" class="form-control" id="company" name="company">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject *</label>
+                                <select class="form-control" id="subject" name="subject" required>
+                                    <option value="">Select a subject</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="pricing">Pricing Information</option>
+                                    <option value="demo">Request Demo</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="partnership">Partnership</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Message *</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -150,7 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 throw new Exception('No logo file selected.');
             }
-            
         } elseif ($action === 'remove_logo') {
             // Remove current logo
             $current_logo = getSystemSettingLocal($conn, 'platform_logo', '');
@@ -249,6 +248,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $success = 'Integration settings updated successfully!';
+            
+        } elseif ($action === 'update_contact') {
+            // Update contact information
+            $contact_address = trim($_POST['contact_address'] ?? '');
+            $contact_phone = trim($_POST['contact_phone'] ?? '');
+            $contact_email = trim($_POST['contact_email'] ?? '');
+            $contact_website = trim($_POST['contact_website'] ?? '');
+            $contact_facebook = trim($_POST['contact_facebook'] ?? '');
+            $contact_twitter = trim($_POST['contact_twitter'] ?? '');
+            $contact_linkedin = trim($_POST['contact_linkedin'] ?? '');
+            $contact_instagram = trim($_POST['contact_instagram'] ?? '');
+            
+            $settings = [
+                'contact_address' => $contact_address,
+                'contact_phone' => $contact_phone,
+                'contact_email' => $contact_email,
+                'contact_website' => $contact_website,
+                'contact_facebook' => $contact_facebook,
+                'contact_twitter' => $contact_twitter,
+                'contact_linkedin' => $contact_linkedin,
+                'contact_instagram' => $contact_instagram
+            ];
+            
+            foreach ($settings as $key => $value) {
+                $stmt = $conn->prepare("
+                    INSERT INTO system_settings (setting_key, setting_value) 
+                    VALUES (?, ?) 
+                    ON DUPLICATE KEY UPDATE setting_value = ?
+                ");
+                $stmt->execute([$key, $value, $value]);
+            }
+            
+            $success = 'Contact information updated successfully!';
         }
         
     } catch (Exception $e) {
@@ -285,7 +317,15 @@ $current_settings = [
     'smtp_port' => getSystemSettingLocal($conn, 'smtp_port', '587'),
     'smtp_username' => getSystemSettingLocal($conn, 'smtp_username', ''),
     'smtp_password' => getSystemSettingLocal($conn, 'smtp_password', ''),
-    'smtp_encryption' => getSystemSettingLocal($conn, 'smtp_encryption', 'tls')
+    'smtp_encryption' => getSystemSettingLocal($conn, 'smtp_encryption', 'tls'),
+    'contact_address' => getSystemSettingLocal($conn, 'contact_address', ''),
+    'contact_phone' => getSystemSettingLocal($conn, 'contact_phone', ''),
+    'contact_email' => getSystemSettingLocal($conn, 'contact_email', ''),
+    'contact_website' => getSystemSettingLocal($conn, 'contact_website', ''),
+    'contact_facebook' => getSystemSettingLocal($conn, 'contact_facebook', ''),
+    'contact_twitter' => getSystemSettingLocal($conn, 'contact_twitter', ''),
+    'contact_linkedin' => getSystemSettingLocal($conn, 'contact_linkedin', ''),
+    'contact_instagram' => getSystemSettingLocal($conn, 'contact_instagram', '')
 ];
 ?>
 
@@ -338,6 +378,11 @@ $current_settings = [
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="integrations-tab" data-bs-toggle="tab" data-bs-target="#integrations" type="button" role="tab">
                                 <i class="fas fa-plug"></i> Integrations
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                <i class="fas fa-address-book"></i> Contact Info
                             </button>
                         </li>
                     </ul>
@@ -703,6 +748,88 @@ $current_settings = [
                                 
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Update Integrations
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Contact Settings -->
+                        <div class="tab-pane fade" id="contact" role="tabpanel">
+                            <form method="POST">
+                                <input type="hidden" name="action" value="update_contact">
+                                
+                                <h6 class="mb-3">Contact Information</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_address" class="form-label">Address</label>
+                                            <textarea class="form-control" id="contact_address" name="contact_address" rows="3"><?php echo htmlspecialchars($current_settings['contact_address']); ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_phone" class="form-label">Phone</label>
+                                            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_phone']); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_email']); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_website" class="form-label">Website</label>
+                                            <input type="url" class="form-control" id="contact_website" name="contact_website" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_website']); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h6 class="mb-3 mt-4">Social Media Links</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_facebook" class="form-label">Facebook</label>
+                                            <input type="url" class="form-control" id="contact_facebook" name="contact_facebook" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_facebook']); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_twitter" class="form-label">Twitter</label>
+                                            <input type="url" class="form-control" id="contact_twitter" name="contact_twitter" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_twitter']); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_linkedin" class="form-label">LinkedIn</label>
+                                            <input type="url" class="form-control" id="contact_linkedin" name="contact_linkedin" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_linkedin']); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="contact_instagram" class="form-label">Instagram</label>
+                                            <input type="url" class="form-control" id="contact_instagram" name="contact_instagram" 
+                                                   value="<?php echo htmlspecialchars($current_settings['contact_instagram']); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Update Contact Info
                                 </button>
                             </form>
                         </div>
