@@ -7,6 +7,17 @@ if (isset($_SESSION['user_id'])) {
     header('Location: dashboard/');
     exit;
 }
+
+// Get available languages from database
+$db = new Database();
+$conn = $db->getConnection();
+
+$stmt = $conn->prepare("SELECT * FROM languages WHERE is_active = 1 ORDER BY language_name");
+$stmt->execute();
+$available_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get current language preference from session or default to English
+$current_language = $_SESSION['current_language'] ?? 'en';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -325,8 +336,8 @@ if (isset($_SESSION['user_id'])) {
             50% { transform: scale(1.1); }
         }
 
-        /* Statistics Section */
-        .stats-section {
+        /* Pricing Section */
+        .pricing-section {
             background: linear-gradient(135deg, var(--construction-gray), var(--dark-color));
             color: white;
             padding: 80px 0;
@@ -334,22 +345,104 @@ if (isset($_SESSION['user_id'])) {
             z-index: 10;
         }
 
-        .stat-item {
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
             text-align: center;
-            animation: fadeInUp 1s ease-out both;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+            color: var(--dark-color);
         }
 
-        .stat-number {
+        .pricing-card.featured {
+            transform: scale(1.05);
+            border: 3px solid var(--construction-orange);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--construction-orange);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pricing-header {
+            margin-bottom: 30px;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+        }
+
+        .price {
+            margin-bottom: 15px;
+        }
+
+        .currency {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--construction-orange);
+        }
+
+        .amount {
             font-size: 3rem;
             font-weight: 900;
             color: var(--construction-orange);
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .stat-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .period {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .plan-description {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .pricing-features {
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-footer {
+            margin-top: auto;
         }
 
         /* Testimonials Section */
@@ -581,23 +674,38 @@ if (isset($_SESSION['user_id'])) {
                     <div class="dropdown me-3">
                         <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-language me-1"></i>
-                            <span id="currentLanguage">English</span>
+                            <span id="currentLanguage">
+                                <?php 
+                                $current_lang_name = 'English';
+                                foreach ($available_languages as $lang) {
+                                    if ($lang['language_code'] === $current_language) {
+                                        $current_lang_name = $lang['language_name_native'];
+                                        break;
+                                    }
+                                }
+                                echo htmlspecialchars($current_lang_name);
+                                ?>
+                            </span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">English</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('es')">Español</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">Français</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('ar')">العربية</a></li>
+                            <?php foreach ($available_languages as $lang): ?>
+                            <li>
+                                <a class="dropdown-item <?php echo $lang['language_code'] === $current_language ? 'active' : ''; ?>" 
+                                   href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>', '<?php echo htmlspecialchars($lang['language_name_native']); ?>')">
+                                    <?php echo htmlspecialchars($lang['language_name_native']); ?>
+                                    <?php if ($lang['language_code'] === $current_language): ?>
+                                        <i class="fas fa-check ms-auto"></i>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                            <?php endforeach; ?>
                         </ul>
                     </div>
                     
-                    <!-- Login/Register Buttons -->
+                    <!-- Login Button -->
                     <div class="d-flex gap-2">
-                        <a href="../login.php" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
-                        </a>
                         <a href="../login.php" class="btn btn-construction btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Register
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
                         </a>
                     </div>
                 </div>
@@ -731,42 +839,102 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section>
 
-    <!-- Statistics Section -->
-    <section class="stats-section" id="pricing">
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">Platform Statistics</h2>
-                    <p class="lead">Trusted by construction companies worldwide</p>
+                    <h2 class="display-4 fw-bold mb-4">Choose Your Plan</h2>
+                    <p class="lead text-muted">Flexible pricing plans designed for construction companies of all sizes</p>
                 </div>
             </div>
             
-            <div class="row">
-                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="stat-item">
-                        <div class="stat-number" data-count="500">0</div>
-                        <div class="stat-label">Active Companies</div>
+            <div class="row g-4 justify-content-center">
+                <!-- Basic Plan -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3 class="plan-name">Basic</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">99</span>
+                                <span class="period">/month</span>
+                            </div>
+                            <p class="plan-description">Perfect for small construction companies</p>
+                        </div>
+                        <div class="pricing-features">
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check text-success me-2"></i>Up to 10 employees</li>
+                                <li><i class="fas fa-check text-success me-2"></i>25 machines</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Basic reporting</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Email support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
+                                <li><i class="fas fa-times text-muted me-2"></i>Advanced analytics</li>
+                                <li><i class="fas fa-times text-muted me-2"></i>Priority support</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer">
+                            <a href="../login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="stat-item">
-                        <div class="stat-number" data-count="2500">0</div>
-                        <div class="stat-label">Managed Employees</div>
+                <!-- Professional Plan -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="pricing-card featured">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="pricing-header">
+                            <h3 class="plan-name">Professional</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">199</span>
+                                <span class="period">/month</span>
+                            </div>
+                            <p class="plan-description">Ideal for growing construction businesses</p>
+                        </div>
+                        <div class="pricing-features">
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check text-success me-2"></i>Up to 50 employees</li>
+                                <li><i class="fas fa-check text-success me-2"></i>100 machines</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Advanced reporting</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
+                                <li><i class="fas fa-check text-success me-2"></i>API access</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer">
+                            <a href="../login.php" class="btn btn-primary btn-lg w-100">Get Started</a>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="stat-item">
-                        <div class="stat-number" data-count="1500">0</div>
-                        <div class="stat-label">Active Machines</div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
-                    <div class="stat-item">
-                        <div class="stat-number" data-count="1000">0</div>
-                        <div class="stat-label">Active Contracts</div>
+                <!-- Enterprise Plan -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3 class="plan-name">Enterprise</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">399</span>
+                                <span class="period">/month</span>
+                            </div>
+                            <p class="plan-description">For large construction enterprises</p>
+                        </div>
+                        <div class="pricing-features">
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check text-success me-2"></i>Unlimited employees</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Unlimited machines</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Custom reporting</li>
+                                <li><i class="fas fa-check text-success me-2"></i>24/7 support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Custom integrations</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer">
+                            <a href="../login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -964,43 +1132,20 @@ if (isset($_SESSION['user_id'])) {
             }
         }
 
-        // Animated counter
-        function animateCounter(element, target) {
-            let current = 0;
-            const increment = target / 100;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(timer);
-                }
-                element.textContent = Math.floor(current);
-            }, 20);
-        }
-
-        // Intersection Observer for counters
-        const observerOptions = {
-            threshold: 0.5
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const counters = entry.target.querySelectorAll('.stat-number');
-                    counters.forEach(counter => {
-                        const target = parseInt(counter.getAttribute('data-count'));
-                        animateCounter(counter, target);
-                    });
-                    observer.unobserve(entry.target);
+        // Pricing card hover effects
+        document.querySelectorAll('.pricing-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (this.classList.contains('featured')) {
+                    this.style.transform = 'scale(1.05)';
+                } else {
+                    this.style.transform = 'translateY(0)';
                 }
             });
-        }, observerOptions);
-
-        // Observe stats section
-        const statsSection = document.querySelector('.stats-section');
-        if (statsSection) {
-            observer.observe(statsSection);
-        }
+        });
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1060,42 +1205,83 @@ if (isset($_SESSION['user_id'])) {
         });
 
         // Language switcher functionality
-        function changeLanguage(lang) {
+        function changeLanguage(lang, langName) {
             const currentLanguageSpan = document.getElementById('currentLanguage');
-            const languageMap = {
-                'en': 'English',
-                'es': 'Español',
-                'fr': 'Français',
-                'ar': 'العربية'
-            };
             
-            currentLanguageSpan.textContent = languageMap[lang] || 'English';
+            // Update the display
+            currentLanguageSpan.textContent = langName || 'English';
             
             // Store language preference
             localStorage.setItem('preferredLanguage', lang);
             
-            // Show success message
-            const toast = document.createElement('div');
-            toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-            toast.innerHTML = `
-                <i class="fas fa-language me-2"></i>
-                Language changed to ${languageMap[lang]}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(toast);
-            
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            // Send language change to server
+            fetch('../api/change-language.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: lang
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    toast.innerHTML = `
+                        <i class="fas fa-language me-2"></i>
+                        Language changed to ${langName}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(toast);
+                    
+                    // Auto-remove after 3 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                    
+                    // Reload page to apply language changes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error changing language:', error);
+                // Show error message
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                toast.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Failed to change language
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(toast);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            });
         }
 
         // Initialize language preference
         document.addEventListener('DOMContentLoaded', () => {
             const savedLanguage = localStorage.getItem('preferredLanguage');
             if (savedLanguage) {
-                changeLanguage(savedLanguage);
+                // Update display without server call on page load
+                const currentLanguageSpan = document.getElementById('currentLanguage');
+                const languageMap = {
+                    'en': 'English',
+                    'es': 'Español',
+                    'fr': 'Français',
+                    'ar': 'العربية'
+                };
+                currentLanguageSpan.textContent = languageMap[savedLanguage] || 'English';
             }
         });
 
