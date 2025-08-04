@@ -1461,13 +1461,16 @@ $current_settings = [
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const offsetTop = target.offsetTop - 80; // Account for fixed header
-                    window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
-                    });
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const offsetTop = target.offsetTop - 80; // Account for fixed header
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             });
         });
@@ -1514,9 +1517,15 @@ $current_settings = [
             });
         });
 
-        // Enhanced language switcher functionality
+                // Enhanced language switcher functionality
         function changeLanguage(lang, langName) {
+            console.log('Changing language to:', lang, langName);
+            
             const currentLanguageSpan = document.getElementById('currentLanguage');
+            if (!currentLanguageSpan) {
+                console.error('currentLanguageSpan not found');
+                return;
+            }
             
             // Show loading indicator
             const loadingToast = document.createElement('div');
@@ -1545,8 +1554,12 @@ $current_settings = [
                     language: lang
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 // Remove loading indicator
                 loadingToast.remove();
                 
@@ -1561,7 +1574,7 @@ $current_settings = [
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
                     document.body.appendChild(successToast);
-                    
+
                     // Reload page to apply language changes
                     setTimeout(() => {
                         window.location.reload();
@@ -1599,17 +1612,23 @@ $current_settings = [
 
         // Initialize language preference
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing language preference');
             const savedLanguage = localStorage.getItem('preferredLanguage');
+            const currentLanguageSpan = document.getElementById('currentLanguage');
+            
+            if (!currentLanguageSpan) {
+                console.error('currentLanguageSpan not found during initialization');
+                return;
+            }
+            
             if (savedLanguage) {
                 // Update display without server call on page load
-                const currentLanguageSpan = document.getElementById('currentLanguage');
                 const languageMap = {
                     'en': 'English',
-                    'es': 'Español',
-                    'fr': 'Français',
-                    'ar': 'العربية'
+                    'ps': 'پښتو'
                 };
                 currentLanguageSpan.textContent = languageMap[savedLanguage] || 'English';
+                console.log('Updated language display to:', languageMap[savedLanguage] || 'English');
             }
         });
 
