@@ -535,7 +535,7 @@ date_default_timezone_set($company_timezone);
     <nav class="sidebar <?php echo $sidebar_style; ?>" id="sidebar">
         <div class="sidebar-header">
             <?php if ($platform_logo): ?>
-                <img src="../<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
+                <img src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
             <?php endif; ?>
             <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
         </div>
@@ -568,12 +568,7 @@ date_default_timezone_set($company_timezone);
                         <span>Languages</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/contracts/">
-                        <i class="fas fa-file-contract"></i>
-                        <span>Contracts</span>
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
                         <i class="fas fa-receipt"></i>

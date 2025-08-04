@@ -742,8 +742,12 @@ $current_language = $_SESSION['current_language'] ?? 'en';
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(44, 90, 160, 0.95); backdrop-filter: blur(10px);">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-hard-hat me-2"></i>
-                Construction SaaS
+                <?php if (!empty($current_settings['platform_logo'])): ?>
+                    <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" alt="Logo" style="height: 30px; margin-right: 10px;">
+                <?php else: ?>
+                    <i class="fas fa-hard-hat me-2"></i>
+                <?php endif; ?>
+                <?php echo htmlspecialchars($current_settings['platform_name'] ?? 'Construction SaaS'); ?>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
