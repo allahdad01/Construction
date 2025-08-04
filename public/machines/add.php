@@ -71,8 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $success = "Machine added successfully! Machine Code: $machine_code";
 
-        // Redirect to view page after 2 seconds
-        header("refresh:2;url=view.php?id=$machine_id");
+        // Use JavaScript redirect instead of header redirect
+        echo "<script>setTimeout(function(){ window.location.href = 'view.php?id=$machine_id'; }, 2000);</script>";
 
     } catch (Exception $e) {
         // Rollback transaction on error

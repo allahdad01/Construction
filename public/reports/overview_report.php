@@ -4,7 +4,17 @@ $is_super_admin = isSuperAdmin();
 $company_id = getCurrentCompanyId();
 
 // Get overview data
-$overview_data = [];
+$overview_data = [
+    'total_companies' => 0,
+    'total_employees' => 0,
+    'total_machines' => 0,
+    'total_contracts' => 0,
+    'total_hours' => 0,
+    'total_revenue' => 0,
+    'total_earnings' => 0,
+    'total_expenses' => 0,
+    'total_salary_payments' => 0
+];
 $trend_data = [];
 $insights = [];
 
@@ -24,10 +34,13 @@ try {
             LEFT JOIN machines m ON c.id = m.company_id AND m.is_active = 1
             LEFT JOIN contracts ct ON c.id = ct.company_id AND ct.status = 'active'
             LEFT JOIN working_hours wh ON e.id = wh.employee_id AND wh.date BETWEEN ? AND ?
-            LEFT JOIN company_payments cp ON c.id = cp.company_id AND cp.payment_date BETWEEN ? AND ? AND cp.status = 'completed'
+            LEFT JOIN company_payments cp ON c.id = cp.company_id AND cp.payment_date BETWEEN ? AND ? AND cp.payment_status = 'completed'
         ");
         $stmt->execute([$start_date, $end_date, $start_date, $end_date]);
-        $overview_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $overview_data = array_merge($overview_data, $result);
+        }
         
         // Get growth trends
         $stmt = $conn->prepare("
@@ -62,7 +75,10 @@ try {
             WHERE e.company_id = ? AND e.is_active = 1
         ");
         $stmt->execute([$start_date, $end_date, $start_date, $end_date, $start_date, $end_date, $company_id]);
-        $overview_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $overview_data = array_merge($overview_data, $result);
+        }
         
         // Get earnings trend
         $stmt = $conn->prepare("

@@ -104,6 +104,10 @@ function formatDateTimeBasic($datetime) {
     return date(DATETIME_FORMAT, strtotime($datetime));
 }
 
+function formatDateTime($datetime) {
+    return date(DATETIME_FORMAT, strtotime($datetime));
+}
+
 function generateCode($prefix, $length = 8) {
     return $prefix . strtoupper(substr(md5(uniqid()), 0, $length));
 }
