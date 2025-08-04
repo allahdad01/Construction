@@ -50,10 +50,32 @@ $stmt = $conn->prepare("SELECT * FROM languages ORDER BY language_name");
 $stmt->execute();
 $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get all available translation keys (from English as default)
-$stmt = $conn->prepare("SELECT DISTINCT translation_key FROM language_translations WHERE language_id = 1 ORDER BY translation_key");
-$stmt->execute();
-$all_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
+// Get all available translation keys from the system
+$system_keys = [
+    'dashboard', 'employees', 'machines', 'contracts', 'parking', 'area_rentals', 
+    'expenses', 'salary_payments', 'reports', 'users', 'settings', 'profile', 
+    'logout', 'add', 'edit', 'delete', 'view', 'save', 'cancel', 'back',
+    'search', 'filter', 'export', 'import', 'download', 'upload', 'status',
+    'active', 'inactive', 'pending', 'completed', 'cancelled', 'suspended',
+    'name', 'email', 'phone', 'address', 'position', 'salary', 'hire_date',
+    'machine_code', 'machine_type', 'model', 'year', 'capacity', 'fuel_type',
+    'purchase_date', 'purchase_cost', 'contract_code', 'project_name', 'client_name',
+    'start_date', 'end_date', 'rate_amount', 'total_amount', 'working_hours',
+    'parking_space', 'monthly_rate', 'daily_rate', 'rental_code', 'client_contact',
+    'expense_type', 'expense_amount', 'expense_date', 'expense_description',
+    'payment_method', 'payment_date', 'payment_status', 'transaction_id',
+    'company_name', 'company_code', 'subscription_plan', 'subscription_status',
+    'trial_ends_at', 'max_employees', 'max_machines', 'max_projects',
+    'total_revenue', 'total_expenses', 'net_income', 'working_hours_per_day',
+    'overtime_hours', 'leave_days', 'attendance', 'timesheet', 'payroll',
+    'reports_overview', 'reports_financial', 'reports_employee', 'reports_contract',
+    'reports_machine', 'system_settings', 'platform_settings', 'user_management',
+    'language_settings', 'currency_settings', 'date_format_settings', 'timezone_settings',
+    'backup_restore', 'system_logs', 'audit_trail', 'notifications', 'alerts',
+    'help_support', 'documentation', 'api_documentation', 'developer_tools'
+];
+
+$all_keys = $system_keys;
 
 // Get translations for selected language
 $translations = [];

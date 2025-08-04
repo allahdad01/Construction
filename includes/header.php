@@ -557,7 +557,7 @@ date_default_timezone_set($company_timezone);
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'subscription-plans') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/subscription-plans/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'subscription-plans') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/subscription-plans">
                         <i class="fas fa-credit-card"></i>
                         <span>Subscription Plans</span>
                     </a>
@@ -584,61 +584,61 @@ date_default_timezone_set($company_timezone);
             <?php elseif ($is_company_admin): ?>
                 <!-- Company Admin Menu -->
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="../employees/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employees/">
                         <i class="fas fa-users"></i>
                         <span><?php echo __('employees'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="../machines/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/machines/">
                         <i class="fas fa-truck"></i>
                         <span><?php echo __('machines'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="../contracts/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/contracts/">
                         <i class="fas fa-file-contract"></i>
                         <span><?php echo __('contracts'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="../parking/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/parking/">
                         <i class="fas fa-parking"></i>
                         <span><?php echo __('parking'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="../area-rentals/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/area-rentals/">
                         <i class="fas fa-map-marked-alt"></i>
                         <span><?php echo __('area_rentals'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="../expenses/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/expenses/">
                         <i class="fas fa-receipt"></i>
                         <span><?php echo __('expenses'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="../salary-payments/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/salary-payments/">
                         <i class="fas fa-money-bill-wave"></i>
                         <span><?php echo __('salary_payments'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="../reports/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
                         <i class="fas fa-chart-bar"></i>
                         <span><?php echo __('reports'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="../users/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
                         <i class="fas fa-user-cog"></i>
                         <span><?php echo __('users'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="../settings/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/settings/">
                         <i class="fas fa-cog"></i>
                         <span><?php echo __('settings'); ?></span>
                     </a>

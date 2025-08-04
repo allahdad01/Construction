@@ -61,7 +61,7 @@ function getSystemWideStats($conn, $start_date, $end_date) {
     $stmt = $conn->prepare("
         SELECT COALESCE(SUM(amount), 0) as total 
         FROM company_payments 
-        WHERE payment_date BETWEEN ? AND ? AND status = 'completed'
+        WHERE payment_date BETWEEN ? AND ? AND payment_status = 'completed'
     ");
     $stmt->execute([$start_date, $end_date]);
     $stats['total_revenue'] = $stmt->fetchColumn();
@@ -158,7 +158,7 @@ function getSystemWideChartData($conn, $start_date, $end_date) {
     $stmt = $conn->prepare("
         SELECT DATE(payment_date) as date, SUM(amount) as revenue
         FROM company_payments 
-        WHERE payment_date BETWEEN ? AND ? AND status = 'completed'
+        WHERE payment_date BETWEEN ? AND ? AND payment_status = 'completed'
         GROUP BY DATE(payment_date)
         ORDER BY date
     ");
