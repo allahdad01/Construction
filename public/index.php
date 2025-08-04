@@ -795,13 +795,13 @@ $current_settings = [
                 </ul>
                 
                 <div class="d-flex align-items-center">
-                    <!-- Language Switcher -->
+                    <!-- Enhanced Language Switcher -->
                     <div class="dropdown me-3">
                         <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-language me-1"></i>
                             <span id="currentLanguage">
                                 <?php 
-                                $current_lang_name = 'English';
+                                $current_lang_name = __('language');
                                 foreach ($available_languages as $lang) {
                                     if ($lang['language_code'] === $current_language) {
                                         $current_lang_name = $lang['language_name_native'];
@@ -1514,11 +1514,22 @@ $current_settings = [
             });
         });
 
-        // Language switcher functionality
+        // Enhanced language switcher functionality
         function changeLanguage(lang, langName) {
             const currentLanguageSpan = document.getElementById('currentLanguage');
             
-            // Update the display
+            // Show loading indicator
+            const loadingToast = document.createElement('div');
+            loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            loadingToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+            loadingToast.innerHTML = `
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                Changing language...
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(loadingToast);
+            
+            // Update the display immediately
             currentLanguageSpan.textContent = langName || 'English';
             
             // Store language preference
@@ -1536,46 +1547,53 @@ $current_settings = [
             })
             .then(response => response.json())
             .then(data => {
+                // Remove loading indicator
+                loadingToast.remove();
+                
                 if (data.success) {
                     // Show success message
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                    toast.innerHTML = `
-                        <i class="fas fa-language me-2"></i>
-                        Language changed to ${langName}
+                    const successToast = document.createElement('div');
+                    successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                    successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    successToast.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${data.message}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
-                    document.body.appendChild(toast);
-                    
-                    // Auto-remove after 3 seconds
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 3000);
+                    document.body.appendChild(successToast);
                     
                     // Reload page to apply language changes
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000);
+                } else {
+                    // Show error message
+                    const errorToast = document.createElement('div');
+                    errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                    errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    errorToast.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(errorToast);
                 }
             })
             .catch(error => {
+                // Remove loading indicator
+                loadingToast.remove();
+                
                 console.error('Error changing language:', error);
                 // Show error message
-                const toast = document.createElement('div');
-                toast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                toast.innerHTML = `
+                const errorToast = document.createElement('div');
+                errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                errorToast.innerHTML = `
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    Failed to change language
+                    Failed to change language. Please try again.
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
-                document.body.appendChild(toast);
-                
-                // Auto-remove after 3 seconds
-                setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                document.body.appendChild(errorToast);
             });
         }
 

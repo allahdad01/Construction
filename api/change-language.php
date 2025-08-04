@@ -17,7 +17,7 @@ try {
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['language'])) {
-        throw new Exception('Language parameter is required');
+        throw new Exception(__('language_parameter_required'));
     }
     
     $language_code = $input['language'];
@@ -31,28 +31,15 @@ try {
     $language = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$language) {
-        throw new Exception('Invalid language code');
+        throw new Exception(__('invalid_language'));
     }
     
-    // Store language preference in session
-    $_SESSION['current_language'] = $language_code;
-    
-    // If user is logged in, update their company settings
-    if (isset($_SESSION['user_id']) && isset($_SESSION['company_id'])) {
-        $company_id = $_SESSION['company_id'];
-        
-        // Update company language setting
-        $stmt = $conn->prepare("
-            INSERT INTO company_settings (company_id, setting_key, setting_value) 
-            VALUES (?, 'default_language_id', ?) 
-            ON DUPLICATE KEY UPDATE setting_value = ?
-        ");
-        $stmt->execute([$company_id, $language['id'], $language['id']]);
-    }
+    // Use the enhanced changeLanguage function
+    changeLanguage($language['id']);
     
     echo json_encode([
         'success' => true,
-        'message' => 'Language changed successfully',
+        'message' => __('language_changed_successfully'),
         'language' => $language_code,
         'language_name' => $language['language_name_native']
     ]);

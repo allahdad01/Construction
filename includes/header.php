@@ -790,7 +790,7 @@ date_default_timezone_set($company_timezone);
                                 <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
                                 <li><a class="dropdown-item" href="/constract360/construction/public/settings/"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Language</h6></li>
+                                <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
                                 <?php
                                 $available_languages = getAvailableLanguages();
                                 $current_language = getCompanyLanguage();
@@ -799,7 +799,7 @@ date_default_timezone_set($company_timezone);
                                 ?>
                                 <li>
                                     <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
-                                       href="?change_language=<?php echo $lang['id']; ?>">
+                                       href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
                                         <i class="fas fa-language me-2"></i>
                                         <?php echo htmlspecialchars($lang['language_name_native']); ?>
                                         <?php if ($is_active): ?>
@@ -843,5 +843,79 @@ date_default_timezone_set($company_timezone);
             setTimeout(() => {
                 toast.remove();
             }, 3000);
+        }
+
+        // Enhanced language switching function
+        function changeLanguage(languageCode) {
+            // Show loading indicator
+            const loadingToast = document.createElement('div');
+            loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            loadingToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+            loadingToast.innerHTML = `
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                Changing language...
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(loadingToast);
+
+            // Make API call to change language
+            fetch('/constract360/construction/api/change-language.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    language: languageCode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading indicator
+                loadingToast.remove();
+
+                if (data.success) {
+                    // Show success message
+                    const successToast = document.createElement('div');
+                    successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                    successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    successToast.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(successToast);
+
+                    // Reload page to apply language changes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Show error message
+                    const errorToast = document.createElement('div');
+                    errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                    errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    errorToast.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(errorToast);
+                }
+            })
+            .catch(error => {
+                // Remove loading indicator
+                loadingToast.remove();
+
+                // Show error message
+                const errorToast = document.createElement('div');
+                errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                errorToast.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Failed to change language. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(errorToast);
+            });
         }
         </script>

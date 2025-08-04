@@ -620,7 +620,7 @@ function getCompanyLanguage($company_id = null) {
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['language_code' => 'en', 'direction' => 'ltr'];
 }
 
-function getTranslation($key, $company_id = null) {
+function getTranslation($key, $company_id = null, $params = []) {
     global $conn;
     if (!$company_id) {
         $company_id = getCurrentCompanyId();
@@ -636,11 +636,58 @@ function getTranslation($key, $company_id = null) {
     $stmt->execute([$language_id, $key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    return $result ? $result['translation_value'] : $key;
+    $translation = $result ? $result['translation_value'] : $key;
+    
+    // Replace parameters if provided
+    if (!empty($params)) {
+        foreach ($params as $param => $value) {
+            $translation = str_replace("{{$param}}", $value, $translation);
+        }
+    }
+    
+    return $translation;
 }
 
-function __($key, $company_id = null) {
-    return getTranslation($key, $company_id);
+function __($key, $params = []) {
+    return getTranslation($key, null, $params);
+}
+
+// Enhanced translation with fallback to English
+function __e($key, $params = []) {
+    global $conn;
+    
+    // Get current language
+    $current_language = $_SESSION['current_language'] ?? getCompanyLanguage(getCurrentCompanyId())['id'] ?? 1;
+    
+    // Try current language first
+    $stmt = $conn->prepare("
+        SELECT translation_value FROM language_translations 
+        WHERE language_id = ? AND translation_key = ?
+    ");
+    $stmt->execute([$current_language, $key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $translation = $result['translation_value'];
+    } else {
+        // Fallback to English
+        $stmt = $conn->prepare("
+            SELECT translation_value FROM language_translations 
+            WHERE language_id = 1 AND translation_key = ?
+        ");
+        $stmt->execute([$key]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $translation = $result ? $result['translation_value'] : $key;
+    }
+    
+    // Replace parameters if provided
+    if (!empty($params)) {
+        foreach ($params as $param => $value) {
+            $translation = str_replace("{{$param}}", $value, $translation);
+        }
+    }
+    
+    return $translation;
 }
 
 function getAvailableLanguages() {
@@ -692,6 +739,78 @@ function requireCSRFToken() {
             die('CSRF token validation failed');
         }
     }
+}
+
+// Helper functions for different text types
+function getAlertMessage($type, $key, $params = []) {
+    $message = __($key, $params);
+    
+    $icons = [
+        'success' => 'fas fa-check-circle',
+        'error' => 'fas fa-exclamation-triangle',
+        'warning' => 'fas fa-exclamation-triangle',
+        'info' => 'fas fa-info-circle'
+    ];
+    
+    $icon = $icons[$type] ?? 'fas fa-info-circle';
+    
+    return "<div class='alert alert-{$type}'>
+        <i class='{$icon} me-2'></i>
+        " . htmlspecialchars($message) . "
+    </div>";
+}
+
+function getButtonText($key, $params = []) {
+    return __($key, $params);
+}
+
+function getFormLabel($key, $params = []) {
+    return __($key, $params);
+}
+
+function getTableHeader($key, $params = []) {
+    return __($key, $params);
+}
+
+function getPageTitle($key, $params = []) {
+    return __($key, $params);
+}
+
+function getNavText($key, $params = []) {
+    return __($key, $params);
+}
+
+function getSidebarText($key, $params = []) {
+    return __($key, $params);
+}
+
+function getPlaceholderText($key, $params = []) {
+    return __($key, $params);
+}
+
+function getValidationMessage($key, $params = []) {
+    return __($key, $params);
+}
+
+function getConfirmationMessage($key, $params = []) {
+    return __($key, $params);
+}
+
+function getStatusText($key, $params = []) {
+    return __($key, $params);
+}
+
+// Change language function
+function changeLanguage($language_id, $company_id = null) {
+    if (!$company_id) {
+        $company_id = getCurrentCompanyId();
+    }
+    
+    // Update session
+    $_SESSION['current_language'] = $language_id;
+    
+    // Update company settings
+    updateCompanyLanguage($company_id, $language_id);
 }
 
 function getLanguageName($language_code) {
