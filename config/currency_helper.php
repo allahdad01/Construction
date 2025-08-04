@@ -54,13 +54,13 @@ function getExchangeRate($from_currency, $to_currency) {
 }
 
 /**
- * Convert amount between currencies
+ * Convert amount between currencies using currency codes
  * @param float $amount Amount to convert
- * @param string $from_currency Source currency
- * @param string $to_currency Target currency
+ * @param string $from_currency Source currency code
+ * @param string $to_currency Target currency code
  * @return float Converted amount
  */
-function convertCurrency($amount, $from_currency, $to_currency) {
+function convertCurrencyByCode($amount, $from_currency, $to_currency) {
     if ($from_currency === $to_currency) {
         return $amount;
     }
@@ -144,7 +144,7 @@ function calculateMultiCurrencyTotal($items, $target_currency = 'USD') {
         
         // Convert to all currencies
         foreach ($totals as $curr => &$total) {
-            $total += convertCurrency($amount, $currency, $curr);
+            $total += convertCurrencyByCode($amount, $currency, $curr);
         }
     }
     
@@ -192,11 +192,11 @@ function getCurrencyStatistics($company_id = null) {
     $total_expenses_usd = 0;
     
     foreach ($payments as $payment) {
-        $total_payments_usd += convertCurrency($payment['total_amount'], $payment['currency'], 'USD');
+        $total_payments_usd += convertCurrencyByCode($payment['total_amount'], $payment['currency'], 'USD');
     }
     
     foreach ($expenses as $expense) {
-        $total_expenses_usd += convertCurrency($expense['total_amount'], $expense['currency'], 'USD');
+        $total_expenses_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
     }
     
     return [
@@ -256,9 +256,9 @@ function getCurrentExchangeRates() {
 function calculateMultiCurrencySalary($salary_usd) {
     return [
         'USD' => $salary_usd,
-        'AFN' => convertCurrency($salary_usd, 'USD', 'AFN'),
-        'EUR' => convertCurrency($salary_usd, 'USD', 'EUR'),
-        'GBP' => convertCurrency($salary_usd, 'USD', 'GBP')
+        'AFN' => convertCurrencyByCode($salary_usd, 'USD', 'AFN'),
+        'EUR' => convertCurrencyByCode($salary_usd, 'USD', 'EUR'),
+        'GBP' => convertCurrencyByCode($salary_usd, 'USD', 'GBP')
     ];
 }
 

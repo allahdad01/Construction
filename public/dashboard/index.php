@@ -61,11 +61,11 @@ $monthlyExpensesUSD = 0;
 $monthlyRevenueUSD = 0;
 
 foreach ($monthlyExpensesByCurrency as $expense) {
-    $monthlyExpensesUSD += convertCurrency($expense['total_amount'], $expense['currency'], 'USD');
+    $monthlyExpensesUSD += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
 }
 
 foreach ($monthlyRevenueByCurrency as $revenue) {
-    $monthlyRevenueUSD += convertCurrency($revenue['total_amount'], $revenue['currency'], 'USD');
+    $monthlyRevenueUSD += convertCurrencyByCode($revenue['total_amount'], $revenue['currency'], 'USD');
 }
 
 // Get recent activities
