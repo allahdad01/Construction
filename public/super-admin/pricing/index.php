@@ -74,10 +74,10 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-tags"></i> Pricing Plans Management
+            <i class="fas fa-tags"></i> <?php echo __('pricing_plans_management'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Pricing Plan
+            <i class="fas fa-plus"></i> <?php echo __('add_pricing_plan'); ?>
         </a>
     </div>
 
@@ -88,7 +88,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Plans</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('total_plans'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_plans; ?></div>
                         </div>
                         <div class="col-auto">
@@ -104,7 +104,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Plans</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('active_plans'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_plans; ?></div>
                         </div>
                         <div class="col-auto">
@@ -120,7 +120,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Popular Plans</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('popular_plans'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $popular_plans; ?></div>
                         </div>
                         <div class="col-auto">
@@ -136,7 +136,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Average Price</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('average_price'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($avg_price, 2); ?></div>
                         </div>
                         <div class="col-auto">
@@ -151,30 +151,30 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-4">
-                    <label for="search" class="form-label">Search</label>
+                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" id="search" name="search" 
                            value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by plan name, code, or description">
+                           placeholder="<?php echo __('search_by_plan_name_code_or_description'); ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>><?php echo __('inactive'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-5 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                     <a href="index.php" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -184,16 +184,16 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
     <!-- Pricing Plans Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Pricing Plans</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('pricing_plans'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($pricing_plans)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-tags fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No pricing plans found</h5>
-                    <p class="text-gray-400">Add your first pricing plan to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_pricing_plans_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_pricing_plan_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Pricing Plan
+                        <i class="fas fa-plus"></i> <?php echo __('add_pricing_plan'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -201,15 +201,15 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                     <table class="table table-bordered" id="pricingTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Plan Name</th>
-                                <th>Code</th>
-                                <th>Price</th>
-                                <th>Billing Cycle</th>
-                                <th>Limits</th>
-                                <th>Features</th>
-                                <th>Status</th>
-                                <th>Popular</th>
-                                <th>Actions</th>
+                                <th><?php echo __('plan_name'); ?></th>
+                                <th><?php echo __('code'); ?></th>
+                                <th><?php echo __('price'); ?></th>
+                                <th><?php echo __('billing_cycle'); ?></th>
+                                <th><?php echo __('limits'); ?></th>
+                                <th><?php echo __('features'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('popular'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -233,21 +233,21 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                                     <td>
                                         <small>
                                             <?php if ($plan['max_employees'] > 0): ?>
-                                                <div>Employees: <?php echo $plan['max_employees']; ?></div>
+                                                <div><?php echo __('employees'); ?>: <?php echo $plan['max_employees']; ?></div>
                                             <?php else: ?>
-                                                <div>Employees: Unlimited</div>
+                                                <div><?php echo __('employees'); ?>: <?php echo __('unlimited'); ?></div>
                                             <?php endif; ?>
                                             
                                             <?php if ($plan['max_machines'] > 0): ?>
-                                                <div>Machines: <?php echo $plan['max_machines']; ?></div>
+                                                <div><?php echo __('machines'); ?>: <?php echo $plan['max_machines']; ?></div>
                                             <?php else: ?>
-                                                <div>Machines: Unlimited</div>
+                                                <div><?php echo __('machines'); ?>: <?php echo __('unlimited'); ?></div>
                                             <?php endif; ?>
                                             
                                             <?php if ($plan['max_projects'] > 0): ?>
-                                                <div>Projects: <?php echo $plan['max_projects']; ?></div>
+                                                <div><?php echo __('projects'); ?>: <?php echo $plan['max_projects']; ?></div>
                                             <?php else: ?>
-                                                <div>Projects: Unlimited</div>
+                                                <div><?php echo __('projects'); ?>: <?php echo __('unlimited'); ?></div>
                                             <?php endif; ?>
                                         </small>
                                     </td>
@@ -260,23 +260,23 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                                                 echo '<li><i class="fas fa-check text-success me-1"></i>' . htmlspecialchars($feature) . '</li>';
                                             endforeach;
                                             if (count($features) > 3):
-                                                echo '<li><small class="text-muted">+' . (count($features) - 3) . ' more</small></li>';
+                                                echo '<li><small class="text-muted">+' . (count($features) - 3) . ' ' . __('more') . '</small></li>';
                                             endif;
                                             echo '</ul>';
                                         else:
-                                            echo '<span class="text-muted">No features listed</span>';
+                                            echo '<span class="text-muted">' . __('no_features_listed') . '</span>';
                                         endif;
                                         ?>
                                     </td>
                                     <td>
                                         <span class="badge <?php echo $plan['is_active'] ? 'bg-success' : 'bg-danger'; ?>">
-                                            <?php echo $plan['is_active'] ? 'Active' : 'Inactive'; ?>
+                                            <?php echo $plan['is_active'] ? __('active') : __('inactive'); ?>
                                         </span>
                                     </td>
                                     <td>
                                         <?php if ($plan['is_popular']): ?>
                                             <span class="badge bg-warning">
-                                                <i class="fas fa-star"></i> Popular
+                                                <i class="fas fa-star"></i> <?php echo __('popular'); ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
@@ -285,16 +285,16 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="view.php?id=<?php echo $plan['id']; ?>" 
-                                               class="btn btn-sm btn-info" title="View">
+                                               class="btn btn-sm btn-info" title="<?php echo __('view'); ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="edit.php?id=<?php echo $plan['id']; ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit">
+                                               class="btn btn-sm btn-warning" title="<?php echo __('edit'); ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a href="delete.php?id=<?php echo $plan['id']; ?>" 
-                                               class="btn btn-sm btn-danger" title="Delete"
-                                               onclick="return confirm('Are you sure you want to delete this pricing plan?')">
+                                               class="btn btn-sm btn-danger" title="<?php echo __('delete'); ?>"
+                                               onclick="return confirm('<?php echo __('confirm_delete_pricing_plan'); ?>')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -312,7 +312,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -328,7 +328,7 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
