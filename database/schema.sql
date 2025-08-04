@@ -783,6 +783,25 @@ CREATE TABLE remember_tokens (
     INDEX idx_expires_at (expires_at)
 );
 
+-- Pricing Plans Table
+CREATE TABLE pricing_plans (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    plan_name VARCHAR(100) NOT NULL,
+    plan_code VARCHAR(20) NOT NULL UNIQUE,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'USD',
+    billing_cycle VARCHAR(20) DEFAULT 'monthly',
+    is_popular BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    max_employees INT DEFAULT 0,
+    max_machines INT DEFAULT 0,
+    max_projects INT DEFAULT 0,
+    features JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Create super admin user
 INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) VALUES 
 ('superadmin@construction.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Super', 'Admin', 'super_admin', TRUE);

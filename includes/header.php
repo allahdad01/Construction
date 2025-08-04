@@ -575,12 +575,18 @@ date_default_timezone_set($company_timezone);
                         <span>Expenses</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Payments</span>
-                    </a>
-                </li>
+                                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
+                            <i class="fas fa-tags"></i>
+                            <span>Pricing Plans</span>
+                        </a>
+                    </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
                         <i class="fas fa-chart-bar"></i>

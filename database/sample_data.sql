@@ -243,6 +243,12 @@ INSERT INTO company_payments (company_id, payment_code, amount, currency, paymen
 (2, 'PAY004', 199.00, 'USD', 'credit_card', 'completed', '2023-06-01', '2023-06-30', 'professional', 'TXN-2023-004', '2023-06-01', 'June subscription payment'),
 (2, 'PAY005', 199.00, 'USD', 'credit_card', 'completed', '2023-05-01', '2023-05-31', 'professional', 'TXN-2023-005', '2023-05-01', 'May subscription payment');
 
+-- Insert sample pricing plans
+INSERT INTO pricing_plans (plan_name, plan_code, description, price, currency, billing_cycle, is_popular, is_active, max_employees, max_machines, max_projects, features) VALUES 
+('Basic', 'BASIC', 'Perfect for small construction companies', 99.00, 'USD', 'monthly', FALSE, TRUE, 10, 25, 10, '["Employee Management", "Machine Tracking", "Basic Reports", "Email Support", "Mobile Access"]'),
+('Professional', 'PROFESSIONAL', 'Ideal for growing construction businesses', 199.00, 'USD', 'monthly', TRUE, TRUE, 50, 100, 50, '["Everything in Basic", "Advanced Analytics", "Priority Support", "API Access", "Custom Reports", "Multi-currency Support"]'),
+('Enterprise', 'ENTERPRISE', 'Complete solution for large construction companies', 399.00, 'USD', 'monthly', FALSE, TRUE, 0, 0, 0, '["Everything in Professional", "Unlimited Everything", "Dedicated Support", "Custom Integrations", "White-label Options", "Advanced Security"]');
+
 -- City Construction Payments (Trial - no payments yet)
 -- Metro Builders Payments (Suspended - no recent payments)
 

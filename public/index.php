@@ -975,7 +975,49 @@ $current_settings = [
             </div>
             
             <div class="row g-4 justify-content-center">
-                <!-- Basic Plan -->
+                <?php
+                // Get active pricing plans from database
+                $stmt = $conn->prepare("SELECT * FROM pricing_plans WHERE is_active = 1 ORDER BY price ASC");
+                $stmt->execute();
+                $pricing_plans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                if (!empty($pricing_plans)):
+                    foreach ($pricing_plans as $index => $plan):
+                        $features = json_decode($plan['features'], true) ?: [];
+                        $is_popular = $plan['is_popular'];
+                        $delay = ($index + 1) * 100;
+                ?>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="<?php echo $delay; ?>">
+                    <div class="pricing-card <?php echo $is_popular ? 'featured' : ''; ?>">
+                        <?php if ($is_popular): ?>
+                        <div class="popular-badge">Most Popular</div>
+                        <?php endif; ?>
+                        <div class="pricing-header">
+                            <h3 class="plan-name"><?php echo htmlspecialchars($plan['plan_name']); ?></h3>
+                            <div class="price">
+                                <span class="currency"><?php echo $plan['currency']; ?></span>
+                                <span class="amount"><?php echo number_format($plan['price'], 0); ?></span>
+                                <span class="period">/<?php echo $plan['billing_cycle']; ?></span>
+                            </div>
+                            <p class="plan-description"><?php echo htmlspecialchars($plan['description']); ?></p>
+                        </div>
+                        <div class="pricing-features">
+                            <ul class="feature-list">
+                                <?php foreach ($features as $feature): ?>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo htmlspecialchars($feature); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer">
+                            <a href="../login.php" class="btn <?php echo $is_popular ? 'btn-primary' : 'btn-outline-primary'; ?> btn-lg w-100">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+                <?php 
+                    endforeach;
+                else:
+                ?>
+                <!-- Default pricing cards if no plans in database -->
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="pricing-card">
                         <div class="pricing-header">
@@ -1004,7 +1046,6 @@ $current_settings = [
                     </div>
                 </div>
                 
-                <!-- Professional Plan -->
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
                     <div class="pricing-card featured">
                         <div class="popular-badge">Most Popular</div>
@@ -1034,7 +1075,6 @@ $current_settings = [
                     </div>
                 </div>
                 
-                <!-- Enterprise Plan -->
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
                     <div class="pricing-card">
                         <div class="pricing-header">
@@ -1062,6 +1102,7 @@ $current_settings = [
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
