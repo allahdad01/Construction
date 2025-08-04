@@ -110,11 +110,11 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-money-bill"></i> Company Payments - <?php echo htmlspecialchars($company['company_name']); ?>
         </h1>
-        <div class="d-flex gap-2">
-            <a href="/constract360/construction/public/super-admin/companies/payment-add.php?company_id=<?php echo $company_id; ?>" class="btn btn-primary btn-sm">
+        <div class="d-flex">
+            <a href="/constract360/construction/public/super-admin/companies/payment-add.php?company_id=<?php echo $company_id; ?>" class="btn btn-primary btn-sm me-2">
                 <i class="fas fa-plus"></i> Add Payment
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
+            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm me-2">
                 <i class="fas fa-arrow-left"></i> Back to Companies
             </a>
             <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">

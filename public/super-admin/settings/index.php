@@ -147,9 +147,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     throw new Exception('Failed to upload logo. Please check directory permissions.');
                 }
-            } else {
-                throw new Exception('No logo file selected.');
-            }
         } elseif ($action === 'remove_logo') {
             // Remove current logo
             $current_logo = getSystemSettingLocal($conn, 'platform_logo', '');
