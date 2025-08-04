@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    if (empty($email) || empty($password)) {
-        $error = 'Please enter both email and password.';
-    } else {
+            if (empty($email) || empty($password)) {
+            $error = __('please_enter_both_email_and_password');
+        } else {
         $db = new Database();
         $conn = $db->getConnection();
         
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit();
         } else {
-            $error = 'Invalid email or password.';
+            $error = __('invalid_email_or_password');
         }
     }
 }
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-card">
         <div class="login-header">
             <h2><i class="fas fa-building"></i> <?php echo APP_NAME; ?></h2>
-            <p class="mb-0">Multi-Tenant Construction Management</p>
+            <p class="mb-0"><?php echo __('multi_tenant_construction_management'); ?></p>
         </div>
         
         <div class="login-body">
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" action="">
                 <div class="mb-3">
                     <label for="email" class="form-label">
-                        <i class="fas fa-envelope"></i> Email Address
+                        <i class="fas fa-envelope"></i> <?php echo __('email_address'); ?>
                     </label>
                     <input type="email" class="form-control" id="email" name="email" 
                            value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" 
@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <div class="mb-3">
                     <label for="password" class="form-label">
-                        <i class="fas fa-lock"></i> Password
+                        <i class="fas fa-lock"></i> <?php echo __('password'); ?>
                     </label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
@@ -163,30 +163,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="remember" name="remember">
                     <label class="form-check-label" for="remember">
-                        Remember me
+                        <?php echo __('remember_me'); ?>
                     </label>
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-login w-100">
-                    <i class="fas fa-sign-in-alt"></i> Login
+                    <i class="fas fa-sign-in-alt"></i> <?php echo __('login'); ?>
                 </button>
             </form>
             
             <hr class="my-4">
             
             <div class="text-center">
-                <h6>Demo Accounts</h6>
+                <h6><?php echo __('demo_accounts'); ?></h6>
                 <div class="row">
                     <div class="col-6">
                         <small class="text-muted">
-                            <strong>Super Admin:</strong><br>
+                            <strong><?php echo __('super_admin'); ?>:</strong><br>
                             admin@construction-saas.com<br>
                             password
                         </small>
                     </div>
                     <div class="col-6">
                         <small class="text-muted">
-                            <strong>Company Admin:</strong><br>
+                            <strong><?php echo __('company_admin'); ?>:</strong><br>
                             admin@company.com<br>
                             password
                         </small>

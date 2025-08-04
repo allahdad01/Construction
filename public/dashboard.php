@@ -76,17 +76,17 @@ if (isSuperAdmin()) {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-4">Welcome, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>!</h1>
+        <h1 class="h3 mb-4"><?php echo __('welcome'); ?>, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>!</h1>
         <div>
             <?php if (isCompanyAdmin()): ?>
                 <a href="employees/add.php" class="btn btn-primary btn-sm me-2">
-                    <i class="fas fa-plus"></i> Add Employee
+                    <i class="fas fa-plus"></i> <?php echo __('add_employee'); ?>
                 </a>
                 <a href="machines/add.php" class="btn btn-success btn-sm me-2">
-                    <i class="fas fa-plus"></i> Add Machine
+                    <i class="fas fa-plus"></i> <?php echo __('add_machine'); ?>
                 </a>
                 <a href="contracts/add.php" class="btn btn-info btn-sm">
-                    <i class="fas fa-plus"></i> Add Contract
+                    <i class="fas fa-plus"></i> <?php echo __('add_contract'); ?>
                 </a>
             <?php endif; ?>
         </div>
@@ -101,7 +101,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Companies</div>
+                                    <?php echo __('total_companies'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['total_companies']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -118,7 +118,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Active Subscriptions</div>
+                                    <?php echo __('active_subscriptions'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['active_companies']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -135,7 +135,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Trial Companies</div>
+                                    <?php echo __('trial_companies'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['trial_companies']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -152,7 +152,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Monthly Revenue</div>
+                                    <?php echo __('monthly_revenue'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($companyStats['monthly_revenue']); ?></div>
                             </div>
                             <div class="col-auto">
@@ -168,32 +168,32 @@ if (isSuperAdmin()) {
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                        <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
                                 <a href="super-admin/companies/" class="btn btn-primary btn-lg btn-block mb-3">
                                     <i class="fas fa-building"></i><br>
-                                    Manage Companies
+                                    <?php echo __('manage_companies'); ?>
                                 </a>
                             </div>
                             <div class="col-md-3">
                                 <a href="super-admin/subscription-plans/" class="btn btn-success btn-lg btn-block mb-3">
                                     <i class="fas fa-credit-card"></i><br>
-                                    Subscription Plans
+                                    <?php echo __('subscription_plans'); ?>
                                 </a>
                             </div>
                             <div class="col-md-3">
                                 <a href="super-admin/payments/" class="btn btn-info btn-lg btn-block mb-3">
                                     <i class="fas fa-money-bill"></i><br>
-                                    View Payments
+                                    <?php echo __('view_payments'); ?>
                                 </a>
                             </div>
                             <div class="col-md-3">
                                 <a href="super-admin/settings/" class="btn btn-warning btn-lg btn-block mb-3">
                                     <i class="fas fa-cog"></i><br>
-                                    System Settings
+                                    <?php echo __('system_settings'); ?>
                                 </a>
                             </div>
                         </div>
@@ -211,7 +211,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Active Employees</div>
+                                    <?php echo __('active_employees'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['active_employees']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -228,7 +228,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Available Machines</div>
+                                    <?php echo __('available_machines'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['available_machines']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -245,7 +245,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Active Contracts</div>
+                                    <?php echo __('active_contracts'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $companyStats['active_contracts']; ?></div>
                             </div>
                             <div class="col-auto">
@@ -262,7 +262,7 @@ if (isSuperAdmin()) {
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Contract Value</div>
+                                    <?php echo __('contract_value'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($companyStats['contract_value']); ?></div>
                             </div>
                             <div class="col-auto">
