@@ -15,59 +15,9 @@ function getAvailableCurrenciesWithRates() {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/**
- * Get currency exchange rate
- * @param string $from_currency Source currency code
- * @param string $to_currency Target currency code
- * @return float Exchange rate
- */
-function getExchangeRate($from_currency, $to_currency) {
-    // Simple hardcoded exchange rates (no API costs)
-    $rates = [
-        'USD' => [
-            'USD' => 1.0,
-            'AFN' => 75.0,  // 1 USD = 75 AFN
-            'EUR' => 0.85,  // 1 USD = 0.85 EUR
-            'GBP' => 0.73,  // 1 USD = 0.73 GBP
-        ],
-        'AFN' => [
-            'USD' => 0.013, // 1 AFN = 0.013 USD
-            'AFN' => 1.0,
-            'EUR' => 0.011, // 1 AFN = 0.011 EUR
-            'GBP' => 0.0097, // 1 AFN = 0.0097 GBP
-        ],
-        'EUR' => [
-            'USD' => 1.18,  // 1 EUR = 1.18 USD
-            'AFN' => 88.5,  // 1 EUR = 88.5 AFN
-            'EUR' => 1.0,
-            'GBP' => 0.86,  // 1 EUR = 0.86 GBP
-        ],
-        'GBP' => [
-            'USD' => 1.37,  // 1 GBP = 1.37 USD
-            'AFN' => 102.75, // 1 GBP = 102.75 AFN
-            'EUR' => 1.16,  // 1 GBP = 1.16 EUR
-            'GBP' => 1.0,
-        ]
-    ];
-    
-    return $rates[$from_currency][$to_currency] ?? 1.0;
-}
 
-/**
- * Convert amount between currencies using currency codes
- * @param float $amount Amount to convert
- * @param string $from_currency Source currency code
- * @param string $to_currency Target currency code
- * @return float Converted amount
- */
-function convertCurrencyByCode($amount, $from_currency, $to_currency) {
-    if ($from_currency === $to_currency) {
-        return $amount;
-    }
-    
-    $rate = getExchangeRate($from_currency, $to_currency);
-    return $amount * $rate;
-}
+
+
 
 /**
  * Format currency amount with symbol
@@ -124,89 +74,9 @@ function getCompanyCurrencyCode($company_id = null) {
     return 'USD';
 }
 
-/**
- * Calculate total in multiple currencies
- * @param array $items Array of items with amount and currency
- * @param string $target_currency Target currency for total
- * @return array Totals in different currencies
- */
-function calculateMultiCurrencyTotal($items, $target_currency = 'USD') {
-    $totals = [
-        'USD' => 0,
-        'AFN' => 0,
-        'EUR' => 0,
-        'GBP' => 0
-    ];
-    
-    foreach ($items as $item) {
-        $amount = $item['amount'] ?? 0;
-        $currency = $item['currency'] ?? 'USD';
-        
-        // Convert to all currencies
-        foreach ($totals as $curr => &$total) {
-            $total += convertCurrencyByCode($amount, $currency, $curr);
-        }
-    }
-    
-    return [
-        'totals' => $totals,
-        'target_currency' => $target_currency,
-        'target_total' => $totals[$target_currency]
-    ];
-}
 
-/**
- * Get currency statistics for dashboard
- * @param int $company_id Company ID
- * @return array Currency statistics
- */
-function getCurrencyStatistics($company_id = null) {
-    if (!$company_id) {
-        $company_id = getCurrentCompanyId();
-    }
-    
-    global $conn;
-    
-    // Get payments in different currencies
-    $stmt = $conn->prepare("
-        SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
-        FROM company_payments 
-        WHERE company_id = ? AND payment_status = 'completed'
-        GROUP BY currency
-    ");
-    $stmt->execute([$company_id]);
-    $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get expenses in different currencies
-    $stmt = $conn->prepare("
-        SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
-        FROM expenses 
-        WHERE company_id = ?
-        GROUP BY currency
-    ");
-    $stmt->execute([$company_id]);
-    $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Calculate totals in USD
-    $total_payments_usd = 0;
-    $total_expenses_usd = 0;
-    
-    foreach ($payments as $payment) {
-        $total_payments_usd += convertCurrencyByCode($payment['total_amount'], $payment['currency'], 'USD');
-    }
-    
-    foreach ($expenses as $expense) {
-        $total_expenses_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
-    }
-    
-    return [
-        'payments' => $payments,
-        'expenses' => $expenses,
-        'total_payments_usd' => $total_payments_usd,
-        'total_expenses_usd' => $total_expenses_usd,
-        'net_income_usd' => $total_payments_usd - $total_expenses_usd
-    ];
-}
+
+
 
 /**
  * Format amount in company currency
@@ -219,48 +89,9 @@ function formatCompanyCurrency($amount, $company_id = null) {
     return formatCurrencyAmount($amount, $currency);
 }
 
-/**
- * Get currency conversion rates for display
- * @return array Current exchange rates
- */
-function getCurrentExchangeRates() {
-    return [
-        'USD' => [
-            'AFN' => 75.0,
-            'EUR' => 0.85,
-            'GBP' => 0.73
-        ],
-        'AFN' => [
-            'USD' => 0.013,
-            'EUR' => 0.011,
-            'GBP' => 0.0097
-        ],
-        'EUR' => [
-            'USD' => 1.18,
-            'AFN' => 88.5,
-            'GBP' => 0.86
-        ],
-        'GBP' => [
-            'USD' => 1.37,
-            'AFN' => 102.75,
-            'EUR' => 1.16
-        ]
-    ];
-}
 
-/**
- * Calculate salary in multiple currencies
- * @param float $salary_usd Salary in USD
- * @return array Salary in different currencies
- */
-function calculateMultiCurrencySalary($salary_usd) {
-    return [
-        'USD' => $salary_usd,
-        'AFN' => convertCurrencyByCode($salary_usd, 'USD', 'AFN'),
-        'EUR' => convertCurrencyByCode($salary_usd, 'USD', 'EUR'),
-        'GBP' => convertCurrencyByCode($salary_usd, 'USD', 'GBP')
-    ];
-}
+
+
 
 /**
  * Get currency display options for forms

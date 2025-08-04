@@ -30,43 +30,26 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM projects WHERE status = 'a
 $stmt->execute();
 $projectCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get multi-currency statistics
-$currency_stats = getCurrencyStatistics(getCurrentCompanyId());
-
-// Get monthly expenses with currency breakdown
+// Get monthly expenses
 $stmt = $conn->prepare("
-    SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
+    SELECT SUM(amount) as total_amount
     FROM expenses 
     WHERE MONTH(expense_date) = MONTH(CURRENT_DATE()) 
     AND YEAR(expense_date) = YEAR(CURRENT_DATE())
-    GROUP BY currency
 ");
 $stmt->execute();
-$monthlyExpensesByCurrency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$monthlyExpensesUSD = $stmt->fetch(PDO::FETCH_ASSOC)['total_amount'] ?? 0;
 
-// Get monthly revenue (from contracts) with currency breakdown
+// Get monthly revenue (from contracts)
 $stmt = $conn->prepare("
-    SELECT currency, SUM(total_amount) as total_amount, COUNT(*) as count
+    SELECT SUM(total_amount) as total_amount
     FROM contracts 
     WHERE status = 'active' 
     AND MONTH(start_date) = MONTH(CURRENT_DATE()) 
     AND YEAR(start_date) = YEAR(CURRENT_DATE())
-    GROUP BY currency
 ");
 $stmt->execute();
-$monthlyRevenueByCurrency = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Calculate totals in USD for display
-$monthlyExpensesUSD = 0;
-$monthlyRevenueUSD = 0;
-
-foreach ($monthlyExpensesByCurrency as $expense) {
-    $monthlyExpensesUSD += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
-}
-
-foreach ($monthlyRevenueByCurrency as $revenue) {
-    $monthlyRevenueUSD += convertCurrencyByCode($revenue['total_amount'], $revenue['currency'], 'USD');
-}
+$monthlyRevenueUSD = $stmt->fetch(PDO::FETCH_ASSOC)['total_amount'] ?? 0;
 
 // Get recent activities
 $stmt = $conn->prepare("
@@ -166,95 +149,39 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Multi-Currency Financial Summary -->
+    <!-- Financial Summary -->
     <div class="row">
         <div class="col-xl-8 col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Multi-Currency Financial Summary (This Month)</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Financial Summary (This Month)</h6>
                 </div>
                 <div class="card-body">
-                    <!-- Revenue by Currency -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h6 class="text-success">Revenue by Currency:</h6>
-                            <?php if (!empty($monthlyRevenueByCurrency)): ?>
-                                <?php foreach ($monthlyRevenueByCurrency as $revenue): ?>
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span><?php echo $revenue['currency']; ?>:</span>
-                                        <strong><?php echo formatCurrencyAmount($revenue['total_amount'], $revenue['currency']); ?></strong>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p class="text-muted">No revenue data for this month</p>
-                            <?php endif; ?>
-                            <hr>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span><strong>Total Revenue (USD):</strong></span>
-                                <strong class="text-success"><?php echo formatCurrencyAmount($monthlyRevenueUSD, 'USD'); ?></strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Expenses by Currency -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h6 class="text-danger">Expenses by Currency:</h6>
-                            <?php if (!empty($monthlyExpensesByCurrency)): ?>
-                                <?php foreach ($monthlyExpensesByCurrency as $expense): ?>
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span><?php echo $expense['currency']; ?>:</span>
-                                        <strong><?php echo formatCurrencyAmount($expense['total_amount'], $expense['currency']); ?></strong>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p class="text-muted">No expense data for this month</p>
-                            <?php endif; ?>
-                            <hr>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span><strong>Total Expenses (USD):</strong></span>
-                                <strong class="text-danger"><?php echo formatCurrencyAmount($monthlyExpensesUSD, 'USD'); ?></strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Net Profit/Loss -->
                     <div class="row">
-                        <div class="col-12">
-                            <hr>
+                        <div class="col-md-6">
                             <div class="text-center">
-                                <h5 class="<?php echo ($monthlyRevenueUSD - $monthlyExpensesUSD) >= 0 ? 'text-success' : 'text-danger'; ?>">
-                                    Net Profit/Loss (USD): <?php echo formatCurrencyAmount($monthlyRevenueUSD - $monthlyExpensesUSD, 'USD'); ?>
-                                </h5>
+                                <h6 class="text-success">Total Revenue</h6>
+                                <h4 class="text-success"><?php echo formatCurrencyAmount($monthlyRevenueUSD, 'USD'); ?></h4>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <h6 class="text-danger">Total Expenses</h6>
+                                <h4 class="text-danger"><?php echo formatCurrencyAmount($monthlyExpensesUSD, 'USD'); ?></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h5 class="<?php echo ($monthlyRevenueUSD - $monthlyExpensesUSD) >= 0 ? 'text-success' : 'text-danger'; ?>">
+                            Net Profit/Loss: <?php echo formatCurrencyAmount($monthlyRevenueUSD - $monthlyExpensesUSD, 'USD'); ?>
+                        </h5>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Currency Exchange Rates -->
-        <div class="col-xl-4 col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Current Exchange Rates</h6>
-                </div>
-                <div class="card-body">
-                    <?php $rates = getCurrentExchangeRates(); ?>
-                    <div class="row">
-                        <div class="col-12">
-                            <h6>USD Rates:</h6>
-                            <?php foreach ($rates['USD'] as $currency => $rate): ?>
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span>1 USD =</span>
-                                    <strong><?php echo number_format($rate, 2); ?> <?php echo $currency; ?></strong>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
         <div class="col-xl-6 col-lg-6">
