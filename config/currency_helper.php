@@ -16,20 +16,45 @@ function getAvailableCurrenciesWithRates() {
 }
 
 /**
- * Get currency exchange rate (now uses real-time rates)
+ * Get currency exchange rate
  * @param string $from_currency Source currency code
  * @param string $to_currency Target currency code
  * @return float Exchange rate
  */
 function getExchangeRate($from_currency, $to_currency) {
-    // Include the real-time exchange rate system
-    require_once __DIR__ . '/exchange_rates.php';
+    // Simple hardcoded exchange rates (no API costs)
+    $rates = [
+        'USD' => [
+            'USD' => 1.0,
+            'AFN' => 75.0,  // 1 USD = 75 AFN
+            'EUR' => 0.85,  // 1 USD = 0.85 EUR
+            'GBP' => 0.73,  // 1 USD = 0.73 GBP
+        ],
+        'AFN' => [
+            'USD' => 0.013, // 1 AFN = 0.013 USD
+            'AFN' => 1.0,
+            'EUR' => 0.011, // 1 AFN = 0.011 EUR
+            'GBP' => 0.0097, // 1 AFN = 0.0097 GBP
+        ],
+        'EUR' => [
+            'USD' => 1.18,  // 1 EUR = 1.18 USD
+            'AFN' => 88.5,  // 1 EUR = 88.5 AFN
+            'EUR' => 1.0,
+            'GBP' => 0.86,  // 1 EUR = 0.86 GBP
+        ],
+        'GBP' => [
+            'USD' => 1.37,  // 1 GBP = 1.37 USD
+            'AFN' => 102.75, // 1 GBP = 102.75 AFN
+            'EUR' => 1.16,  // 1 GBP = 1.16 EUR
+            'GBP' => 1.0,
+        ]
+    ];
     
-    return getCurrentExchangeRate($from_currency, $to_currency);
+    return $rates[$from_currency][$to_currency] ?? 1.0;
 }
 
 /**
- * Convert amount between currencies using real-time exchange rates
+ * Convert amount between currencies using currency codes
  * @param float $amount Amount to convert
  * @param string $from_currency Source currency code
  * @param string $to_currency Target currency code
@@ -40,10 +65,8 @@ function convertCurrencyByCode($amount, $from_currency, $to_currency) {
         return $amount;
     }
     
-    // Include the real-time exchange rate system
-    require_once __DIR__ . '/exchange_rates.php';
-    
-    return convertAmountRealTime($amount, $from_currency, $to_currency);
+    $rate = getExchangeRate($from_currency, $to_currency);
+    return $amount * $rate;
 }
 
 /**
