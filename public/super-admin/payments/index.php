@@ -153,14 +153,14 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-money-bill-wave"></i> Platform Payments
+            <i class="fas fa-money-bill-wave"></i> <?php echo __('platform_payments'); ?>
         </h1>
         <div class="d-flex">
             <a href="add.php" class="btn btn-primary me-2">
-                <i class="fas fa-plus"></i> Add Payment
+                <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
             </a>
             <a href="export.php" class="btn btn-success">
-                <i class="fas fa-download"></i> Export
+                <i class="fas fa-download"></i> <?php echo __('export'); ?>
             </a>
         </div>
     </div>
@@ -172,7 +172,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Payments</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('total_payments'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_payments; ?></div>
                         </div>
                         <div class="col-auto">
@@ -188,7 +188,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">USD Received</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('usd_received'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($total_received_usd, 2); ?></div>
                         </div>
                         <div class="col-auto">
@@ -204,7 +204,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">AFN Received</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('afn_received'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_received_afn, 2); ?> AFN</div>
                         </div>
                         <div class="col-auto">
@@ -220,7 +220,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending USD</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('pending_usd'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($total_pending_usd, 2); ?></div>
                         </div>
                         <div class="col-auto">
@@ -236,7 +236,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Pending AFN</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1"><?php echo __('pending_afn'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_pending_afn, 2); ?> AFN</div>
                         </div>
                         <div class="col-auto">
@@ -252,7 +252,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">This Month</div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1"><?php echo __('this_month'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $monthly_payments; ?></div>
                         </div>
                         <div class="col-auto">
@@ -267,38 +267,38 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by payment code, transaction ID, or notes" 
+                           placeholder="<?php echo __('search_by_payment_code_transaction_id_notes'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                        <option value="failed" <?php echo $status_filter === 'failed' ? 'selected' : ''; ?>>Failed</option>
-                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>><?php echo __('completed'); ?></option>
+                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                        <option value="failed" <?php echo $status_filter === 'failed' ? 'selected' : ''; ?>><?php echo __('failed'); ?></option>
+                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="method">
-                        <option value="">All Methods</option>
-                        <option value="credit_card" <?php echo $method_filter === 'credit_card' ? 'selected' : ''; ?>>Credit Card</option>
-                        <option value="bank_transfer" <?php echo $method_filter === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
-                        <option value="cash" <?php echo $method_filter === 'cash' ? 'selected' : ''; ?>>Cash</option>
-                        <option value="check" <?php echo $method_filter === 'check' ? 'selected' : ''; ?>>Check</option>
-                        <option value="paypal" <?php echo $method_filter === 'paypal' ? 'selected' : ''; ?>>PayPal</option>
-                        <option value="other" <?php echo $method_filter === 'other' ? 'selected' : ''; ?>>Other</option>
+                        <option value=""><?php echo __('all_methods'); ?></option>
+                        <option value="credit_card" <?php echo $method_filter === 'credit_card' ? 'selected' : ''; ?>><?php echo __('credit_card'); ?></option>
+                        <option value="bank_transfer" <?php echo $method_filter === 'bank_transfer' ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
+                        <option value="cash" <?php echo $method_filter === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
+                        <option value="check" <?php echo $method_filter === 'check' ? 'selected' : ''; ?>><?php echo __('check'); ?></option>
+                        <option value="paypal" <?php echo $method_filter === 'paypal' ? 'selected' : ''; ?>><?php echo __('paypal'); ?></option>
+                        <option value="other" <?php echo $method_filter === 'other' ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="company">
-                        <option value="">All Companies</option>
+                        <option value=""><?php echo __('all_companies'); ?></option>
                         <?php foreach ($companies as $company): ?>
                             <option value="<?php echo $company['id']; ?>" <?php echo $company_filter == $company['id'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($company['company_name']); ?>
@@ -310,20 +310,20 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                     <div class="row">
                         <div class="col-6">
                             <input type="date" class="form-control" name="date_from" 
-                                   placeholder="From Date" value="<?php echo htmlspecialchars($date_from); ?>">
+                                   placeholder="<?php echo __('from_date'); ?>" value="<?php echo htmlspecialchars($date_from); ?>">
                         </div>
                         <div class="col-6">
                             <input type="date" class="form-control" name="date_to" 
-                                   placeholder="To Date" value="<?php echo htmlspecialchars($date_to); ?>">
+                                   placeholder="<?php echo __('to_date'); ?>" value="<?php echo htmlspecialchars($date_to); ?>">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-12 mt-3">
                     <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                     <a href="index.php" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -333,28 +333,28 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     <!-- Payments Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Payments</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payments'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($payments)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-money-bill-wave fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No payments found</h5>
-                    <p class="text-gray-400">Payments from companies will appear here.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_payments_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('payments_from_companies_will_appear_here'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="paymentsTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Payment Code</th>
-                                <th>Company</th>
-                                <th>Amount</th>
-                                <th>Currency</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Actions</th>
+                                <th><?php echo __('payment_code'); ?></th>
+                                <th><?php echo __('company'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('currency'); ?></th>
+                                <th><?php echo __('method'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -365,7 +365,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                     </td>
                                     <td>
                                         <span class="badge bg-info">
-                                            <?php echo htmlspecialchars($payment['company_name'] ?? 'N/A'); ?>
+                                            <?php echo htmlspecialchars($payment['company_name'] ?? __('na')); ?>
                                         </span>
                                     </td>
                                     <td>
@@ -406,7 +406,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                             <?php if ($payment['payment_status'] === 'pending'): ?>
                                                 <a href="approve.php?id=<?php echo $payment['id']; ?>" 
                                                    class="btn btn-sm btn-success" title="Approve"
-                                                   onclick="return confirm('Are you sure you want to approve this payment?')">
+                                                   onclick="return confirm('<?php echo __('confirm_approve_payment'); ?>')">
                                                     <i class="fas fa-check"></i>
                                                 </a>
                                             <?php endif; ?>
@@ -425,7 +425,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&method=<?php echo urlencode($method_filter); ?>&company=<?php echo urlencode($company_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -441,7 +441,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&method=<?php echo urlencode($method_filter); ?>&company=<?php echo urlencode($company_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
