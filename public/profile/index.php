@@ -21,20 +21,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required_fields = ['first_name', 'last_name', 'email'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                throw new Exception("Field '$field' is required.");
+                throw new Exception(__('field_required', ['field' => $field]));
             }
         }
 
         // Validate email format
         if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Invalid email format.");
+            throw new Exception(__('invalid_email_format'));
         }
 
         // Check if email already exists (excluding current user)
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
         $stmt->execute([$_POST['email'], $current_user['id']]);
         if ($stmt->fetch()) {
-            throw new Exception("Email already exists in the system.");
+            throw new Exception(__('email_already_exists'));
         }
 
         // Start transaction
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $conn->commit();
 
-        $success = "Profile updated successfully!";
+        $success = __('profile_updated_successfully');
         
         // Refresh user session data
         $_SESSION['user_name'] = $_POST['first_name'] . ' ' . $_POST['last_name'];
@@ -106,16 +106,16 @@ if (isset($_POST['change_password'])) {
 
         // Validate current password
         if (!password_verify($current_password, $current_user['password'])) {
-            throw new Exception("Current password is incorrect.");
+            throw new Exception(__('current_password_incorrect'));
         }
 
         // Validate new password
         if (strlen($new_password) < 6) {
-            throw new Exception("New password must be at least 6 characters long.");
+            throw new Exception(__('password_min_length'));
         }
 
         if ($new_password !== $confirm_password) {
-            throw new Exception("New passwords do not match.");
+            throw new Exception(__('passwords_do_not_match'));
         }
 
         // Update password
@@ -123,7 +123,7 @@ if (isset($_POST['change_password'])) {
         $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
         $stmt->execute([$hashed_password, $current_user['id']]);
 
-        $success = "Password changed successfully!";
+        $success = __('password_changed_successfully');
         
     } catch (Exception $e) {
         $error = $e->getMessage();
@@ -173,10 +173,10 @@ if ($current_user['role'] === 'super_admin') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user"></i> My Profile
+            <i class="fas fa-user"></i> <?php echo __('my_profile'); ?>
         </h1>
         <a href="../dashboard/" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_dashboard'); ?>
         </a>
     </div>
 
@@ -199,14 +199,14 @@ if ($current_user['role'] === 'super_admin') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Profile Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('profile_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="profileForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="first_name" class="form-label">First Name *</label>
+                                    <label for="first_name" class="form-label"><?php echo __('first_name'); ?> *</label>
                                     <input type="text" class="form-control" id="first_name" name="first_name" 
                                            value="<?php echo htmlspecialchars($user_details['first_name']); ?>" 
                                            required>
@@ -214,7 +214,7 @@ if ($current_user['role'] === 'super_admin') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="last_name" class="form-label">Last Name *</label>
+                                    <label for="last_name" class="form-label"><?php echo __('last_name'); ?> *</label>
                                     <input type="text" class="form-control" id="last_name" name="last_name" 
                                            value="<?php echo htmlspecialchars($user_details['last_name']); ?>" 
                                            required>
@@ -225,7 +225,7 @@ if ($current_user['role'] === 'super_admin') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email Address *</label>
+                                    <label for="email" class="form-label"><?php echo __('email_address'); ?> *</label>
                                     <input type="email" class="form-control" id="email" name="email" 
                                            value="<?php echo htmlspecialchars($user_details['email']); ?>" 
                                            required>
@@ -233,7 +233,7 @@ if ($current_user['role'] === 'super_admin') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <label for="phone" class="form-label"><?php echo __('phone_number'); ?></label>
                                     <input type="tel" class="form-control" id="phone" name="phone" 
                                            value="<?php echo htmlspecialchars($user_details['phone'] ?? ''); ?>">
                                 </div>
@@ -244,7 +244,7 @@ if ($current_user['role'] === 'super_admin') {
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Profile
+                                <i class="fas fa-save"></i> <?php echo __('update_profile'); ?>
                             </button>
                         </div>
                     </form>
@@ -254,26 +254,26 @@ if ($current_user['role'] === 'super_admin') {
             <!-- Change Password -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Change Password</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('change_password'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="passwordForm">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="current_password" class="form-label">Current Password *</label>
+                                    <label for="current_password" class="form-label"><?php echo __('current_password'); ?> *</label>
                                     <input type="password" class="form-control" id="current_password" name="current_password" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="new_password" class="form-label">New Password *</label>
+                                    <label for="new_password" class="form-label"><?php echo __('new_password'); ?> *</label>
                                     <input type="password" class="form-control" id="new_password" name="new_password" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="confirm_password" class="form-label">Confirm Password *</label>
+                                    <label for="confirm_password" class="form-label"><?php echo __('confirm_password'); ?> *</label>
                                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                                 </div>
                             </div>
@@ -281,7 +281,7 @@ if ($current_user['role'] === 'super_admin') {
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" name="change_password" class="btn btn-warning">
-                                <i class="fas fa-key"></i> Change Password
+                                <i class="fas fa-key"></i> <?php echo __('change_password'); ?>
                             </button>
                         </div>
                     </form>
@@ -293,7 +293,7 @@ if ($current_user['role'] === 'super_admin') {
             <!-- Profile Summary -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Profile Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('profile_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
@@ -315,27 +315,27 @@ if ($current_user['role'] === 'super_admin') {
                     <hr>
                     
                     <div class="mb-2">
-                        <strong>Email:</strong> <?php echo htmlspecialchars($user_details['email']); ?>
+                        <strong><?php echo __('email'); ?>:</strong> <?php echo htmlspecialchars($user_details['email']); ?>
                     </div>
                     <div class="mb-2">
-                        <strong>Status:</strong> 
+                        <strong><?php echo __('status'); ?>:</strong> 
                         <span class="badge bg-<?php echo $user_details['status'] === 'active' ? 'success' : 'secondary'; ?>">
                             <?php echo ucfirst($user_details['status']); ?>
                         </span>
                     </div>
                     <div class="mb-2">
-                        <strong>Member Since:</strong> <?php echo date('M j, Y', strtotime($user_details['created_at'])); ?>
+                        <strong><?php echo __('member_since'); ?>:</strong> <?php echo date('M j, Y', strtotime($user_details['created_at'])); ?>
                     </div>
                     
                     <?php if ($user_details['position']): ?>
                     <div class="mb-2">
-                        <strong>Position:</strong> <?php echo ucfirst(str_replace('_', ' ', $user_details['position'])); ?>
+                        <strong><?php echo __('position'); ?>:</strong> <?php echo ucfirst(str_replace('_', ' ', $user_details['position'])); ?>
                     </div>
                     <?php endif; ?>
                     
                     <?php if ($user_details['monthly_salary']): ?>
                     <div class="mb-2">
-                        <strong>Monthly Salary:</strong> $<?php echo number_format($user_details['monthly_salary'], 2); ?>
+                        <strong><?php echo __('monthly_salary'); ?>:</strong> $<?php echo number_format($user_details['monthly_salary'], 2); ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -345,24 +345,24 @@ if ($current_user['role'] === 'super_admin') {
             <?php if ($company_info): ?>
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-2">
-                        <strong>Company:</strong> <?php echo htmlspecialchars($company_info['company_name']); ?>
+                        <strong><?php echo __('company'); ?>:</strong> <?php echo htmlspecialchars($company_info['company_name']); ?>
                     </div>
                     <div class="mb-2">
-                        <strong>Plan:</strong> <?php echo htmlspecialchars($company_info['plan_name'] ?? 'No Plan'); ?>
+                        <strong><?php echo __('plan'); ?>:</strong> <?php echo htmlspecialchars($company_info['plan_name'] ?? __('no_plan')); ?>
                     </div>
                     <div class="mb-2">
-                        <strong>Status:</strong> 
+                        <strong><?php echo __('status'); ?>:</strong> 
                         <span class="badge bg-<?php echo $company_info['subscription_status'] === 'active' ? 'success' : 'warning'; ?>">
                             <?php echo ucfirst($company_info['subscription_status']); ?>
                         </span>
                     </div>
                     <?php if ($company_info['trial_ends_at']): ?>
                     <div class="mb-2">
-                        <strong>Trial Ends:</strong> <?php echo date('M j, Y', strtotime($company_info['trial_ends_at'])); ?>
+                        <strong><?php echo __('trial_ends'); ?>:</strong> <?php echo date('M j, Y', strtotime($company_info['trial_ends_at'])); ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -372,13 +372,13 @@ if ($current_user['role'] === 'super_admin') {
             <!-- Recent Activity -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_activity'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($user_activity)): ?>
                         <div class="text-center text-muted py-3">
                             <i class="fas fa-clock fa-2x mb-2"></i>
-                            <p>No recent activity</p>
+                            <p><?php echo __('no_recent_activity'); ?></p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($user_activity as $activity): ?>
