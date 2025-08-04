@@ -343,9 +343,27 @@ foreach ($companies as &$company) {
         $stmt->execute();
         $suspended_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        $stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'completed'");
+        // Get total revenue by currency
+        $stmt = $conn->prepare("
+            SELECT currency, SUM(amount) as total 
+            FROM company_payments 
+            WHERE payment_status = 'completed'
+            GROUP BY currency
+        ");
         $stmt->execute();
-        $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        $revenue_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calculate totals by currency
+        $total_revenue_usd = 0;
+        $total_revenue_afn = 0;
+        
+        foreach ($revenue_by_currency as $revenue) {
+            if ($revenue['currency'] === 'USD') {
+                $total_revenue_usd += $revenue['total'];
+            } elseif ($revenue['currency'] === 'AFN') {
+                $total_revenue_afn += $revenue['total'];
+            }
+        }
         ?>
 
         <div class="col-xl-3 col-md-6 mb-4">
@@ -406,7 +424,19 @@ foreach ($companies as &$company) {
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Total Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_revenue); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php 
+                                if ($total_revenue_usd > 0 && $total_revenue_afn > 0) {
+                                    echo formatCurrencyAmount($total_revenue_usd, 'USD') . '<br><small>' . formatCurrencyAmount($total_revenue_afn, 'AFN') . '</small>';
+                                } elseif ($total_revenue_usd > 0) {
+                                    echo formatCurrencyAmount($total_revenue_usd, 'USD');
+                                } elseif ($total_revenue_afn > 0) {
+                                    echo formatCurrencyAmount($total_revenue_afn, 'AFN');
+                                } else {
+                                    echo 'No revenue';
+                                }
+                                ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
