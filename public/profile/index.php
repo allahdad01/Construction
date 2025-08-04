@@ -149,15 +149,24 @@ $user_activity = [
     ]
 ];
 
-// Get company information
-$stmt = $conn->prepare("
-    SELECT c.*, sp.plan_name 
-    FROM companies c 
-    LEFT JOIN subscription_plans sp ON c.subscription_plan_id = sp.id
-    WHERE c.id = ?
-");
-$stmt->execute([$company_id]);
-$company_info = $stmt->fetch(PDO::FETCH_ASSOC);
+// Get company information (for super admin, show all companies; for others, show their company)
+if ($current_user['role'] === 'super_admin') {
+    $stmt = $conn->prepare("
+        SELECT c.*, c.subscription_plan as plan_name
+        FROM companies c 
+        WHERE c.id = ?
+    ");
+    $stmt->execute([$company_id]);
+    $company_info = $stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    $stmt = $conn->prepare("
+        SELECT c.*, c.subscription_plan as plan_name
+        FROM companies c 
+        WHERE c.id = ?
+    ");
+    $stmt->execute([$company_id]);
+    $company_info = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 ?>
 
 <div class="container-fluid">
@@ -229,11 +238,6 @@ $company_info = $stmt->fetch(PDO::FETCH_ASSOC);
                                            value="<?php echo htmlspecialchars($user_details['phone'] ?? ''); ?>">
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($user_details['address'] ?? ''); ?></textarea>
                         </div>
 
                         <hr>
@@ -356,9 +360,9 @@ $company_info = $stmt->fetch(PDO::FETCH_ASSOC);
                             <?php echo ucfirst($company_info['subscription_status']); ?>
                         </span>
                     </div>
-                    <?php if ($company_info['trial_end_date']): ?>
+                    <?php if ($company_info['trial_ends_at']): ?>
                     <div class="mb-2">
-                        <strong>Trial Ends:</strong> <?php echo date('M j, Y', strtotime($company_info['trial_end_date'])); ?>
+                        <strong>Trial Ends:</strong> <?php echo date('M j, Y', strtotime($company_info['trial_ends_at'])); ?>
                     </div>
                     <?php endif; ?>
                 </div>

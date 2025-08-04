@@ -727,19 +727,30 @@ date_default_timezone_set($company_timezone);
                         <div class="dropdown me-3">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger rounded-pill">3</span>
+                                <span class="badge bg-danger rounded-pill"><?php echo $current_user['role'] === 'super_admin' ? '2' : '3'; ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><h6 class="dropdown-header">Notifications</h6></li>
-                                <li><a class="dropdown-item" href="/constract360/construction/public/contracts/">
-                                    <i class="fas fa-file-contract me-2"></i>New contract assigned
-                                </a></li>
-                                <li><a class="dropdown-item" href="/constract360/construction/public/salary-payments/">
-                                    <i class="fas fa-money-bill me-2"></i>Payment received
-                                </a></li>
-                                <li><a class="dropdown-item" href="/constract360/construction/public/settings/">
-                                    <i class="fas fa-cog me-2"></i>System maintenance
-                                </a></li>
+                                <?php if ($current_user['role'] === 'super_admin'): ?>
+                                    <!-- Super Admin Notifications -->
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/super-admin/companies/">
+                                        <i class="fas fa-building me-2"></i>New company registered
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/super-admin/settings/">
+                                        <i class="fas fa-cog me-2"></i>System maintenance required
+                                    </a></li>
+                                <?php else: ?>
+                                    <!-- Company Admin/Employee Notifications -->
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/contracts/">
+                                        <i class="fas fa-file-contract me-2"></i>New contract assigned
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/salary-payments/">
+                                        <i class="fas fa-money-bill me-2"></i>Payment received
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/settings/">
+                                        <i class="fas fa-cog me-2"></i>System maintenance
+                                    </a></li>
+                                <?php endif; ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
                                     <small class="text-muted">Mark all as read</small>
