@@ -90,16 +90,16 @@ $stmt = $conn->prepare("
 $stmt->execute();
 $monthly_expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate totals in USD for display
+// Calculate totals (no currency conversion)
 $total_amount_usd = 0;
 $monthly_amount_usd = 0;
 
 foreach ($expenses_by_currency as $expense) {
-    $total_amount_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
+    $total_amount_usd += $expense['total_amount'];
 }
 
 foreach ($monthly_expenses_by_currency as $expense) {
-    $monthly_amount_usd += convertCurrencyByCode($expense['total_amount'], $expense['currency'], 'USD');
+    $monthly_amount_usd += $expense['total_amount'];
 }
 
 $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'));
