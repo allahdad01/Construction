@@ -22,8 +22,8 @@ $type_filter = $_GET['type'] ?? '';
 $date_from = $_GET['date_from'] ?? '';
 $date_to = $_GET['date_to'] ?? '';
 
-// Build query - super admin can see all expenses
-$where_conditions = ["1=1"];
+// Build query - only super admin expenses (company_id = 1)
+$where_conditions = ["company_id = 1"];
 $params = [];
 
 if (!empty($search)) {
@@ -65,20 +65,20 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get statistics
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses");
+// Get statistics - only super admin expenses
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = 1");
 $stmt->execute();
 $total_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses");
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE company_id = 1");
 $stmt->execute();
 $total_amount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 $stmt->execute();
 $monthly_amount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 $stmt->execute();
 $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 ?>
