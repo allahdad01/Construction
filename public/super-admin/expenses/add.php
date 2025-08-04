@@ -39,19 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create expense record
         $stmt = $conn->prepare("
             INSERT INTO expenses (
-                expense_code, expense_type, description, amount, expense_date, 
-                payment_method, receipt_number, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                company_id, expense_code, category, description, amount, expense_date, 
+                payment_method, reference_number, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
+            1, // Default company_id for super admin expenses
             $expense_code,
             $_POST['expense_type'],
             $_POST['description'],
             $_POST['amount'],
             $_POST['expense_date'],
             $_POST['payment_method'],
-            $_POST['receipt_number'] ?: null,
+            $_POST['reference_number'] ?: null,
             $_POST['notes'] ?: null
         ]);
 
@@ -178,9 +179,9 @@ function generateExpenseCode() {
                         </div>
 
                         <div class="mb-3">
-                            <label for="receipt_number" class="form-label">Receipt Number</label>
-                            <input type="text" class="form-control" id="receipt_number" name="receipt_number" 
-                                   value="<?php echo htmlspecialchars($_POST['receipt_number'] ?? ''); ?>" 
+                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <input type="text" class="form-control" id="reference_number" name="reference_number" 
+                                   value="<?php echo htmlspecialchars($_POST['reference_number'] ?? ''); ?>" 
                                    placeholder="Receipt or invoice number">
                         </div>
 

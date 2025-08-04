@@ -22,7 +22,7 @@ $type_filter = $_GET['type'] ?? '';
 $date_from = $_GET['date_from'] ?? '';
 $date_to = $_GET['date_to'] ?? '';
 
-// Build query
+// Build query - super admin can see all expenses
 $where_conditions = ["1=1"];
 $params = [];
 
@@ -33,7 +33,7 @@ if (!empty($search)) {
 }
 
 if (!empty($type_filter)) {
-    $where_conditions[] = "expense_type = ?";
+    $where_conditions[] = "category = ?";
     $params[] = $type_filter;
 }
 
@@ -243,7 +243,7 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                     </td>
                                     <td>
                                         <span class="badge bg-info">
-                                            <?php echo ucwords(str_replace('_', ' ', $expense['expense_type'])); ?>
+                                            <?php echo ucwords(str_replace('_', ' ', $expense['category'] ?? 'other')); ?>
                                         </span>
                                     </td>
                                     <td><?php echo htmlspecialchars($expense['description']); ?></td>
@@ -259,9 +259,9 @@ $monthly_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                         </span>
                                     </td>
                                     <td>
-                                        <?php if ($expense['receipt_number']): ?>
+                                        <?php if ($expense['reference_number']): ?>
                                             <span class="badge bg-success">
-                                                <?php echo htmlspecialchars($expense['receipt_number']); ?>
+                                                <?php echo htmlspecialchars($expense['reference_number']); ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="text-muted">N/A</span>
