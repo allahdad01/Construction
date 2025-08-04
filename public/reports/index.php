@@ -231,13 +231,17 @@ function getCompanyChartData($conn, $company_id, $start_date, $end_date) {
     return $chart_data;
 }
 
-function exportReport($report_type, $format) {
-    $start_date = $_GET['start_date'] ?? date('Y-m-01');
-    $end_date = $_GET['end_date'] ?? date('Y-m-d');
+?>
+
+<script>
+function exportReport(report_type, format) {
+    const start_date = document.getElementById('start_date').value || '<?php echo date('Y-m-01'); ?>';
+    const end_date = document.getElementById('end_date').value || '<?php echo date('Y-m-d'); ?>';
     
-    $url = "/constract360/construction/public/reports/export.php?type={$report_type}&format={$format}&start_date={$start_date}&end_date={$end_date}";
+    const url = `/constract360/construction/public/reports/export.php?type=${report_type}&format=${format}&start_date=${start_date}&end_date=${end_date}`;
     window.open(url, '_blank');
 }
+</script>
 ?>
 
 <div class="container-fluid">

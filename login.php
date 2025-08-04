@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Redirect based on role
                     if ($user['role'] === 'super_admin') {
-                        header('Location: public/super-admin/dashboard/');
+                        header('Location: public/super-admin/');
                     } else {
                         header('Location: public/dashboard/');
                     }

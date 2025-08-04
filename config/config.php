@@ -137,12 +137,21 @@ function isAuthenticated() {
 
 function checkSessionTimeout() {
     $timeout = getSystemSetting('session_timeout', 30) * 60; // Convert to seconds
-    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
-        session_destroy();
-        header('Location: login.php');
-        exit;
+    
+    // Only check timeout if we have a last_activity set
+    if (isset($_SESSION['last_activity'])) {
+        if ((time() - $_SESSION['last_activity']) > $timeout) {
+            session_destroy();
+            header('Location: /constract360/construction/login.php');
+            exit;
+        }
     }
-    $_SESSION['last_activity'] = time();
+    
+    // Update last activity only once per request
+    if (!isset($_SESSION['last_activity_updated']) || (time() - $_SESSION['last_activity_updated']) > 60) {
+        $_SESSION['last_activity'] = time();
+        $_SESSION['last_activity_updated'] = time();
+    }
 }
 
 function requireAuth() {
