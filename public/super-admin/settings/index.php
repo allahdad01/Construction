@@ -85,30 +85,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
         } elseif ($action === 'update_logo') {
             // Handle logo upload
-            if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-                $file = $_FILES['logo'];
-                $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-                $max_size = 5 * 1024 * 1024; // 5MB
-                
-                if (!in_array($file['type'], $allowed_types)) {
-                    throw new Exception('Invalid file type. Only JPEG, PNG, GIF, and SVG files are allowed.');
+            if (!isset($_FILES['logo']) || $_FILES['logo']['error'] !== UPLOAD_ERR_OK) {
+                if (isset($_FILES['logo']) && $_FILES['logo']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    $upload_errors = [
+                        UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize directive.',
+                        UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE directive.',
+                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+                        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder.',
+                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.'
+                    ];
+                    $error_msg = $upload_errors[$_FILES['logo']['error']] ?? 'Unknown upload error.';
+                    throw new Exception('Upload failed: ' . $error_msg);
+                } else {
+                    throw new Exception('Please select a logo file to upload.');
                 }
+            }
+            
+            $file = $_FILES['logo'];
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+            
+            if (!in_array($file['type'], $allowed_types)) {
+                throw new Exception('Invalid file type. Only JPEG, PNG, GIF, and SVG files are allowed.');
+            }
+            
+            if ($file['size'] > $max_size) {
+                throw new Exception('File size too large. Maximum size is 5MB.');
+            }
                 
-                if ($file['size'] > $max_size) {
-                    throw new Exception('File size too large. Maximum size is 5MB.');
-                }
-                
-                $upload_dir = '../../../public/uploads/logos/';
+                // Create uploads directory if it doesn't exist
+                $upload_dir = __DIR__ . '/../../../public/uploads/logos/';
                 if (!is_dir($upload_dir)) {
                     mkdir($upload_dir, 0755, true);
                 }
                 
-                $filename = 'platform_logo_' . time() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
+                // Generate unique filename
+                $filename = 'platform_logo_' . time() . '_' . uniqid() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
                 $filepath = $upload_dir . $filename;
                 
                 if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                    // Update logo path in database
-                    $logo_path = 'uploads/logos/' . $filename;
+                    // Clean up old logo if exists
+                    $old_logo = getSystemSettingLocal($conn, 'platform_logo', '');
+                    if (!empty($old_logo)) {
+                        $old_filepath = __DIR__ . '/../../../' . $old_logo;
+                        if (file_exists($old_filepath) && is_file($old_filepath)) {
+                            unlink($old_filepath);
+                        }
+                    }
+                    
+                    // Update logo path in database (relative to public directory)
+                    $logo_path = 'public/uploads/logos/' . $filename;
                     $stmt = $conn->prepare("
                         INSERT INTO system_settings (setting_key, setting_value) 
                         VALUES ('platform_logo', ?) 
@@ -118,8 +145,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $success = 'Logo uploaded successfully!';
                 } else {
-                    throw new Exception('Failed to upload logo.');
+                    throw new Exception('Failed to upload logo. Please check directory permissions.');
                 }
+            } else {
+                throw new Exception('No logo file selected.');
+            }
+            
+        } elseif ($action === 'remove_logo') {
+            // Remove current logo
+            $current_logo = getSystemSettingLocal($conn, 'platform_logo', '');
+            if (!empty($current_logo)) {
+                $logo_filepath = __DIR__ . '/../../../' . $current_logo;
+                if (file_exists($logo_filepath) && is_file($logo_filepath)) {
+                    unlink($logo_filepath);
+                }
+                
+                // Remove from database
+                $stmt = $conn->prepare("DELETE FROM system_settings WHERE setting_key = 'platform_logo'");
+                $stmt->execute();
+                
+                $success = 'Logo removed successfully!';
+            } else {
+                throw new Exception('No logo to remove.');
             }
             
         } elseif ($action === 'update_security') {
@@ -419,8 +466,16 @@ $current_settings = [
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="logo" class="form-label">Upload Logo</label>
-                                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*" onchange="previewLogo(this)">
                                             <small class="text-muted">Recommended size: 200x60px. Max size: 5MB. Formats: JPEG, PNG, GIF, SVG</small>
+                                        </div>
+                                        
+                                        <!-- Preview Area -->
+                                        <div class="mb-3" id="logoPreview" style="display: none;">
+                                            <label class="form-label">Preview</label>
+                                            <div class="border rounded p-3 text-center">
+                                                <img id="previewImage" src="" alt="Logo Preview" style="max-height: 60px; max-width: 200px;">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -428,8 +483,13 @@ $current_settings = [
                                         <div class="mb-3">
                                             <label class="form-label">Current Logo</label>
                                             <div class="border rounded p-3 text-center">
-                                                <img src="../../../<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" 
+                                                <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" 
                                                      alt="Current Logo" style="max-height: 60px; max-width: 200px;">
+                                            </div>
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="removeLogo()">
+                                                    <i class="fas fa-trash"></i> Remove Logo
+                                                </button>
                                             </div>
                                         </div>
                                         <?php endif; ?>
@@ -439,6 +499,36 @@ $current_settings = [
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-upload"></i> Upload Logo
                                 </button>
+                            </form>
+                            
+                            <script>
+                            function previewLogo(input) {
+                                const preview = document.getElementById('logoPreview');
+                                const previewImage = document.getElementById('previewImage');
+                                
+                                if (input.files && input.files[0]) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        previewImage.src = e.target.result;
+                                        preview.style.display = 'block';
+                                    };
+                                    reader.readAsDataURL(input.files[0]);
+                                } else {
+                                    preview.style.display = 'none';
+                                }
+                            }
+                            
+                            function removeLogo() {
+                                if (confirm('Are you sure you want to remove the current logo?')) {
+                                    // Create a form to submit the remove action
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.innerHTML = '<input type="hidden" name="action" value="remove_logo">';
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                }
+                            }
+                            </script>
                             </form>
                         </div>
                         
