@@ -98,6 +98,9 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
             <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to Companies
             </a>
+            <a href="/constract360/construction/public/super-admin/companies/user-add.php?company_id=<?php echo $company['id']; ?>" class="btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Add User
+            </a>
             <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
                 <i class="fas fa-eye"></i> View Company
             </a>
