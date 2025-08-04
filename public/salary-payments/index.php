@@ -23,7 +23,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $stmt = $conn->prepare("DELETE FROM salary_payments WHERE id = ? AND company_id = ?");
         $stmt->execute([$payment_id, $company_id]);
         
-        $success = 'Salary payment deleted successfully!';
+        $success = __('salary_payment_deleted_successfully');
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -115,10 +115,10 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-money-bill-wave"></i> Salary Payments
+            <i class="fas fa-money-bill-wave"></i> <?php echo __('salary_payments'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Payment
+            <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
         </a>
     </div>
 
@@ -138,7 +138,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Payments
+                                <?php echo __('total_payments'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_payments']; ?></div>
                         </div>
@@ -156,7 +156,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Paid
+                                <?php echo __('paid'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['paid_payments']; ?></div>
                         </div>
@@ -174,7 +174,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pending
+                                <?php echo __('pending'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['pending_payments']; ?></div>
                         </div>
@@ -192,7 +192,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Total Amount
+                                <?php echo __('total_amount'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($stats['total_amount'], 2); ?></div>
                         </div>
@@ -208,29 +208,29 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Filters and Search -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('filters'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
-                    <label for="search" class="form-label">Search</label>
+                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" id="search" name="search" 
                            value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by employee name or code">
+                           placeholder="<?php echo __('search_by_employee_name_or_code'); ?>">
                 </div>
                 <div class="col-md-2">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="paid" <?php echo $status_filter === 'paid' ? 'selected' : ''; ?>>Paid</option>
-                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="paid" <?php echo $status_filter === 'paid' ? 'selected' : ''; ?>><?php echo __('paid'); ?></option>
+                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="employee" class="form-label">Employee</label>
+                    <label for="employee" class="form-label"><?php echo __('employee'); ?></label>
                     <select class="form-control" id="employee" name="employee">
-                        <option value="">All Employees</option>
+                        <option value=""><?php echo __('all_employees'); ?></option>
                         <?php foreach ($employees as $employee): ?>
                         <option value="<?php echo $employee['id']; ?>" <?php echo $employee_filter == $employee['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($employee['name']); ?>
@@ -239,7 +239,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="month" class="form-label">Month</label>
+                    <label for="month" class="form-label"><?php echo __('month'); ?></label>
                     <input type="month" class="form-control" id="month" name="month" 
                            value="<?php echo htmlspecialchars($month_filter); ?>">
                 </div>
@@ -247,10 +247,10 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label class="form-label">&nbsp;</label>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search"></i> Search
+                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
                         </button>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                         </a>
                     </div>
                 </div>
@@ -261,18 +261,18 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Salary Payments Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Salary Payments List</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('salary_payments_list'); ?></h6>
             <div class="dropdown no-arrow">
                 <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                    <div class="dropdown-header">Export Options:</div>
+                    <div class="dropdown-header"><?php echo __('export_options'); ?>:</div>
                     <a class="dropdown-item" href="#" onclick="exportToCSV()">
-                        <i class="fas fa-file-csv me-2"></i>Export to CSV
+                        <i class="fas fa-file-csv me-2"></i><?php echo __('export_to_csv'); ?>
                     </a>
                     <a class="dropdown-item" href="#" onclick="exportToPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        <i class="fas fa-file-pdf me-2"></i><?php echo __('export_to_pdf'); ?>
                     </a>
                 </div>
             </div>
@@ -281,10 +281,10 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if (empty($salary_payments)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-money-bill-wave fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No salary payments found</h5>
-                    <p class="text-gray-400">Add your first salary payment to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_salary_payments_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_salary_payment_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Payment
+                        <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -292,14 +292,14 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered datatable" id="paymentsTable">
                         <thead>
                             <tr>
-                                <th>Employee</th>
-                                <th>Payment Date</th>
-                                <th>Period</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Payment Method</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
+                                <th><?php echo __('employee'); ?></th>
+                                <th><?php echo __('payment_date'); ?></th>
+                                <th><?php echo __('period'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('payment_method'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -332,7 +332,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td>
                                     <div class="text-center">
                                         <h6 class="text-success mb-0">$<?php echo number_format($payment['amount'], 2); ?></h6>
-                                        <small class="text-muted"><?php echo $payment['working_days']; ?> days</small>
+                                        <small class="text-muted"><?php echo $payment['working_days']; ?> <?php echo __('days'); ?></small>
                                     </div>
                                 </td>
                                 <td>
@@ -384,7 +384,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if ($page > 1): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&employee=<?php echo urlencode($employee_filter); ?>&month=<?php echo urlencode($month_filter); ?>">
-                                    Previous
+                                                                            <?php echo __('previous'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -400,7 +400,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if ($page < $total_pages): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&employee=<?php echo urlencode($employee_filter); ?>&month=<?php echo urlencode($month_filter); ?>">
-                                    Next
+                                                                            <?php echo __('next'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Confirm delete function
 function confirmDelete(paymentId, employeeName) {
-    if (confirm(`Are you sure you want to delete salary payment for "${employeeName}"? This action cannot be undone.`)) {
+    if (confirm(`<?php echo __('confirm_delete_salary_payment'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
         window.location.href = `index.php?delete=${paymentId}`;
     }
 }
@@ -465,7 +465,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-    alert('PDF export feature coming soon!');
+    alert('<?php echo __('pdf_export_feature_coming_soon'); ?>');
 }
 </script>
 
