@@ -233,23 +233,45 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Currency Exchange Rates -->
+        <!-- Real-Time Exchange Rates -->
         <div class="col-xl-4 col-lg-4">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Current Exchange Rates</h6>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Real-Time Exchange Rates</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="refreshExchangeRates()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                 </div>
                 <div class="card-body">
-                    <?php $rates = getCurrentExchangeRates(); ?>
+                    <?php 
+                    require_once '../../config/exchange_rates.php';
+                    $rate_info = getExchangeRateInfo();
+                    ?>
                     <div class="row">
                         <div class="col-12">
+                            <small class="text-muted mb-2 d-block">
+                                <i class="fas fa-clock me-1"></i>
+                                Last updated: <?php echo $rate_info['last_updated']; ?>
+                            </small>
                             <h6>USD Rates:</h6>
-                            <?php foreach ($rates['USD'] as $currency => $rate): ?>
+                            <?php 
+                            $supported_currencies = getSupportedCurrencies();
+                            foreach ($supported_currencies as $code => $name):
+                                if ($code !== 'USD' && isset($rate_info['rates'][$code])):
+                            ?>
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span>1 USD =</span>
-                                    <strong><?php echo number_format($rate, 2); ?> <?php echo $currency; ?></strong>
+                                    <strong><?php echo number_format($rate_info['rates'][$code], 2); ?> <?php echo $code; ?></strong>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            ?>
+                            <hr>
+                            <small class="text-info">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Rates update automatically every hour
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -318,5 +340,56 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
+
+<script>
+function refreshExchangeRates() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    // Show loading state
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    button.disabled = true;
+    
+    fetch('../api/refresh-exchange-rates.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showToast('Exchange rates refreshed successfully!', 'success');
+                // Reload page to show updated rates
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.message, 'warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Failed to refresh exchange rates', 'error');
+        })
+        .finally(() => {
+            // Restore button state
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+</script>
 
 <?php require_once '../../includes/footer.php'; ?>
