@@ -9,7 +9,7 @@ requireRole('super_admin');
 $db = new Database();
 $conn = $db->getConnection();
 
-$expense_id = (int)($_GET['id'] ?? 0);
+$expense_id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
 
 if (!$expense_id) {
     header('Location: index.php');

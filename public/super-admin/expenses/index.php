@@ -203,6 +203,18 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                             <span><strong>Total (USD):</strong></span>
                             <strong class="text-danger"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></strong>
                         </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Total (AFN):</strong></span>
+                            <strong class="text-primary"><?php 
+                                $total_afn = 0;
+                                foreach ($expenses_by_currency as $expense) {
+                                    if ($expense['currency'] === 'AFN') {
+                                        $total_afn += $expense['total_amount'];
+                                    }
+                                }
+                                echo formatCurrencyAmount($total_afn, 'AFN');
+                            ?></strong>
+                        </div>
                     <?php else: ?>
                         <p class="text-muted">No expenses found</p>
                     <?php endif; ?>
@@ -228,6 +240,18 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                         <div class="d-flex justify-content-between align-items-center">
                             <span><strong>Monthly Total (USD):</strong></span>
                             <strong class="text-warning"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Monthly Total (AFN):</strong></span>
+                            <strong class="text-warning"><?php 
+                                $monthly_afn = 0;
+                                foreach ($monthly_expenses_by_currency as $expense) {
+                                    if ($expense['currency'] === 'AFN') {
+                                        $monthly_afn += $expense['total_amount'];
+                                    }
+                                }
+                                echo formatCurrencyAmount($monthly_afn, 'AFN');
+                            ?></strong>
                         </div>
                     <?php else: ?>
                         <p class="text-muted">No expenses this month</p>
@@ -360,11 +384,13 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="delete.php?id=<?php echo $expense['id']; ?>" 
-                                               class="btn btn-sm btn-danger" title="Delete"
-                                               onclick="return confirm('Are you sure you want to delete this expense?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form method="POST" action="delete.php" style="display: inline;" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this expense?')">
+                                                <input type="hidden" name="id" value="<?php echo $expense['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
