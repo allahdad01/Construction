@@ -18,6 +18,27 @@ $available_languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get current language preference from session or default to English
 $current_language = $_SESSION['current_language'] ?? 'en';
+
+// Get system settings for branding
+function getSystemSettingLocal($conn, $key, $default = '') {
+    $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
+    $stmt->execute([$key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['setting_value'] : $default;
+}
+
+$current_settings = [
+    'platform_name' => getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform'),
+    'platform_logo' => getSystemSettingLocal($conn, 'platform_logo', ''),
+    'contact_address' => getSystemSettingLocal($conn, 'contact_address', ''),
+    'contact_phone' => getSystemSettingLocal($conn, 'contact_phone', ''),
+    'contact_email' => getSystemSettingLocal($conn, 'contact_email', ''),
+    'contact_website' => getSystemSettingLocal($conn, 'contact_website', ''),
+    'contact_facebook' => getSystemSettingLocal($conn, 'contact_facebook', ''),
+    'contact_twitter' => getSystemSettingLocal($conn, 'contact_twitter', ''),
+    'contact_linkedin' => getSystemSettingLocal($conn, 'contact_linkedin', ''),
+    'contact_instagram' => getSystemSettingLocal($conn, 'contact_instagram', '')
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -99,13 +99,24 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM company_payments");
 $stmt->execute();
 $total_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'completed'");
+// Get USD statistics
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'completed' AND currency = 'USD'");
 $stmt->execute();
-$total_received = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$total_received_usd = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'pending'");
+// Get AFN statistics
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'completed' AND currency = 'AFN'");
 $stmt->execute();
-$total_pending = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$total_received_afn = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+// Get pending amounts by currency
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'pending' AND currency = 'USD'");
+$stmt->execute();
+$total_pending_usd = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+$stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE payment_status = 'pending' AND currency = 'AFN'");
+$stmt->execute();
+$total_pending_afn = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM company_payments WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 $stmt->execute();
@@ -129,7 +140,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
     <!-- Statistics -->
     <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-2 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -145,29 +156,45 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-2 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Received</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_received); ?></div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">USD Received</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($total_received_usd, 2); ?></div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">AFN Received</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_received_afn, 2); ?> AFN</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Amount</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_pending); ?></div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending USD</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($total_pending_usd, 2); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -177,12 +204,28 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">This Month</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Pending AFN</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_pending_afn, 2); ?> AFN</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">This Month</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $monthly_payments; ?></div>
                         </div>
                         <div class="col-auto">
