@@ -29,12 +29,12 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             $stmt = $conn->prepare("DELETE FROM employees WHERE id = ?");
             $stmt->execute([$employee_id]);
             
-            $success = 'Employee deleted successfully!';
+            $success = __('employee_deleted_successfully');
         } else {
-            $error = 'Employee not found or access denied.';
+            $error = __('employee_not_found_or_access_denied');
         }
     } catch (Exception $e) {
-        $error = 'Error deleting employee: ' . $e->getMessage();
+        $error = __('error_deleting_employee') . ': ' . $e->getMessage();
     }
 }
 
@@ -113,10 +113,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-users"></i> Employees
+            <i class="fas fa-users"></i> <?php echo __('employees'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> Add Employee
+            <i class="fas fa-user-plus"></i> <?php echo __('add_employee'); ?>
         </a>
     </div>
 
@@ -136,7 +136,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Employees
+                                <?php echo __('total_employees'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_employees']; ?></div>
                         </div>
@@ -154,7 +154,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Employees
+                                <?php echo __('active_employees'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['active_employees']; ?></div>
                         </div>
@@ -172,7 +172,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Drivers
+                                <?php echo __('drivers'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['drivers']; ?></div>
                         </div>
@@ -190,7 +190,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Assistants
+                                <?php echo __('assistants'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['assistants']; ?></div>
                         </div>
@@ -206,43 +206,43 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Filters and Search -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('filters'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-4">
-                    <label for="search" class="form-label">Search</label>
+                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" id="search" name="search" 
                            value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by name, code, or email">
+                           placeholder="<?php echo __('search_by_name_code_email'); ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="position" class="form-label">Position</label>
+                    <label for="position" class="form-label"><?php echo __('position'); ?></label>
                     <select class="form-control" id="position" name="position">
-                        <option value="">All Positions</option>
-                        <option value="driver" <?php echo $position_filter === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                        <option value="driver_assistant" <?php echo $position_filter === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
-                        <option value="operator" <?php echo $position_filter === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
-                        <option value="supervisor" <?php echo $position_filter === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
-                        <option value="technician" <?php echo $position_filter === 'technician' ? 'selected' : ''; ?>>Technician</option>
+                        <option value=""><?php echo __('all_positions'); ?></option>
+                        <option value="driver" <?php echo $position_filter === 'driver' ? 'selected' : ''; ?>><?php echo __('driver'); ?></option>
+                        <option value="driver_assistant" <?php echo $position_filter === 'driver_assistant' ? 'selected' : ''; ?>><?php echo __('driver_assistant'); ?></option>
+                        <option value="operator" <?php echo $position_filter === 'operator' ? 'selected' : ''; ?>><?php echo __('machine_operator'); ?></option>
+                        <option value="supervisor" <?php echo $position_filter === 'supervisor' ? 'selected' : ''; ?>><?php echo __('supervisor'); ?></option>
+                        <option value="technician" <?php echo $position_filter === 'technician' ? 'selected' : ''; ?>><?php echo __('technician'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>><?php echo __('inactive'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search"></i> Search
+                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
                         </button>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                         </a>
                     </div>
                 </div>
@@ -253,18 +253,18 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Employees Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Employees List</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employees_list'); ?></h6>
             <div class="dropdown no-arrow">
                 <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                    <div class="dropdown-header">Export Options:</div>
+                    <div class="dropdown-header"><?php echo __('export_options'); ?>:</div>
                     <a class="dropdown-item" href="#" onclick="exportToCSV()">
-                        <i class="fas fa-file-csv me-2"></i>Export to CSV
+                        <i class="fas fa-file-csv me-2"></i><?php echo __('export_to_csv'); ?>
                     </a>
                     <a class="dropdown-item" href="#" onclick="exportToPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        <i class="fas fa-file-pdf me-2"></i><?php echo __('export_to_pdf'); ?>
                     </a>
                 </div>
             </div>
@@ -273,10 +273,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             <?php if (empty($employees)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No employees found</h5>
-                    <p class="text-gray-400">Add your first employee to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_employees_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_employee_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Add Employee
+                        <i class="fas fa-user-plus"></i> <?php echo __('add_employee'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -284,14 +284,14 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <table class="table table-bordered datatable" id="employeesTable">
                         <thead>
                             <tr>
-                                <th>Employee Code</th>
-                                <th>Name</th>
-                                <th>Position</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th><?php echo __('employee_code'); ?></th>
+                                <th><?php echo __('name'); ?></th>
+                                <th><?php echo __('position'); ?></th>
+                                <th><?php echo __('email'); ?></th>
+                                <th><?php echo __('phone'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('created'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -325,7 +325,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                             <?php echo htmlspecialchars($employee['user_email']); ?>
                                         </a>
                                     <?php else: ?>
-                                        <span class="text-muted">No email</span>
+                                        <span class="text-muted"><?php echo __('no_email'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -334,7 +334,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                             <?php echo htmlspecialchars($employee['phone']); ?>
                                         </a>
                                     <?php else: ?>
-                                        <span class="text-muted">No phone</span>
+                                        <span class="text-muted"><?php echo __('no_phone'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -380,7 +380,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         <?php if ($page > 1): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&position=<?php echo urlencode($position_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                    Previous
+                                                                            <?php echo __('previous'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -396,7 +396,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         <?php if ($page < $total_pages): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&position=<?php echo urlencode($position_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                    Next
+                                                                            <?php echo __('next'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Confirm delete function
 function confirmDelete(employeeId, employeeName) {
-    if (confirm(`Are you sure you want to delete employee "${employeeName}"? This action cannot be undone.`)) {
+    if (confirm(`<?php echo __('confirm_delete_employee'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
         window.location.href = `index.php?delete=${employeeId}`;
     }
 }
@@ -463,7 +463,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-    alert('PDF export feature coming soon!');
+    alert('<?php echo __('pdf_export_feature_coming_soon'); ?>');
 }
 </script>
 
