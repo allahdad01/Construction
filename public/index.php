@@ -45,7 +45,7 @@ $current_settings = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction SaaS Platform - Advanced Construction Management</title>
+    <title><?php echo __('construction_saas_platform_title'); ?></title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -830,7 +830,7 @@ $current_settings = [
                     <!-- Login Button -->
                     <div class="d-flex gap-2">
                         <a href="../login.php" class="btn btn-construction btn-sm">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                            <i class="fas fa-sign-in-alt me-1"></i><?php echo __('login'); ?>
                         </a>
                     </div>
                 </div>
@@ -860,18 +860,17 @@ $current_settings = [
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-content" data-aos="fade-right">
-                    <h1 class="hero-title">Construction SaaS Platform</h1>
-                    <p class="hero-subtitle">Advanced Construction Management Solution</p>
+                    <h1 class="hero-title"><?php echo __('construction_saas_platform'); ?></h1>
+                    <p class="hero-subtitle"><?php echo __('advanced_construction_management_solution'); ?></p>
                     <p class="hero-description">
-                        Streamline your construction projects with our comprehensive SaaS platform. 
-                        Manage employees, machines, contracts, and finances all in one place.
+                        <?php echo __('hero_description'); ?>
                     </p>
                     <div class="d-flex gap-3 flex-wrap">
                         <a href="../login.php" class="btn btn-construction">
-                            <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                            <i class="fas fa-sign-in-alt me-2"></i><?php echo __('get_started'); ?>
                         </a>
                         <a href="#features" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-play me-2"></i>Learn More
+                            <i class="fas fa-play me-2"></i><?php echo __('learn_more'); ?>
                         </a>
                     </div>
                 </div>
@@ -880,8 +879,8 @@ $current_settings = [
                         <div class="position-relative">
                             <div class="bg-white bg-opacity-10 rounded-4 p-5 backdrop-blur">
                                 <i class="fas fa-chart-line fa-5x text-white mb-4"></i>
-                                <h3 class="text-white mb-3">Real-time Analytics</h3>
-                                <p class="text-white-50">Monitor your construction projects with advanced analytics and reporting tools.</p>
+                                <h3 class="text-white mb-3"><?php echo __('real_time_analytics'); ?></h3>
+                                <p class="text-white-50"><?php echo __('real_time_analytics_description'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -895,8 +894,8 @@ $current_settings = [
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">Powerful Features</h2>
-                    <p class="lead text-muted">Everything you need to manage your construction business</p>
+                    <h2 class="display-4 fw-bold mb-4"><?php echo __('powerful_features'); ?></h2>
+                    <p class="lead text-muted"><?php echo __('features_description'); ?></p>
                 </div>
             </div>
             
@@ -906,8 +905,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h4 class="mb-3">Employee Management</h4>
-                        <p class="text-muted">Track employee attendance, salaries, and performance with advanced HR tools.</p>
+                        <h4 class="mb-3"><?php echo __('employee_management'); ?></h4>
+                        <p class="text-muted"><?php echo __('employee_management_description'); ?></p>
                     </div>
                 </div>
                 
@@ -916,8 +915,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-truck"></i>
                         </div>
-                        <h4 class="mb-3">Machine Management</h4>
-                        <p class="text-muted">Monitor equipment usage, maintenance schedules, and operational costs.</p>
+                        <h4 class="mb-3"><?php echo __('machine_management'); ?></h4>
+                        <p class="text-muted"><?php echo __('machine_management_description'); ?></p>
                     </div>
                 </div>
                 
@@ -926,8 +925,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-file-contract"></i>
                         </div>
-                        <h4 class="mb-3">Contract Management</h4>
-                        <p class="text-muted">Manage project contracts, track progress, and handle payments efficiently.</p>
+                        <h4 class="mb-3"><?php echo __('contract_management'); ?></h4>
+                        <p class="text-muted"><?php echo __('contract_management_description'); ?></p>
                     </div>
                 </div>
                 
@@ -936,8 +935,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-chart-pie"></i>
                         </div>
-                        <h4 class="mb-3">Financial Analytics</h4>
-                        <p class="text-muted">Comprehensive financial reporting and expense tracking for better decision making.</p>
+                        <h4 class="mb-3"><?php echo __('financial_analytics'); ?></h4>
+                        <p class="text-muted"><?php echo __('financial_analytics_description'); ?></p>
                     </div>
                 </div>
                 
@@ -946,8 +945,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-globe"></i>
                         </div>
-                        <h4 class="mb-3">Multi-tenant SaaS</h4>
-                        <p class="text-muted">Secure, scalable platform supporting multiple construction companies.</p>
+                        <h4 class="mb-3"><?php echo __('multi_tenant_saas'); ?></h4>
+                        <p class="text-muted"><?php echo __('multi_tenant_saas_description'); ?></p>
                     </div>
                 </div>
                 
@@ -956,8 +955,8 @@ $current_settings = [
                         <div class="feature-icon">
                             <i class="fas fa-mobile-alt"></i>
                         </div>
-                        <h4 class="mb-3">Mobile Responsive</h4>
-                        <p class="text-muted">Access your construction data anywhere, anytime with our mobile-friendly interface.</p>
+                        <h4 class="mb-3"><?php echo __('mobile_responsive'); ?></h4>
+                        <p class="text-muted"><?php echo __('mobile_responsive_description'); ?></p>
                     </div>
                 </div>
             </div>
@@ -969,8 +968,8 @@ $current_settings = [
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">Choose Your Plan</h2>
-                    <p class="lead text-muted">Flexible pricing plans designed for construction companies of all sizes</p>
+                    <h2 class="display-4 fw-bold mb-4"><?php echo __('choose_your_plan'); ?></h2>
+                    <p class="lead text-muted"><?php echo __('pricing_description'); ?></p>
                 </div>
             </div>
             
@@ -990,7 +989,7 @@ $current_settings = [
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="<?php echo $delay; ?>">
                     <div class="pricing-card <?php echo $is_popular ? 'featured' : ''; ?>">
                         <?php if ($is_popular): ?>
-                        <div class="popular-badge">Most Popular</div>
+                        <div class="popular-badge"><?php echo __('most_popular'); ?></div>
                         <?php endif; ?>
                         <div class="pricing-header">
                             <h3 class="plan-name"><?php echo htmlspecialchars($plan['plan_name']); ?></h3>
@@ -1009,7 +1008,7 @@ $current_settings = [
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn <?php echo $is_popular ? 'btn-primary' : 'btn-outline-primary'; ?> btn-lg w-100">Get Started</a>
+                            <a href="../login.php" class="btn <?php echo $is_popular ? 'btn-primary' : 'btn-outline-primary'; ?> btn-lg w-100"><?php echo __('get_started'); ?></a>
                         </div>
                     </div>
                 </div>
@@ -1021,23 +1020,23 @@ $current_settings = [
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="pricing-card">
                         <div class="pricing-header">
-                            <h3 class="plan-name">Basic</h3>
+                            <h3 class="plan-name"><?php echo __('basic'); ?></h3>
                             <div class="price">
                                 <span class="currency">$</span>
                                 <span class="amount">99</span>
                                 <span class="period">/month</span>
                             </div>
-                            <p class="plan-description">Perfect for small construction companies</p>
+                            <p class="plan-description"><?php echo __('basic_plan_description'); ?></p>
                         </div>
                         <div class="pricing-features">
                             <ul class="feature-list">
-                                <li><i class="fas fa-check text-success me-2"></i>Up to 10 employees</li>
-                                <li><i class="fas fa-check text-success me-2"></i>25 machines</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Basic reporting</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Email support</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
-                                <li><i class="fas fa-times text-muted me-2"></i>Advanced analytics</li>
-                                <li><i class="fas fa-times text-muted me-2"></i>Priority support</li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('up_to_10_employees'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('25_machines'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('basic_reporting'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('email_support'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('mobile_app_access'); ?></li>
+                                <li><i class="fas fa-times text-muted me-2"></i><?php echo __('advanced_analytics'); ?></li>
+                                <li><i class="fas fa-times text-muted me-2"></i><?php echo __('priority_support'); ?></li>
                             </ul>
                         </div>
                         <div class="pricing-footer">
@@ -1048,29 +1047,29 @@ $current_settings = [
                 
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
                     <div class="pricing-card featured">
-                        <div class="popular-badge">Most Popular</div>
+                        <div class="popular-badge"><?php echo __('most_popular'); ?></div>
                         <div class="pricing-header">
-                            <h3 class="plan-name">Professional</h3>
+                            <h3 class="plan-name"><?php echo __('professional'); ?></h3>
                             <div class="price">
                                 <span class="currency">$</span>
                                 <span class="amount">199</span>
                                 <span class="period">/month</span>
                             </div>
-                            <p class="plan-description">Ideal for growing construction businesses</p>
+                            <p class="plan-description"><?php echo __('professional_plan_description'); ?></p>
                         </div>
                         <div class="pricing-features">
                             <ul class="feature-list">
-                                <li><i class="fas fa-check text-success me-2"></i>Up to 50 employees</li>
-                                <li><i class="fas fa-check text-success me-2"></i>100 machines</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Advanced reporting</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
-                                <li><i class="fas fa-check text-success me-2"></i>API access</li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('up_to_50_employees'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('100_machines'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('advanced_reporting'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('priority_support'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('mobile_app_access'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('advanced_analytics'); ?></li>
+                                <li><i class="fas fa-check text-success me-2"></i><?php echo __('api_access'); ?></li>
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn btn-primary btn-lg w-100">Get Started</a>
+                            <a href="../login.php" class="btn btn-primary btn-lg w-100"><?php echo __('get_started'); ?></a>
                         </div>
                     </div>
                 </div>
