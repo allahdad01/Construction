@@ -37,11 +37,7 @@ try {
 }
 
 // Export functionality
-if (isset($_GET['export']) && $_GET['export'] === 'true') {
-    $export_format = $_GET['format'] ?? 'pdf';
-    exportReport($conn, $report_type, $start_date, $end_date, $export_format, $is_super_admin, $company_id);
-    exit;
-}
+// Export functionality is now handled by JavaScript
 
 // Helper functions for statistics
 function getSystemWideStats($conn, $start_date, $end_date) {

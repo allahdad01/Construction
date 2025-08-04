@@ -731,9 +731,19 @@ date_default_timezone_set($company_timezone);
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><h6 class="dropdown-header">Notifications</h6></li>
-                                <li><a class="dropdown-item" href="#">New contract assigned</a></li>
-                                <li><a class="dropdown-item" href="#">Payment received</a></li>
-                                <li><a class="dropdown-item" href="#">System maintenance</a></li>
+                                <li><a class="dropdown-item" href="/constract360/construction/public/contracts/">
+                                    <i class="fas fa-file-contract me-2"></i>New contract assigned
+                                </a></li>
+                                <li><a class="dropdown-item" href="/constract360/construction/public/salary-payments/">
+                                    <i class="fas fa-money-bill me-2"></i>Payment received
+                                </a></li>
+                                <li><a class="dropdown-item" href="/constract360/construction/public/settings/">
+                                    <i class="fas fa-cog me-2"></i>System maintenance
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
+                                    <small class="text-muted">Mark all as read</small>
+                                </a></li>
                             </ul>
                         </div>
                         
@@ -779,3 +789,29 @@ date_default_timezone_set($company_timezone);
 
         <!-- Page Content -->
         <div class="container-fluid p-4">
+        
+        <script>
+        function markAllAsRead() {
+            // Hide the notification badge
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+            
+            // Show a success message
+            const toast = document.createElement('div');
+            toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+            toast.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                All notifications marked as read
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        </script>
