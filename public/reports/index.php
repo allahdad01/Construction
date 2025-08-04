@@ -33,7 +33,7 @@ try {
         $chart_data = getCompanyChartData($conn, $company_id, $start_date, $end_date);
     }
 } catch (Exception $e) {
-    $error = "Error loading reports: " . $e->getMessage();
+    $error = __('error_loading_reports') . ": " . $e->getMessage();
 }
 
 // Export functionality
@@ -243,17 +243,17 @@ function exportReport(report_type, format) {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-chart-bar"></i> Reports & Analytics
+            <i class="fas fa-chart-bar"></i> <?php echo __('reports_analytics'); ?>
         </h1>
         <div class="d-flex">
             <button class="btn btn-success mr-2" onclick="exportReport('overview', 'pdf')">
-                <i class="fas fa-file-pdf"></i> Export PDF
+                <i class="fas fa-file-pdf"></i> <?php echo __('export_pdf'); ?>
             </button>
             <button class="btn btn-info mr-2" onclick="exportReport('overview', 'excel')">
-                <i class="fas fa-file-excel"></i> Export Excel
+                <i class="fas fa-file-excel"></i> <?php echo __('export_excel'); ?>
             </button>
             <button class="btn btn-secondary" onclick="exportReport('overview', 'csv')">
-                <i class="fas fa-file-csv"></i> Export CSV
+                <i class="fas fa-file-csv"></i> <?php echo __('export_csv'); ?>
             </button>
         </div>
     </div>
@@ -261,34 +261,34 @@ function exportReport(report_type, format) {
     <!-- Filters -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Report Filters</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('report_filters'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row">
                 <div class="col-md-3">
-                    <label for="start_date">Start Date</label>
+                    <label for="start_date"><?php echo __('start_date'); ?></label>
                     <input type="date" class="form-control" id="start_date" name="start_date" 
                            value="<?php echo htmlspecialchars($start_date); ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="end_date">End Date</label>
+                    <label for="end_date"><?php echo __('end_date'); ?></label>
                     <input type="date" class="form-control" id="end_date" name="end_date" 
                            value="<?php echo htmlspecialchars($end_date); ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="type">Report Type</label>
+                    <label for="type"><?php echo __('report_type'); ?></label>
                     <select class="form-control" id="type" name="type">
-                        <option value="overview" <?php echo $report_type === 'overview' ? 'selected' : ''; ?>>Overview</option>
-                        <option value="financial" <?php echo $report_type === 'financial' ? 'selected' : ''; ?>>Financial</option>
-                        <option value="employee" <?php echo $report_type === 'employee' ? 'selected' : ''; ?>>Employee</option>
-                        <option value="contract" <?php echo $report_type === 'contract' ? 'selected' : ''; ?>>Contract</option>
-                        <option value="machine" <?php echo $report_type === 'machine' ? 'selected' : ''; ?>>Machine</option>
+                        <option value="overview" <?php echo $report_type === 'overview' ? 'selected' : ''; ?>><?php echo __('overview'); ?></option>
+                        <option value="financial" <?php echo $report_type === 'financial' ? 'selected' : ''; ?>><?php echo __('financial'); ?></option>
+                        <option value="employee" <?php echo $report_type === 'employee' ? 'selected' : ''; ?>><?php echo __('employee'); ?></option>
+                        <option value="contract" <?php echo $report_type === 'contract' ? 'selected' : ''; ?>><?php echo __('contract'); ?></option>
+                        <option value="machine" <?php echo $report_type === 'machine' ? 'selected' : ''; ?>><?php echo __('machine'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label>&nbsp;</label>
                     <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-search"></i> Generate Report
+                        <i class="fas fa-search"></i> <?php echo __('generate_report'); ?>
                     </button>
                 </div>
             </form>
@@ -308,8 +308,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Companies</div>
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                <?php echo __('total_companies'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo number_format($stats['total_companies'] ?? 0); ?>
                                 </div>
@@ -327,8 +327,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Active Subscriptions</div>
+                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <?php echo __('active_subscriptions'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo number_format($stats['active_subscriptions'] ?? 0); ?>
                                 </div>
@@ -346,8 +346,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Total Revenue</div>
+                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                <?php echo __('total_revenue'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo formatCurrency($stats['total_revenue'] ?? 0); ?>
                                 </div>
@@ -365,8 +365,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Hours</div>
+                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                <?php echo __('total_hours'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo number_format($stats['total_hours'] ?? 0, 1); ?>
                                 </div>
@@ -385,8 +385,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Employees</div>
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                <?php echo __('total_employees'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo number_format($stats['total_employees'] ?? 0); ?>
                                 </div>
@@ -404,8 +404,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Total Earnings</div>
+                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <?php echo __('total_earnings'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo formatCurrency($stats['total_earnings'] ?? 0); ?>
                                 </div>
@@ -423,8 +423,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Total Hours</div>
+                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                <?php echo __('total_hours'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo number_format($stats['total_hours'] ?? 0, 1); ?>
                                 </div>
@@ -442,8 +442,8 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Expenses</div>
+                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                <?php echo __('total_expenses'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     <?php echo formatCurrency($stats['total_expenses'] ?? 0); ?>
                                 </div>
@@ -465,7 +465,7 @@ function exportReport(report_type, format) {
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <?php echo $is_super_admin ? 'Revenue Trend' : 'Earnings Trend'; ?>
+                        <?php echo $is_super_admin ? __('revenue_trend') : __('earnings_trend'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -480,7 +480,7 @@ function exportReport(report_type, format) {
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Working Hours</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('working_hours'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
@@ -496,7 +496,7 @@ function exportReport(report_type, format) {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Detailed Report</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('detailed_report'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if ($report_type === 'financial'): ?>
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?php echo json_encode(array_column($chart_data['revenue_trend'] ?? $chart_data['earnings_trend'] ?? [], 'date')); ?>,
             datasets: [{
-                label: '<?php echo $is_super_admin ? 'Revenue' : 'Earnings'; ?>',
+                label: '<?php echo $is_super_admin ? __('revenue') : __('earnings'); ?>',
                 data: <?php echo json_encode(array_column($chart_data['revenue_trend'] ?? $chart_data['earnings_trend'] ?? [], $is_super_admin ? 'revenue' : 'earnings')); ?>,
                 borderColor: 'rgb(78, 115, 223)',
                 backgroundColor: 'rgba(78, 115, 223, 0.05)',
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hoursChart = new Chart(hoursCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Worked', 'Remaining'],
+            labels: ['<?php echo __('worked'); ?>', '<?php echo __('remaining'); ?>'],
             datasets: [{
                 data: [<?php echo $stats['total_hours'] ?? 0; ?>, 100],
                 backgroundColor: ['#4e73df', '#858796'],
