@@ -76,10 +76,30 @@ foreach ($companies as &$company) {
     $stmt->execute([$company['id']]);
     $company['machine_count'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
-    // Get total payments
-    $stmt = $conn->prepare("SELECT SUM(amount) as total FROM company_payments WHERE company_id = ? AND payment_status = 'completed'");
+    // Get total payments by currency
+    $stmt = $conn->prepare("
+        SELECT currency, SUM(amount) as total 
+        FROM company_payments 
+        WHERE company_id = ? AND payment_status = 'completed'
+        GROUP BY currency
+    ");
     $stmt->execute([$company['id']]);
-    $company['total_payments'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+    $payments_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Calculate totals by currency
+    $total_usd = 0;
+    $total_afn = 0;
+    
+    foreach ($payments_by_currency as $payment) {
+        if ($payment['currency'] === 'USD') {
+            $total_usd += $payment['total'];
+        } elseif ($payment['currency'] === 'AFN') {
+            $total_afn += $payment['total'];
+        }
+    }
+    
+    $company['total_payments_usd'] = $total_usd;
+    $company['total_payments_afn'] = $total_afn;
 }
 ?>
 
@@ -189,7 +209,17 @@ foreach ($companies as &$company) {
                                                 <?php echo ucfirst($company['subscription_plan']); ?>
                                             </span>
                                             <br><small class="text-muted">
-                                                <?php echo formatCurrency($company['total_payments']); ?> paid
+                                                <?php 
+                                                if ($company['total_payments_usd'] > 0 && $company['total_payments_afn'] > 0) {
+                                                    echo formatCurrencyAmount($company['total_payments_usd'], 'USD') . ' + ' . formatCurrencyAmount($company['total_payments_afn'], 'AFN');
+                                                } elseif ($company['total_payments_usd'] > 0) {
+                                                    echo formatCurrencyAmount($company['total_payments_usd'], 'USD');
+                                                } elseif ($company['total_payments_afn'] > 0) {
+                                                    echo formatCurrencyAmount($company['total_payments_afn'], 'AFN');
+                                                } else {
+                                                    echo 'No payments';
+                                                }
+                                                ?> paid
                                             </small>
                                         </div>
                                     </td>
