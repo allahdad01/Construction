@@ -25,14 +25,14 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $active_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         
         if ($active_contracts > 0) {
-            throw new Exception("Cannot delete rental. It has $active_contracts active contracts.");
+            throw new Exception(__('cannot_delete_rental_has_active_contracts', ['count' => $active_contracts]));
         }
         
         // Delete area rental
         $stmt = $conn->prepare("DELETE FROM area_rentals WHERE id = ? AND company_id = ?");
         $stmt->execute([$rental_id, $company_id]);
         
-        $success = 'Area rental deleted successfully!';
+        $success = __('area_rental_deleted_successfully');
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -114,10 +114,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-map-marker-alt"></i> Area Rentals
+            <i class="fas fa-map-marker-alt"></i> <?php echo __('area_rentals'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Rental Area
+            <i class="fas fa-plus"></i> <?php echo __('add_rental_area'); ?>
         </a>
     </div>
 
@@ -137,7 +137,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Rentals
+                                <?php echo __('total_rentals'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_rentals']; ?></div>
                         </div>
@@ -155,7 +155,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Available
+                                <?php echo __('available'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['available_rentals']; ?></div>
                         </div>
@@ -173,7 +173,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Rented
+                                <?php echo __('rented'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['rented_rentals']; ?></div>
                         </div>
@@ -191,7 +191,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Value
+                                <?php echo __('total_value'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($stats['total_value'], 2); ?></div>
                         </div>
@@ -207,44 +207,44 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Filters and Search -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('filters'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-4">
-                    <label for="search" class="form-label">Search</label>
+                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" id="search" name="search" 
                            value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by name, code, or location">
+                           placeholder="<?php echo __('search_by_name_code_or_location'); ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>Available</option>
-                        <option value="rented" <?php echo $status_filter === 'rented' ? 'selected' : ''; ?>>Rented</option>
-                        <option value="maintenance" <?php echo $status_filter === 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>><?php echo __('available'); ?></option>
+                        <option value="rented" <?php echo $status_filter === 'rented' ? 'selected' : ''; ?>><?php echo __('rented'); ?></option>
+                        <option value="maintenance" <?php echo $status_filter === 'maintenance' ? 'selected' : ''; ?>><?php echo __('maintenance'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="type" class="form-label">Type</label>
+                    <label for="type" class="form-label"><?php echo __('type'); ?></label>
                     <select class="form-control" id="type" name="type">
-                        <option value="">All Types</option>
-                        <option value="warehouse" <?php echo $type_filter === 'warehouse' ? 'selected' : ''; ?>>Warehouse</option>
-                        <option value="office" <?php echo $type_filter === 'office' ? 'selected' : ''; ?>>Office</option>
-                        <option value="parking" <?php echo $type_filter === 'parking' ? 'selected' : ''; ?>>Parking</option>
-                        <option value="land" <?php echo $type_filter === 'land' ? 'selected' : ''; ?>>Land</option>
-                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>>Other</option>
+                        <option value=""><?php echo __('all_types'); ?></option>
+                        <option value="warehouse" <?php echo $type_filter === 'warehouse' ? 'selected' : ''; ?>><?php echo __('warehouse'); ?></option>
+                        <option value="office" <?php echo $type_filter === 'office' ? 'selected' : ''; ?>><?php echo __('office'); ?></option>
+                        <option value="parking" <?php echo $type_filter === 'parking' ? 'selected' : ''; ?>><?php echo __('parking'); ?></option>
+                        <option value="land" <?php echo $type_filter === 'land' ? 'selected' : ''; ?>><?php echo __('land'); ?></option>
+                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search"></i> Search
+                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
                         </button>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                         </a>
                     </div>
                 </div>
@@ -255,18 +255,18 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Area Rentals Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Area Rentals List</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('area_rentals_list'); ?></h6>
             <div class="dropdown no-arrow">
                 <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                    <div class="dropdown-header">Export Options:</div>
+                    <div class="dropdown-header"><?php echo __('export_options'); ?>:</div>
                     <a class="dropdown-item" href="#" onclick="exportToCSV()">
-                        <i class="fas fa-file-csv me-2"></i>Export to CSV
+                        <i class="fas fa-file-csv me-2"></i><?php echo __('export_to_csv'); ?>
                     </a>
                     <a class="dropdown-item" href="#" onclick="exportToPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        <i class="fas fa-file-pdf me-2"></i><?php echo __('export_to_pdf'); ?>
                     </a>
                 </div>
             </div>
@@ -275,10 +275,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             <?php if (empty($area_rentals)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-map-marker-alt fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No area rentals found</h5>
-                    <p class="text-gray-400">Add your first rental area to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_area_rentals_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_rental_area_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Rental Area
+                        <i class="fas fa-plus"></i> <?php echo __('add_rental_area'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -286,14 +286,14 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <table class="table table-bordered datatable" id="rentalsTable">
                         <thead>
                             <tr>
-                                <th>Area Name</th>
-                                <th>Type</th>
-                                <th>Location</th>
-                                <th>Rate</th>
-                                <th>Status</th>
-                                <th>Contracts</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th><?php echo __('area_name'); ?></th>
+                                <th><?php echo __('type'); ?></th>
+                                <th><?php echo __('location'); ?></th>
+                                <th><?php echo __('rate'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('contracts'); ?></th>
+                                <th><?php echo __('created'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -319,7 +319,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                 <td>
                                     <div class="text-center">
                                         <h6 class="text-success mb-0">$<?php echo number_format($rental['monthly_rate'], 2); ?></h6>
-                                        <small class="text-muted">per month</small>
+                                        <small class="text-muted"><?php echo __('per_month'); ?></small>
                                     </div>
                                 </td>
                                 <td>
@@ -330,7 +330,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                 <td>
                                     <div class="text-center">
                                         <h6 class="mb-0"><?php echo $rental['contract_count']; ?></h6>
-                                        <small class="text-muted"><?php echo $rental['active_contracts']; ?> active</small>
+                                        <small class="text-muted"><?php echo $rental['active_contracts']; ?> <?php echo __('active'); ?></small>
                                     </div>
                                 </td>
                                 <td>
@@ -371,7 +371,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         <?php if ($page > 1): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
-                                    Previous
+                                                                            <?php echo __('previous'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -387,7 +387,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                         <?php if ($page < $total_pages): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
-                                    Next
+                                                                            <?php echo __('next'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Confirm delete function
 function confirmDelete(rentalId, rentalName) {
-    if (confirm(`Are you sure you want to delete area rental "${rentalName}"? This action cannot be undone.`)) {
+    if (confirm(`<?php echo __('confirm_delete_area_rental'); ?> "${rentalName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
         window.location.href = `index.php?delete=${rentalId}`;
     }
 }
@@ -452,7 +452,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-    alert('PDF export feature coming soon!');
+    alert('<?php echo __('pdf_export_feature_coming_soon'); ?>');
 }
 </script>
 
