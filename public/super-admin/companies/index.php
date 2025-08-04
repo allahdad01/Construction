@@ -105,49 +105,49 @@ foreach ($companies as &$company) {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Manage Companies</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('manage_companies'); ?></h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add Company
+            <i class="fas fa-plus"></i> <?php echo __('add_company'); ?>
         </a>
     </div>
 
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by company name, email, or code" 
+                           placeholder="<?php echo __('search_by_company_name_email_code'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="trial" <?php echo $status_filter === 'trial' ? 'selected' : ''; ?>>Trial</option>
-                        <option value="suspended" <?php echo $status_filter === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
-                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                        <option value="trial" <?php echo $status_filter === 'trial' ? 'selected' : ''; ?>><?php echo __('trial'); ?></option>
+                        <option value="suspended" <?php echo $status_filter === 'suspended' ? 'selected' : ''; ?>><?php echo __('suspended'); ?></option>
+                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="plan">
-                        <option value="">All Plans</option>
-                        <option value="basic" <?php echo $plan_filter === 'basic' ? 'selected' : ''; ?>>Basic</option>
-                        <option value="professional" <?php echo $plan_filter === 'professional' ? 'selected' : ''; ?>>Professional</option>
-                        <option value="enterprise" <?php echo $plan_filter === 'enterprise' ? 'selected' : ''; ?>>Enterprise</option>
+                        <option value=""><?php echo __('all_plans'); ?></option>
+                        <option value="basic" <?php echo $plan_filter === 'basic' ? 'selected' : ''; ?>><?php echo __('basic'); ?></option>
+                        <option value="professional" <?php echo $plan_filter === 'professional' ? 'selected' : ''; ?>><?php echo __('professional'); ?></option>
+                        <option value="enterprise" <?php echo $plan_filter === 'enterprise' ? 'selected' : ''; ?>><?php echo __('enterprise'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                 </div>
                 <div class="col-md-2">
                     <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -157,15 +157,15 @@ foreach ($companies as &$company) {
     <!-- Companies Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Company List</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_list'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($companies)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-building fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No companies found.</p>
+                    <p class="text-gray-500"><?php echo __('no_companies_found'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Company
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_company'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -173,14 +173,14 @@ foreach ($companies as &$company) {
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Company Code</th>
-                                <th>Company Name</th>
-                                <th>Contact</th>
-                                <th>Subscription</th>
-                                <th>Usage</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th><?php echo __('company_code'); ?></th>
+                                <th><?php echo __('company_name'); ?></th>
+                                <th><?php echo __('contact'); ?></th>
+                                <th><?php echo __('subscription'); ?></th>
+                                <th><?php echo __('usage'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('created'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -372,7 +372,7 @@ foreach ($companies as &$company) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Companies</div>
+                                <?php echo __('total_companies'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_records; ?></div>
                         </div>
                         <div class="col-auto">
@@ -389,7 +389,7 @@ foreach ($companies as &$company) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Companies</div>
+                                <?php echo __('active_companies'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -406,7 +406,7 @@ foreach ($companies as &$company) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Trial Companies</div>
+                                <?php echo __('trial_companies'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $trial_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -423,7 +423,7 @@ foreach ($companies as &$company) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Revenue</div>
+                                <?php echo __('total_revenue'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php 
                                 if ($total_revenue_usd > 0 && $total_revenue_afn > 0) {
