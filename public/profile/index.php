@@ -132,7 +132,7 @@ if (isset($_POST['change_password'])) {
 
 // Get user details with employee information if applicable
 $stmt = $conn->prepare("
-    SELECT u.*, e.phone, e.address, e.employee_code, e.position, e.monthly_salary, e.daily_rate
+    SELECT u.*, e.phone, e.employee_code, e.position, e.monthly_salary, e.daily_rate
     FROM users u
     LEFT JOIN employees e ON u.id = e.user_id AND e.company_id = ?
     WHERE u.id = ?

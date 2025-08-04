@@ -231,91 +231,12 @@ function getCompanyChartData($conn, $company_id, $start_date, $end_date) {
     return $chart_data;
 }
 
-function exportReport($conn, $report_type, $start_date, $end_date, $format, $is_super_admin, $company_id) {
-    // Set headers for download
-    $filename = "construction_report_{$report_type}_{$start_date}_to_{$end_date}";
+function exportReport($report_type, $format) {
+    $start_date = $_GET['start_date'] ?? date('Y-m-01');
+    $end_date = $_GET['end_date'] ?? date('Y-m-d');
     
-    if ($format === 'pdf') {
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="' . $filename . '.pdf"');
-        generatePDFReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id);
-    } elseif ($format === 'excel') {
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment; filename="' . $filename . '.xlsx"');
-        generateExcelReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id);
-    } elseif ($format === 'csv') {
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
-        generateCSVReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id);
-    }
-}
-
-function generatePDFReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id) {
-    // This would require a PDF library like TCPDF or FPDF
-    // For now, we'll generate HTML that can be converted to PDF
-    echo "<html><body>";
-    echo "<h1>Construction Report</h1>";
-    echo "<p>Report Type: " . ucfirst($report_type) . "</p>";
-    echo "<p>Period: {$start_date} to {$end_date}</p>";
-    echo "<p>Generated: " . date('Y-m-d H:i:s') . "</p>";
-    echo "</body></html>";
-}
-
-function generateExcelReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id) {
-    // This would require a library like PhpSpreadsheet
-    // For now, we'll generate CSV format
-    generateCSVReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id);
-}
-
-function generateCSVReport($conn, $report_type, $start_date, $end_date, $is_super_admin, $company_id) {
-    $output = fopen('php://output', 'w');
-    
-    if ($report_type === 'financial') {
-        // Financial report headers
-        fputcsv($output, ['Date', 'Revenue', 'Expenses', 'Net Income']);
-        
-        // Get financial data
-        $stmt = $conn->prepare("
-            SELECT DATE(payment_date) as date, SUM(amount) as revenue
-            FROM company_payments 
-            WHERE payment_date BETWEEN ? AND ? AND status = 'completed'
-            GROUP BY DATE(payment_date)
-            ORDER BY date
-        ");
-        $stmt->execute([$start_date, $end_date]);
-        $revenue_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($revenue_data as $row) {
-            fputcsv($output, [$row['date'], $row['revenue'], 0, $row['revenue']]);
-        }
-    } elseif ($report_type === 'employee') {
-        // Employee report headers
-        fputcsv($output, ['Employee', 'Position', 'Working Hours', 'Salary']);
-        
-        // Get employee data
-        $stmt = $conn->prepare("
-            SELECT e.name, e.position, 
-                   SUM(wh.hours_worked) as total_hours, e.monthly_salary
-            FROM employees e
-            LEFT JOIN working_hours wh ON e.id = wh.employee_id 
-                AND wh.date BETWEEN ? AND ?
-            WHERE e.company_id = ? AND e.is_active = 1
-            GROUP BY e.id
-        ");
-        $stmt->execute([$start_date, $end_date, $company_id]);
-        $employee_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($employee_data as $row) {
-            fputcsv($output, [
-                $row['name'],
-                $row['position'],
-                $row['total_hours'] ?? 0,
-                $row['monthly_salary']
-            ]);
-        }
-    }
-    
-    fclose($output);
+    $url = "/constract360/construction/public/reports/export.php?type={$report_type}&format={$format}&start_date={$start_date}&end_date={$end_date}";
+    window.open(url, '_blank');
 }
 ?>
 
@@ -325,13 +246,13 @@ function generateCSVReport($conn, $report_type, $start_date, $end_date, $is_supe
             <i class="fas fa-chart-bar"></i> Reports & Analytics
         </h1>
         <div class="d-flex">
-            <button class="btn btn-success mr-2" onclick="exportReport('pdf')">
+            <button class="btn btn-success mr-2" onclick="exportReport('overview', 'pdf')">
                 <i class="fas fa-file-pdf"></i> Export PDF
             </button>
-            <button class="btn btn-info mr-2" onclick="exportReport('excel')">
+            <button class="btn btn-info mr-2" onclick="exportReport('overview', 'excel')">
                 <i class="fas fa-file-excel"></i> Export Excel
             </button>
-            <button class="btn btn-secondary" onclick="exportReport('csv')">
+            <button class="btn btn-secondary" onclick="exportReport('overview', 'csv')">
                 <i class="fas fa-file-csv"></i> Export CSV
             </button>
         </div>

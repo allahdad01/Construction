@@ -1,11 +1,12 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
-require_once '../../../includes/header.php';
 
 // Check if user is authenticated and is super admin
 requireAuth();
 requireRole(['super_admin']);
+
+require_once '../../../includes/header.php';
 ?>
 
 <div class="container-fluid">

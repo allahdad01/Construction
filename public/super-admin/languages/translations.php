@@ -50,12 +50,32 @@ $stmt = $conn->prepare("SELECT * FROM languages ORDER BY language_name");
 $stmt->execute();
 $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Get all available translation keys (from English as default)
+$stmt = $conn->prepare("SELECT DISTINCT translation_key FROM language_translations WHERE language_id = 1 ORDER BY translation_key");
+$stmt->execute();
+$all_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
 // Get translations for selected language
 $translations = [];
 if ($language_id) {
     $stmt = $conn->prepare("SELECT * FROM language_translations WHERE language_id = ? ORDER BY translation_key");
     $stmt->execute([$language_id]);
-    $translations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $existing_translations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Create a map of existing translations
+    $translation_map = [];
+    foreach ($existing_translations as $translation) {
+        $translation_map[$translation['translation_key']] = $translation['translation_value'];
+    }
+    
+    // Build complete translations array with all keys
+    foreach ($all_keys as $key) {
+        $translations[] = [
+            'translation_key' => $key,
+            'translation_value' => $translation_map[$key] ?? '',
+            'exists' => isset($translation_map[$key])
+        ];
+    }
 }
 
 // Get selected language details
@@ -179,17 +199,29 @@ if ($language_id) {
                                         <tr>
                                             <th>Translation Key</th>
                                             <th>Translation Value</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($translations as $translation): ?>
-                                            <tr>
+                                            <tr class="<?php echo $translation['exists'] ? '' : 'table-warning'; ?>">
                                                 <td>
                                                     <code><?php echo htmlspecialchars($translation['translation_key']); ?></code>
                                                 </td>
                                                 <td>
-                                                    <?php echo htmlspecialchars($translation['translation_value']); ?>
+                                                    <?php if ($translation['exists']): ?>
+                                                        <?php echo htmlspecialchars($translation['translation_value']); ?>
+                                                    <?php else: ?>
+                                                        <em class="text-muted">Not translated</em>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if ($translation['exists']): ?>
+                                                        <span class="badge bg-success">Translated</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-warning">Missing</span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group" role="group">
@@ -197,11 +229,13 @@ if ($language_id) {
                                                                 onclick="editTranslation('<?php echo htmlspecialchars($translation['translation_key']); ?>', '<?php echo htmlspecialchars($translation['translation_value']); ?>')">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <a href="delete-translation.php?id=<?php echo $translation['id']; ?>&language_id=<?php echo $language_id; ?>" 
-                                                           class="btn btn-sm btn-danger"
-                                                           onclick="return confirm('Are you sure you want to delete this translation?')">
-                                                            <i class="fas fa-trash"></i>
-                                                        </a>
+                                                        <?php if ($translation['exists']): ?>
+                                                            <a href="delete-translation.php?key=<?php echo urlencode($translation['translation_key']); ?>&language_id=<?php echo $language_id; ?>" 
+                                                               class="btn btn-sm btn-danger"
+                                                               onclick="return confirm('Are you sure you want to delete this translation?')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </td>
                                             </tr>
