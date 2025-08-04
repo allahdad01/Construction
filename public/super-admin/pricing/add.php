@@ -216,9 +216,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="mb-3">
                             <label for="features" class="form-label">Features</label>
-                            <textarea class="form-control" id="features" name="features" rows="6" 
-                                      placeholder="Enter features, one per line&#10;e.g.:&#10;Employee Management&#10;Machine Tracking&#10;Basic Reports&#10;Email Support"><?php echo htmlspecialchars($_POST['features'] ?? ''); ?></textarea>
-                            <small class="text-muted">Enter one feature per line</small>
+                            <textarea class="form-control" id="features" name="features" rows="8" 
+                                      placeholder="Enter features, one per line&#10;&#10;Example features:&#10;• Employee Management&#10;• Machine Tracking&#10;• Basic Reports&#10;• Email Support&#10;• Mobile Access&#10;• API Access"><?php echo htmlspecialchars($_POST['features'] ?? ''); ?></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Tip:</strong> Press Enter to add a new feature on the next line. Each line will become a separate feature.
+                            </div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addFeatureLine()">
+                                    <i class="fas fa-plus"></i> Add Feature Line
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="insertSampleFeatures()">
+                                    <i class="fas fa-magic"></i> Insert Sample Features
+                                </button>
+                            </div>
                         </div>
 
                         <hr>
@@ -263,6 +274,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </div>
+
+        <script>
+        // Function to add a new feature line
+        function addFeatureLine() {
+            const textarea = document.getElementById('features');
+            const currentValue = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            
+            // Add a new line at cursor position
+            const beforeCursor = currentValue.substring(0, cursorPos);
+            const afterCursor = currentValue.substring(cursorPos);
+            const newValue = beforeCursor + '\n' + afterCursor;
+            
+            textarea.value = newValue;
+            textarea.focus();
+            textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
+        }
+
+        // Function to insert sample features
+        function insertSampleFeatures() {
+            const textarea = document.getElementById('features');
+            const sampleFeatures = [
+                'Employee Management',
+                'Machine Tracking',
+                'Basic Reports',
+                'Email Support',
+                'Mobile Access',
+                'API Access',
+                'Customer Support',
+                'Data Backup'
+            ];
+            
+            textarea.value = sampleFeatures.join('\n');
+            textarea.focus();
+        }
+
+        // Auto-resize textarea as user types
+        document.getElementById('features').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+        </script>
 
         <div class="col-lg-4">
             <!-- Information Card -->
