@@ -23,7 +23,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $stmt = $conn->prepare("DELETE FROM employee_attendance WHERE id = ? AND company_id = ?");
         $stmt->execute([$attendance_id, $company_id]);
         
-        $success = 'Attendance record deleted successfully!';
+        $success = __('attendance_record_deleted_successfully');
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -114,10 +114,10 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-clock"></i> Employee Attendance
+            <i class="fas fa-clock"></i> <?php echo __('employee_attendance'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Attendance
+            <i class="fas fa-plus"></i> <?php echo __('add_attendance'); ?>
         </a>
     </div>
 
@@ -137,7 +137,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Records
+                                <?php echo __('total_records'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_records']; ?></div>
                         </div>
@@ -155,7 +155,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Present
+                                <?php echo __('present'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['present_count']; ?></div>
                         </div>
@@ -173,7 +173,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Late
+                                <?php echo __('late'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['late_count']; ?></div>
                         </div>
@@ -191,7 +191,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Absent
+                                <?php echo __('absent'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['absent_count']; ?></div>
                         </div>
@@ -207,20 +207,20 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Filters and Search -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('filters'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
-                    <label for="search" class="form-label">Search</label>
+                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" id="search" name="search" 
                            value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by employee name or code">
+                           placeholder="<?php echo __('search_by_employee_name_or_code'); ?>">
                 </div>
                 <div class="col-md-2">
-                    <label for="employee" class="form-label">Employee</label>
+                    <label for="employee" class="form-label"><?php echo __('employee'); ?></label>
                     <select class="form-control" id="employee" name="employee">
-                        <option value="">All Employees</option>
+                        <option value=""><?php echo __('all_employees'); ?></option>
                         <?php foreach ($employees as $employee): ?>
                         <option value="<?php echo $employee['id']; ?>" <?php echo $employee_filter == $employee['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($employee['name']); ?>
@@ -229,28 +229,28 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="date" class="form-label">Date</label>
+                    <label for="date" class="form-label"><?php echo __('date'); ?></label>
                     <input type="date" class="form-control" id="date" name="date" 
                            value="<?php echo htmlspecialchars($date_filter); ?>">
                 </div>
                 <div class="col-md-2">
-                    <label for="status" class="form-label">Status</label>
+                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="present" <?php echo $status_filter === 'present' ? 'selected' : ''; ?>>Present</option>
-                        <option value="absent" <?php echo $status_filter === 'absent' ? 'selected' : ''; ?>>Absent</option>
-                        <option value="late" <?php echo $status_filter === 'late' ? 'selected' : ''; ?>>Late</option>
-                        <option value="leave" <?php echo $status_filter === 'leave' ? 'selected' : ''; ?>>Leave</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="present" <?php echo $status_filter === 'present' ? 'selected' : ''; ?>><?php echo __('present'); ?></option>
+                        <option value="absent" <?php echo $status_filter === 'absent' ? 'selected' : ''; ?>><?php echo __('absent'); ?></option>
+                        <option value="late" <?php echo $status_filter === 'late' ? 'selected' : ''; ?>><?php echo __('late'); ?></option>
+                        <option value="leave" <?php echo $status_filter === 'leave' ? 'selected' : ''; ?>><?php echo __('leave'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search"></i> Search
+                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
                         </button>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
+                            <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                         </a>
                     </div>
                 </div>
@@ -261,18 +261,18 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Attendance Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Attendance Records</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('attendance_records'); ?></h6>
             <div class="dropdown no-arrow">
                 <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                    <div class="dropdown-header">Export Options:</div>
+                    <div class="dropdown-header"><?php echo __('export_options'); ?>:</div>
                     <a class="dropdown-item" href="#" onclick="exportToCSV()">
-                        <i class="fas fa-file-csv me-2"></i>Export to CSV
+                        <i class="fas fa-file-csv me-2"></i><?php echo __('export_to_csv'); ?>
                     </a>
                     <a class="dropdown-item" href="#" onclick="exportToPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        <i class="fas fa-file-pdf me-2"></i><?php echo __('export_to_pdf'); ?>
                     </a>
                 </div>
             </div>
@@ -281,10 +281,10 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if (empty($attendance_records)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-clock fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No attendance records found</h5>
-                    <p class="text-gray-400">Add your first attendance record to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_attendance_records_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_attendance_record_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Attendance
+                        <i class="fas fa-plus"></i> <?php echo __('add_attendance'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -292,14 +292,14 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered datatable" id="attendanceTable">
                         <thead>
                             <tr>
-                                <th>Employee</th>
-                                <th>Date</th>
-                                <th>Check In</th>
-                                <th>Check Out</th>
-                                <th>Hours</th>
-                                <th>Status</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
+                                <th><?php echo __('employee'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('check_in'); ?></th>
+                                <th><?php echo __('check_out'); ?></th>
+                                <th><?php echo __('hours'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -337,7 +337,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td>
                                     <div class="text-center">
                                         <h6 class="mb-0"><?php echo $record['hours_worked']; ?></h6>
-                                        <small class="text-muted">hours</small>
+                                        <small class="text-muted"><?php echo __('hours'); ?></small>
                                     </div>
                                 </td>
                                 <td>
@@ -384,7 +384,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if ($page > 1): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&employee=<?php echo urlencode($employee_filter); ?>&date=<?php echo urlencode($date_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                    Previous
+                                                                            <?php echo __('previous'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -400,7 +400,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if ($page < $total_pages): ?>
                             <li class="page-item">
                                 <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&employee=<?php echo urlencode($employee_filter); ?>&date=<?php echo urlencode($date_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                    Next
+                                                                            <?php echo __('next'); ?>
                                 </a>
                             </li>
                         <?php endif; ?>
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Confirm delete function
 function confirmDelete(attendanceId, employeeName) {
-    if (confirm(`Are you sure you want to delete attendance record for "${employeeName}"? This action cannot be undone.`)) {
+    if (confirm(`<?php echo __('confirm_delete_attendance_record'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
         window.location.href = `index.php?delete=${attendanceId}`;
     }
 }
@@ -465,7 +465,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-    alert('PDF export feature coming soon!');
+    alert('<?php echo __('pdf_export_feature_coming_soon'); ?>');
 }
 </script>
 
