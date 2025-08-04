@@ -71,7 +71,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1 class="h3 mb-4">Super Admin Dashboard</h1>
+            <h1 class="h3 mb-4"><?php echo __('super_admin_dashboard'); ?></h1>
         </div>
     </div>
 
@@ -83,7 +83,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Companies</div>
+                                <?php echo __('total_companies'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_companies; ?></div>
                         </div>
                         <div class="col-auto">
@@ -100,7 +100,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Subscriptions</div>
+                                <?php echo __('active_subscriptions'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_companies; ?></div>
                         </div>
                         <div class="col-auto">
@@ -117,7 +117,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Trial Companies</div>
+                                <?php echo __('trial_companies'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $trial_companies; ?></div>
                         </div>
                         <div class="col-auto">
@@ -134,7 +134,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Monthly Revenue</div>
+                                <?php echo __('monthly_revenue'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($monthly_revenue); ?></div>
                         </div>
                         <div class="col-auto">
@@ -151,28 +151,28 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <a href="companies/add.php" class="btn btn-primary btn-block">
-                                <i class="fas fa-plus"></i> Add Company
+                                <i class="fas fa-plus"></i> <?php echo __('add_company'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="subscription-plans/" class="btn btn-success btn-block">
-                                <i class="fas fa-list"></i> Manage Plans
+                                <i class="fas fa-list"></i> <?php echo __('manage_plans'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="payments/" class="btn btn-info btn-block">
-                                <i class="fas fa-money-bill"></i> View Payments
+                                <i class="fas fa-money-bill"></i> <?php echo __('view_payments'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="settings/" class="btn btn-warning btn-block">
-                                <i class="fas fa-cogs"></i> System Settings
+                                <i class="fas fa-cogs"></i> <?php echo __('system_settings'); ?>
                             </a>
                         </div>
                     </div>
@@ -186,11 +186,11 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Companies</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_companies'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_companies)): ?>
-                        <p class="text-muted">No companies found.</p>
+                        <p class="text-muted"><?php echo __('no_companies_found'); ?></p>
                     <?php else: ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($recent_companies as $company): ?>
@@ -218,7 +218,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php endforeach; ?>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="companies/" class="btn btn-primary btn-sm">View All Companies</a>
+                            <a href="companies/" class="btn btn-primary btn-sm"><?php echo __('view_all_companies'); ?></a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -228,11 +228,11 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Payments</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_payments'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_payments)): ?>
-                        <p class="text-muted">No payments found.</p>
+                        <p class="text-muted"><?php echo __('no_payments_found'); ?></p>
                     <?php else: ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($recent_payments as $payment): ?>
@@ -260,7 +260,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php endforeach; ?>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="payments/" class="btn btn-primary btn-sm">View All Payments</a>
+                            <a href="payments/" class="btn btn-primary btn-sm"><?php echo __('view_all_payments'); ?></a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -273,11 +273,11 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Subscription Plan Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('subscription_plan_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($plan_stats)): ?>
-                        <p class="text-muted">No subscription data available.</p>
+                        <p class="text-muted"><?php echo __('no_subscription_data_available'); ?></p>
                     <?php else: ?>
                         <div class="row">
                             <?php foreach ($plan_stats as $plan): ?>
@@ -287,9 +287,9 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <div class="row no-gutters align-items-center">
                                                 <div class="col mr-2">
                                                     <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                        <?php echo ucfirst($plan['subscription_plan']); ?> Plan</div>
+                                                        <?php echo ucfirst($plan['subscription_plan']); ?> <?php echo __('plan'); ?></div>
                                                     <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                        <?php echo $plan['count']; ?> companies
+                                                        <?php echo $plan['count']; ?> <?php echo __('companies'); ?>
                                                     </div>
                                                 </div>
                                                 <div class="col-auto">
@@ -312,33 +312,33 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">System Overview</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('system_overview'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>System Information</h6>
+                            <h6><?php echo __('system_information'); ?></h6>
                             <ul class="list-unstyled">
-                                <li><strong>Total Users:</strong> <?php echo $total_users; ?></li>
-                                <li><strong>Active Companies:</strong> <?php echo $active_companies; ?></li>
-                                <li><strong>Trial Companies:</strong> <?php echo $trial_companies; ?></li>
-                                <li><strong>Monthly Revenue:</strong> <?php echo formatCurrency($monthly_revenue); ?></li>
+                                <li><strong><?php echo __('total_users'); ?>:</strong> <?php echo $total_users; ?></li>
+                                <li><strong><?php echo __('active_companies'); ?>:</strong> <?php echo $active_companies; ?></li>
+                                <li><strong><?php echo __('trial_companies'); ?>:</strong> <?php echo $trial_companies; ?></li>
+                                <li><strong><?php echo __('monthly_revenue'); ?>:</strong> <?php echo formatCurrency($monthly_revenue); ?></li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6>Quick Links</h6>
+                            <h6><?php echo __('quick_links'); ?></h6>
                             <div class="list-group">
                                 <a href="companies/" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-building"></i> Manage Companies
+                                    <i class="fas fa-building"></i> <?php echo __('manage_companies'); ?>
                                 </a>
                                 <a href="subscription-plans/" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-list"></i> Subscription Plans
+                                    <i class="fas fa-list"></i> <?php echo __('subscription_plans'); ?>
                                 </a>
                                 <a href="payments/" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-money-bill"></i> Payment History
+                                    <i class="fas fa-money-bill"></i> <?php echo __('payment_history'); ?>
                                 </a>
                                 <a href="settings/" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-cogs"></i> System Settings
+                                    <i class="fas fa-cogs"></i> <?php echo __('system_settings'); ?>
                                 </a>
                             </div>
                         </div>

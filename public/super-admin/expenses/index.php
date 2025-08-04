@@ -118,10 +118,10 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-receipt"></i> Platform Expenses
+            <i class="fas fa-receipt"></i> <?php echo __('platform_expenses'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Expense
+            <i class="fas fa-plus"></i> <?php echo __('add_expense'); ?>
         </a>
     </div>
 
@@ -132,7 +132,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Expenses</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('total_expenses'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_expenses; ?></div>
                         </div>
                         <div class="col-auto">
@@ -148,7 +148,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total USD</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1"><?php echo __('total_usd'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -164,7 +164,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total AFN</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('total_afn'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_amount_afn, 'AFN'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -180,7 +180,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Monthly USD</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('monthly_usd'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -196,7 +196,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Monthly AFN</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('monthly_afn'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($monthly_amount_afn, 'AFN'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -212,7 +212,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Monthly Count</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('monthly_count'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $monthly_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -229,7 +229,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
         <div class="col-xl-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Total Expenses by Currency</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('total_expenses_by_currency'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($expenses_by_currency)): ?>
@@ -237,20 +237,20 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-primary me-2"><?php echo $expense['currency']; ?></span>
                                 <strong><?php echo formatCurrencyAmount($expense['total_amount'], $expense['currency']); ?></strong>
-                                <small class="text-muted">(<?php echo $expense['count']; ?> expenses)</small>
+                                <small class="text-muted">(<?php echo $expense['count']; ?> <?php echo __('expenses'); ?>)</small>
                             </div>
                         <?php endforeach; ?>
                         <hr>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span><strong>Total (USD):</strong></span>
+                            <span><strong><?php echo __('total'); ?> (USD):</strong></span>
                             <strong class="text-danger"><?php echo formatCurrencyAmount($total_amount_usd, 'USD'); ?></strong>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span><strong>Total (AFN):</strong></span>
+                            <span><strong><?php echo __('total'); ?> (AFN):</strong></span>
                             <strong class="text-primary"><?php echo formatCurrencyAmount($total_amount_afn, 'AFN'); ?></strong>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">No expenses found</p>
+                        <p class="text-muted"><?php echo __('no_expenses_found'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -259,7 +259,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
         <div class="col-xl-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">This Month by Currency</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('this_month_by_currency'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($monthly_expenses_by_currency)): ?>
@@ -267,20 +267,20 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-warning me-2"><?php echo $expense['currency']; ?></span>
                                 <strong><?php echo formatCurrencyAmount($expense['total_amount'], $expense['currency']); ?></strong>
-                                <small class="text-muted">(<?php echo $expense['count']; ?> expenses)</small>
+                                <small class="text-muted">(<?php echo $expense['count']; ?> <?php echo __('expenses'); ?>)</small>
                             </div>
                         <?php endforeach; ?>
                         <hr>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span><strong>Monthly Total (USD):</strong></span>
+                            <span><strong><?php echo __('monthly_total'); ?> (USD):</strong></span>
                             <strong class="text-warning"><?php echo formatCurrencyAmount($monthly_amount_usd, 'USD'); ?></strong>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span><strong>Monthly Total (AFN):</strong></span>
+                            <span><strong><?php echo __('monthly_total'); ?> (AFN):</strong></span>
                             <strong class="text-warning"><?php echo formatCurrencyAmount($monthly_amount_afn, 'AFN'); ?></strong>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">No expenses this month</p>
+                        <p class="text-muted"><?php echo __('no_expenses_this_month'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -290,42 +290,42 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by code, description, or notes" 
+                           placeholder="<?php echo __('search_by_code_description_notes'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="type">
-                        <option value="">All Types</option>
-                        <option value="office_supplies" <?php echo $type_filter === 'office_supplies' ? 'selected' : ''; ?>>Office Supplies</option>
-                        <option value="utilities" <?php echo $type_filter === 'utilities' ? 'selected' : ''; ?>>Utilities</option>
-                        <option value="rent" <?php echo $type_filter === 'rent' ? 'selected' : ''; ?>>Rent</option>
-                        <option value="maintenance" <?php echo $type_filter === 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
-                        <option value="marketing" <?php echo $type_filter === 'marketing' ? 'selected' : ''; ?>>Marketing</option>
-                        <option value="software" <?php echo $type_filter === 'software' ? 'selected' : ''; ?>>Software</option>
-                        <option value="travel" <?php echo $type_filter === 'travel' ? 'selected' : ''; ?>>Travel</option>
-                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>>Other</option>
+                        <option value=""><?php echo __('all_types'); ?></option>
+                        <option value="office_supplies" <?php echo $type_filter === 'office_supplies' ? 'selected' : ''; ?>><?php echo __('office_supplies'); ?></option>
+                        <option value="utilities" <?php echo $type_filter === 'utilities' ? 'selected' : ''; ?>><?php echo __('utilities'); ?></option>
+                        <option value="rent" <?php echo $type_filter === 'rent' ? 'selected' : ''; ?>><?php echo __('rent'); ?></option>
+                        <option value="maintenance" <?php echo $type_filter === 'maintenance' ? 'selected' : ''; ?>><?php echo __('maintenance'); ?></option>
+                        <option value="marketing" <?php echo $type_filter === 'marketing' ? 'selected' : ''; ?>><?php echo __('marketing'); ?></option>
+                        <option value="software" <?php echo $type_filter === 'software' ? 'selected' : ''; ?>><?php echo __('software'); ?></option>
+                        <option value="travel" <?php echo $type_filter === 'travel' ? 'selected' : ''; ?>><?php echo __('travel'); ?></option>
+                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_from" 
-                           placeholder="From Date" value="<?php echo htmlspecialchars($date_from); ?>">
+                           placeholder="<?php echo __('from_date'); ?>" value="<?php echo htmlspecialchars($date_from); ?>">
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_to" 
-                           placeholder="To Date" value="<?php echo htmlspecialchars($date_to); ?>">
+                           placeholder="<?php echo __('to_date'); ?>" value="<?php echo htmlspecialchars($date_to); ?>">
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                     <a href="index.php" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -335,16 +335,16 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
     <!-- Expenses Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Expenses</h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('expenses'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($expenses)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-receipt fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500">No expenses found</h5>
-                    <p class="text-gray-400">Add your first expense to get started.</p>
+                    <h5 class="text-gray-500"><?php echo __('no_expenses_found'); ?></h5>
+                    <p class="text-gray-400"><?php echo __('add_first_expense_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Expense
+                        <i class="fas fa-plus"></i> <?php echo __('add_expense'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -352,15 +352,15 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                     <table class="table table-bordered" id="expensesTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Expense Code</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Amount</th>
-                                <th>Currency</th>
-                                <th>Date</th>
-                                <th>Payment Method</th>
-                                <th>Receipt</th>
-                                <th>Actions</th>
+                                <th><?php echo __('expense_code'); ?></th>
+                                <th><?php echo __('type'); ?></th>
+                                <th><?php echo __('description'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('currency'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('payment_method'); ?></th>
+                                <th><?php echo __('receipt'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -397,7 +397,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                                                 <?php echo htmlspecialchars($expense['reference_number']); ?>
                                             </span>
                                         <?php else: ?>
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted"><?php echo __('na'); ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -411,7 +411,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form method="POST" action="delete.php" style="display: inline;" 
-                                                  onsubmit="return confirm('Are you sure you want to delete this expense?')">
+                                                  onsubmit="return confirm('<?php echo __('confirm_delete_expense'); ?>')">
                                                 <input type="hidden" name="id" value="<?php echo $expense['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger" title="Delete">
                                                     <i class="fas fa-trash"></i>
@@ -432,7 +432,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -448,7 +448,7 @@ $monthly_count = array_sum(array_column($monthly_expenses_by_currency, 'count'))
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
