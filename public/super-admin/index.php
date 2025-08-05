@@ -27,15 +27,27 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE role != 'super
 $stmt->execute();
 $total_users = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get monthly revenue
+// Get monthly revenue by currency
 $stmt = $conn->prepare("
-    SELECT SUM(amount) as total FROM company_payments 
+    SELECT currency, SUM(amount) as total FROM company_payments 
     WHERE payment_status = 'completed' 
     AND MONTH(payment_date) = MONTH(CURRENT_DATE()) 
     AND YEAR(payment_date) = YEAR(CURRENT_DATE())
+    GROUP BY currency
 ");
 $stmt->execute();
-$monthly_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$monthly_revenue_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$monthly_revenue_usd = 0;
+$monthly_revenue_afn = 0;
+
+foreach ($monthly_revenue_by_currency as $revenue) {
+    if ($revenue['currency'] === 'USD') {
+        $monthly_revenue_usd = $revenue['total'];
+    } elseif ($revenue['currency'] === 'AFN') {
+        $monthly_revenue_afn = $revenue['total'];
+    }
+}
 
 // Get recent companies
 $stmt = $conn->prepare("
@@ -135,7 +147,19 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('monthly_revenue'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($monthly_revenue); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php 
+                                if ($monthly_revenue_usd > 0 && $monthly_revenue_afn > 0) {
+                                    echo formatCurrencyAmount($monthly_revenue_usd, 'USD') . ' / ' . formatCurrencyAmount($monthly_revenue_afn, 'AFN');
+                                } elseif ($monthly_revenue_usd > 0) {
+                                    echo formatCurrencyAmount($monthly_revenue_usd, 'USD');
+                                } elseif ($monthly_revenue_afn > 0) {
+                                    echo formatCurrencyAmount($monthly_revenue_afn, 'AFN');
+                                } else {
+                                    echo formatCurrencyAmount(0, 'USD');
+                                }
+                                ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -246,7 +270,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <div class="text-right">
                                         <strong class="text-success">
-                                            <?php echo formatCurrency($payment['amount']); ?>
+                                            <?php echo formatCurrencyAmount($payment['amount'], $payment['currency']); ?>
                                         </strong>
                                         <br>
                                         <span class="badge <?php 
