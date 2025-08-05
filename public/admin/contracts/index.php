@@ -324,8 +324,8 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             </span>
                                             <br>                                                <small class="text-muted">
                                                     <?php echo formatCurrency($contract['rate_amount']); ?> 
-                                                    <?php echo $contract['contract_type'] === 'hourly' ? '/<?php echo __('hr'); ?>' : 
-                                                        ($contract['contract_type'] === 'daily' ? '/<?php echo __('day'); ?>' : '/<?php echo __('month'); ?>'); ?>
+                                                    <?php echo $contract['contract_type'] === 'hourly' ? '/' . __('hr') : 
+                                                        ($contract['contract_type'] === 'daily' ? '/' . __('day') : '/' . __('month')); ?>
                                                 </small>
                                         </div>
                                     </td>
