@@ -98,8 +98,36 @@ date_default_timezone_set($company_timezone);
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); ?>/../assets/css/variables.css">
     <style>
+        :root {
+            --primary-color: <?php echo $primary_color; ?>;
+            --secondary-color: <?php echo $secondary_color; ?>;
+            --accent-color: <?php echo $accent_color; ?>;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white-color: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --border-radius: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --border-radius-xl: 1rem;
+            --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --box-shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --box-shadow-xl: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+            --transition: all 0.15s ease-in-out;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
         * {
             box-sizing: border-box;
@@ -570,67 +598,67 @@ date_default_timezone_set($company_timezone);
             <?php elseif ($is_company_admin): ?>
                 <!-- Company Admin Menu -->
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="admin/employees/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
                         <i class="fas fa-users"></i>
                         <span><?php echo __('employees'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="admin/machines/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
                         <i class="fas fa-truck"></i>
                         <span><?php echo __('machines'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="admin/contracts/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
                         <i class="fas fa-file-contract"></i>
                         <span><?php echo __('contracts'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="admin/parking/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
                         <i class="fas fa-parking"></i>
                         <span><?php echo __('parking'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="admin/area-rentals/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
                         <i class="fas fa-map-marked-alt"></i>
                         <span><?php echo __('area_rentals'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="admin/expenses/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
                         <i class="fas fa-receipt"></i>
                         <span><?php echo __('expenses'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="admin/salary-payments/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
                         <i class="fas fa-money-bill-wave"></i>
                         <span><?php echo __('salary_payments'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="admin/attendance/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
                         <i class="fas fa-clock"></i>
                         <span><?php echo __('attendance'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="reports/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
                         <i class="fas fa-chart-bar"></i>
                         <span><?php echo __('reports'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="users/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
                         <i class="fas fa-user-cog"></i>
                         <span><?php echo __('users'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="settings/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/settings/">
                         <i class="fas fa-cog"></i>
                         <span><?php echo __('settings'); ?></span>
                     </a>
