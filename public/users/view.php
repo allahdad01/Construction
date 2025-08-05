@@ -26,11 +26,10 @@ if (!$user_id) {
 $stmt = $conn->prepare("
     SELECT u.*, 
            e.employee_code,
+           e.name as employee_name,
            e.position,
-           e.employee_type,
            e.monthly_salary,
            e.hire_date,
-           e.department,
            e.status as employee_status
     FROM users u 
     LEFT JOIN employees e ON u.id = e.user_id AND u.company_id = e.company_id
@@ -153,8 +152,8 @@ if ($user['employee_code']) {
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong><?php echo __('employee_code'); ?>:</strong> <?php echo htmlspecialchars($user['employee_code']); ?></p>
+                            <p><strong><?php echo __('employee_name'); ?>:</strong> <?php echo htmlspecialchars($user['employee_name'] ?? 'N/A'); ?></p>
                             <p><strong><?php echo __('position'); ?>:</strong> <?php echo htmlspecialchars($user['position'] ?? 'N/A'); ?></p>
-                            <p><strong><?php echo __('employee_type'); ?>:</strong> <?php echo ucfirst(str_replace('_', ' ', $user['employee_type'] ?? 'N/A')); ?></p>
                         </div>
                         <div class="col-md-6">
                             <?php if ($user['monthly_salary']): ?>
@@ -162,9 +161,6 @@ if ($user['employee_code']) {
                             <?php endif; ?>
                             <?php if ($user['hire_date']): ?>
                             <p><strong><?php echo __('hire_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($user['hire_date'])); ?></p>
-                            <?php endif; ?>
-                            <?php if ($user['department']): ?>
-                            <p><strong><?php echo __('department'); ?>:</strong> <?php echo htmlspecialchars($user['department']); ?></p>
                             <?php endif; ?>
                             <p><strong><?php echo __('employee_status'); ?>:</strong> 
                                 <span class="badge badge-<?php echo $user['employee_status'] === 'active' ? 'success' : 'secondary'; ?>">
@@ -398,7 +394,8 @@ function resetPassword(userId) {
 }
 
 function confirmDelete(userId, userName) {
-    if (confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+    const message = `Are you sure you want to delete user "${userName}"? This action cannot be undone.`;
+    if (confirm(message)) {
         window.location.href = `index.php?delete=${userId}`;
     }
 }

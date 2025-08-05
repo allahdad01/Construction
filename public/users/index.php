@@ -411,7 +411,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         <?php if ($user['id'] != getCurrentUser()['id']): ?>
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>')"
+                                                data-user-id="<?php echo $user['id']; ?>"
+                                                data-user-name="<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>"
+                                                onclick="confirmDelete(this.dataset.userId, this.dataset.userName)"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -463,24 +465,29 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTable
     if ($.fn.DataTable) {
-        $('#usersTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[6, 'desc']],
-            columnDefs: [
-                {
-                    targets: -1,
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
+        // Check if DataTable is already initialized
+        if (!$.fn.DataTable.isDataTable('#usersTable')) {
+            $('#usersTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[6, 'desc']], // Column 6 is 'created' (0-indexed)
+                columnDefs: [
+                    {
+                        targets: -1, // Last column (actions)
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                destroy: true // Allow reinitializing if needed
+            });
+        }
     }
 });
 
 // Confirm delete function
 function confirmDelete(userId, userName) {
-    if (confirm(`<?php echo __('confirm_delete_user'); ?> "${userName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
+    const message = `Are you sure you want to delete user "${userName}"? This action cannot be undone.`;
+    if (confirm(message)) {
         window.location.href = `index.php?delete=${userId}`;
     }
 }
