@@ -2212,3 +2212,15 @@ INSERT INTO user_notifications (user_id, title, message, type, is_read, created_
 (3, 'Timesheet Reminder', 'Please submit your timesheet for this week.', 'warning', 0, NOW() - INTERVAL 4 HOUR),
 (3, 'Salary Payment', 'Your salary payment of $800 has been processed.', 'success', 0, NOW() - INTERVAL 1 DAY),
 (3, 'New Assignment', 'You have been assigned to Project Alpha.', 'info', 1, NOW() - INTERVAL 3 DAYS);
+
+-- Add missing translation keys for unauthorized page
+INSERT INTO language_translations (language_id, translation_key, translation_value) VALUES
+(1, 'unauthorized_access', 'Unauthorized Access'),
+(2, 'unauthorized_access', 'دسترسی غیرمجاز'),
+(3, 'unauthorized_access', 'دسترسی غیرمجاز'),
+(1, 'unauthorized_message', 'You do not have permission to access this page. Please contact your administrator if you believe this is an error.'),
+(2, 'unauthorized_message', 'شما اجازه دسترسی به این صفحه را ندارید. اگر فکر می‌کنید این خطا است، لطفاً با مدیر خود تماس بگیرید.'),
+(3, 'unauthorized_message', 'شما اجازه دسترسی به این صفحه را ندارید. اگر فکر می‌کنید این خطا است، لطفاً با مدیر خود تماس بگیرید.'),
+(1, 'back_to_login', 'Back to Login'),
+(2, 'back_to_login', 'بازگشت به ورود'),
+(3, 'back_to_login', 'بازگشت به ورود');
