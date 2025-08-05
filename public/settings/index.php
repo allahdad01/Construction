@@ -293,7 +293,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <div class="mb-3">
                                             <label for="company_email" class="form-label"><?php echo __('company_email'); ?></label>
                                             <input type="email" class="form-control" id="company_email" name="company_email" 
-                                                   value="<?php echo htmlspecialchars($company['email']); ?>">
+                                                   value="<?php echo htmlspecialchars($company['contact_email'] ?? ''); ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -303,14 +303,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <div class="mb-3">
                                             <label for="company_phone" class="form-label"><?php echo __('company_phone'); ?></label>
                                             <input type="text" class="form-control" id="company_phone" name="company_phone" 
-                                                   value="<?php echo htmlspecialchars($company['phone']); ?>">
+                                                   value="<?php echo htmlspecialchars($company['contact_phone'] ?? ''); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="company_website" class="form-label"><?php echo __('company_website'); ?></label>
                                             <input type="url" class="form-control" id="company_website" name="company_website" 
-                                                   value="<?php echo htmlspecialchars($company['website'] ?? ''); ?>">
+                                                   value="<?php echo htmlspecialchars($company['contact_email'] ?? ''); ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -322,7 +322,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                 
                                 <div class="mb-3">
                                     <label for="company_description" class="form-label"><?php echo __('company_description'); ?></label>
-                                    <textarea class="form-control" id="company_description" name="company_description" rows="4"><?php echo htmlspecialchars($company['description'] ?? ''); ?></textarea>
+                                    <textarea class="form-control" id="company_description" name="company_description" rows="4"><?php echo htmlspecialchars($company['address'] ?? ''); ?></textarea>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">

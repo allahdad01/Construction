@@ -86,7 +86,7 @@ $total_pages = ceil($total_records / $per_page);
 // Get users with pagination
 $stmt = $conn->prepare("
     SELECT u.*, 
-           e.employee_code, e.employee_type
+           e.employee_code, e.position
     FROM users u
     LEFT JOIN employees e ON u.id = e.user_id AND e.company_id = u.company_id
     WHERE $where_clause
