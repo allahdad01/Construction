@@ -55,6 +55,9 @@ $stmt = $conn->prepare("SELECT DISTINCT translation_key FROM language_translatio
 $stmt->execute();
 $all_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+// Debug: Log the count
+error_log("Total translation keys found: " . count($all_keys));
+
 // If no keys found in database, use a basic set
 if (empty($all_keys)) {
     $all_keys = [
@@ -81,6 +84,13 @@ if (empty($all_keys)) {
     ];
 }
 
+// Pagination setup
+$items_per_page = 50;
+$current_page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$total_pages = ceil(count($all_keys) / $items_per_page);
+$offset = ($current_page - 1) * $items_per_page;
+$paginated_keys = array_slice($all_keys, $offset, $items_per_page);
+
 // Get translations for selected language
 $translations = [];
 if ($language_id) {
@@ -94,8 +104,8 @@ if ($language_id) {
         $translation_map[$translation['translation_key']] = $translation['translation_value'];
     }
     
-    // Build complete translations array with all keys
-    foreach ($all_keys as $key) {
+    // Build complete translations array with paginated keys
+    foreach ($paginated_keys as $key) {
         $translations[] = [
             'translation_key' => $key,
             'translation_value' => $translation_map[$key] ?? '',
@@ -221,7 +231,11 @@ if ($language_id) {
                         <h6 class="m-0 font-weight-bold text-primary">
                             Translations for <?php echo htmlspecialchars($selected_language['language_name']); ?>
                         </h6>
-                        <span class="badge bg-primary"><?php echo count($all_keys); ?> total keys</span>
+                        <div class="d-flex align-items-center">
+                            <input type="text" id="searchKeys" class="form-control form-control-sm me-2" 
+                                   placeholder="Search keys..." style="width: 200px;">
+                            <span class="badge bg-primary"><?php echo count($all_keys); ?> total keys</span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <?php if (empty($translations)): ?>
@@ -281,6 +295,76 @@ if ($language_id) {
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Pagination -->
+                            <?php if ($total_pages > 1): ?>
+                                <nav aria-label="Translation keys pagination" class="mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        <!-- Previous page -->
+                                        <?php if ($current_page > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $current_page - 1; ?>">
+                                                    <i class="fas fa-chevron-left"></i> Previous
+                                                </a>
+                                            </li>
+                                        <?php else: ?>
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="fas fa-chevron-left"></i> Previous</span>
+                                            </li>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Page numbers -->
+                                        <?php
+                                        $start_page = max(1, $current_page - 2);
+                                        $end_page = min($total_pages, $current_page + 2);
+                                        
+                                        if ($start_page > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=1">1</a>
+                                            </li>
+                                            <?php if ($start_page > 2): ?>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                        
+                                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                            <li class="page-item <?php echo $i == $current_page ? 'active' : ''; ?>">
+                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+                                        
+                                        <?php if ($end_page < $total_pages): ?>
+                                            <?php if ($end_page < $total_pages - 1): ?>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            <?php endif; ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $total_pages; ?>"><?php echo $total_pages; ?></a>
+                                            </li>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Next page -->
+                                        <?php if ($current_page < $total_pages): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $current_page + 1; ?>">
+                                                    Next <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        <?php else: ?>
+                                            <li class="page-item disabled">
+                                                <span class="page-link">Next <i class="fas fa-chevron-right"></i></span>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </nav>
+                                
+                                <div class="text-center text-muted">
+                                    <small>Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $items_per_page, count($all_keys)); ?> of <?php echo count($all_keys); ?> translation keys</small>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -303,6 +387,23 @@ function editTranslation(key, value) {
     document.getElementById('translation_value').value = value;
     document.getElementById('translation_key').focus();
 }
+
+// Search functionality
+document.getElementById('searchKeys').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(function(row) {
+        const keyCell = row.querySelector('td:first-child code');
+        const keyText = keyCell.textContent.toLowerCase();
+        
+        if (keyText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
 
 // Auto-hide alerts after 5 seconds
 setTimeout(function() {
