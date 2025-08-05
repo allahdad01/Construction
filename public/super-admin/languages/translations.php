@@ -14,33 +14,57 @@ $language_id = (int)($_GET['language_id'] ?? 0);
 $error = '';
 $success = '';
 
-// Handle form submission for adding/updating translations
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $translation_key = trim($_POST['translation_key'] ?? '');
-    $translation_value = trim($_POST['translation_value'] ?? '');
+// Handle bulk form submission for translations
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_save'])) {
     $target_language_id = (int)($_POST['language_id'] ?? $language_id);
-
-    if (empty($translation_key) || empty($translation_value)) {
-        $error = 'Translation key and value are required.';
+    $translations_data = $_POST['translations'] ?? [];
+    $saved_count = 0;
+    $updated_count = 0;
+    
+    if (empty($translations_data)) {
+        $error = 'No translations to save.';
     } else {
         try {
-            // Check if translation already exists
-            $stmt = $conn->prepare("SELECT id FROM language_translations WHERE language_id = ? AND translation_key = ?");
-            $stmt->execute([$target_language_id, $translation_key]);
+            $conn->beginTransaction();
             
-            if ($stmt->fetch()) {
-                // Update existing translation
-                $stmt = $conn->prepare("UPDATE language_translations SET translation_value = ? WHERE language_id = ? AND translation_key = ?");
-                $stmt->execute([$translation_value, $target_language_id, $translation_key]);
-                $success = 'Translation updated successfully!';
-            } else {
-                // Add new translation
-                $stmt = $conn->prepare("INSERT INTO language_translations (language_id, translation_key, translation_value) VALUES (?, ?, ?)");
-                $stmt->execute([$target_language_id, $translation_key, $translation_value]);
-                $success = 'Translation added successfully!';
+            foreach ($translations_data as $key => $value) {
+                $translation_key = trim($key);
+                $translation_value = trim($value);
+                
+                if (!empty($translation_key) && !empty($translation_value)) {
+                    // Check if translation already exists
+                    $stmt = $conn->prepare("SELECT id FROM language_translations WHERE language_id = ? AND translation_key = ?");
+                    $stmt->execute([$target_language_id, $translation_key]);
+                    
+                    if ($stmt->fetch()) {
+                        // Update existing translation
+                        $stmt = $conn->prepare("UPDATE language_translations SET translation_value = ? WHERE language_id = ? AND translation_key = ?");
+                        $stmt->execute([$translation_value, $target_language_id, $translation_key]);
+                        $updated_count++;
+                    } else {
+                        // Add new translation
+                        $stmt = $conn->prepare("INSERT INTO language_translations (language_id, translation_key, translation_value) VALUES (?, ?, ?)");
+                        $stmt->execute([$target_language_id, $translation_key, $translation_value]);
+                        $saved_count++;
+                    }
+                }
             }
+            
+            $conn->commit();
+            
+            if ($saved_count > 0 && $updated_count > 0) {
+                $success = "Successfully saved $saved_count new translations and updated $updated_count existing translations!";
+            } elseif ($saved_count > 0) {
+                $success = "Successfully saved $saved_count new translations!";
+            } elseif ($updated_count > 0) {
+                $success = "Successfully updated $updated_count translations!";
+            } else {
+                $success = "No changes were made.";
+            }
+            
         } catch (Exception $e) {
-            $error = 'Error saving translation: ' . $e->getMessage();
+            $conn->rollBack();
+            $error = 'Error saving translations: ' . $e->getMessage();
         }
     }
 }
@@ -84,12 +108,8 @@ if (empty($all_keys)) {
     ];
 }
 
-// Pagination setup
-$items_per_page = 50;
-$current_page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$total_pages = ceil(count($all_keys) / $items_per_page);
-$offset = ($current_page - 1) * $items_per_page;
-$paginated_keys = array_slice($all_keys, $offset, $items_per_page);
+// No pagination - show all keys at once
+$all_keys_to_display = $all_keys;
 
 // Get translations for selected language
 $translations = [];
@@ -104,8 +124,8 @@ if ($language_id) {
         $translation_map[$translation['translation_key']] = $translation['translation_value'];
     }
     
-    // Build complete translations array with paginated keys
-    foreach ($paginated_keys as $key) {
+    // Build complete translations array with all keys
+    foreach ($all_keys_to_display as $key) {
         $translations[] = [
             'translation_key' => $key,
             'translation_value' => $translation_map[$key] ?? '',
@@ -191,33 +211,33 @@ if ($language_id) {
                 </div>
             </div>
 
-            <!-- Add Translation Form -->
+            <!-- Bulk Translation Form -->
             <?php if ($language_id): ?>
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Add/Edit Translation</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Bulk Translation Management</h6>
                     </div>
                     <div class="card-body">
-                        <form method="POST">
-                            <input type="hidden" name="language_id" value="<?php echo $language_id; ?>">
-                            
-                            <div class="mb-3">
-                                <label for="translation_key" class="form-label">Translation Key *</label>
-                                <input type="text" class="form-control" id="translation_key" name="translation_key" 
-                                       placeholder="e.g., dashboard, employees, settings" required>
-                                <small class="form-text text-muted">Use lowercase with underscores</small>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Instructions:</strong> Fill in the translation values for each key. Empty fields will be skipped. 
+                            Click "Save All Translations" at the bottom to save everything at once.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillEmptyFields()">
+                                    <i class="fas fa-magic"></i> Fill Empty Fields
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllFields()">
+                                    <i class="fas fa-eraser"></i> Clear All
+                                </button>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="translation_value" class="form-label">Translation Value *</label>
-                                <textarea class="form-control" id="translation_value" name="translation_value" 
-                                          rows="3" placeholder="Enter the translation..." required></textarea>
+                            <div>
+                                <span class="badge bg-info" id="filledCount">0</span> filled / 
+                                <span class="badge bg-secondary" id="totalCount">0</span> total
                             </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-save"></i> Save Translation
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>
@@ -238,135 +258,64 @@ if ($language_id) {
                         </div>
                     </div>
                     <div class="card-body">
-                        <?php if (empty($translations)): ?>
-                            <div class="text-center py-4">
-                                <i class="fas fa-language fa-3x text-gray-300 mb-3"></i>
-                                <p class="text-gray-500">No translations found for this language.</p>
-                                <p class="text-muted">Add your first translation using the form on the left.</p>
-                            </div>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Translation Key</th>
-                                            <th>Translation Value</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($translations as $translation): ?>
-                                            <tr class="<?php echo $translation['exists'] ? '' : 'table-warning'; ?>">
-                                                <td>
-                                                    <code><?php echo htmlspecialchars($translation['translation_key']); ?></code>
-                                                </td>
-                                                <td>
-                                                    <?php if ($translation['exists']): ?>
-                                                        <?php echo htmlspecialchars($translation['translation_value']); ?>
-                                                    <?php else: ?>
-                                                        <em class="text-muted">Not translated</em>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($translation['exists']): ?>
-                                                        <span class="badge bg-success">Translated</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-warning">Missing</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <button type="button" class="btn btn-sm btn-warning" 
-                                                                onclick="editTranslation('<?php echo htmlspecialchars($translation['translation_key']); ?>', '<?php echo htmlspecialchars($translation['translation_value']); ?>')">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <?php if ($translation['exists']): ?>
-                                                            <a href="delete-translation.php?key=<?php echo urlencode($translation['translation_key']); ?>&language_id=<?php echo $language_id; ?>" 
-                                                               class="btn btn-sm btn-danger"
-                                                               onclick="return confirm('Are you sure you want to delete this translation?')">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <form method="POST" id="bulkTranslationForm">
+                            <input type="hidden" name="language_id" value="<?php echo $language_id; ?>">
+                            <input type="hidden" name="bulk_save" value="1">
                             
-                            <!-- Pagination -->
-                            <?php if ($total_pages > 1): ?>
-                                <nav aria-label="Translation keys pagination" class="mt-4">
-                                    <ul class="pagination justify-content-center">
-                                        <!-- Previous page -->
-                                        <?php if ($current_page > 1): ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $current_page - 1; ?>">
-                                                    <i class="fas fa-chevron-left"></i> Previous
-                                                </a>
-                                            </li>
-                                        <?php else: ?>
-                                            <li class="page-item disabled">
-                                                <span class="page-link"><i class="fas fa-chevron-left"></i> Previous</span>
-                                            </li>
-                                        <?php endif; ?>
-                                        
-                                        <!-- Page numbers -->
-                                        <?php
-                                        $start_page = max(1, $current_page - 2);
-                                        $end_page = min($total_pages, $current_page + 2);
-                                        
-                                        if ($start_page > 1): ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=1">1</a>
-                                            </li>
-                                            <?php if ($start_page > 2): ?>
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">...</span>
-                                                </li>
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                        
-                                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                            <li class="page-item <?php echo $i == $current_page ? 'active' : ''; ?>">
-                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                                            </li>
-                                        <?php endfor; ?>
-                                        
-                                        <?php if ($end_page < $total_pages): ?>
-                                            <?php if ($end_page < $total_pages - 1): ?>
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">...</span>
-                                                </li>
-                                            <?php endif; ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $total_pages; ?>"><?php echo $total_pages; ?></a>
-                                            </li>
-                                        <?php endif; ?>
-                                        
-                                        <!-- Next page -->
-                                        <?php if ($current_page < $total_pages): ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?language_id=<?php echo $language_id; ?>&page=<?php echo $current_page + 1; ?>">
-                                                    Next <i class="fas fa-chevron-right"></i>
-                                                </a>
-                                            </li>
-                                        <?php else: ?>
-                                            <li class="page-item disabled">
-                                                <span class="page-link">Next <i class="fas fa-chevron-right"></i></span>
-                                            </li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </nav>
+                            <?php if (empty($translations)): ?>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-language fa-3x text-gray-300 mb-3"></i>
+                                    <p class="text-gray-500">No translations found for this language.</p>
+                                    <p class="text-muted">Add your first translation using the form on the left.</p>
+                                </div>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 30%;">Translation Key</th>
+                                                <th style="width: 60%;">Translation Value</th>
+                                                <th style="width: 10%;">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($translations as $translation): ?>
+                                                <tr class="<?php echo $translation['exists'] ? '' : 'table-warning'; ?>">
+                                                    <td>
+                                                        <code><?php echo htmlspecialchars($translation['translation_key']); ?></code>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" 
+                                                               class="form-control translation-input" 
+                                                               name="translations[<?php echo htmlspecialchars($translation['translation_key']); ?>]"
+                                                               value="<?php echo htmlspecialchars($translation['translation_value']); ?>"
+                                                               placeholder="Enter translation for <?php echo htmlspecialchars($translation['translation_key']); ?>"
+                                                               data-original="<?php echo htmlspecialchars($translation['translation_value']); ?>">
+                                                    </td>
+                                                    <td>
+                                                        <?php if ($translation['exists']): ?>
+                                                            <span class="badge bg-success">Translated</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning">Missing</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                                 
-                                <div class="text-center text-muted">
-                                    <small>Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $items_per_page, count($all_keys)); ?> of <?php echo count($all_keys); ?> translation keys</small>
+                                <!-- Save All Button -->
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-save"></i> Save All Translations
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-lg ms-2" onclick="resetForm()">
+                                        <i class="fas fa-undo"></i> Reset Changes
+                                    </button>
                                 </div>
                             <?php endif; ?>
-                        <?php endif; ?>
-                    </div>
+
                 </div>
             <?php else: ?>
                 <div class="card shadow mb-4">
@@ -382,12 +331,6 @@ if ($language_id) {
 </div>
 
 <script>
-function editTranslation(key, value) {
-    document.getElementById('translation_key').value = key;
-    document.getElementById('translation_value').value = value;
-    document.getElementById('translation_key').focus();
-}
-
 // Search functionality
 document.getElementById('searchKeys').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
@@ -403,6 +346,65 @@ document.getElementById('searchKeys').addEventListener('input', function() {
             row.style.display = 'none';
         }
     });
+});
+
+// Fill empty fields with placeholder text
+function fillEmptyFields() {
+    const inputs = document.querySelectorAll('.translation-input');
+    inputs.forEach(function(input) {
+        if (!input.value.trim()) {
+            const key = input.getAttribute('name').replace('translations[', '').replace(']', '');
+            input.value = 'Enter translation for ' + key;
+        }
+    });
+    updateCounters();
+}
+
+// Clear all fields
+function clearAllFields() {
+    const inputs = document.querySelectorAll('.translation-input');
+    inputs.forEach(function(input) {
+        input.value = '';
+    });
+    updateCounters();
+}
+
+// Reset form to original values
+function resetForm() {
+    const inputs = document.querySelectorAll('.translation-input');
+    inputs.forEach(function(input) {
+        const original = input.getAttribute('data-original');
+        input.value = original;
+    });
+    updateCounters();
+}
+
+// Update filled/total counters
+function updateCounters() {
+    const inputs = document.querySelectorAll('.translation-input');
+    let filled = 0;
+    let total = inputs.length;
+    
+    inputs.forEach(function(input) {
+        if (input.value.trim()) {
+            filled++;
+        }
+    });
+    
+    document.getElementById('filledCount').textContent = filled;
+    document.getElementById('totalCount').textContent = total;
+}
+
+// Update counters on input change
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('translation-input')) {
+        updateCounters();
+    }
+});
+
+// Initialize counters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCounters();
 });
 
 // Auto-hide alerts after 5 seconds
