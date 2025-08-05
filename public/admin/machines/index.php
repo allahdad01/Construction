@@ -277,10 +277,11 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatCurrency($machine['current_value']); ?></strong>
-                                            <?php if ($machine['purchase_cost']): ?>
-                                                <br>                                                <small class="text-muted">
-                                                    <?php echo __('purchase'); ?>: <?php echo formatCurrency($machine['purchase_cost']); ?>
+                                            <strong><?php echo formatCurrency($machine['purchase_cost'] ?? 0); ?></strong>
+                                            <?php if ($machine['purchase_date']): ?>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <?php echo __('purchased'); ?>: <?php echo date('M Y', strtotime($machine['purchase_date'])); ?>
                                                 </small>
                                             <?php endif; ?>
                                         </div>
