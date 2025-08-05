@@ -78,22 +78,22 @@ $count_stmt->execute([$company_id]);
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $per_page);
 
-// Get area rentals with pagination
-$area_rentals_query = "
+// Get rental areas with pagination
+$rental_areas_query = "
     SELECT ar.*, 
-           COUNT(c.id) as contract_count,
-           SUM(CASE WHEN c.status = 'active' THEN 1 ELSE 0 END) as active_contracts
-    FROM area_rentals ar 
-    LEFT JOIN contracts c ON ar.id = c.area_rental_id
+           COUNT(rental.id) as contract_count,
+           SUM(CASE WHEN rental.status = 'active' THEN 1 ELSE 0 END) as active_contracts
+    FROM rental_areas ar 
+    LEFT JOIN area_rentals rental ON ar.id = rental.rental_area_id
     WHERE $where_clause
     GROUP BY ar.id
     ORDER BY ar.created_at DESC 
     LIMIT ? OFFSET ?
 ";
-$stmt = $conn->prepare($area_rentals_query);
+$stmt = $conn->prepare($rental_areas_query);
 $params_with_limits = array_merge($params, [$per_page, $offset]);
 $stmt->execute($params_with_limits);
-$area_rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rental_areas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
 $stats_stmt = $conn->prepare("
@@ -103,7 +103,7 @@ $stats_stmt = $conn->prepare("
         COUNT(CASE WHEN status = 'rented' THEN 1 END) as rented_rentals,
         AVG(monthly_rate) as avg_rate,
         SUM(monthly_rate) as total_value
-    FROM area_rentals ar
+    FROM rental_areas ar
     WHERE ar.company_id = ?
 ");
 $stats_stmt->execute([$company_id]);
@@ -272,7 +272,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
         <div class="card-body">
-            <?php if (empty($area_rentals)): ?>
+            <?php if (empty($rental_areas)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-map-marker-alt fa-3x text-gray-300 mb-3"></i>
                     <h5 class="text-gray-500"><?php echo __('no_area_rentals_found'); ?></h5>
@@ -297,7 +297,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($area_rentals as $rental): ?>
+                            <?php foreach ($rental_areas as $rental): ?>
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
