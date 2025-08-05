@@ -149,14 +149,24 @@ function generateContractCode($company_id) {
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="project_id" class="form-label"><?php echo __('project'); ?> *</label>
-                            <select class="form-control" id="project_id" name="project_id" required>
-                                <option value=""><?php echo __('select_project'); ?></option>
-                                <?php foreach ($projects as $project): ?>
-                                <option value="<?php echo $project['id']; ?>" <?php echo (isset($_POST['project_id']) && $_POST['project_id'] == $project['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($project['project_code'] . ' - ' . $project['name']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="input-group">
+                                <select class="form-control" id="project_id" name="project_id" required>
+                                    <option value=""><?php echo __('select_project'); ?></option>
+                                    <?php foreach ($projects as $project): ?>
+                                    <option value="<?php echo $project['id']; ?>" <?php echo (isset($_POST['project_id']) && $_POST['project_id'] == $project['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($project['project_code'] . ' - ' . $project['name']); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <a href="../projects/add.php" class="btn btn-outline-primary" title="Add New Project">
+                                    <i class="fas fa-plus"></i> Add Project
+                                </a>
+                            </div>
+                            <?php if (empty($projects)): ?>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> No active projects available. <a href="../projects/add.php">Create one first</a>.
+                                </small>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="col-md-6">

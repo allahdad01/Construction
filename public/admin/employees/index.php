@@ -20,22 +20,62 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $employee_id = (int)$_GET['delete'];
     
     try {
-        // Check if employee belongs to current company
-        $stmt = $conn->prepare("SELECT * FROM employees WHERE id = ? AND company_id = ?");
+        // Check if employee exists and belongs to company
+        $stmt = $conn->prepare("
+            SELECT e.employee_code, e.name 
+            FROM employees e 
+            WHERE e.id = ? AND e.company_id = ?
+        ");
         $stmt->execute([$employee_id, $company_id]);
         $employee = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($employee) {
-            // Delete employee
-            $stmt = $conn->prepare("DELETE FROM employees WHERE id = ?");
-            $stmt->execute([$employee_id]);
-            
-            $success = __('employee_deleted_successfully');
-        } else {
-            $error = __('employee_not_found_or_access_denied');
+        if (!$employee) {
+            throw new Exception("Employee not found or you don't have permission to delete it.");
         }
+        
+        // Check for related records
+        $related_checks = [
+            'salary_payments' => "SELECT COUNT(*) FROM salary_payments WHERE employee_id = ?",
+            'employee_attendance' => "SELECT COUNT(*) FROM employee_attendance WHERE employee_id = ?",
+            'users' => "SELECT COUNT(*) FROM users WHERE id = (SELECT user_id FROM employees WHERE id = ?)"
+        ];
+        
+        $related_records = [];
+        foreach ($related_checks as $table => $query) {
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$employee_id]);
+            $count = $stmt->fetchColumn();
+            if ($count > 0) {
+                $related_records[] = "$count $table record(s)";
+            }
+        }
+        
+        if (!empty($related_records)) {
+            throw new Exception("Cannot delete employee '{$employee['employee_code']}' because it has related records: " . implode(', ', $related_records) . ". Remove these records first.");
+        }
+        
+        // Start transaction
+        $conn->beginTransaction();
+        
+        // Delete employee
+        $stmt = $conn->prepare("DELETE FROM employees WHERE id = ? AND company_id = ?");
+        $stmt->execute([$employee_id, $company_id]);
+        
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("No records were deleted. The employee may have already been removed.");
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
+        $success = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!";
+        
     } catch (Exception $e) {
-        $error = __('error_deleting_employee') . ': ' . $e->getMessage();
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        $error = $e->getMessage();
     }
 }
 
@@ -282,7 +322,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered datatable" id="employeesTable">
+                    <table class="table table-bordered" id="employeesTable">
                         <thead>
                             <tr>
                                 <th><?php echo __('employee_code'); ?></th>
@@ -411,20 +451,30 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    if ($.fn.DataTable) {
-        $('#employeesTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[1, 'asc']],
-            columnDefs: [
-                {
-                    targets: -1,
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
+    // Initialize DataTable with proper destroy handling
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        const table = $('#employeesTable');
+        if (table.length > 0) {
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable('#employeesTable')) {
+                table.DataTable().destroy();
+            }
+            
+            // Initialize fresh DataTable
+            table.DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, 'asc']],
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                destroy: true
+            });
+        }
     }
 });
 

@@ -26,7 +26,7 @@ if ($_GET['delete'] ?? false) {
         $machine = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$machine) {
-            throw new Exception("Machine not found.");
+            throw new Exception("Machine not found or you don't have permission to delete it.");
         }
         
         // Check for related records
@@ -52,10 +52,14 @@ if ($_GET['delete'] ?? false) {
         $stmt = $conn->prepare("DELETE FROM machines WHERE id = ? AND company_id = ?");
         $stmt->execute([$machine_id, $company_id]);
         
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("No records were deleted. The machine may have already been removed.");
+        }
+        
         // Commit transaction
         $conn->commit();
         
-        $success = "Machine '{$machine['name']}' deleted successfully!";
+        $success = "Machine '{$machine['machine_code']}' - {$machine['name']} deleted successfully!";
         
     } catch (Exception $e) {
         // Rollback transaction on error
@@ -366,7 +370,12 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatCurrency($machine['purchase_cost'] ?? 0); ?></strong>
+                                            <strong>
+                                                <?php 
+                                                $currency = $machine['purchase_currency'] ?? 'USD';
+                                                echo $currency . ' ' . number_format($machine['purchase_cost'] ?? 0, 2); 
+                                                ?>
+                                            </strong>
                                             <?php if ($machine['purchase_date']): ?>
                                                 <br>
                                                 <small class="text-muted">
