@@ -829,7 +829,7 @@ $current_settings = [
                     
                     <!-- Login Button -->
                     <div class="d-flex gap-2">
-                        <a href="../login.php" class="btn btn-construction btn-sm">
+                        <a href="login.php" class="btn btn-construction btn-sm">
                             <i class="fas fa-sign-in-alt me-1"></i><?php echo __('login'); ?>
                         </a>
                     </div>
@@ -866,7 +866,7 @@ $current_settings = [
                         <?php echo __('hero_description'); ?>
                     </p>
                     <div class="d-flex gap-3 flex-wrap">
-                        <a href="../login.php" class="btn btn-construction">
+                        <a href="login.php" class="btn btn-construction">
                             <i class="fas fa-sign-in-alt me-2"></i><?php echo __('get_started'); ?>
                         </a>
                         <a href="#features" class="btn btn-outline-light btn-lg">
@@ -1008,7 +1008,7 @@ $current_settings = [
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn <?php echo $is_popular ? 'btn-primary' : 'btn-outline-primary'; ?> btn-lg w-100"><?php echo __('get_started'); ?></a>
+                            <a href="login.php" class="btn <?php echo $is_popular ? 'btn-primary' : 'btn-outline-primary'; ?> btn-lg w-100"><?php echo __('get_started'); ?></a>
                         </div>
                     </div>
                 </div>
@@ -1040,7 +1040,7 @@ $current_settings = [
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
+                            <a href="login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
                         </div>
                     </div>
                 </div>
@@ -1069,7 +1069,7 @@ $current_settings = [
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn btn-primary btn-lg w-100"><?php echo __('get_started'); ?></a>
+                            <a href="login.php" class="btn btn-primary btn-lg w-100"><?php echo __('get_started'); ?></a>
                         </div>
                     </div>
                 </div>
@@ -1097,7 +1097,7 @@ $current_settings = [
                             </ul>
                         </div>
                         <div class="pricing-footer">
-                            <a href="../login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
+                            <a href="login.php" class="btn btn-outline-primary btn-lg w-100">Get Started</a>
                         </div>
                     </div>
                 </div>
