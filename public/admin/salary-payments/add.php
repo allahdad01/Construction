@@ -45,6 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Generate payment code
         $payment_code = generateSalaryPaymentCode($company_id);
 
+        // Add currency column if it doesn't exist
+        try {
+            $conn->exec("ALTER TABLE salary_payments ADD COLUMN currency VARCHAR(3) DEFAULT 'USD' AFTER total_amount");
+        } catch (Exception $e) {
+            // Column might already exist, ignore error
+        }
+
         // Start transaction
         $conn->beginTransaction();
 
@@ -52,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO salary_payments (
                 company_id, payment_code, employee_id, payment_date,
-                amount_paid, payment_method, notes, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
+                amount_paid, currency, payment_method, notes, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
         ");
 
         $stmt->execute([
@@ -62,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['employee_id'],
             $payment_date,
             $_POST['amount_paid'],
+            $_POST['currency'] ?? 'USD',
             $_POST['payment_method'] ?? 'cash',
             $_POST['notes'] ?? ''
         ]);
@@ -157,6 +165,23 @@ function generateSalaryPaymentCode($company_id) {
                             <label for="amount_paid" class="form-label"><?php echo __('amount_paid'); ?> *</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="amount_paid" name="amount_paid" 
                                    value="<?php echo htmlspecialchars($_POST['amount_paid'] ?? ''); ?>" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
+                            <select class="form-control" id="currency" name="currency" required>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR - Euro (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                <option value="JPY" <?php echo (($_POST['currency'] ?? '') == 'JPY') ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
+                                <option value="CAD" <?php echo (($_POST['currency'] ?? '') == 'CAD') ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
+                                <option value="AUD" <?php echo (($_POST['currency'] ?? '') == 'AUD') ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
+                                <option value="CHF" <?php echo (($_POST['currency'] ?? '') == 'CHF') ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
+                                <option value="CNY" <?php echo (($_POST['currency'] ?? '') == 'CNY') ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
+                                <option value="INR" <?php echo (($_POST['currency'] ?? '') == 'INR') ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-4">

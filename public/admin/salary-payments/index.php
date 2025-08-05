@@ -124,15 +124,29 @@ $salary_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stats_stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_payments,
-        COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_payments,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as paid_payments,
         COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_payments,
-        SUM(total_amount) as total_amount,
-        AVG(total_amount) as avg_amount
+        SUM(amount_paid) as total_amount,
+        AVG(amount_paid) as avg_amount
     FROM salary_payments
     WHERE company_id = ?
 ");
 $stats_stmt->execute([$company_id]);
 $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get currency-specific totals
+$currency_stmt = $conn->prepare("
+    SELECT 
+        COALESCE(currency, 'USD') as currency,
+        SUM(amount_paid) as total,
+        COUNT(*) as count
+    FROM salary_payments
+    WHERE company_id = ?
+    GROUP BY COALESCE(currency, 'USD')
+    ORDER BY total DESC
+");
+$currency_stmt->execute([$company_id]);
+$currency_totals = $currency_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get employee list for filter
 $stmt = $conn->prepare("SELECT id, name, employee_code FROM employees WHERE company_id = ? ORDER BY name");
@@ -223,8 +237,18 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 <?php echo __('total_amount'); ?>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$
-                                <?php echo number_format((float)($stats['total_amount'] ?? 0), 2); ?>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php if (count($currency_totals) > 1): ?>
+                                    <?php foreach ($currency_totals as $index => $currency_total): ?>
+                                        <div class="<?php echo $index > 0 ? 'small' : ''; ?>">
+                                            <?php echo $currency_total['currency']; ?>: <?php echo number_format($currency_total['total'], 2); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php elseif (count($currency_totals) == 1): ?>
+                                    <?php echo $currency_totals[0]['currency']; ?>: <?php echo number_format($currency_totals[0]['total'], 2); ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -368,7 +392,12 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        <h6 class="text-success mb-0"><?php echo formatCurrency($payment['amount_paid'] ?? 0); ?></h6>
+                                        <h6 class="text-success mb-0">
+                                            <?php 
+                                            $currency = $payment['currency'] ?? 'USD';
+                                            echo $currency . ' ' . number_format($payment['amount_paid'] ?? 0, 2); 
+                                            ?>
+                                        </h6>
                                         <small class="text-muted"><?php echo ($payment['working_days'] ?? 0); ?> <?php echo __('days'); ?></small>
                                     </div>
                                 </td>

@@ -289,7 +289,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered datatable" id="attendanceTable">
+                    <table class="table table-bordered" id="attendanceTable">
                         <thead>
                             <tr>
                                 <th><?php echo __('employee'); ?></th>
@@ -414,20 +414,30 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    if ($.fn.DataTable) {
-        $('#attendanceTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[1, 'desc']],
-            columnDefs: [
-                {
-                    targets: -1,
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
+    // Initialize DataTable with proper destroy handling
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        const table = $('#attendanceTable');
+        if (table.length > 0) {
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable('#attendanceTable')) {
+                table.DataTable().destroy();
+            }
+            
+            // Initialize fresh DataTable
+            table.DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, 'desc']],
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                destroy: true
+            });
+        }
     }
 });
 

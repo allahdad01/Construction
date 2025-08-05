@@ -18,15 +18,15 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['name', 'description', 'start_date', 'budget'];
+        $required_fields = ['name', 'description', 'start_date'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
         }
 
-        // Validate budget
-        if (!is_numeric($_POST['budget']) || $_POST['budget'] <= 0) {
+        // Validate budget if provided
+        if (!empty($_POST['total_budget']) && (!is_numeric($_POST['total_budget']) || $_POST['total_budget'] <= 0)) {
             throw new Exception("Budget must be a positive number.");
         }
 
@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO projects (
                 company_id, project_code, name, description, 
-                client_name, location, start_date, end_date,
-                budget, currency, status, priority, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())
+                client_name, client_contact, start_date, end_date,
+                total_budget, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
         ");
 
         $stmt->execute([
@@ -66,12 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['name'],
             $_POST['description'],
             $_POST['client_name'] ?? '',
-            $_POST['location'] ?? '',
+            $_POST['client_contact'] ?? '',
             $start_date,
             $end_date,
-            $_POST['budget'],
-            $_POST['currency'] ?? 'USD',
-            $_POST['priority'] ?? 'medium'
+            $_POST['total_budget'] ?? null
         ]);
 
         $project_id = $conn->lastInsertId();
@@ -147,6 +145,28 @@ function generateProjectCode($company_id) {
                 </div>
 
                 <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="client_contact" class="form-label"><?php echo __('client_contact'); ?></label>
+                            <input type="text" class="form-control" id="client_contact" name="client_contact" 
+                                   value="<?php echo htmlspecialchars($_POST['client_contact'] ?? ''); ?>" 
+                                   placeholder="Phone, email, or address">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="total_budget" class="form-label"><?php echo __('budget'); ?> (Optional)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="total_budget" name="total_budget" 
+                                   value="<?php echo htmlspecialchars($_POST['total_budget'] ?? ''); ?>" 
+                                   placeholder="Leave empty if budget is unknown">
+                            <small class="form-text text-muted">
+                                For machine rental contracts, budget may not be known upfront
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
                             <label for="description" class="form-label"><?php echo __('description'); ?> *</label>
@@ -156,27 +176,7 @@ function generateProjectCode($company_id) {
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="location" class="form-label"><?php echo __('location'); ?></label>
-                            <input type="text" class="form-control" id="location" name="location" 
-                                   value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" 
-                                   placeholder="Project site location">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="priority" class="form-label"><?php echo __('priority'); ?></label>
-                            <select class="form-control" id="priority" name="priority">
-                                <option value="low" <?php echo (($_POST['priority'] ?? 'medium') == 'low') ? 'selected' : ''; ?>>Low</option>
-                                <option value="medium" <?php echo (($_POST['priority'] ?? 'medium') == 'medium') ? 'selected' : ''; ?>>Medium</option>
-                                <option value="high" <?php echo (($_POST['priority'] ?? 'medium') == 'high') ? 'selected' : ''; ?>>High</option>
-                                <option value="urgent" <?php echo (($_POST['priority'] ?? 'medium') == 'urgent') ? 'selected' : ''; ?>>Urgent</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="row">
                     <div class="col-md-6">
@@ -195,32 +195,7 @@ function generateProjectCode($company_id) {
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="budget" class="form-label"><?php echo __('budget'); ?> *</label>
-                            <input type="number" step="0.01" min="0" class="form-control" id="budget" name="budget" 
-                                   value="<?php echo htmlspecialchars($_POST['budget'] ?? ''); ?>" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
-                            <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
-                                <option value="JPY" <?php echo (($_POST['currency'] ?? '') == 'JPY') ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
-                                <option value="CAD" <?php echo (($_POST['currency'] ?? '') == 'CAD') ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
-                                <option value="AUD" <?php echo (($_POST['currency'] ?? '') == 'AUD') ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
-                                <option value="CHF" <?php echo (($_POST['currency'] ?? '') == 'CHF') ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
-                                <option value="CNY" <?php echo (($_POST['currency'] ?? '') == 'CNY') ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
-                                <option value="INR" <?php echo (($_POST['currency'] ?? '') == 'INR') ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="row">
                     <div class="col-md-12">

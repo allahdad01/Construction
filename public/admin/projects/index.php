@@ -93,7 +93,7 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM projects WHERE company_id 
 $stmt->execute([$company_id]);
 $completed_projects = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmt = $conn->prepare("SELECT SUM(budget) as total FROM projects WHERE company_id = ? AND status = 'active'");
+$stmt = $conn->prepare("SELECT SUM(total_budget) as total FROM projects WHERE company_id = ? AND status = 'active'");
 $stmt->execute([$company_id]);
 $total_budget = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 ?>
@@ -208,7 +208,7 @@ $total_budget = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                         <thead>
                             <tr>
                                 <th><?php echo __('project_info'); ?></th>
-                                <th><?php echo __('client_location'); ?></th>
+                                <th><?php echo __('client_contact'); ?></th>
                                 <th><?php echo __('dates'); ?></th>
                                 <th><?php echo __('budget'); ?></th>
                                 <th><?php echo __('status'); ?></th>
@@ -233,7 +233,7 @@ $total_budget = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                                 </td>
                                 <td>
                                     <strong><?php echo htmlspecialchars($project['client_name'] ?? 'N/A'); ?></strong><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($project['location'] ?? 'No location'); ?></small>
+                                    <small class="text-muted"><?php echo htmlspecialchars($project['client_contact'] ?? 'No contact info'); ?></small>
                                 </td>
                                 <td>
                                     <strong>Start:</strong> <?php echo date('M j, Y', strtotime($project['start_date'])); ?><br>
@@ -243,13 +243,17 @@ $total_budget = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                                     </small>
                                 </td>
                                 <td>
-                                    <strong><?php echo formatCurrency($project['budget'] ?? 0); ?></strong><br>
-                                    <small class="text-muted">
+                                    <strong>
                                         <?php 
-                                        $priority_colors = ['low' => 'secondary', 'medium' => 'primary', 'high' => 'warning', 'urgent' => 'danger'];
-                                        $priority_color = $priority_colors[$project['priority']] ?? 'secondary';
+                                        if ($project['total_budget']) {
+                                            echo formatCurrency($project['total_budget']);
+                                        } else {
+                                            echo '<span class="text-muted">Not specified</span>';
+                                        }
                                         ?>
-                                        <span class="badge badge-<?php echo $priority_color; ?>"><?php echo ucfirst($project['priority']); ?></span>
+                                    </strong><br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> May vary based on contracts
                                     </small>
                                 </td>
                                 <td>
