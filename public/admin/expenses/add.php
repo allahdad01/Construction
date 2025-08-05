@@ -1,12 +1,12 @@
 <?php
-require_once '../../config/config.php';
-require_once '../../config/database.php';
+require_once '../../../config/config.php';
+require_once '../../../config/database.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
 requireRole(['company_admin', 'super_admin']);
 
-require_once '../../includes/header.php';
+require_once '../../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -224,4 +224,4 @@ document.getElementById('expenseForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once '../../../includes/footer.php'; ?>

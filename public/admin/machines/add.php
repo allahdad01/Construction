@@ -1,7 +1,7 @@
 <?php
-require_once '../../config/config.php';
-require_once '../../config/database.php';
-require_once '../../includes/header.php';
+require_once '../../../config/config.php';
+require_once '../../../config/database.php';
+require_once '../../../includes/header.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -460,4 +460,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once '../../../includes/footer.php'; ?>

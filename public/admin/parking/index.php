@@ -1,7 +1,7 @@
 <?php
-require_once '../../config/config.php';
-require_once '../../config/database.php';
-require_once '../../includes/header.php';
+require_once '../../../config/config.php';
+require_once '../../../config/database.php';
+require_once '../../../includes/header.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -413,4 +413,4 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once '../../../includes/footer.php'; ?>
