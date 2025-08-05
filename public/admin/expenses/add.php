@@ -40,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create expense record
         $stmt = $conn->prepare("
             INSERT INTO expenses (
-                company_id, expense_code, category, amount, 
+                company_id, expense_code, category, amount, currency,
                 expense_date, description, payment_method, 
                 reference_number, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $expense_code,
             $_POST['category'],
             $_POST['amount'],
+            $_POST['currency'] ?? 'USD',
             $_POST['expense_date'],
             $_POST['description'],
             $_POST['payment_method'] ?? 'cash',
@@ -148,11 +149,25 @@ function generateExpenseCode($company_id) {
 
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount *</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="amount" name="amount" 
-                                       step="0.01" min="0.01" required>
-                            </div>
+                            <input type="number" class="form-control" id="amount" name="amount" 
+                                   step="0.01" min="0.01" required
+                                   value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currency" class="form-label">Currency *</label>
+                            <select class="form-control" id="currency" name="currency" required>
+                                <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
+                                <option value="AFN" <?php echo ($_POST['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
+                                <option value="EUR" <?php echo ($_POST['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
+                                <option value="GBP" <?php echo ($_POST['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                <option value="JPY" <?php echo ($_POST['currency'] ?? '') === 'JPY' ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
+                                <option value="CAD" <?php echo ($_POST['currency'] ?? '') === 'CAD' ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
+                                <option value="AUD" <?php echo ($_POST['currency'] ?? '') === 'AUD' ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
+                                <option value="CHF" <?php echo ($_POST['currency'] ?? '') === 'CHF' ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
+                                <option value="CNY" <?php echo ($_POST['currency'] ?? '') === 'CNY' ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
+                                <option value="INR" <?php echo ($_POST['currency'] ?? '') === 'INR' ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">

@@ -132,10 +132,24 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id 
 $stmt->execute([$company_id]);
 $maintenance_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get total value
-$stmt = $conn->prepare("SELECT SUM(purchase_cost) as total FROM machines WHERE company_id = ? AND status != 'retired'");
+// Get total value by currency
+$stmt = $conn->prepare("
+    SELECT 
+        COALESCE(purchase_currency, 'USD') as currency,
+        SUM(purchase_cost) as total 
+    FROM machines 
+    WHERE company_id = ? AND status != 'retired' AND purchase_cost > 0
+    GROUP BY COALESCE(purchase_currency, 'USD')
+    ORDER BY total DESC
+");
 $stmt->execute([$company_id]);
-$total_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$currency_totals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate overall total in USD (for backward compatibility)
+$total_value = 0;
+foreach ($currency_totals as $currency_total) {
+    $total_value += $currency_total['total']; // This is simplified - you may want currency conversion
+}
 
 // Get machine types for filter
 $stmt = $conn->prepare("SELECT DISTINCT type FROM machines WHERE company_id = ? ORDER BY type");
@@ -219,7 +233,19 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('total_value'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_value); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php if (count($currency_totals) > 1): ?>
+                                    <?php foreach ($currency_totals as $index => $currency_total): ?>
+                                        <div class="<?php echo $index > 0 ? 'small' : ''; ?>">
+                                            <?php echo $currency_total['currency']; ?>: <?php echo number_format($currency_total['total'], 2); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php elseif (count($currency_totals) == 1): ?>
+                                    <?php echo $currency_totals[0]['currency']; ?>: <?php echo number_format($currency_totals[0]['total'], 2); ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>

@@ -39,16 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Generate machine code
         $machine_code = generateMachineCode($company_id);
 
-        // Start transaction
-        $conn->beginTransaction();
-
-        // Create machine record
-        // Add currency column if it doesn't exist
+        // Add currency column if it doesn't exist (before transaction)
         try {
             $conn->exec("ALTER TABLE machines ADD COLUMN purchase_currency VARCHAR(3) DEFAULT 'USD' AFTER purchase_cost");
         } catch (Exception $e) {
             // Column might already exist, ignore error
         }
+
+        // Start transaction
+        $conn->beginTransaction();
 
         $stmt = $conn->prepare("
             INSERT INTO machines (
@@ -84,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         // Rollback transaction on error
-        $conn->rollBack();
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         $error = $e->getMessage();
     }
 }

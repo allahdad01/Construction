@@ -9,6 +9,53 @@ require_once '../../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
+$company_id = getCurrentCompanyId();
+
+$error = '';
+$success = '';
+
+// Handle delete action
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $expense_id = (int)$_GET['delete'];
+    
+    try {
+        // Check if expense exists and belongs to company
+        $stmt = $conn->prepare("
+            SELECT expense_code, description 
+            FROM expenses 
+            WHERE id = ? AND company_id = ?
+        ");
+        $stmt->execute([$expense_id, $company_id]);
+        $expense = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$expense) {
+            throw new Exception("Expense record not found or you don't have permission to delete it.");
+        }
+        
+        // Start transaction
+        $conn->beginTransaction();
+        
+        // Delete expense
+        $stmt = $conn->prepare("DELETE FROM expenses WHERE id = ? AND company_id = ?");
+        $stmt->execute([$expense_id, $company_id]);
+        
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("No records were deleted. The expense may have already been removed.");
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
+        $success = "Expense '{$expense['expense_code']}' deleted successfully!";
+        
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        $error = $e->getMessage();
+    }
+}
 
 // Pagination
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -23,7 +70,7 @@ $date_to = $_GET['date_to'] ?? '';
 
 // Build query
 $where_conditions = ['company_id = ?'];
-$params = [getCurrentCompanyId()];
+$params = [$company_id];
 
 if (!empty($search)) {
     $where_conditions[] = "(description LIKE ? OR expense_code LIKE ? OR reference_number LIKE ?)";
@@ -67,7 +114,7 @@ $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = ?");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $total_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("
@@ -75,7 +122,7 @@ $stmt = $conn->prepare("
     FROM expenses 
     WHERE company_id = ? AND expense_date >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
 ");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $monthly_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 $stmt = $conn->prepare("
@@ -86,7 +133,7 @@ $stmt = $conn->prepare("
     ORDER BY total DESC 
     LIMIT 1
 ");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $top_category = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $stmt = $conn->prepare("
@@ -94,7 +141,7 @@ $stmt = $conn->prepare("
     FROM expenses 
     WHERE company_id = ? AND expense_date >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
 ");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $recent_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 // Get category breakdown
