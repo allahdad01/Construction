@@ -153,14 +153,24 @@ function generateAreaRentalCode($company_id) {
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="rental_area_id" class="form-label"><?php echo __('rental_area'); ?> *</label>
-                            <select class="form-control" id="rental_area_id" name="rental_area_id" required>
-                                <option value=""><?php echo __('select_rental_area'); ?></option>
-                                <?php foreach ($rental_areas as $area): ?>
-                                <option value="<?php echo $area['id']; ?>" <?php echo (isset($_POST['rental_area_id']) && $_POST['rental_area_id'] == $area['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($area['area_code'] . ' - ' . $area['area_name'] . ' (' . $area['area_type'] . ')'); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="input-group">
+                                <select class="form-control" id="rental_area_id" name="rental_area_id" required>
+                                    <option value=""><?php echo __('select_rental_area'); ?></option>
+                                    <?php foreach ($rental_areas as $area): ?>
+                                    <option value="<?php echo $area['id']; ?>" <?php echo (isset($_POST['rental_area_id']) && $_POST['rental_area_id'] == $area['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($area['area_code'] . ' - ' . $area['area_name'] . ' (' . $area['area_type'] . ')'); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <a href="../rental-areas/add.php" class="btn btn-outline-primary" title="Add New Rental Area">
+                                    <i class="fas fa-plus"></i> Add Area
+                                </a>
+                            </div>
+                            <?php if (empty($rental_areas)): ?>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> No rental areas available. <a href="../rental-areas/add.php">Create one first</a>.
+                                </small>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="col-md-6">
