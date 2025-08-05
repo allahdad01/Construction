@@ -1,11 +1,12 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
-require_once '../../../includes/header.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
 requireRole(['company_admin', 'super_admin']);
+require_once '../../../includes/header.php';
+
 
 $db = new Database();
 $conn = $db->getConnection();
