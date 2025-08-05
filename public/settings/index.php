@@ -60,17 +60,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $working_hours_end = trim($_POST['working_hours_end'] ?? '17:00');
             $weekend_days = $_POST['weekend_days'] ?? ['saturday', 'sunday'];
             
-            // Update company settings
-            $stmt = $conn->prepare("
-                UPDATE company_settings 
-                SET currency_id = ?, date_format_id = ?, default_language_id = ?, timezone = ?, 
-                    working_hours_start = ?, working_hours_end = ?, weekend_days = ?
-                WHERE company_id = ?
-            ");
-            $stmt->execute([
-                $currency_id, $date_format_id, $default_language_id, $timezone,
-                $working_hours_start, $working_hours_end, json_encode($weekend_days), $company_id
-            ]);
+            // Update company settings using key-value approach
+            $settings = [
+                'default_currency_id' => $currency_id,
+                'date_format_id' => $date_format_id,
+                'default_language_id' => $default_language_id,
+                'timezone' => $timezone,
+                'working_hours_start' => $working_hours_start,
+                'working_hours_end' => $working_hours_end,
+                'weekend_days' => json_encode($weekend_days)
+            ];
+            
+            foreach ($settings as $key => $value) {
+                $stmt = $conn->prepare("
+                    INSERT INTO company_settings (company_id, setting_key, setting_value) 
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+                ");
+                $stmt->execute([$company_id, $key, $value]);
+            }
             
             $success = __('company_preferences_updated_successfully');
             

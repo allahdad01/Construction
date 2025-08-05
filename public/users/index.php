@@ -375,7 +375,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                     <?php if ($user['employee_code']): ?>
                                         <small class="text-muted">
                                             <strong>Code:</strong> <?php echo htmlspecialchars($user['employee_code']); ?><br>
-                                            <strong>Type:</strong> <?php echo ucfirst(str_replace('_', ' ', $user['employee_type'])); ?>
+                                            <strong>Position:</strong> <?php echo htmlspecialchars($user['position'] ?? 'N/A'); ?>
                                         </small>
                                     <?php else: ?>
                                         <small class="text-muted"><?php echo __('no_employee_record'); ?></small>
@@ -410,10 +410,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         </a>
                                         <?php if ($user['id'] != getCurrentUser()['id']): ?>
                                         <button type="button" 
-                                                class="btn btn-sm btn-outline-danger" 
+                                                class="btn btn-sm btn-outline-danger delete-user-btn" 
                                                 data-user-id="<?php echo $user['id']; ?>"
                                                 data-user-name="<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>"
-                                                onclick="confirmDelete(this.dataset.userId, this.dataset.userName)"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -463,75 +462,24 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add small delay to ensure everything is loaded
-    setTimeout(function() {
-        initializeUsersTable();
-    }, 100);
-});
-
-// Global flag to prevent multiple initializations
-window.usersTableInitialized = false;
-
-function initializeUsersTable() {
-    try {
-        // Prevent multiple initializations
-        if (window.usersTableInitialized) {
-            console.log('DataTable already initialized, skipping...');
-            return;
-        }
-
-        // Check if jQuery and DataTables are loaded
-        if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
-            console.warn('jQuery or DataTables not loaded');
-            return;
-        }
-
-        const tableElement = $('#usersTable');
-        if (tableElement.length === 0) {
-            console.warn('Users table element not found');
-            return;
-        }
-
-        // If DataTable already exists, destroy it first
-        if ($.fn.DataTable.isDataTable('#usersTable')) {
-            console.log('Destroying existing DataTable...');
-            tableElement.DataTable().clear().destroy();
-        }
-
-        // Initialize fresh DataTable
-        tableElement.DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[6, 'desc']], // Column 6 is 'created' (0-indexed)
-            columnDefs: [
-                {
-                    targets: -1, // Last column (actions)
-                    orderable: false,
-                    searchable: false
-                }
-            ],
-            destroy: true, // Allow destroying if needed
-            language: {
-                emptyTable: "No users found",
-                info: "Showing _START_ to _END_ of _TOTAL_ users",
-                infoEmpty: "Showing 0 to 0 of 0 users",
-                infoFiltered: "(filtered from _MAX_ total users)",
-                lengthMenu: "Show _MENU_ users per page",
-                loadingRecords: "Loading...",
-                processing: "Processing...",
-                search: "Search users:",
-                zeroRecords: "No matching users found"
-            }
+    // Simple table initialization without DataTables to avoid conflicts
+    console.log('Page loaded successfully');
+    
+    // Ensure all delete buttons are working
+    const deleteButtons = document.querySelectorAll('.delete-user-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const userId = this.dataset.userId;
+            const userName = this.dataset.userName;
+            console.log(`Delete button clicked for user: ${userName} (ID: ${userId})`);
+            confirmDelete(userId, userName);
         });
-
-        // Mark as initialized
-        window.usersTableInitialized = true;
-        console.log('DataTable initialized successfully');
-    } catch (error) {
-        console.error('Error initializing DataTable:', error);
-        window.usersTableInitialized = false;
-    }
-}
+    });
+    
+    console.log(`Found ${deleteButtons.length} delete buttons`);
+});
 
 // Confirm delete function
 function confirmDelete(userId, userName) {
