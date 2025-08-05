@@ -457,8 +457,8 @@ INSERT INTO date_formats (format_code, format_name, format_pattern) VALUES
 -- Insert default languages
 INSERT INTO languages (language_code, language_name, language_name_native, direction, is_default) VALUES 
 ('en', 'English', 'English', 'ltr', TRUE),
-('da', 'Dari', 'دری', 'rtl', FALSE),
-('ps', 'Pashto', 'پښتو', 'rtl', FALSE);
+('ps', 'Pashto', 'پښتو', 'rtl', FALSE),
+('da', 'Dari', 'دری', 'rtl', FALSE);
 
 -- Insert English translations
 INSERT INTO language_translations (language_id, translation_key, translation_value) VALUES 

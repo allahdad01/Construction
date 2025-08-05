@@ -542,7 +542,7 @@ date_default_timezone_set($company_timezone);
         
         <ul class="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="/constract360/construction/public/dashboard/">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/">
                     <i class="fas fa-tachometer-alt"></i>
                     <span><?php echo __('dashboard'); ?></span>
                 </a>
@@ -556,12 +556,7 @@ date_default_timezone_set($company_timezone);
                         <span>Companies</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'subscription-plans') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/subscription-plans">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Subscription Plans</span>
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
                         <i class="fas fa-language"></i>
@@ -712,13 +707,7 @@ date_default_timezone_set($company_timezone);
                 </li>
             <?php endif; ?>
             
-            <!-- Common Menu Items -->
-            <li class="nav-item">
-                <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="/constract360/construction/public/logout.php">
                     <i class="fas fa-sign-out-alt"></i>
