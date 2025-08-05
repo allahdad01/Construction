@@ -791,9 +791,12 @@ date_default_timezone_set($company_timezone);
         <div class="container-fluid p-4">
         
         <script>
+        // Define API base URL
+        const apiBaseUrl = '<?php echo rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); ?>/../api/';
+        
         // Load notifications from API
         function loadNotifications() {
-            fetch('../api/get-notifications.php')
+            fetch(apiBaseUrl + 'get-notifications.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -887,7 +890,7 @@ date_default_timezone_set($company_timezone);
             formData.append('notification_id', notificationId);
             formData.append('action', 'mark_read');
 
-            fetch('../api/mark-notification-read.php', {
+            fetch(apiBaseUrl + 'mark-notification-read.php', {
                 method: 'POST',
                 body: formData
             })
@@ -907,7 +910,7 @@ date_default_timezone_set($company_timezone);
             const formData = new FormData();
             formData.append('action', 'mark_all_read');
 
-            fetch('../api/mark-notification-read.php', {
+            fetch(apiBaseUrl + 'mark-notification-read.php', {
                 method: 'POST',
                 body: formData
             })
