@@ -37,7 +37,7 @@ class Database {
             $this->conn = new PDO($dsn, $this->username, $this->password, $options);
             
         } catch(PDOException $exception) {
-            error_log("Connection error: " . $exception->getMessage());
+            // Don't use error_log as it can cause "headers already sent" errors
             throw new Exception("Database connection failed. Please check your configuration.");
         }
 
