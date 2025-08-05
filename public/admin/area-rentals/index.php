@@ -72,14 +72,14 @@ $where_clause = implode(' AND ', $where_conditions);
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) as total 
     FROM area_rentals 
-    WHERE $where_clause
+    WHERE company_id = ?
 ");
-$count_stmt->execute($params);
+$count_stmt->execute([$company_id]);
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $per_page);
 
 // Get area rentals with pagination
-$stmt = $conn->prepare("
+$area_rentals_query = "
     SELECT ar.*, 
            COUNT(c.id) as contract_count,
            SUM(CASE WHEN c.status = 'active' THEN 1 ELSE 0 END) as active_contracts
@@ -89,10 +89,10 @@ $stmt = $conn->prepare("
     GROUP BY ar.id
     ORDER BY ar.created_at DESC 
     LIMIT ? OFFSET ?
-");
-$params[] = $per_page;
-$params[] = $offset;
-$stmt->execute($params);
+";
+$stmt = $conn->prepare($area_rentals_query);
+$params_with_limits = array_merge($params, [$per_page, $offset]);
+$stmt->execute($params_with_limits);
 $area_rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics

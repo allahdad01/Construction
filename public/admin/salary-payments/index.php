@@ -194,7 +194,9 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 <?php echo __('total_amount'); ?>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($stats['total_amount'], 2); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$
+                                <?php echo number_format((float)($stats['total_amount'] ?? 0), 2); ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
