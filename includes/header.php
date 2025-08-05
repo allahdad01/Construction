@@ -100,9 +100,9 @@ date_default_timezone_set($company_timezone);
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: <?php echo $primary_color; ?>;
-            --secondary-color: <?php echo $secondary_color; ?>;
-            --accent-color: <?php echo $accent_color; ?>;
+            --primary-color: <?php echo htmlspecialchars($primary_color); ?>;
+            --secondary-color: <?php echo htmlspecialchars($secondary_color); ?>;
+            --accent-color: <?php echo htmlspecialchars($accent_color); ?>;
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
@@ -598,45 +598,51 @@ date_default_timezone_set($company_timezone);
             <?php elseif ($is_company_admin): ?>
                 <!-- Company Admin Menu -->
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employees/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
                         <i class="fas fa-users"></i>
                         <span><?php echo __('employees'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/machines/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
                         <i class="fas fa-truck"></i>
                         <span><?php echo __('machines'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/contracts/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
                         <i class="fas fa-file-contract"></i>
                         <span><?php echo __('contracts'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/parking/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
                         <i class="fas fa-parking"></i>
                         <span><?php echo __('parking'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/area-rentals/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
                         <i class="fas fa-map-marked-alt"></i>
                         <span><?php echo __('area_rentals'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/expenses/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
                         <i class="fas fa-receipt"></i>
                         <span><?php echo __('expenses'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/salary-payments/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
                         <i class="fas fa-money-bill-wave"></i>
                         <span><?php echo __('salary_payments'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
+                        <i class="fas fa-clock"></i>
+                        <span><?php echo __('attendance'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
