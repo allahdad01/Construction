@@ -1,10 +1,10 @@
 <?php
-require_once 'config/config.php';
-require_once 'config/database.php';
+require_once '../config/config.php';
+require_once '../config/database.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    header('Location: public/dashboard/');
+    header('Location: dashboard/');
     exit;
 }
 
@@ -45,9 +45,9 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             
             // Redirect based on role
             if ($user['role'] === 'super_admin') {
-                header('Location: public/super-admin/');
+                header('Location: super-admin/');
             } else {
-                header('Location: public/dashboard/');
+                header('Location: dashboard/');
             }
             exit;
         }
@@ -118,9 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Redirect based on role
                     if ($user['role'] === 'super_admin') {
-                        header('Location: public/super-admin/');
+                        header('Location: super-admin/');
                     } else {
-                        header('Location: public/dashboard/');
+                        header('Location: dashboard/');
                     }
                     exit;
                 }
