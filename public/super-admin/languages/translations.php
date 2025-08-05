@@ -50,32 +50,36 @@ $stmt = $conn->prepare("SELECT * FROM languages ORDER BY language_name");
 $stmt->execute();
 $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get all available translation keys from the system
-$system_keys = [
-    'dashboard', 'employees', 'machines', 'contracts', 'parking', 'area_rentals', 
-    'expenses', 'salary_payments', 'reports', 'users', 'settings', 'profile', 
-    'logout', 'add', 'edit', 'delete', 'view', 'save', 'cancel', 'back',
-    'search', 'filter', 'export', 'import', 'download', 'upload', 'status',
-    'active', 'inactive', 'pending', 'completed', 'cancelled', 'suspended',
-    'name', 'email', 'phone', 'address', 'position', 'salary', 'hire_date',
-    'machine_code', 'machine_type', 'model', 'year', 'capacity', 'fuel_type',
-    'purchase_date', 'purchase_cost', 'contract_code', 'project_name', 'client_name',
-    'start_date', 'end_date', 'rate_amount', 'total_amount', 'working_hours',
-    'parking_space', 'monthly_rate', 'daily_rate', 'rental_code', 'client_contact',
-    'expense_type', 'expense_amount', 'expense_date', 'expense_description',
-    'payment_method', 'payment_date', 'payment_status', 'transaction_id',
-    'company_name', 'company_code', 'subscription_plan', 'subscription_status',
-    'trial_ends_at', 'max_employees', 'max_machines', 'max_projects',
-    'total_revenue', 'total_expenses', 'net_income', 'working_hours_per_day',
-    'overtime_hours', 'leave_days', 'attendance', 'timesheet', 'payroll',
-    'reports_overview', 'reports_financial', 'reports_employee', 'reports_contract',
-    'reports_machine', 'system_settings', 'platform_settings', 'user_management',
-    'language_settings', 'currency_settings', 'date_format_settings', 'timezone_settings',
-    'backup_restore', 'system_logs', 'audit_trail', 'notifications', 'alerts',
-    'help_support', 'documentation', 'api_documentation', 'developer_tools'
-];
+// Get all available translation keys from the database
+$stmt = $conn->prepare("SELECT DISTINCT translation_key FROM language_translations ORDER BY translation_key");
+$stmt->execute();
+$all_keys = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-$all_keys = $system_keys;
+// If no keys found in database, use a basic set
+if (empty($all_keys)) {
+    $all_keys = [
+        'dashboard', 'employees', 'machines', 'contracts', 'parking', 'area_rentals', 
+        'expenses', 'salary_payments', 'reports', 'users', 'settings', 'profile', 
+        'logout', 'add', 'edit', 'delete', 'view', 'save', 'cancel', 'back',
+        'search', 'filter', 'status', 'active', 'inactive', 'pending', 'completed',
+        'name', 'email', 'phone', 'address', 'position', 'salary', 'hire_date',
+        'machine_code', 'machine_type', 'model', 'year', 'capacity', 'fuel_type',
+        'purchase_date', 'purchase_cost', 'contract_code', 'project_name', 'client_name',
+        'start_date', 'end_date', 'rate_amount', 'total_amount', 'working_hours',
+        'parking_space', 'monthly_rate', 'daily_rate', 'rental_code', 'client_contact',
+        'expense_type', 'expense_amount', 'expense_date', 'expense_description',
+        'payment_method', 'payment_date', 'payment_status', 'transaction_id',
+        'company_name', 'company_code', 'subscription_plan', 'subscription_status',
+        'trial_ends_at', 'max_employees', 'max_machines', 'max_projects',
+        'total_revenue', 'total_expenses', 'net_income', 'working_hours_per_day',
+        'overtime_hours', 'leave_days', 'attendance', 'timesheet', 'payroll',
+        'reports_overview', 'reports_financial', 'reports_employee', 'reports_contract',
+        'reports_machine', 'system_settings', 'platform_settings', 'user_management',
+        'language_settings', 'currency_settings', 'date_format_settings', 'timezone_settings',
+        'backup_restore', 'system_logs', 'audit_trail', 'notifications', 'alerts',
+        'help_support', 'documentation', 'api_documentation', 'developer_tools'
+    ];
+}
 
 // Get translations for selected language
 $translations = [];
@@ -152,6 +156,16 @@ if ($language_id) {
                     </form>
 
                     <?php if ($selected_language): ?>
+                        <?php
+                        $total_keys = count($all_keys);
+                        $translated_keys = 0;
+                        foreach ($translations as $translation) {
+                            if ($translation['exists']) {
+                                $translated_keys++;
+                            }
+                        }
+                        $translation_percentage = $total_keys > 0 ? round(($translated_keys / $total_keys) * 100, 1) : 0;
+                        ?>
                         <div class="alert alert-info">
                             <strong>Language:</strong> <?php echo htmlspecialchars($selected_language['language_name']); ?><br>
                             <strong>Native Name:</strong> <?php echo htmlspecialchars($selected_language['language_name_native']); ?><br>
@@ -159,7 +173,9 @@ if ($language_id) {
                             <strong>Status:</strong> 
                             <span class="badge <?php echo $selected_language['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
                                 <?php echo $selected_language['is_active'] ? 'Active' : 'Inactive'; ?>
-                            </span>
+                            </span><br>
+                            <strong>Translation Progress:</strong> 
+                            <span class="badge bg-info"><?php echo $translated_keys; ?> / <?php echo $total_keys; ?> (<?php echo $translation_percentage; ?>%)</span>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -205,7 +221,7 @@ if ($language_id) {
                         <h6 class="m-0 font-weight-bold text-primary">
                             Translations for <?php echo htmlspecialchars($selected_language['language_name']); ?>
                         </h6>
-                        <span class="badge bg-primary"><?php echo count($translations); ?> translations</span>
+                        <span class="badge bg-primary"><?php echo count($all_keys); ?> total keys</span>
                     </div>
                     <div class="card-body">
                         <?php if (empty($translations)): ?>
