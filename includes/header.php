@@ -793,7 +793,7 @@ date_default_timezone_set($company_timezone);
         <script>
         // Load notifications from API
         function loadNotifications() {
-            fetch('/constract360/construction/public/api/get-notifications.php')
+            fetch('../api/get-notifications.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -887,7 +887,7 @@ date_default_timezone_set($company_timezone);
             formData.append('notification_id', notificationId);
             formData.append('action', 'mark_read');
 
-            fetch('/constract360/construction/public/api/mark-notification-read.php', {
+            fetch('../api/mark-notification-read.php', {
                 method: 'POST',
                 body: formData
             })
@@ -907,7 +907,7 @@ date_default_timezone_set($company_timezone);
             const formData = new FormData();
             formData.append('action', 'mark_all_read');
 
-            fetch('/constract360/construction/public/api/mark-notification-read.php', {
+            fetch('../api/mark-notification-read.php', {
                 method: 'POST',
                 body: formData
             })
