@@ -5,7 +5,7 @@ require_once '../../includes/header.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
-requireRole(['company_admin', 'super_admin']);
+requireAnyRole(['company_admin', 'super_admin']);
 
 $db = new Database();
 $conn = $db->getConnection();
