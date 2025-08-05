@@ -41,14 +41,14 @@ if ($machine['year_manufactured']) {
     $machine_age = date('Y') - $machine['year_manufactured'];
 }
 
-// Get usage statistics (if available)
+// Get usage statistics (from contracts table)
 $stmt = $conn->prepare("
     SELECT COUNT(*) as total_contracts,
            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_contracts
-    FROM machine_contracts 
-    WHERE machine_id = ?
+    FROM contracts 
+    WHERE machine_id = ? AND company_id = ?
 ");
-$stmt->execute([$machine_id]);
+$stmt->execute([$machine_id, $company_id]);
 $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
@@ -111,7 +111,7 @@ $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <?php echo $machine['purchase_date'] ? date('M j, Y', strtotime($machine['purchase_date'])) : 'N/A'; ?>
                             </p>
                             <p><strong><?php echo __('purchase_cost'); ?>:</strong> 
-                                <?php echo $machine['purchase_cost'] ? formatCurrency($machine['purchase_cost']) : 'N/A'; ?>
+                                <?php echo $machine['purchase_cost'] ? formatCurrency($machine['purchase_cost'], $machine['purchase_currency'] ?? 'USD') : 'N/A'; ?>
                             </p>
                         </div>
                     </div>
@@ -150,7 +150,7 @@ $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('machine_value'); ?></h6>
-                        <h4 class="text-success"><?php echo $machine['purchase_cost'] ? formatCurrency($machine['purchase_cost']) : 'N/A'; ?></h4>
+                        <h4 class="text-success"><?php echo $machine['purchase_cost'] ? formatCurrency($machine['purchase_cost'], $machine['purchase_currency'] ?? 'USD') : 'N/A'; ?></h4>
                     </div>
                     
                     <div class="mb-3">
@@ -218,19 +218,17 @@ $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
                             <i class="fas fa-edit"></i> <?php echo __('edit_machine'); ?>
                         </a>
                         
-                        <a href="contracts.php?machine_id=<?php echo $machine_id; ?>" class="btn btn-success btn-sm">
+                        <a href="../contracts/index.php?machine_id=<?php echo $machine_id; ?>" class="btn btn-success btn-sm">
                             <i class="fas fa-file-contract"></i> <?php echo __('view_contracts'); ?>
                         </a>
                         
-                        <a href="maintenance.php?machine_id=<?php echo $machine_id; ?>" class="btn btn-warning btn-sm">
-                            <i class="fas fa-tools"></i> <?php echo __('maintenance_log'); ?>
+                        <a href="../expenses/index.php?category=maintenance&search=<?php echo urlencode($machine['machine_code']); ?>" class="btn btn-warning btn-sm">
+                            <i class="fas fa-tools"></i> <?php echo __('maintenance_expenses'); ?>
                         </a>
                         
-                        <?php if ($machine['status'] !== 'retired'): ?>
-                        <button class="btn btn-danger btn-sm" onclick="confirmRetire(<?php echo $machine_id; ?>, '<?php echo htmlspecialchars($machine['machine_code']); ?>')">
-                            <i class="fas fa-times"></i> <?php echo __('retire_machine'); ?>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $machine_id; ?>, '<?php echo htmlspecialchars($machine['name']); ?>')">
+                            <i class="fas fa-trash"></i> <?php echo __('delete_machine'); ?>
                         </button>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -323,10 +321,10 @@ $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
 </style>
 
 <script>
-function confirmRetire(machineId, machineCode) {
-    const message = `Are you sure you want to retire machine "${machineCode}"? This action cannot be undone.`;
+function confirmDelete(machineId, machineName) {
+    const message = `Are you sure you want to delete machine "${machineName}"? This action cannot be undone.`;
     if (confirm(message)) {
-        window.location.href = `retire.php?id=${machineId}`;
+        window.location.href = `index.php?delete=${machineId}`;
     }
 }
 </script>

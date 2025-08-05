@@ -70,12 +70,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
+        // Add currency column if it doesn't exist
+        try {
+            $conn->exec("ALTER TABLE machines ADD COLUMN purchase_currency VARCHAR(3) DEFAULT 'USD' AFTER purchase_cost");
+        } catch (Exception $e) {
+            // Column might already exist, ignore error
+        }
+
         // Update machine record
         $stmt = $conn->prepare("
             UPDATE machines SET
                 name = ?, type = ?, model = ?, year_manufactured = ?, capacity = ?, 
                 fuel_type = ?, status = ?, purchase_date = ?, purchase_cost = ?, 
-                is_active = ?, updated_at = NOW()
+                purchase_currency = ?, is_active = ?, updated_at = NOW()
             WHERE id = ? AND company_id = ?
         ");
 
@@ -89,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['status'],
             $_POST['purchase_date'] ?: null,
             $_POST['purchase_cost'] ?: null,
+            $_POST['purchase_currency'] ?: 'USD',
             isset($_POST['is_active']) ? 1 : 0,
             $machine_id,
             $company_id
@@ -246,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <label for="purchase_cost" class="form-label"><?php echo __('purchase_cost'); ?></label>
                             <input type="number" step="0.01" class="form-control" id="purchase_cost" name="purchase_cost" 
@@ -254,7 +262,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    min="0">
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="purchase_currency" class="form-label"><?php echo __('currency'); ?></label>
+                            <select class="form-control" id="purchase_currency" name="purchase_currency">
+                                <option value="USD" <?php echo (($machine['purchase_currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD</option>
+                                <option value="AFN" <?php echo (($machine['purchase_currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN</option>
+                                <option value="EUR" <?php echo (($machine['purchase_currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR</option>
+                                <option value="GBP" <?php echo (($machine['purchase_currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <div class="form-check mt-4">
                                 <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 

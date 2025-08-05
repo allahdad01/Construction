@@ -43,12 +43,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
 
         // Create machine record
+        // Add currency column if it doesn't exist
+        try {
+            $conn->exec("ALTER TABLE machines ADD COLUMN purchase_currency VARCHAR(3) DEFAULT 'USD' AFTER purchase_cost");
+        } catch (Exception $e) {
+            // Column might already exist, ignore error
+        }
+
         $stmt = $conn->prepare("
             INSERT INTO machines (
                 company_id, machine_code, name, type, model,
                 year_manufactured, capacity, fuel_type, status,
-                purchase_date, purchase_cost, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?, NOW())
+                purchase_date, purchase_cost, purchase_currency, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
@@ -61,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['capacity'] ?? '',
             $_POST['fuel_type'] ?? '',
             $_POST['purchase_date'] ?? null,
-            $_POST['purchase_cost']
+            $_POST['purchase_cost'],
+            $_POST['purchase_currency'] ?? 'USD'
         ]);
 
         $machine_id = $conn->lastInsertId();
@@ -205,18 +213,26 @@ function generateMachineCode($company_id) {
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="purchase_cost" class="form-label">Purchase Cost *</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="purchase_cost" name="purchase_cost"
-                                               value="<?php echo htmlspecialchars($_POST['purchase_cost'] ?? ''); ?>"
-                                               step="0.01" min="0" required>
-                                    </div>
+                                    <input type="number" class="form-control" id="purchase_cost" name="purchase_cost"
+                                           value="<?php echo htmlspecialchars($_POST['purchase_cost'] ?? ''); ?>"
+                                           step="0.01" min="0" required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="purchase_currency" class="form-label">Currency</label>
+                                    <select class="form-control" id="purchase_currency" name="purchase_currency">
+                                        <option value="USD" <?php echo (($_POST['purchase_currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD</option>
+                                        <option value="AFN" <?php echo (($_POST['purchase_currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN</option>
+                                        <option value="EUR" <?php echo (($_POST['purchase_currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR</option>
+                                        <option value="GBP" <?php echo (($_POST['purchase_currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="purchase_date" class="form-label">Purchase Date</label>
                                     <input type="date" class="form-control" id="purchase_date" name="purchase_date"

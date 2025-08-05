@@ -10,6 +10,61 @@ require_once '../../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
+$company_id = getCurrentCompanyId();
+
+$error = '';
+$success = '';
+
+// Handle machine deletion
+if ($_GET['delete'] ?? false) {
+    $machine_id = (int)$_GET['delete'];
+    
+    try {
+        // Check if machine exists and belongs to company
+        $stmt = $conn->prepare("SELECT machine_code, name FROM machines WHERE id = ? AND company_id = ?");
+        $stmt->execute([$machine_id, $company_id]);
+        $machine = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$machine) {
+            throw new Exception("Machine not found.");
+        }
+        
+        // Check for related records
+        $related_records = [];
+        
+        // Check contracts
+        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM contracts WHERE machine_id = ?");
+        $stmt->execute([$machine_id]);
+        $contract_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        if ($contract_count > 0) {
+            $related_records[] = "$contract_count contract(s)";
+        }
+        
+        if (!empty($related_records)) {
+            throw new Exception("Cannot delete machine '{$machine['name']}' because it has related records: " . implode(', ', $related_records) . ". Please remove these records first.");
+        }
+        
+        // Start transaction
+        $conn->beginTransaction();
+        
+        // Delete machine
+        $stmt = $conn->prepare("DELETE FROM machines WHERE id = ? AND company_id = ?");
+        $stmt->execute([$machine_id, $company_id]);
+        
+        // Commit transaction
+        $conn->commit();
+        
+        $success = "Machine '{$machine['name']}' deleted successfully!";
+        
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        $error = $e->getMessage();
+    }
+}
 
 // Pagination
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -23,7 +78,7 @@ $status_filter = $_GET['status'] ?? '';
 
 // Build query
 $where_conditions = ['company_id = ?'];
-$params = [getCurrentCompanyId()];
+$params = [$company_id];
 
 if (!empty($search)) {
     $where_conditions[] = "(name LIKE ? OR machine_code LIKE ? OR model LIKE ?)";
@@ -62,29 +117,29 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ?");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $total_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'available'");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $available_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'in_use'");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $in_use_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ? AND status = 'maintenance'");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $maintenance_machines = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 // Get total value
 $stmt = $conn->prepare("SELECT SUM(purchase_cost) as total FROM machines WHERE company_id = ? AND status != 'retired'");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $total_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
 // Get machine types for filter
 $stmt = $conn->prepare("SELECT DISTINCT type FROM machines WHERE company_id = ? ORDER BY type");
-$stmt->execute([getCurrentCompanyId()]);
+$stmt->execute([$company_id]);
 $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
@@ -95,6 +150,14 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
             <i class="fas fa-plus"></i> <?php echo __('add_machine'); ?>
         </a>
     </div>
+
+    <?php if ($error): ?>
+        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
 
     <!-- Statistics Cards -->
     <div class="row">
@@ -305,27 +368,20 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="contracts.php?machine_id=<?php echo $machine['id']; ?>" 
+                                            <a href="../contracts/index.php?machine_id=<?php echo $machine['id']; ?>" 
                                                class="btn btn-sm btn-success" title="Contracts">
                                                 <i class="fas fa-file-contract"></i>
                                             </a>
-                                            <a href="maintenance.php?machine_id=<?php echo $machine['id']; ?>" 
+                                            <a href="../expenses/index.php?category=maintenance&search=<?php echo urlencode($machine['machine_code']); ?>" 
                                                class="btn btn-sm btn-primary" title="Maintenance">
                                                 <i class="fas fa-tools"></i>
                                             </a>
-                                            <?php if ($machine['status'] !== 'retired'): ?>
-                                                <a href="retire.php?id=<?php echo $machine['id']; ?>" 
-                                                   class="btn btn-sm btn-danger" title="Retire"
-                                                   onclick="return confirmDelete('<?php echo __('confirm_retire_machine'); ?>')">
-                                                    <i class="fas fa-times"></i>
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="reactivate.php?id=<?php echo $machine['id']; ?>" 
-                                                   class="btn btn-sm btn-success" title="Reactivate"
-                                                   onclick="return confirmDelete('<?php echo __('confirm_reactivate_machine'); ?>')">
-                                                    <i class="fas fa-check"></i>
-                                                </a>
-                                            <?php endif; ?>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    onclick="confirmDelete(<?php echo $machine['id']; ?>, '<?php echo htmlspecialchars($machine['name']); ?>')"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -430,8 +486,11 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 </div>
 
 <script>
-function confirmDelete(message) {
-    return confirm(message);
+function confirmDelete(machineId, machineName) {
+    const message = `Are you sure you want to delete machine "${machineName}"? This action cannot be undone.`;
+    if (confirm(message)) {
+        window.location.href = `index.php?delete=${machineId}`;
+    }
 }
 </script>
 
