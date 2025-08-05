@@ -2196,3 +2196,19 @@ INSERT INTO language_translations (language_id, translation_key, translation_val
 (3, 'information', 'اطلاعات'),
 (3, 'current_plan_info', 'اطلاعات طرح فعلی'),
 (3, 'popular_plan', 'طرح محبوب');
+
+-- Sample User Notifications
+INSERT INTO user_notifications (user_id, title, message, type, is_read, created_at) VALUES
+-- Super Admin Notifications
+(1, 'New Company Registration', 'ABC Construction has registered for a trial account.', 'info', 0, NOW() - INTERVAL 2 HOUR),
+(1, 'System Maintenance', 'Scheduled maintenance will occur tonight at 2 AM.', 'warning', 0, NOW() - INTERVAL 1 DAY),
+
+-- Company Admin Notifications  
+(2, 'New Contract Assigned', 'Contract #CTR-2024-001 has been assigned to your company.', 'info', 0, NOW() - INTERVAL 3 HOUR),
+(2, 'Payment Received', 'Payment of $1,500 has been received for Contract #CTR-2024-001.', 'success', 0, NOW() - INTERVAL 1 DAY),
+(2, 'System Update', 'New features have been added to the platform.', 'info', 1, NOW() - INTERVAL 2 DAYS),
+
+-- Employee Notifications
+(3, 'Timesheet Reminder', 'Please submit your timesheet for this week.', 'warning', 0, NOW() - INTERVAL 4 HOUR),
+(3, 'Salary Payment', 'Your salary payment of $800 has been processed.', 'success', 0, NOW() - INTERVAL 1 DAY),
+(3, 'New Assignment', 'You have been assigned to Project Alpha.', 'info', 1, NOW() - INTERVAL 3 DAYS);

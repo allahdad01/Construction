@@ -772,6 +772,20 @@ INSERT INTO language_translations (language_id, translation_key, translation_val
 (3, 'area_renter', 'د ساحې کرایه کوونکی'),
 (3, 'container_renter', 'د کانتینر کرایه کوونکی');
 
+-- User Notifications Table
+CREATE TABLE user_notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'info',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_read (user_id, is_read),
+    INDEX idx_created_at (created_at)
+);
+
 -- Remember tokens table for "Remember Me" functionality
 CREATE TABLE remember_tokens (
     id INT PRIMARY KEY AUTO_INCREMENT,

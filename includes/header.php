@@ -733,32 +733,13 @@ date_default_timezone_set($company_timezone);
                     <div class="d-flex align-items-center">
                         <!-- Notifications -->
                         <div class="dropdown me-3">
-                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
                                 <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger rounded-pill"><?php echo $current_user['role'] === 'super_admin' ? '2' : '3'; ?></span>
+                                <span class="badge bg-danger rounded-pill" id="notificationBadge">0</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
                                 <li><h6 class="dropdown-header">Notifications</h6></li>
-                                <?php if ($current_user['role'] === 'super_admin'): ?>
-                                    <!-- Super Admin Notifications -->
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/super-admin/companies/">
-                                        <i class="fas fa-building me-2"></i>New company registered
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/super-admin/settings/">
-                                        <i class="fas fa-cog me-2"></i>System maintenance required
-                                    </a></li>
-                                <?php else: ?>
-                                    <!-- Company Admin/Employee Notifications -->
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/contracts/">
-                                        <i class="fas fa-file-contract me-2"></i>New contract assigned
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/salary-payments/">
-                                        <i class="fas fa-money-bill me-2"></i>Payment received
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/settings/">
-                                        <i class="fas fa-cog me-2"></i>System maintenance
-                                    </a></li>
-                                <?php endif; ?>
+                                <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
                                     <small class="text-muted">Mark all as read</small>
@@ -810,29 +791,161 @@ date_default_timezone_set($company_timezone);
         <div class="container-fluid p-4">
         
         <script>
-        function markAllAsRead() {
-            // Hide the notification badge
-            const badge = document.querySelector('.badge');
+        // Load notifications from API
+        function loadNotifications() {
+            fetch('/constract360/construction/public/api/get-notifications.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateNotificationBadge(data.unread_count);
+                        updateNotificationList(data.notifications);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                });
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
             if (badge) {
-                badge.style.display = 'none';
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'inline' : 'none';
+            }
+        }
+
+        // Update notification list
+        function updateNotificationList(notifications) {
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+
+            // Clear existing notifications (keep header and footer)
+            const header = list.querySelector('.dropdown-header').parentElement;
+            const footer = list.querySelector('.dropdown-divider').parentElement;
+            const markAllLink = list.querySelector('a[onclick="markAllAsRead()"]').parentElement;
+            
+            list.innerHTML = '';
+            list.appendChild(header);
+            
+            if (notifications.length === 0) {
+                const noNotifications = document.createElement('li');
+                noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted">No notifications</small></div>';
+                list.appendChild(noNotifications);
+            } else {
+                notifications.forEach(notification => {
+                    const item = document.createElement('li');
+                    const icon = getNotificationIcon(notification.type);
+                    const timeAgo = getTimeAgo(notification.created_at);
+                    
+                    item.innerHTML = `
+                        <a class="dropdown-item ${notification.is_read ? 'text-muted' : ''}" href="#" onclick="markNotificationRead(${notification.id})">
+                            <i class="${icon} me-2"></i>
+                            <div>
+                                <div class="fw-bold">${notification.title}</div>
+                                <small class="text-muted">${notification.message}</small>
+                                <br><small class="text-muted">${timeAgo}</small>
+                            </div>
+                        </a>
+                    `;
+                    list.appendChild(item);
+                });
             }
             
-            // Show a success message
-            const toast = document.createElement('div');
-            toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-            toast.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i>
-                All notifications marked as read
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(toast);
-            
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            list.appendChild(footer);
+            list.appendChild(markAllLink);
         }
+
+        // Get notification icon based on type
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'success': return 'fas fa-check-circle text-success';
+                case 'warning': return 'fas fa-exclamation-triangle text-warning';
+                case 'error': return 'fas fa-times-circle text-danger';
+                default: return 'fas fa-info-circle text-info';
+            }
+        }
+
+        // Get time ago
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const created = new Date(timestamp);
+            const diffMs = now - created;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        // Mark specific notification as read
+        function markNotificationRead(notificationId) {
+            const formData = new FormData();
+            formData.append('notification_id', notificationId);
+            formData.append('action', 'mark_read');
+
+            fetch('/constract360/construction/public/api/mark-notification-read.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateNotificationBadge(data.unread_count);
+                    loadNotifications(); // Reload to update the list
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
+        }
+
+        function markAllAsRead() {
+            const formData = new FormData();
+            formData.append('action', 'mark_all_read');
+
+            fetch('/constract360/construction/public/api/mark-notification-read.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateNotificationBadge(0);
+                    loadNotifications(); // Reload to update the list
+                    
+                    // Show success message
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                    toast.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        All notifications marked as read
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(toast);
+                    
+                    // Auto-remove after 3 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all notifications as read:', error);
+            });
+        }
+
+        // Load notifications when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
+        });
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
 
         // Enhanced language switching function
         function changeLanguage(languageCode) {
