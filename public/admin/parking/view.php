@@ -34,9 +34,9 @@ if (!$space) {
 
 // Get parking rentals for this space
 $stmt = $conn->prepare("
-    SELECT pr.*, e.name as employee_name, e.employee_code
+    SELECT pr.*, u.first_name, u.last_name
     FROM parking_rentals pr
-    LEFT JOIN employees e ON pr.employee_id = e.id
+    LEFT JOIN users u ON pr.user_id = u.id
     WHERE pr.parking_space_id = ? AND pr.company_id = ?
     ORDER BY pr.start_date DESC
 ");
@@ -164,7 +164,7 @@ $total_rentals = count($rentals);
                             <tr>
                                 <td><?php echo formatDate($rental['start_date']); ?></td>
                                 <td><?php echo formatDate($rental['end_date']); ?></td>
-                                <td><?php echo htmlspecialchars($rental['employee_code'] . ' - ' . $rental['employee_name']); ?></td>
+                                <td><?php echo htmlspecialchars($rental['client_name'] . ' (' . ($rental['first_name'] ? $rental['first_name'] . ' ' . $rental['last_name'] : 'No user') . ')'); ?></td>
                                 <td><?php echo $rental['days_rented']; ?></td>
                                 <td><?php echo formatCurrency($rental['total_amount'], $rental['currency']); ?></td>
                                 <td>

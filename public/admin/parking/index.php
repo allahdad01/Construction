@@ -91,15 +91,25 @@ $stmt = $conn->prepare("
 $stmt->execute([getCurrentCompanyId()]);
 $active_rentals = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get total monthly revenue
+// Get total monthly revenue by currency
 $stmt = $conn->prepare("
-    SELECT SUM(ps.monthly_rate) as total 
+    SELECT 
+        COALESCE(ps.currency, 'USD') as currency,
+        SUM(ps.monthly_rate) as total 
     FROM parking_rentals pr 
     JOIN parking_spaces ps ON pr.parking_space_id = ps.id 
     WHERE ps.company_id = ? AND pr.status = 'active'
+    GROUP BY COALESCE(ps.currency, 'USD')
+    ORDER BY total DESC
 ");
 $stmt->execute([getCurrentCompanyId()]);
-$total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$currency_revenues = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate overall total (for backward compatibility)
+$total_revenue = 0;
+foreach ($currency_revenues as $currency_revenue) {
+    $total_revenue += $currency_revenue['total'];
+}
 ?>
 
 <div class="container-fluid">
@@ -170,7 +180,19 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('monthly_revenue'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_revenue); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php if (count($currency_revenues) > 1): ?>
+                                    <?php foreach ($currency_revenues as $index => $currency_revenue): ?>
+                                        <div class="<?php echo $index > 0 ? 'small' : ''; ?>">
+                                            <?php echo $currency_revenue['currency']; ?>: <?php echo number_format($currency_revenue['total'], 2); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php elseif (count($currency_revenues) == 1): ?>
+                                    <?php echo $currency_revenues[0]['currency']; ?>: <?php echo number_format($currency_revenues[0]['total'], 2); ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -276,7 +298,12 @@ $total_revenue = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatCurrency($space['monthly_rate']); ?></strong>
+                                            <strong>
+                                                <?php 
+                                                $currency = $space['currency'] ?? 'USD';
+                                                echo $currency . ' ' . number_format($space['monthly_rate'], 2); 
+                                                ?>
+                                            </strong>
                                             <br><small class="text-muted"><?php echo __('per_month'); ?></small>
                                         </div>
                                     </td>

@@ -18,7 +18,7 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['area_name', 'area_type', 'location'];
+        $required_fields = ['area_name', 'area_type', 'monthly_rate'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
@@ -42,9 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO rental_areas (
                 company_id, area_code, area_name, area_type,
-                location, size, monthly_rate, capacity,
-                facilities, status, description, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, NOW())
+                size, monthly_rate, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, 'available', NOW())
         ");
 
         $stmt->execute([
@@ -52,12 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $area_code,
             $_POST['area_name'],
             $_POST['area_type'],
-            $_POST['location'],
             $_POST['size'] ?? '',
-            $_POST['monthly_rate'] ?? 0,
-            $_POST['capacity'] ?? null,
-            $_POST['facilities'] ?? '',
-            $_POST['description'] ?? ''
+            $_POST['monthly_rate']
         ]);
 
         $area_id = $conn->lastInsertId();
@@ -144,56 +139,17 @@ function generateAreaCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="location" class="form-label"><?php echo __('location'); ?> *</label>
-                            <input type="text" class="form-control" id="location" name="location" 
-                                   value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required
-                                   placeholder="e.g., Building A, Floor 2, Room 201">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
                             <label for="size" class="form-label"><?php echo __('size'); ?></label>
                             <input type="text" class="form-control" id="size" name="size" 
                                    value="<?php echo htmlspecialchars($_POST['size'] ?? ''); ?>" 
                                    placeholder="e.g., 50 sqm, 10m x 5m">
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?></label>
+                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
-                                   value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ''); ?>">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="capacity" class="form-label"><?php echo __('capacity'); ?></label>
-                            <input type="number" min="1" class="form-control" id="capacity" name="capacity" 
-                                   value="<?php echo htmlspecialchars($_POST['capacity'] ?? ''); ?>" 
-                                   placeholder="Max number of people/items">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <label for="facilities" class="form-label"><?php echo __('facilities'); ?></label>
-                            <textarea class="form-control" id="facilities" name="facilities" rows="3" 
-                                      placeholder="List available facilities (e.g., WiFi, AC, Parking, Security)"><?php echo htmlspecialchars($_POST['facilities'] ?? ''); ?></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <label for="description" class="form-label"><?php echo __('description'); ?></label>
-                            <textarea class="form-control" id="description" name="description" rows="3" 
-                                      placeholder="Additional details about the rental area"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                                   value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ''); ?>" required>
                         </div>
                     </div>
                 </div>

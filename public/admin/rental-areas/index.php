@@ -123,8 +123,8 @@ $rented_areas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                         <thead>
                             <tr>
                                 <th><?php echo __('area_info'); ?></th>
-                                <th><?php echo __('type_location'); ?></th>
-                                <th><?php echo __('size_capacity'); ?></th>
+                                <th><?php echo __('type_size'); ?></th>
+                                <th><?php echo __('daily_rate'); ?></th>
                                 <th><?php echo __('monthly_rate'); ?></th>
                                 <th><?php echo __('status'); ?></th>
                                 <th><?php echo __('actions'); ?></th>
@@ -148,17 +148,11 @@ $rented_areas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                 </td>
                                 <td>
                                     <strong><?php echo ucfirst($area['area_type']); ?></strong><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($area['location']); ?></small>
+                                    <small class="text-muted">Size: <?php echo htmlspecialchars($area['size'] ?? 'Not specified'); ?></small>
                                 </td>
                                 <td>
-                                    <strong><?php echo htmlspecialchars($area['size'] ?? 'N/A'); ?></strong><br>
-                                    <small class="text-muted">
-                                        <?php if ($area['capacity']): ?>
-                                            Max: <?php echo $area['capacity']; ?> people
-                                        <?php else: ?>
-                                            No limit
-                                        <?php endif; ?>
-                                    </small>
+                                    <strong>Daily Rate:</strong> <?php echo formatCurrency($area['daily_rate'] ?? 0); ?><br>
+                                    <small class="text-muted">Auto-calculated from monthly rate</small>
                                 </td>
                                 <td>
                                     <strong><?php echo formatCurrency($area['monthly_rate'] ?? 0); ?></strong><br>
