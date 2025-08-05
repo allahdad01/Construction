@@ -65,7 +65,7 @@ try {
                 SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
                 SUM(COALESCE(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day, 0)) as total_earnings,
                 SUM(COALESCE(exp.amount, 0)) as total_expenses,
-                SUM(COALESCE(sp.paid_amount, 0)) as total_salary_payments
+                SUM(COALESCE(sp.amount_paid, 0)) as total_salary_payments
             FROM employees e
             LEFT JOIN machines m ON e.company_id = m.company_id AND m.is_active = 1
             LEFT JOIN contracts ct ON e.company_id = ct.company_id AND ct.status = 'active'

@@ -47,7 +47,7 @@ $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
 // Build query with filters
-$where_conditions = ["company_id = ?"];
+$where_conditions = ["ar.company_id = ?"];
 $params = [$company_id];
 
 if (!empty($search)) {
@@ -103,8 +103,8 @@ $stats_stmt = $conn->prepare("
         COUNT(CASE WHEN status = 'rented' THEN 1 END) as rented_rentals,
         AVG(monthly_rate) as avg_rate,
         SUM(monthly_rate) as total_value
-    FROM area_rentals
-    WHERE company_id = ?
+    FROM area_rentals ar
+    WHERE ar.company_id = ?
 ");
 $stats_stmt->execute([$company_id]);
 $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);

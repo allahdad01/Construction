@@ -174,13 +174,7 @@ $stmt = $conn->prepare("SELECT * FROM companies WHERE id = ?");
 $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get company settings
-function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
-    $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
-    $stmt->execute([$company_id, $key]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['setting_value'] : $default;
-}
+// Get company settings (function already defined in header.php)
 
 // Get all available currencies
 $stmt = $conn->prepare("SELECT * FROM currencies ORDER BY currency_name");

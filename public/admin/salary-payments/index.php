@@ -97,8 +97,8 @@ $stats_stmt = $conn->prepare("
         COUNT(*) as total_payments,
         COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_payments,
         COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_payments,
-        SUM(amount) as total_amount,
-        AVG(amount) as avg_amount
+        SUM(total_amount) as total_amount,
+        AVG(total_amount) as avg_amount
     FROM salary_payments
     WHERE company_id = ?
 ");

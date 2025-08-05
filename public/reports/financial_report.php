@@ -73,7 +73,7 @@ try {
         $stmt = $conn->prepare("
             SELECT 
                 DATE(payment_date) as date,
-                SUM(paid_amount) as salary_payments,
+                SUM(amount_paid) as salary_payments,
                 COUNT(*) as transactions
             FROM salary_payments 
             WHERE company_id = ? AND payment_date BETWEEN ? AND ?
@@ -303,7 +303,7 @@ try {
                                          WHERE company_id = ? AND expense_date BETWEEN ? AND ?)
                                         UNION ALL
                                         (SELECT payment_date as date, CONCAT('Salary - ', e.name) as description,
-                                                paid_amount as amount, 'Salary' as type, 'Completed' as status
+                                                amount_paid as amount, 'Salary' as type, 'Completed' as status
                                          FROM salary_payments sp
                                          JOIN employees e ON sp.employee_id = e.id
                                          WHERE sp.company_id = ? AND sp.payment_date BETWEEN ? AND ?)

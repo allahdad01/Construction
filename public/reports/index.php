@@ -137,7 +137,7 @@ function getCompanyStats($conn, $company_id, $start_date, $end_date) {
     
     // Total salary payments
     $stmt = $conn->prepare("
-        SELECT COALESCE(SUM(paid_amount), 0) as total 
+        SELECT COALESCE(SUM(amount_paid), 0) as total 
         FROM salary_payments 
         WHERE company_id = ? AND payment_date BETWEEN ? AND ?
     ");
