@@ -19,12 +19,41 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $payment_id = (int)$_GET['delete'];
     
     try {
+        // Check if payment exists and belongs to company
+        $stmt = $conn->prepare("
+            SELECT sp.payment_code, e.name as employee_name 
+            FROM salary_payments sp 
+            LEFT JOIN employees e ON sp.employee_id = e.id 
+            WHERE sp.id = ? AND sp.company_id = ?
+        ");
+        $stmt->execute([$payment_id, $company_id]);
+        $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$payment) {
+            throw new Exception("Payment record not found or you don't have permission to delete it.");
+        }
+        
+        // Start transaction
+        $conn->beginTransaction();
+        
         // Delete salary payment
         $stmt = $conn->prepare("DELETE FROM salary_payments WHERE id = ? AND company_id = ?");
         $stmt->execute([$payment_id, $company_id]);
         
-        $success = __('salary_payment_deleted_successfully');
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("No records were deleted. The payment may have already been removed.");
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
+        $success = "Salary payment '{$payment['payment_code']}' for {$payment['employee_name']} deleted successfully!";
+        
     } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         $error = $e->getMessage();
     }
 }
@@ -291,7 +320,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered datatable" id="paymentsTable">
+                    <table class="table table-bordered" id="paymentsTable">
                         <thead>
                             <tr>
                                 <th><?php echo __('employee'); ?></th>
@@ -328,18 +357,24 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <small class="text-muted">
-                                        <?php echo date('M Y', strtotime($payment['period_start'])); ?>
+                                        <?php 
+                                        if ($payment['payment_month'] && $payment['payment_year']) {
+                                            echo date('M Y', mktime(0, 0, 0, $payment['payment_month'], 1, $payment['payment_year']));
+                                        } else {
+                                            echo 'N/A';
+                                        }
+                                        ?>
                                     </small>
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        <h6 class="text-success mb-0">$<?php echo number_format($payment['amount'], 2); ?></h6>
-                                        <small class="text-muted"><?php echo $payment['working_days']; ?> <?php echo __('days'); ?></small>
+                                        <h6 class="text-success mb-0"><?php echo formatCurrency($payment['amount_paid'] ?? 0); ?></h6>
+                                        <small class="text-muted"><?php echo ($payment['working_days'] ?? 0); ?> <?php echo __('days'); ?></small>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?php echo $payment['status'] === 'paid' ? 'success' : ($payment['status'] === 'pending' ? 'warning' : 'secondary'); ?>">
-                                        <?php echo ucfirst($payment['status']); ?>
+                                    <span class="badge bg-<?php echo $payment['status'] === 'completed' ? 'success' : ($payment['status'] === 'pending' ? 'warning' : 'secondary'); ?>">
+                                        <?php echo ucfirst($payment['status'] ?? 'pending'); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -416,20 +451,30 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    if ($.fn.DataTable) {
-        $('#paymentsTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[1, 'desc']],
-            columnDefs: [
-                {
-                    targets: -1,
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
+    // Initialize DataTable with proper destroy handling
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        const table = $('#paymentsTable');
+        if (table.length > 0) {
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable('#paymentsTable')) {
+                table.DataTable().destroy();
+            }
+            
+            // Initialize fresh DataTable
+            table.DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, 'desc']],
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                destroy: true
+            });
+        }
     }
 });
 
