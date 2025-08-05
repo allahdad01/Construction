@@ -24,21 +24,66 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             throw new Exception(__('cannot_delete_own_account'));
         }
         
+        // Check if user exists and belongs to current company
+        $stmt = $conn->prepare("SELECT id, first_name, last_name FROM users WHERE id = ? AND company_id = ?");
+        $stmt->execute([$user_id, $company_id]);
+        $user_to_delete = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user_to_delete) {
+            throw new Exception(__('user_not_found_or_access_denied'));
+        }
+        
+        // Check for related records that would prevent deletion
+        $related_checks = [];
+        
         // Check if user has associated employee record
         $stmt = $conn->prepare("SELECT COUNT(*) as count FROM employees WHERE user_id = ? AND company_id = ?");
         $stmt->execute([$user_id, $company_id]);
-        $employee_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        $related_checks['employees'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         
-        if ($employee_count > 0) {
-            throw new Exception(__('cannot_delete_user_with_employee_record'));
+        // Check parking rentals
+        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM parking_rentals WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $related_checks['parking_rentals'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        // Check area rentals
+        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM area_rentals WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $related_checks['area_rentals'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        // Build error message for related records
+        $blocking_records = [];
+        if ($related_checks['employees'] > 0) {
+            $blocking_records[] = $related_checks['employees'] . ' employee record(s)';
         }
+        if ($related_checks['parking_rentals'] > 0) {
+            $blocking_records[] = $related_checks['parking_rentals'] . ' parking rental(s)';
+        }
+        if ($related_checks['area_rentals'] > 0) {
+            $blocking_records[] = $related_checks['area_rentals'] . ' area rental(s)';
+        }
+        
+        if (!empty($blocking_records)) {
+            throw new Exception("Cannot delete user. They have the following related records: " . implode(', ', $blocking_records) . ". Please remove these records first.");
+        }
+        
+        // Start transaction
+        $conn->beginTransaction();
         
         // Delete user
         $stmt = $conn->prepare("DELETE FROM users WHERE id = ? AND company_id = ?");
         $stmt->execute([$user_id, $company_id]);
         
-        $success = __('user_deleted_successfully');
+        // Commit transaction
+        $conn->commit();
+        
+        $success = "User '{$user_to_delete['first_name']} {$user_to_delete['last_name']}' deleted successfully!";
+        
     } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         $error = $e->getMessage();
     }
 }

@@ -15,7 +15,7 @@ $error = '';
 $success = '';
 
 // Get available rental areas
-$stmt = $conn->prepare("SELECT id, area_code, name, area_type FROM rental_areas WHERE company_id = ? AND status = 'available' ORDER BY name");
+$stmt = $conn->prepare("SELECT id, area_code, area_name, area_type FROM rental_areas WHERE company_id = ? AND status = 'available' ORDER BY area_name");
 $stmt->execute([$company_id]);
 $rental_areas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -23,16 +23,16 @@ $rental_areas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['rental_area_id', 'rental_type', 'daily_rate', 'start_date'];
+        $required_fields = ['rental_area_id', 'client_name', 'start_date', 'monthly_rate'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
         }
 
-        // Validate daily rate
-        if (!is_numeric($_POST['daily_rate']) || $_POST['daily_rate'] <= 0) {
-            throw new Exception("Daily rate must be a positive number.");
+        // Validate monthly rate
+        if (!is_numeric($_POST['monthly_rate']) || $_POST['monthly_rate'] <= 0) {
+            throw new Exception("Monthly rate must be a positive number.");
         }
 
         // Validate dates
@@ -49,23 +49,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
+        // Calculate total days and amount if end date is provided
+        $total_days = null;
+        $total_amount = null;
+        if ($end_date) {
+            $start = new DateTime($start_date);
+            $end = new DateTime($end_date);
+            $total_days = $end->diff($start)->days + 1; // Include both start and end day
+            $total_amount = $total_days * ($_POST['monthly_rate'] / 30); // Daily rate calculation
+        }
+
         // Create area rental record
         $stmt = $conn->prepare("
             INSERT INTO area_rentals (
-                company_id, rental_code, rental_area_id, rental_type,
-                daily_rate, currency, start_date, end_date, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
+                company_id, rental_code, rental_area_id, client_name, client_contact,
+                purpose, start_date, end_date, monthly_rate, total_days, total_amount,
+                status, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())
         ");
 
         $stmt->execute([
             $company_id,
             $rental_code,
             $_POST['rental_area_id'],
-            $_POST['rental_type'],
-            $_POST['daily_rate'],
-            $_POST['currency'] ?? 'USD',
+            $_POST['client_name'],
+            $_POST['client_contact'] ?? '',
+            $_POST['purpose'] ?? '',
             $start_date,
-            $end_date
+            $end_date,
+            $_POST['monthly_rate'],
+            $total_days,
+            $total_amount,
+            $_POST['notes'] ?? ''
         ]);
 
         $rental_id = $conn->lastInsertId();
@@ -142,7 +157,7 @@ function generateAreaRentalCode($company_id) {
                                 <option value=""><?php echo __('select_rental_area'); ?></option>
                                 <?php foreach ($rental_areas as $area): ?>
                                 <option value="<?php echo $area['id']; ?>" <?php echo (isset($_POST['rental_area_id']) && $_POST['rental_area_id'] == $area['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($area['area_code'] . ' - ' . $area['name'] . ' (' . $area['area_type'] . ')'); ?>
+                                    <?php echo htmlspecialchars($area['area_code'] . ' - ' . $area['area_name'] . ' (' . $area['area_type'] . ')'); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -150,14 +165,9 @@ function generateAreaRentalCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="rental_type" class="form-label"><?php echo __('rental_type'); ?> *</label>
-                            <select class="form-control" id="rental_type" name="rental_type" required>
-                                <option value=""><?php echo __('select_rental_type'); ?></option>
-                                <option value="daily" <?php echo (isset($_POST['rental_type']) && $_POST['rental_type'] == 'daily') ? 'selected' : ''; ?>><?php echo __('daily'); ?></option>
-                                <option value="weekly" <?php echo (isset($_POST['rental_type']) && $_POST['rental_type'] == 'weekly') ? 'selected' : ''; ?>><?php echo __('weekly'); ?></option>
-                                <option value="monthly" <?php echo (isset($_POST['rental_type']) && $_POST['rental_type'] == 'monthly') ? 'selected' : ''; ?>><?php echo __('monthly'); ?></option>
-                                <option value="yearly" <?php echo (isset($_POST['rental_type']) && $_POST['rental_type'] == 'yearly') ? 'selected' : ''; ?>><?php echo __('yearly'); ?></option>
-                            </select>
+                            <label for="client_name" class="form-label"><?php echo __('client_name'); ?> *</label>
+                            <input type="text" class="form-control" id="client_name" name="client_name" 
+                                   value="<?php echo htmlspecialchars($_POST['client_name'] ?? ''); ?>" required>
                         </div>
                     </div>
                 </div>
@@ -165,18 +175,25 @@ function generateAreaRentalCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="daily_rate" class="form-label"><?php echo __('daily_rate'); ?> *</label>
-                            <input type="number" step="0.01" min="0" class="form-control" id="daily_rate" name="daily_rate" 
-                                   value="<?php echo htmlspecialchars($_POST['daily_rate'] ?? ''); ?>" required>
+                            <label for="client_contact" class="form-label"><?php echo __('client_contact'); ?></label>
+                            <input type="text" class="form-control" id="client_contact" name="client_contact" 
+                                   value="<?php echo htmlspecialchars($_POST['client_contact'] ?? ''); ?>">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
-                            <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>>AFN</option>
-                            </select>
+                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
+                                   value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ''); ?>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="purpose" class="form-label"><?php echo __('purpose'); ?></label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="3"><?php echo htmlspecialchars($_POST['purpose'] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -194,6 +211,15 @@ function generateAreaRentalCode($company_id) {
                             <label for="end_date" class="form-label"><?php echo __('end_date'); ?></label>
                             <input type="date" class="form-control" id="end_date" name="end_date" 
                                    value="<?php echo htmlspecialchars($_POST['end_date'] ?? ''); ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,16 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $rental_id = (int)$_GET['delete'];
     
     try {
-        // Check if rental has active contracts
+        // Get rental details first to update the area status later
+        $stmt = $conn->prepare("SELECT rental_area_id, status FROM area_rentals WHERE id = ? AND company_id = ?");
+        $stmt->execute([$rental_id, $company_id]);
+        $rental = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$rental) {
+            throw new Exception(__('area_rental_not_found'));
+        }
+        
+        // Check if rental has active contracts (if contracts table references area_rentals)
         $stmt = $conn->prepare("SELECT COUNT(*) as count FROM contracts WHERE area_rental_id = ? AND status = 'active'");
         $stmt->execute([$rental_id]);
         $active_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -28,12 +37,28 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             throw new Exception(__('cannot_delete_rental_has_active_contracts', ['count' => $active_contracts]));
         }
         
+        // Start transaction
+        $conn->beginTransaction();
+        
         // Delete area rental
         $stmt = $conn->prepare("DELETE FROM area_rentals WHERE id = ? AND company_id = ?");
         $stmt->execute([$rental_id, $company_id]);
         
+        // Update rental area status back to available if rental was active
+        if ($rental['status'] === 'active') {
+            $stmt = $conn->prepare("UPDATE rental_areas SET status = 'available' WHERE id = ?");
+            $stmt->execute([$rental['rental_area_id']]);
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
         $success = __('area_rental_deleted_successfully');
     } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         $error = $e->getMessage();
     }
 }
@@ -51,18 +76,18 @@ $where_conditions = ["ar.company_id = ?"];
 $params = [$company_id];
 
 if (!empty($search)) {
-    $where_conditions[] = "(area_name LIKE ? OR area_code LIKE ? OR location LIKE ?)";
+    $where_conditions[] = "(ar.rental_code LIKE ? OR ar.client_name LIKE ? OR ra.area_name LIKE ? OR ra.area_code LIKE ?)";
     $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param]);
+    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
 }
 
 if (!empty($status_filter)) {
-    $where_conditions[] = "status = ?";
+    $where_conditions[] = "ar.status = ?";
     $params[] = $status_filter;
 }
 
 if (!empty($type_filter)) {
-    $where_conditions[] = "area_type = ?";
+    $where_conditions[] = "ra.area_type = ?";
     $params[] = $type_filter;
 }
 
@@ -71,39 +96,46 @@ $where_clause = implode(' AND ', $where_conditions);
 // Get total count for pagination
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) as total 
-    FROM area_rentals 
-    WHERE company_id = ?
+    FROM area_rentals ar
+    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
+    WHERE $where_clause
 ");
-$count_stmt->execute([$company_id]);
+$count_stmt->execute($params);
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $per_page);
 
-// Get rental areas with pagination
-$rental_areas_query = "
+// Get area rentals with pagination
+$area_rentals_query = "
     SELECT ar.*, 
-           COUNT(rental.id) as contract_count,
-           SUM(CASE WHEN rental.status = 'active' THEN 1 ELSE 0 END) as active_contracts
-    FROM rental_areas ar 
-    LEFT JOIN area_rentals rental ON ar.id = rental.rental_area_id
+           ra.area_name,
+           ra.area_code,
+           ra.area_type,
+           ra.size,
+           CASE 
+               WHEN ar.end_date IS NULL THEN 'Ongoing'
+               WHEN ar.end_date > CURDATE() THEN 'Active'
+               ELSE 'Expired'
+           END as rental_status
+    FROM area_rentals ar 
+    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
     WHERE $where_clause
-    GROUP BY ar.id
     ORDER BY ar.created_at DESC 
     LIMIT ? OFFSET ?
 ";
-$stmt = $conn->prepare($rental_areas_query);
+$stmt = $conn->prepare($area_rentals_query);
 $params_with_limits = array_merge($params, [$per_page, $offset]);
 $stmt->execute($params_with_limits);
-$rental_areas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$area_rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
 $stats_stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_rentals,
-        COUNT(CASE WHEN status = 'available' THEN 1 END) as available_rentals,
-        COUNT(CASE WHEN status = 'rented' THEN 1 END) as rented_rentals,
-        AVG(monthly_rate) as avg_rate,
-        SUM(monthly_rate) as total_value
-    FROM rental_areas ar
+        COUNT(CASE WHEN ar.status = 'active' THEN 1 END) as active_rentals,
+        COUNT(CASE WHEN ar.status = 'completed' THEN 1 END) as completed_rentals,
+        AVG(ar.daily_rate) as avg_rate,
+        SUM(ar.total_amount) as total_revenue
+    FROM area_rentals ar
     WHERE ar.company_id = ?
 ");
 $stats_stmt->execute([$company_id]);
@@ -117,7 +149,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             <i class="fas fa-map-marker-alt"></i> <?php echo __('area_rentals'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> <?php echo __('add_rental_area'); ?>
+            <i class="fas fa-plus"></i> <?php echo __('add_area_rental'); ?>
         </a>
     </div>
 
@@ -274,13 +306,13 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
         <div class="card-body">
-            <?php if (empty($rental_areas)): ?>
+            <?php if (empty($area_rentals)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-map-marker-alt fa-3x text-gray-300 mb-3"></i>
                     <h5 class="text-gray-500"><?php echo __('no_area_rentals_found'); ?></h5>
-                    <p class="text-gray-400"><?php echo __('add_first_rental_area_to_get_started'); ?></p>
+                    <p class="text-gray-400"><?php echo __('add_first_area_rental_to_get_started'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> <?php echo __('add_rental_area'); ?>
+                        <i class="fas fa-plus"></i> <?php echo __('add_area_rental'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -288,57 +320,73 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <table class="table table-bordered datatable" id="rentalsTable">
                         <thead>
                             <tr>
-                                <th><?php echo __('area_name'); ?></th>
-                                <th><?php echo __('type'); ?></th>
-                                <th><?php echo __('location'); ?></th>
-                                <th><?php echo __('rate'); ?></th>
+                                <th><?php echo __('rental_code'); ?></th>
+                                <th><?php echo __('client_name'); ?></th>
+                                <th><?php echo __('area'); ?></th>
+                                <th><?php echo __('duration'); ?></th>
+                                <th><?php echo __('daily_rate'); ?></th>
+                                <th><?php echo __('total_amount'); ?></th>
                                 <th><?php echo __('status'); ?></th>
-                                <th><?php echo __('contracts'); ?></th>
-                                <th><?php echo __('created'); ?></th>
                                 <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($rental_areas as $rental): ?>
+                            <?php foreach ($area_rentals as $rental): ?>
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-map-marker-alt text-white"></i>
+                                            <i class="fas fa-file-contract text-white"></i>
                                         </div>
                                         <div>
-                                            <h6 class="mb-0"><?php echo htmlspecialchars($rental['area_name']); ?></h6>
-                                            <small class="text-muted"><?php echo htmlspecialchars($rental['area_code']); ?></small>
+                                            <h6 class="mb-0"><?php echo htmlspecialchars($rental['rental_code']); ?></h6>
+                                            <small class="text-muted"><?php echo date('M j, Y', strtotime($rental['created_at'])); ?></small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-info"><?php echo ucfirst($rental['area_type']); ?></span>
-                                </td>
-                                <td>
-                                    <?php echo htmlspecialchars($rental['location']); ?>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <h6 class="text-success mb-0">$<?php echo number_format($rental['monthly_rate'], 2); ?></h6>
-                                        <small class="text-muted"><?php echo __('per_month'); ?></small>
+                                    <div>
+                                        <h6 class="mb-0"><?php echo htmlspecialchars($rental['client_name']); ?></h6>
+                                        <?php if ($rental['client_contact']): ?>
+                                        <small class="text-muted"><?php echo htmlspecialchars($rental['client_contact']); ?></small>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?php echo $rental['status'] === 'available' ? 'success' : ($rental['status'] === 'rented' ? 'warning' : 'secondary'); ?>">
+                                    <div>
+                                        <h6 class="mb-0"><?php echo htmlspecialchars($rental['area_name']); ?></h6>
+                                        <small class="text-muted"><?php echo htmlspecialchars($rental['area_code']) . ' - ' . ucfirst($rental['area_type']); ?></small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <small class="text-muted"><?php echo __('start'); ?>:</small> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?><br>
+                                        <?php if ($rental['end_date']): ?>
+                                        <small class="text-muted"><?php echo __('end'); ?>:</small> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
+                                        <?php else: ?>
+                                        <small class="text-muted"><?php echo __('ongoing'); ?></small>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <h6 class="text-success mb-0">$<?php echo number_format($rental['daily_rate'], 2); ?></h6>
+                                        <small class="text-muted"><?php echo __('per_day'); ?></small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <h6 class="text-primary mb-0">$<?php echo number_format($rental['total_amount'] ?? 0, 2); ?></h6>
+                                        <?php if ($rental['amount_paid'] > 0): ?>
+                                        <small class="text-success">$<?php echo number_format($rental['amount_paid'], 2); ?> <?php echo __('paid'); ?></small>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : ($rental['status'] === 'completed' ? 'primary' : 'secondary'); ?>">
                                         <?php echo ucfirst($rental['status']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <h6 class="mb-0"><?php echo $rental['contract_count']; ?></h6>
-                                        <small class="text-muted"><?php echo $rental['active_contracts']; ?> <?php echo __('active'); ?></small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <small class="text-muted">
-                                        <?php echo date('M j, Y', strtotime($rental['created_at'])); ?>
-                                    </small>
+                                    </span><br>
+                                    <small class="badge bg-light text-dark"><?php echo $rental['rental_status']; ?></small>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -354,7 +402,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $rental['id']; ?>, '<?php echo htmlspecialchars($rental['area_name']); ?>')"
+                                                onclick="confirmDelete(<?php echo $rental['id']; ?>, '<?php echo htmlspecialchars($rental['rental_code']); ?>')"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
