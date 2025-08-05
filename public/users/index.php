@@ -332,7 +332,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered datatable" id="usersTable">
+                    <table class="table table-bordered" id="usersTable">
                         <thead>
                             <tr>
                                 <th><?php echo __('user'); ?></th>
@@ -463,26 +463,75 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    if ($.fn.DataTable) {
-        // Check if DataTable is already initialized
-        if (!$.fn.DataTable.isDataTable('#usersTable')) {
-            $('#usersTable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                order: [[6, 'desc']], // Column 6 is 'created' (0-indexed)
-                columnDefs: [
-                    {
-                        targets: -1, // Last column (actions)
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-                destroy: true // Allow reinitializing if needed
-            });
-        }
-    }
+    // Add small delay to ensure everything is loaded
+    setTimeout(function() {
+        initializeUsersTable();
+    }, 100);
 });
+
+// Global flag to prevent multiple initializations
+window.usersTableInitialized = false;
+
+function initializeUsersTable() {
+    try {
+        // Prevent multiple initializations
+        if (window.usersTableInitialized) {
+            console.log('DataTable already initialized, skipping...');
+            return;
+        }
+
+        // Check if jQuery and DataTables are loaded
+        if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
+            console.warn('jQuery or DataTables not loaded');
+            return;
+        }
+
+        const tableElement = $('#usersTable');
+        if (tableElement.length === 0) {
+            console.warn('Users table element not found');
+            return;
+        }
+
+        // If DataTable already exists, destroy it first
+        if ($.fn.DataTable.isDataTable('#usersTable')) {
+            console.log('Destroying existing DataTable...');
+            tableElement.DataTable().clear().destroy();
+        }
+
+        // Initialize fresh DataTable
+        tableElement.DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[6, 'desc']], // Column 6 is 'created' (0-indexed)
+            columnDefs: [
+                {
+                    targets: -1, // Last column (actions)
+                    orderable: false,
+                    searchable: false
+                }
+            ],
+            destroy: true, // Allow destroying if needed
+            language: {
+                emptyTable: "No users found",
+                info: "Showing _START_ to _END_ of _TOTAL_ users",
+                infoEmpty: "Showing 0 to 0 of 0 users",
+                infoFiltered: "(filtered from _MAX_ total users)",
+                lengthMenu: "Show _MENU_ users per page",
+                loadingRecords: "Loading...",
+                processing: "Processing...",
+                search: "Search users:",
+                zeroRecords: "No matching users found"
+            }
+        });
+
+        // Mark as initialized
+        window.usersTableInitialized = true;
+        console.log('DataTable initialized successfully');
+    } catch (error) {
+        console.error('Error initializing DataTable:', error);
+        window.usersTableInitialized = false;
+    }
+}
 
 // Confirm delete function
 function confirmDelete(userId, userName) {
