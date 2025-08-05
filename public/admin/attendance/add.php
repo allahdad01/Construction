@@ -51,18 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO employee_attendance (
                 company_id, employee_id, date, check_in_time, check_out_time,
-                hours_worked, status, notes, created_at
+                working_hours, status, notes, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $check_out_time = $_POST['check_out_time'] ?? null;
-        $hours_worked = null;
+        $working_hours = null;
         
-        // Calculate hours worked if both check-in and check-out times are provided
+        // Calculate working hours if both check-in and check-out times are provided
         if ($check_out_time) {
             $check_in = strtotime($_POST['check_in_time']);
             $check_out = strtotime($check_out_time);
-            $hours_worked = round(($check_out - $check_in) / 3600, 2);
+            $working_hours = round(($check_out - $check_in) / 3600, 2);
         }
 
         $status = $check_out_time ? 'completed' : 'present';
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $date,
             $_POST['check_in_time'],
             $check_out_time,
-            $hours_worked,
+            $working_hours,
             $status,
             $_POST['notes'] ?? ''
         ]);

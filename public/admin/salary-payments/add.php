@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO salary_payments (
                 company_id, payment_code, employee_id, payment_date,
-                amount_paid, currency, payment_method, notes, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
+                amount_paid, payment_method, notes, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
         ");
 
         $stmt->execute([
@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['employee_id'],
             $payment_date,
             $_POST['amount_paid'],
-            $_POST['currency'] ?? 'USD',
             $_POST['payment_method'] ?? 'cash',
             $_POST['notes'] ?? ''
         ]);
@@ -162,11 +161,9 @@ function generateSalaryPaymentCode($company_id) {
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
-                            <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>>AFN</option>
-                            </select>
+                            <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" 
+                                   value="<?php echo htmlspecialchars($_POST['payment_date'] ?? date('Y-m-d')); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-4">

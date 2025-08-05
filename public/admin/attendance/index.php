@@ -336,7 +336,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        <h6 class="mb-0"><?php echo $record['hours_worked']; ?></h6>
+                                        <h6 class="mb-0"><?php echo $record['working_hours'] ?? '0.00'; ?></h6>
                                         <small class="text-muted"><?php echo __('hours'); ?></small>
                                     </div>
                                 </td>

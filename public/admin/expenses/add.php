@@ -19,7 +19,7 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['expense_type', 'amount', 'expense_date', 'description'];
+        $required_fields = ['category', 'amount', 'expense_date', 'description'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
@@ -40,21 +40,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create expense record
         $stmt = $conn->prepare("
             INSERT INTO expenses (
-                company_id, expense_code, expense_type, amount, 
+                company_id, expense_code, category, amount, 
                 expense_date, description, payment_method, 
-                receipt_number, created_at
+                reference_number, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
             $company_id,
             $expense_code,
-            $_POST['expense_type'],
+            $_POST['category'],
             $_POST['amount'],
             $_POST['expense_date'],
             $_POST['description'],
             $_POST['payment_method'] ?? 'cash',
-            $_POST['receipt_number'] ?? null
+            $_POST['reference_number'] ?? null
         ]);
 
         $expense_id = $conn->lastInsertId();
@@ -128,8 +128,8 @@ function generateExpenseCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="expense_type" class="form-label">Expense Type *</label>
-                            <select class="form-control" id="expense_type" name="expense_type" required>
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-control" id="category" name="category" required>
                                 <option value="">Select expense type...</option>
                                 <option value="fuel">Fuel</option>
                                 <option value="maintenance">Maintenance</option>
@@ -176,9 +176,9 @@ function generateExpenseCode($company_id) {
                         </div>
 
                         <div class="mb-3">
-                            <label for="receipt_number" class="form-label">Receipt Number</label>
-                            <input type="text" class="form-control" id="receipt_number" name="receipt_number" 
-                                   placeholder="Optional receipt number">
+                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <input type="text" class="form-control" id="reference_number" name="reference_number" 
+                                   placeholder="Optional reference number">
                         </div>
 
                         <div class="mb-3">

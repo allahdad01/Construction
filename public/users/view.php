@@ -69,7 +69,7 @@ $related_records['area_rentals'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
 // Check attendance records (if linked through employee)
 if ($user['employee_code']) {
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM attendance WHERE employee_id = (SELECT id FROM employees WHERE user_id = ?)");
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM employee_attendance WHERE employee_id = (SELECT id FROM employees WHERE user_id = ?)");
     $stmt->execute([$user_id]);
     $related_records['attendance'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 }
