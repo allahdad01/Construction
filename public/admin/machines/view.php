@@ -11,6 +11,14 @@ $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 
+// Add purchase_currency column if it doesn't exist
+try {
+    $stmt = $conn->prepare("ALTER TABLE machines ADD COLUMN purchase_currency VARCHAR(3) DEFAULT 'USD' AFTER purchase_cost");
+    $stmt->execute();
+} catch (PDOException $e) {
+    // Column already exists, ignore
+}
+
 $error = '';
 $success = '';
 
@@ -81,14 +89,14 @@ function getCapacityHint($type) {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-truck"></i> <?php echo __('machine_details'); ?>
+            <i class="fas fa-truck"></i> Machine Details
         </h1>
         <div>
             <a href="edit.php?id=<?php echo $machine_id; ?>" class="btn btn-primary">
-                <i class="fas fa-edit"></i> <?php echo __('edit_machine'); ?>
+                <i class="fas fa-edit"></i> Edit Machine
             </a>
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_machines'); ?>
+                <i class="fas fa-arrow-left"></i> Back to Machines
             </a>
         </div>
     </div>
@@ -106,54 +114,54 @@ function getCapacityHint($type) {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_information'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Machine Information</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong><?php echo __('machine_code'); ?>:</strong> 
+                            <p><strong>Machine Code:</strong> 
                                 <span class="badge badge-primary"><?php echo htmlspecialchars($machine['machine_code'] ?? 'N/A'); ?></span>
                             </p>
-                            <p><strong><?php echo __('name'); ?>:</strong> 
+                            <p><strong>Name:</strong> 
                                 <?php echo htmlspecialchars($machine['name'] ?? 'N/A'); ?>
                             </p>
-                            <p><strong><?php echo __('type'); ?>:</strong> 
+                            <p><strong>Type:</strong> 
                                 <span class="badge badge-info"><?php echo ucfirst(str_replace('_', ' ', $machine['type'] ?? 'unknown')); ?></span>
                             </p>
-                            <p><strong><?php echo __('model'); ?>:</strong> 
+                            <p><strong>Model:</strong> 
                                 <?php echo htmlspecialchars($machine['model'] ?? 'N/A'); ?>
                             </p>
-                            <p><strong><?php echo __('year_manufactured'); ?>:</strong> 
+                            <p><strong>Year Manufactured:</strong> 
                                 <?php echo $machine['year_manufactured'] ?? 'Unknown'; ?>
                                 <?php if ($machine_age): ?>
                                     <small class="text-muted">(<?php echo $machine_age; ?> years old)</small>
                                 <?php endif; ?>
                             </p>
-                            <p><strong><?php echo __('active_status'); ?>:</strong> 
+                            <p><strong>Active Status:</strong> 
                                 <span class="badge badge-<?php echo ($machine['is_active'] ?? true) ? 'success' : 'danger'; ?>">
                                     <?php echo ($machine['is_active'] ?? true) ? 'Active' : 'Inactive'; ?>
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong><?php echo __('capacity'); ?>:</strong> 
+                            <p><strong>Capacity:</strong> 
                                 <?php echo htmlspecialchars($machine['capacity'] ?? 'N/A'); ?>
                                 <?php if (!empty($machine['capacity'])): ?>
                                     <small class="text-muted">(e.g., <?php echo getCapacityHint($machine['type'] ?? ''); ?>)</small>
                                 <?php endif; ?>
                             </p>
-                            <p><strong><?php echo __('fuel_type'); ?>:</strong> 
+                            <p><strong>Fuel Type:</strong> 
                                 <span class="badge badge-warning"><?php echo ucfirst($machine['fuel_type'] ?? 'Unknown'); ?></span>
                             </p>
-                            <p><strong><?php echo __('status'); ?>:</strong> 
+                            <p><strong>Status:</strong> 
                                 <span class="badge badge-<?php echo $machine['status'] === 'available' ? 'success' : ($machine['status'] === 'in_use' ? 'info' : ($machine['status'] === 'maintenance' ? 'warning' : 'secondary')); ?>">
                                     <?php echo ucfirst(str_replace('_', ' ', $machine['status'] ?? 'unknown')); ?>
                                 </span>
                             </p>
-                            <p><strong><?php echo __('purchase_date'); ?>:</strong> 
+                            <p><strong>Purchase Date:</strong> 
                                 <?php echo $machine['purchase_date'] ? date('M j, Y', strtotime($machine['purchase_date'])) : 'N/A'; ?>
                             </p>
-                            <p><strong><?php echo __('purchase_cost'); ?>:</strong> 
+                            <p><strong>Purchase Cost:</strong> 
                                 <?php 
                                 if ($machine['purchase_cost']) {
                                     $currency = $machine['purchase_currency'] ?? 'USD';
@@ -163,7 +171,7 @@ function getCapacityHint($type) {
                                 }
                                 ?>
                             </p>
-                            <p><strong><?php echo __('created'); ?>:</strong> 
+                            <p><strong>Created:</strong> 
                                 <small class="text-muted"><?php echo $machine['created_at'] ? date('M j, Y \a\t g:i A', strtotime($machine['created_at'])) : 'N/A'; ?></small>
                             </p>
                         </div>
@@ -174,7 +182,7 @@ function getCapacityHint($type) {
             <!-- Usage Statistics -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('usage_statistics'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Usage Statistics</h6>
                 </div>
                 <div class="card-body">
                     <?php if ($contract_stats && $contract_stats['total_contracts'] > 0): ?>
@@ -225,7 +233,7 @@ function getCapacityHint($type) {
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-tools"></i> <?php echo __('maintenance_history'); ?>
+                        <i class="fas fa-tools"></i> Maintenance History
                     </h6>
                 </div>
                 <div class="card-body">
@@ -275,11 +283,11 @@ function getCapacityHint($type) {
             <!-- Machine Summary -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_summary'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Machine Summary</h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('machine_value'); ?></h6>
+                        <h6 class="text-primary">Machine Value</h6>
                         <h4 class="text-success">
                             <?php 
                             if ($machine['purchase_cost']) {
@@ -296,7 +304,7 @@ function getCapacityHint($type) {
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('machine_type'); ?></h6>
+                        <h6 class="text-primary">Machine Type</h6>
                         <span class="badge badge-info badge-lg">
                             <?php echo ucfirst(str_replace('_', ' ', $machine['type'] ?? 'unknown')); ?>
                         </span>
@@ -306,7 +314,7 @@ function getCapacityHint($type) {
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('current_status'); ?></h6>
+                        <h6 class="text-primary">Current Status</h6>
                         <span class="badge badge-<?php echo $machine['status'] === 'available' ? 'success' : ($machine['status'] === 'in_use' ? 'info' : ($machine['status'] === 'maintenance' ? 'warning' : 'secondary')); ?> badge-lg">
                             <?php echo ucfirst(str_replace('_', ' ', $machine['status'] ?? 'unknown')); ?>
                         </span>
@@ -314,7 +322,7 @@ function getCapacityHint($type) {
                     
                     <?php if (!empty($machine['capacity'])): ?>
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('capacity'); ?></h6>
+                        <h6 class="text-primary">Capacity</h6>
                         <strong><?php echo htmlspecialchars($machine['capacity']); ?></strong>
                         <br><small class="text-muted"><?php echo getCapacityHint($machine['type'] ?? ''); ?></small>
                     </div>
@@ -322,7 +330,7 @@ function getCapacityHint($type) {
                     
                     <?php if (!empty($machine['fuel_type'])): ?>
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('fuel_type'); ?></h6>
+                        <h6 class="text-primary">Fuel Type</h6>
                         <span class="badge badge-warning"><?php echo ucfirst($machine['fuel_type']); ?></span>
                     </div>
                     <?php endif; ?>
@@ -332,15 +340,15 @@ function getCapacityHint($type) {
             <!-- Machine Timeline -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('timeline'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Timeline</h6>
                 </div>
                 <div class="card-body">
                     <div class="timeline">
                         <div class="timeline-item">
                             <div class="timeline-marker bg-success"></div>
                             <div class="timeline-content">
-                                <h6 class="timeline-title"><?php echo __('machine_added'); ?></h6>
-                                <p class="timeline-text"><?php echo formatDateTime($machine['created_at']); ?></p>
+                                <h6 class="timeline-title">Machine Added</h6>
+                                <p class="timeline-text"><?php echo $machine['created_at'] ? date('M j, Y \a\t g:i A', strtotime($machine['created_at'])) : 'N/A'; ?></p>
                             </div>
                         </div>
                         
@@ -348,7 +356,7 @@ function getCapacityHint($type) {
                         <div class="timeline-item">
                             <div class="timeline-marker bg-info"></div>
                             <div class="timeline-content">
-                                <h6 class="timeline-title"><?php echo __('purchase_date'); ?></h6>
+                                <h6 class="timeline-title">Purchase Date</h6>
                                 <p class="timeline-text"><?php echo date('M j, Y', strtotime($machine['purchase_date'])); ?></p>
                             </div>
                         </div>
@@ -358,8 +366,8 @@ function getCapacityHint($type) {
                         <div class="timeline-item">
                             <div class="timeline-marker bg-secondary"></div>
                             <div class="timeline-content">
-                                <h6 class="timeline-title"><?php echo __('last_updated'); ?></h6>
-                                <p class="timeline-text"><?php echo formatDateTime($machine['updated_at']); ?></p>
+                                <h6 class="timeline-title">Last Updated</h6>
+                                <p class="timeline-text"><?php echo $machine['updated_at'] ? date('M j, Y \a\t g:i A', strtotime($machine['updated_at'])) : 'N/A'; ?></p>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -370,24 +378,24 @@ function getCapacityHint($type) {
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="edit.php?id=<?php echo $machine_id; ?>" class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit"></i> <?php echo __('edit_machine'); ?>
+                            <i class="fas fa-edit"></i> Edit Machine
                         </a>
                         
                         <a href="../contracts/index.php?machine_id=<?php echo $machine_id; ?>" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-contract"></i> <?php echo __('view_contracts'); ?>
+                            <i class="fas fa-file-contract"></i> View Contracts
                         </a>
                         
                         <a href="../expenses/index.php?category=maintenance&search=<?php echo urlencode($machine['machine_code']); ?>" class="btn btn-warning btn-sm">
-                            <i class="fas fa-tools"></i> <?php echo __('maintenance_expenses'); ?>
+                            <i class="fas fa-tools"></i> Maintenance Expenses
                         </a>
                         
                         <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $machine_id; ?>, '<?php echo htmlspecialchars($machine['name']); ?>')">
-                            <i class="fas fa-trash"></i> <?php echo __('delete_machine'); ?>
+                            <i class="fas fa-trash"></i> Delete Machine
                         </button>
                     </div>
                 </div>
@@ -396,7 +404,7 @@ function getCapacityHint($type) {
             <!-- Machine Type Info -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_type_info'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Machine Type Info</h6>
                 </div>
                 <div class="card-body">
                     <?php
