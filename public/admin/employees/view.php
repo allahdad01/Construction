@@ -37,28 +37,30 @@ if (!$employee) {
     exit;
 }
 
-// Get employee statistics
+// Get employee statistics from working_hours (projects they've worked on)
 $stmt = $conn->prepare("
     SELECT 
-        COUNT(*) as total_contracts,
-        COUNT(CASE WHEN status = 'active' THEN 1 END) as active_contracts,
-        SUM(CASE WHEN status = 'completed' THEN total_amount ELSE 0 END) as total_earnings
-    FROM contracts 
-    WHERE assigned_employee_id = ?
+        COUNT(DISTINCT wh.contract_id) as total_contracts,
+        COUNT(DISTINCT CASE WHEN c.status = 'active' THEN wh.contract_id END) as active_contracts,
+        SUM(wh.hours_worked) as total_hours_worked
+    FROM working_hours wh
+    LEFT JOIN contracts c ON wh.contract_id = c.id
+    WHERE wh.employee_id = ? AND wh.company_id = ?
 ");
-$stmt->execute([$employee_id]);
+$stmt->execute([$employee_id, $company_id]);
 $contract_stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get recent contracts
+// Get recent contracts (through working_hours)
 $stmt = $conn->prepare("
-    SELECT c.*, p.project_name 
-    FROM contracts c 
+    SELECT DISTINCT c.*, p.name as project_name 
+    FROM working_hours wh
+    JOIN contracts c ON wh.contract_id = c.id
     LEFT JOIN projects p ON c.project_id = p.id 
-    WHERE c.assigned_employee_id = ? 
+    WHERE wh.employee_id = ? AND wh.company_id = ?
     ORDER BY c.created_at DESC 
     LIMIT 5
 ");
-$stmt->execute([$employee_id]);
+$stmt->execute([$employee_id, $company_id]);
 $recent_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get attendance statistics
@@ -211,12 +213,12 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Earnings
+                                Total Hours Worked
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo number_format($contract_stats['total_earnings'], 2); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($contract_stats['total_hours_worked'] ?? 0, 1); ?> hrs</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
