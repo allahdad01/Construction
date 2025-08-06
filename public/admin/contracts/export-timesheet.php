@@ -1,10 +1,11 @@
 <?php
+require_once '../../../config/config.php';
 require_once '../../../config/database.php';
-require_once '../../../config/auth.php';
 require_once '../../../config/currency_helper.php';
 
-// Check authentication
+// Check if user is authenticated and has appropriate role
 requireAuth();
+requireAnyRole(['super_admin', 'company_admin', 'driver', 'driver_assistant']);
 
 $db = new Database();
 $conn = $db->getConnection();
