@@ -68,15 +68,24 @@ $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate working hours and payments for each contract separately (like timesheet does)
 foreach ($contracts as &$contract) {
-    // Get total hours worked for this contract
+    // Get total hours worked for this contract (using exact timesheet method)
     $stmt = $conn->prepare("
-        SELECT COALESCE(SUM(hours_worked), 0) as total_hours_worked
-        FROM working_hours 
-        WHERE contract_id = ? AND company_id = ?
+        SELECT wh.hours_worked
+        FROM working_hours wh
+        WHERE wh.contract_id = ? AND wh.company_id = ?
     ");
     $stmt->execute([$contract['id'], getCurrentCompanyId()]);
-    $hours_result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $contract['total_hours_worked'] = $hours_result['total_hours_worked'];
+    $hours_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Calculate total like timesheet does
+    $total_hours_worked = 0;
+    foreach ($hours_records as $wh) {
+        $total_hours_worked += $wh['hours_worked'];
+    }
+    $contract['total_hours_worked'] = $total_hours_worked;
+    
+    // Debug: Log what we found
+    error_log("Contract ID: " . $contract['id'] . " (Code: " . $contract['contract_code'] . ") - Records found: " . count($hours_records) . " - Total hours: " . $total_hours_worked);
     
     // Get total amount paid for this contract
     $stmt = $conn->prepare("
@@ -450,6 +459,10 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <?php 
                                                 $hours_worked = $contract['total_hours_worked'] ?? 0;
                                                 $hours_required = $contract['total_hours_required'] ?: '∞';
+                                                
+                                                // Debug: Show contract info for troubleshooting
+                                                echo "<!-- Debug: Contract ID: {$contract['id']}, Code: {$contract['contract_code']}, Hours: {$hours_worked} -->";
+                                                
                                                 // Ensure hours_worked is properly formatted and visible
                                                 if ($hours_worked > 0) {
                                                     echo '<strong>' . number_format($hours_worked, 1) . '</strong> / ' . $hours_required . ' hours';
