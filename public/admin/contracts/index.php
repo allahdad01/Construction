@@ -105,6 +105,9 @@ foreach ($contracts as &$contract) {
     $stmt->execute([$contract['id'], getCurrentCompanyId()]);
     $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
     $contract['amount_paid'] = $payment_result['amount_paid'];
+    
+    // Debug: Log payment calculation
+    error_log("Contract ID: " . $contract['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract['amount_paid']);
 }
 
 // Calculate progress and contract values for each contract
@@ -490,7 +493,12 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <div>
                                             <strong><?php echo formatCurrencyAmount($contract['calculated_total'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
                                             <br><small class="text-muted">
-                                                Paid: <?php echo formatCurrencyAmount($contract['amount_paid'] ?? 0, $contract['currency'] ?? 'USD'); ?>
+                                                Paid: <?php 
+                                                // Debug amount_paid
+                                                $amount_paid = $contract['amount_paid'] ?? 0;
+                                                echo "<!-- Debug Amount Paid: Contract ID: {$contract['id']}, amount_paid key exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . ", value: $amount_paid -->";
+                                                echo formatCurrencyAmount($amount_paid, $contract['currency'] ?? 'USD'); 
+                                                ?>
                                             </small>
                                             <?php if (($contract['calculated_total'] ?? 0) > 0): ?>
                                                 <br><small class="text-info">
