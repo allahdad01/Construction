@@ -15,11 +15,22 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
+// Debug: Check URL parameters
+error_log("Current URL parameters: " . print_r($_GET, true));
+error_log("POST parameters: " . print_r($_POST, true));
+
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $employee_id = (int)$_GET['delete'];
     
+    // Debug: Log delete request
+    error_log("Delete request received for employee ID: " . $employee_id);
+    error_log("GET parameters: " . print_r($_GET, true));
+    
     try {
+        error_log("Starting delete process for employee ID: " . $employee_id);
+        error_log("Company ID: " . $company_id);
+        
         // Check if employee exists and belongs to company
         $stmt = $conn->prepare("
             SELECT e.employee_code, e.name 
@@ -28,6 +39,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         ");
         $stmt->execute([$employee_id, $company_id]);
         $employee = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        error_log("Employee found: " . ($employee ? "YES - " . print_r($employee, true) : "NO"));
         
         if (!$employee) {
             throw new Exception("Employee not found or you don't have permission to delete it.");
@@ -80,12 +93,16 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         
         $success = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!" . ($user_id ? " (Associated user account also removed)" : "");
         
+        error_log("Delete successful: " . $success);
+        
     } catch (Exception $e) {
         // Rollback transaction on error
         if ($conn->inTransaction()) {
             $conn->rollBack();
         }
         $error = "Delete failed: " . $e->getMessage();
+        error_log("Delete failed: " . $e->getMessage());
+        error_log("Exception details: " . print_r($e, true));
     }
 }
 
@@ -512,13 +529,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Confirm delete function
 function confirmDelete(employeeId, employeeName) {
+    console.log('confirmDelete function called');
     console.log('Delete button clicked for employee:', employeeName, 'ID:', employeeId);
+    console.log('Employee ID type:', typeof employeeId);
+    console.log('Employee Name type:', typeof employeeName);
     
     const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- Require manual removal of related records (attendance, payments, etc.)\n\nContinue with deletion?`;
     
-    if (confirm(message)) {
-        console.log('User confirmed deletion, redirecting to:', `index.php?delete=${employeeId}`);
-        window.location.href = `index.php?delete=${employeeId}`;
+    console.log('About to show confirmation dialog');
+    const userConfirmed = confirm(message);
+    console.log('User confirmation result:', userConfirmed);
+    
+    if (userConfirmed) {
+        const redirectUrl = `index.php?delete=${employeeId}`;
+        console.log('User confirmed deletion, redirecting to:', redirectUrl);
+        console.log('Current URL before redirect:', window.location.href);
+        
+        // Add a small delay to ensure console logs are visible
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+        }, 100);
     } else {
         console.log('User cancelled deletion');
     }
