@@ -66,6 +66,13 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Debug: Log the SQL query and results
+error_log("Contracts Query: " . $sql);
+error_log("Contracts found: " . count($contracts));
+if (!empty($contracts)) {
+    error_log("First contract data: " . print_r($contracts[0], true));
+}
+
 // Calculate working hours and payments for each contract separately (like timesheet does)
 foreach ($contracts as &$contract) {
     // Get total hours worked for this contract (using exact timesheet method)
@@ -420,6 +427,10 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>
                                         <div>
+                                            <?php 
+                                            // Debug project/machine data
+                                            echo "<!-- Debug Project/Machine: Project ID: {$contract['project_id']}, Project Name: '{$contract['project_name']}', Machine ID: {$contract['machine_id']}, Machine Name: '{$contract['machine_name']}' -->";
+                                            ?>
                                             <strong><?php echo htmlspecialchars($contract['project_name'] ?? 'N/A'); ?></strong>
                                             <br><small class="text-muted">
                                                 <?php echo htmlspecialchars($contract['machine_name'] ?? 'N/A'); ?>
