@@ -163,9 +163,9 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><?php echo __('machine_management'); ?></h1>
+        <h1 class="h3 mb-0 text-gray-800">Machine Management</h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> <?php echo __('add_machine'); ?>
+            <i class="fas fa-plus"></i> Add Machine
         </a>
     </div>
 
