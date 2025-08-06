@@ -83,29 +83,11 @@ try {
     // Column might already exist, ignore error
 }
 
+// Include centralized currency helper
+require_once '../../../config/currency_helper.php';
+
 // Get contract currency for all calculations
 $contract_currency = $contract['currency'] ?? 'USD';
-
-// Currency symbol mapping function
-function getCurrencySymbol($currency) {
-    $symbols = [
-        'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'AFN' => '؋', 'JPY' => '¥', 'INR' => '₹',
-        'CAD' => 'C$', 'AUD' => 'A$', 'CHF' => 'CHF', 'CNY' => '¥', 'SEK' => 'kr', 'NOK' => 'kr',
-        'DKK' => 'kr', 'PLN' => 'zł', 'CZK' => 'Kč', 'HUF' => 'Ft', 'RUB' => '₽', 'TRY' => '₺',
-        'BRL' => 'R$', 'MXN' => '$', 'ZAR' => 'R', 'AED' => 'د.إ', 'SAR' => 'ر.س', 'QAR' => 'ر.ق',
-        'KWD' => 'د.ك', 'BHD' => 'د.ب', 'OMR' => 'ر.ع.', 'JOD' => 'د.أ', 'LBP' => 'ل.ل',
-        'EGP' => 'ج.م', 'IQD' => 'ع.د', 'IRR' => '﷼', 'PKR' => '₨', 'BDT' => '৳', 'LKR' => 'Rs',
-        'NPR' => 'Rs', 'MMK' => 'K', 'THB' => '฿', 'VND' => '₫', 'KRW' => '₩', 'IDR' => 'Rp',
-        'MYR' => 'RM', 'SGD' => 'S$', 'PHP' => '₱', 'HKD' => 'HK$', 'TWD' => 'NT$', 'NZD' => 'NZ$'
-    ];
-    return $symbols[$currency] ?? $currency;
-}
-
-// Format currency with proper symbol
-function formatCurrencyAmount($amount, $currency) {
-    $symbol = getCurrencySymbol($currency);
-    return $symbol . ' ' . number_format($amount, 2);
-}
 
 // Get payments for this contract
 $stmt = $conn->prepare("
