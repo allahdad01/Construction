@@ -26,9 +26,8 @@ $where_conditions = ['c.company_id = ?'];
 $params = [getCurrentCompanyId()];
 
 if (!empty($search)) {
-    $where_conditions[] = "(c.contract_code LIKE ? OR p.name LIKE ? OR m.name LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
+    // Simplified search to avoid JOIN issues
+    $where_conditions[] = "c.contract_code LIKE ?";
     $params[] = "%$search%";
 }
 
@@ -51,11 +50,11 @@ $stmt->execute($params);
 $total_records = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $limit);
 
-// Get contracts with related data (without working hours SUM to avoid issues)
+// Get contracts with related data (fix JOIN order and WHERE clause)
 $sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code
         FROM contracts c
-        LEFT JOIN projects p ON c.project_id = p.id
-        LEFT JOIN machines m ON c.machine_id = m.id
+        LEFT JOIN projects p ON c.project_id = p.id AND p.company_id = c.company_id
+        LEFT JOIN machines m ON c.machine_id = m.id AND m.company_id = c.company_id
         $where_clause
         ORDER BY c.created_at DESC 
         LIMIT ? OFFSET ?";
@@ -67,7 +66,10 @@ $stmt->execute($params);
 $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Debug: Log the SQL query and results
+error_log("Search params - search: '$search', type: '$type_filter', status: '$status_filter'");
+error_log("WHERE clause: " . $where_clause);
 error_log("Contracts Query: " . $sql);
+error_log("Query params: " . print_r($params, true));
 error_log("Contracts found: " . count($contracts));
 if (!empty($contracts)) {
     error_log("First contract data: " . print_r($contracts[0], true));
