@@ -33,11 +33,11 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             throw new Exception("Employee not found or you don't have permission to delete it.");
         }
         
-        // Check for related records
+        // Check for related records with more detailed information
         $related_checks = [
             'salary_payments' => "SELECT COUNT(*) FROM salary_payments WHERE employee_id = ?",
             'employee_attendance' => "SELECT COUNT(*) FROM employee_attendance WHERE employee_id = ?",
-            'users' => "SELECT COUNT(*) FROM users WHERE id = (SELECT user_id FROM employees WHERE id = ?)"
+            'working_hours' => "SELECT COUNT(*) FROM working_hours WHERE employee_id = ?"
         ];
         
         $related_records = [];
@@ -51,11 +51,21 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         }
         
         if (!empty($related_records)) {
-            throw new Exception("Cannot delete employee '{$employee['employee_code']}' because it has related records: " . implode(', ', $related_records) . ". Remove these records first.");
+            throw new Exception("Cannot delete employee '{$employee['employee_code']}' - {$employee['name']} because it has related records: " . implode(', ', $related_records) . ". Please remove these records first or contact system administrator.");
         }
         
         // Start transaction
         $conn->beginTransaction();
+        
+        // Delete associated user account if exists
+        $stmt = $conn->prepare("SELECT user_id FROM employees WHERE id = ? AND company_id = ?");
+        $stmt->execute([$employee_id, $company_id]);
+        $user_id = $stmt->fetchColumn();
+        
+        if ($user_id) {
+            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$user_id]);
+        }
         
         // Delete employee
         $stmt = $conn->prepare("DELETE FROM employees WHERE id = ? AND company_id = ?");
@@ -68,14 +78,14 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         // Commit transaction
         $conn->commit();
         
-        $success = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!";
+        $success = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!" . ($user_id ? " (Associated user account also removed)" : "");
         
     } catch (Exception $e) {
         // Rollback transaction on error
         if ($conn->inTransaction()) {
             $conn->rollBack();
         }
-        $error = $e->getMessage();
+        $error = "Delete failed: " . $e->getMessage();
     }
 }
 
@@ -401,9 +411,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" 
-                                                class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>')"
-                                                title="Delete">
+                                                class="btn btn-sm btn-outline-danger delete-employee-btn" 
+                                                data-employee-id="<?php echo $employee['id']; ?>"
+                                                data-employee-name="<?php echo htmlspecialchars($employee['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                title="Delete Employee">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -451,6 +462,25 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, initializing employees index functionality');
+    
+    // Initialize delete button event listeners
+    const deleteButtons = document.querySelectorAll('.delete-employee-btn');
+    console.log(`Found ${deleteButtons.length} delete buttons`);
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const employeeId = this.dataset.employeeId;
+            const employeeName = this.dataset.employeeName;
+            
+            console.log('Delete button clicked:', { employeeId, employeeName });
+            confirmDelete(employeeId, employeeName);
+        });
+    });
+    
     // Initialize DataTable with proper destroy handling
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
         const table = $('#employeesTable');
@@ -474,14 +504,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 ],
                 destroy: true
             });
+            
+            console.log('DataTable initialized successfully');
         }
     }
 });
 
 // Confirm delete function
 function confirmDelete(employeeId, employeeName) {
-    if (confirm(`<?php echo __('confirm_delete_employee'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
+    console.log('Delete button clicked for employee:', employeeName, 'ID:', employeeId);
+    
+    const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- Require manual removal of related records (attendance, payments, etc.)\n\nContinue with deletion?`;
+    
+    if (confirm(message)) {
+        console.log('User confirmed deletion, redirecting to:', `index.php?delete=${employeeId}`);
         window.location.href = `index.php?delete=${employeeId}`;
+    } else {
+        console.log('User cancelled deletion');
     }
 }
 
