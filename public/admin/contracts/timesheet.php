@@ -359,7 +359,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                 <div class="col-md-4 text-end">
                     <h6>Current Month</h6>
                     <p class="mb-1"><strong><?php echo number_format($current_month_hours, 1); ?> hours</strong></p>
-                                                        <p class="mb-0"><strong><?php echo formatCurrency($current_month_amount, null, getCurrentCompanyId()); ?></strong></p>
+                                                        <p class="mb-0"><strong><?php echo formatCurrencyAmount($current_month_amount, $contract_currency); ?></strong></p>
                 </div>
             </div>
         </div>
@@ -481,7 +481,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                 <td colspan="2"><strong>Total</strong></td>
                                 <td class="text-center"><strong><?php echo number_format($total_hours_worked, 1); ?> hours</strong></td>
                                 <td></td>
-                                <td><strong><?php echo formatCurrency($total_amount_earned, null, getCurrentCompanyId()); ?></strong></td>
+                                <td><strong><?php echo formatCurrencyAmount($total_amount_earned, $contract_currency); ?></strong></td>
                                 <td colspan="2"></td>
                             </tr>
                         </tfoot>
@@ -524,8 +524,8 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <tbody>
                             <?php foreach ($payments as $payment): ?>
                                 <tr>
-                                    <td><?php echo formatDate($payment['payment_date'], getCurrentCompanyId()); ?></td>
-                                    <td><strong><?php echo formatCurrency($payment['amount'], null, getCurrentCompanyId()); ?></strong></td>
+                                    <td><?php echo date('Y-m-d', strtotime($payment['payment_date'])); ?></td>
+                                    <td><strong><?php echo formatCurrencyAmount($payment['amount'], $contract_currency); ?></strong></td>
                                     <td>
                                         <span class="badge <?php 
                                             echo $payment['payment_method'] === 'credit_card' ? 'bg-primary' : 'bg-success'; 
@@ -560,7 +560,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <tfoot>
                             <tr class="table-success">
                                 <td><strong>Total Paid</strong></td>
-                                <td><strong><?php echo formatCurrency($total_amount_paid, null, getCurrentCompanyId()); ?></strong></td>
+                                <td><strong><?php echo formatCurrencyAmount($total_amount_paid, $contract_currency); ?></strong></td>
                                 <td colspan="4"></td>
                             </tr>
                         </tfoot>
