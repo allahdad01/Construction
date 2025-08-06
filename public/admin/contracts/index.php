@@ -77,21 +77,18 @@ foreach ($contracts as &$contract) {
     $contract['total_hours_worked'] = $contract['total_hours_worked'] ?? 0;
     
     // Calculate progress percentage
-    $contract['progress_percentage'] = 0; // Default value
-    
     if ($contract['contract_type'] === 'hourly') {
-        if ($contract['total_hours_required'] > 0) {
-            $contract['progress_percentage'] = min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100);
-        }
+        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
+            min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
     } elseif ($contract['contract_type'] === 'daily') {
-        if ($contract['total_days_required'] > 0 && $contract['working_hours_per_day'] > 0) {
-            $total_days_worked = $contract['total_hours_worked'] / $contract['working_hours_per_day'];
-            $contract['progress_percentage'] = min(100, ($total_days_worked / $contract['total_days_required']) * 100);
-        }
+        $total_days_worked = $contract['total_hours_worked'] / ($contract['working_hours_per_day'] ?: 8);
+        $contract['progress_percentage'] = $contract['total_days_required'] > 0 ? 
+            min(100, ($total_days_worked / $contract['total_days_required']) * 100) : 0;
     } elseif ($contract['contract_type'] === 'monthly') {
-        if ($contract['total_hours_required'] > 0) {
-            $contract['progress_percentage'] = min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100);
-        }
+        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
+            min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
+    } else {
+        $contract['progress_percentage'] = 0;
     }
     
     // Calculate contract total value if not set
