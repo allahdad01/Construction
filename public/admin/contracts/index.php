@@ -429,8 +429,16 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 </div>
                                             </div>
                                             <small class="text-muted">
-                                                <?php echo $contract['total_hours_worked'] ?? 0; ?> / 
-                                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours
+                                                <?php 
+                                                $hours_worked = $contract['total_hours_worked'] ?? 0;
+                                                $hours_required = $contract['total_hours_required'] ?: '∞';
+                                                // Ensure hours_worked is properly formatted and visible
+                                                if ($hours_worked > 0) {
+                                                    echo '<strong>' . number_format($hours_worked, 1) . '</strong> / ' . $hours_required . ' hours';
+                                                } else {
+                                                    echo '0.0 / ' . $hours_required . ' hours';
+                                                }
+                                                ?>
                                             </small>
                                         </div>
                                     </td>
