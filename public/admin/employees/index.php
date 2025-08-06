@@ -14,6 +14,7 @@ $company_id = getCurrentCompanyId();
 
 $error = '';
 $success = '';
+$employee_to_delete = null; // Store employee data for error display
 
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
@@ -32,6 +33,9 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         if (!$employee) {
             throw new Exception("Employee not found or you don't have permission to delete it.");
         }
+        
+        // Store employee data for potential error display
+        $employee_to_delete = $employee;
         
         // Check for related records with more detailed information
         $related_checks = [
@@ -202,7 +206,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         </a>
     </div>
 
-    <?php if ($error): ?>
+        <?php if ($error): ?>
         <div class="alert alert-danger">
             <div class="d-flex align-items-start">
                 <div class="flex-grow-1">
@@ -210,24 +214,34 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             </div>
-            <?php if (isset($_GET['delete']) && is_numeric($_GET['delete']) && strpos($error, 'related records') !== false): ?>
-                <hr>
-                <div class="mt-3">
-                    <p class="mb-2"><strong>Options:</strong></p>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-danger btn-sm" 
-                                onclick="forceDeleteEmployee(<?php echo (int)$_GET['delete']; ?>, '<?php echo htmlspecialchars($employee['name'] ?? 'Employee', ENT_QUOTES); ?>')">
-                            <i class="fas fa-trash-alt"></i> Force Delete (Remove All Related Records)
-                        </button>
-                        <a href="index.php" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
-                    </div>
-                    <small class="form-text text-muted mt-2">
-                        <i class="fas fa-info-circle"></i> Force delete will permanently remove the employee and all related records (salary payments, attendance, etc.).
-                    </small>
-                </div>
+            
+            <!-- Debug info (remove after testing) -->
+            <?php if (true): // Set to true for debugging ?>
+                <small class="text-muted">
+                    Debug: GET[delete]=<?php echo $_GET['delete'] ?? 'not set'; ?>, 
+                    has_related_records=<?php echo strpos($error, 'related records') !== false ? 'yes' : 'no'; ?>, 
+                    employee_data=<?php echo $employee_to_delete ? 'available' : 'not available'; ?>
+                </small>
             <?php endif; ?>
+            
+            <?php if (isset($_GET['delete']) && is_numeric($_GET['delete']) && strpos($error, 'related records') !== false && $employee_to_delete): ?>
+                 <hr>
+                 <div class="mt-3">
+                     <p class="mb-2"><strong>Options:</strong></p>
+                     <div class="btn-group" role="group">
+                         <button type="button" class="btn btn-outline-danger btn-sm" 
+                                 onclick="forceDeleteEmployee(<?php echo (int)$_GET['delete']; ?>, '<?php echo htmlspecialchars($employee_to_delete['name'] ?? 'Employee', ENT_QUOTES); ?>')">
+                             <i class="fas fa-trash-alt"></i> Force Delete (Remove All Related Records)
+                         </button>
+                         <a href="index.php" class="btn btn-outline-secondary btn-sm">
+                             <i class="fas fa-times"></i> Cancel
+                         </a>
+                     </div>
+                     <small class="form-text text-muted mt-2">
+                         <i class="fas fa-info-circle"></i> Force delete will permanently remove the employee and all related records (salary payments, attendance, etc.).
+                     </small>
+                 </div>
+             <?php endif; ?>
         </div>
     <?php endif; ?>
 
@@ -564,8 +578,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function confirmDelete(employeeId, employeeName) {
     const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- You may need to handle related records (attendance, payments, etc.)\n\nContinue with deletion?`;
     
-    if (confirm(message)) {
-        window.location.href = `index.php?delete=${employeeId}`;
+    console.log('confirmDelete called for:', employeeName, 'ID:', employeeId);
+    const userConfirmed = confirm(message);
+    console.log('User confirmed:', userConfirmed);
+    
+    if (userConfirmed) {
+        const redirectUrl = `index.php?delete=${employeeId}`;
+        console.log('Redirecting to:', redirectUrl);
+        window.location.href = redirectUrl;
+    } else {
+        console.log('User cancelled delete');
     }
 }
 
