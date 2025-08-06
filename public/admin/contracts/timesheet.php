@@ -164,6 +164,14 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
         </div>
     </div>
 
+    <!-- Success Messages -->
+    <?php if (isset($_GET['payment_deleted'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Payment has been successfully deleted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
     <!-- Contract Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
