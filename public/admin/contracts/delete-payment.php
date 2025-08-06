@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$payment_id, getCurrentCompanyId()]);
             
             // Redirect back to timesheet with success message
-            header("Location: timesheet.php?contract_id={$contract_id}&payment_deleted=1");
+            header("Location: /constract360/construction/public/admin/contracts/timesheet.php?contract_id={$contract_id}&payment_deleted=1");
             exit();
             
         } catch (Exception $e) {
@@ -72,7 +72,7 @@ require_once '../../../includes/header.php';
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Delete Contract Payment</h1>
         <div>
-            <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
+            <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to Timesheet
             </a>
         </div>
@@ -190,7 +190,7 @@ require_once '../../../includes/header.php';
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
+                    <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancel
                     </a>
                     <button type="submit" class="btn btn-danger">

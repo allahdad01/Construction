@@ -560,22 +560,16 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="edit-payment.php?id=<?php echo $payment['id']; ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit Payment #<?php echo $payment['id']; ?>"
-                                               onclick="console.log('Edit URL:', this.href); return true;">
+                                            <a href="/constract360/construction/public/admin/contracts/edit-payment.php?id=<?php echo $payment['id']; ?>" 
+                                               class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="delete-payment.php?id=<?php echo $payment['id']; ?>" 
-                                               class="btn btn-sm btn-danger" title="Delete Payment #<?php echo $payment['id']; ?>"
-                                               onclick="console.log('Delete URL:', this.href); return confirmDelete('Are you sure you want to delete this payment?');">
+                                            <a href="/constract360/construction/public/admin/contracts/delete-payment.php?id=<?php echo $payment['id']; ?>" 
+                                               class="btn btn-sm btn-danger" title="Delete"
+                                               onclick="return confirmDelete('Are you sure you want to delete this payment?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
-                                        <!-- Debug info (remove after testing) -->
-                                        <small class="text-muted d-block mt-1">
-                                            Edit: <code>edit-payment.php?id=<?php echo $payment['id']; ?></code><br>
-                                            Delete: <code>delete-payment.php?id=<?php echo $payment['id']; ?></code>
-                                        </small>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
