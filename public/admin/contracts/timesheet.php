@@ -20,12 +20,10 @@ if (!$contract_id) {
 
 // Get contract details
 $stmt = $conn->prepare("
-    SELECT c.*, p.name as project_name, p.project_code, m.name as machine_name, m.machine_code,
-           e.name as employee_name, e.employee_code
+    SELECT c.*, p.name as project_name, p.project_code, m.name as machine_name, m.machine_code
     FROM contracts c
     LEFT JOIN projects p ON c.project_id = p.id
     LEFT JOIN machines m ON c.machine_id = m.id
-    LEFT JOIN employees e ON c.employee_id = e.id
     WHERE c.id = ? AND c.company_id = ?
 ");
 $stmt->execute([$contract_id, getCurrentCompanyId()]);
@@ -46,6 +44,17 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([$contract_id, getCurrentCompanyId()]);
 $working_hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get unique employees who worked on this contract
+$stmt = $conn->prepare("
+    SELECT DISTINCT e.id, e.name as employee_name, e.employee_code
+    FROM working_hours wh
+    JOIN employees e ON wh.employee_id = e.id
+    WHERE wh.contract_id = ? AND wh.company_id = ?
+    ORDER BY e.name
+");
+$stmt->execute([$contract_id, getCurrentCompanyId()]);
+$contract_employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate totals
 $total_hours_worked = 0;
