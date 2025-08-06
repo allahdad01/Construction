@@ -171,6 +171,13 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
+    
+    <?php if (isset($_GET['hours_deleted'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> Working hours entry has been successfully deleted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
     <!-- Contract Information -->
     <div class="card shadow mb-4">
@@ -479,11 +486,11 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="edit-hours.php?id=<?php echo $wh['id']; ?>" 
+                                            <a href="/constract360/construction/public/admin/contracts/edit-hours.php?id=<?php echo $wh['id']; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="delete-hours.php?id=<?php echo $wh['id']; ?>" 
+                                            <a href="/constract360/construction/public/admin/contracts/delete-hours.php?id=<?php echo $wh['id']; ?>" 
                                                class="btn btn-sm btn-danger" title="Delete"
                                                onclick="return confirmDelete('Are you sure you want to delete this entry?')">
                                                 <i class="fas fa-trash"></i>
