@@ -15,22 +15,11 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
-// Debug: Check URL parameters
-error_log("Current URL parameters: " . print_r($_GET, true));
-error_log("POST parameters: " . print_r($_POST, true));
-
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $employee_id = (int)$_GET['delete'];
     
-    // Debug: Log delete request
-    error_log("Delete request received for employee ID: " . $employee_id);
-    error_log("GET parameters: " . print_r($_GET, true));
-    
     try {
-        error_log("Starting delete process for employee ID: " . $employee_id);
-        error_log("Company ID: " . $company_id);
-        
         // Check if employee exists and belongs to company
         $stmt = $conn->prepare("
             SELECT e.employee_code, e.name 
@@ -39,8 +28,6 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         ");
         $stmt->execute([$employee_id, $company_id]);
         $employee = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        error_log("Employee found: " . ($employee ? "YES - " . print_r($employee, true) : "NO"));
         
         if (!$employee) {
             throw new Exception("Employee not found or you don't have permission to delete it.");
@@ -64,36 +51,65 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         }
         
         if (!empty($related_records)) {
-            throw new Exception("Cannot delete employee '{$employee['employee_code']}' - {$employee['name']} because it has related records: " . implode(', ', $related_records) . ". Please remove these records first or contact system administrator.");
+            // Check if user wants to force delete (cascade delete)
+            if (!isset($_GET['force_delete']) || $_GET['force_delete'] !== '1') {
+                $error = "Cannot delete employee '{$employee['employee_code']}' - {$employee['name']} because it has related records: " . implode(', ', $related_records) . ".";
+                // Don't throw exception, just set error and continue to display
+            } else {
+                // Force delete - remove related records first
+                
+                // Delete salary payments
+                $stmt = $conn->prepare("DELETE FROM salary_payments WHERE employee_id = ?");
+                $stmt->execute([$employee_id]);
+                $deleted_payments = $stmt->rowCount();
+                
+                // Delete attendance records
+                $stmt = $conn->prepare("DELETE FROM employee_attendance WHERE employee_id = ?");
+                $stmt->execute([$employee_id]);
+                $deleted_attendance = $stmt->rowCount();
+                
+                // Delete working hours
+                $stmt = $conn->prepare("DELETE FROM working_hours WHERE employee_id = ?");
+                $stmt->execute([$employee_id]);
+                $deleted_hours = $stmt->rowCount();
+            }
         }
         
-        // Start transaction
-        $conn->beginTransaction();
-        
-        // Delete associated user account if exists
-        $stmt = $conn->prepare("SELECT user_id FROM employees WHERE id = ? AND company_id = ?");
-        $stmt->execute([$employee_id, $company_id]);
-        $user_id = $stmt->fetchColumn();
-        
-        if ($user_id) {
-            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-            $stmt->execute([$user_id]);
+        // Only proceed with deletion if no error occurred or it's a force delete
+        if (empty($error)) {
+            // Start transaction
+            $conn->beginTransaction();
+            
+            // Delete associated user account if exists
+            $stmt = $conn->prepare("SELECT user_id FROM employees WHERE id = ? AND company_id = ?");
+            $stmt->execute([$employee_id, $company_id]);
+            $user_id = $stmt->fetchColumn();
+            
+            if ($user_id) {
+                $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+                $stmt->execute([$user_id]);
+            }
+            
+            // Delete employee
+            $stmt = $conn->prepare("DELETE FROM employees WHERE id = ? AND company_id = ?");
+            $stmt->execute([$employee_id, $company_id]);
+            
+            if ($stmt->rowCount() === 0) {
+                throw new Exception("No records were deleted. The employee may have already been removed.");
+            }
+            
+            // Commit transaction
+            $conn->commit();
+            
+            $success_msg = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!";
+            if ($user_id) {
+                $success_msg .= " (Associated user account also removed)";
+            }
+            if (isset($_GET['force_delete']) && $_GET['force_delete'] === '1') {
+                $success_msg .= " (Related records were also removed)";
+            }
+            $success = $success_msg;
         }
-        
-        // Delete employee
-        $stmt = $conn->prepare("DELETE FROM employees WHERE id = ? AND company_id = ?");
-        $stmt->execute([$employee_id, $company_id]);
-        
-        if ($stmt->rowCount() === 0) {
-            throw new Exception("No records were deleted. The employee may have already been removed.");
-        }
-        
-        // Commit transaction
-        $conn->commit();
-        
-        $success = "Employee '{$employee['employee_code']}' - {$employee['name']} deleted successfully!" . ($user_id ? " (Associated user account also removed)" : "");
-        
-        error_log("Delete successful: " . $success);
         
     } catch (Exception $e) {
         // Rollback transaction on error
@@ -101,8 +117,6 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
             $conn->rollBack();
         }
         $error = "Delete failed: " . $e->getMessage();
-        error_log("Delete failed: " . $e->getMessage());
-        error_log("Exception details: " . print_r($e, true));
     }
 }
 
@@ -189,7 +203,32 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 
     <?php if ($error): ?>
-        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+        <div class="alert alert-danger">
+            <div class="d-flex align-items-start">
+                <div class="flex-grow-1">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Delete Failed</strong><br>
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            </div>
+            <?php if (isset($_GET['delete']) && is_numeric($_GET['delete']) && strpos($error, 'related records') !== false): ?>
+                <hr>
+                <div class="mt-3">
+                    <p class="mb-2"><strong>Options:</strong></p>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                onclick="forceDeleteEmployee(<?php echo (int)$_GET['delete']; ?>, '<?php echo htmlspecialchars($employee['name'] ?? 'Employee', ENT_QUOTES); ?>')">
+                            <i class="fas fa-trash-alt"></i> Force Delete (Remove All Related Records)
+                        </button>
+                        <a href="index.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                    <small class="form-text text-muted mt-2">
+                        <i class="fas fa-info-circle"></i> Force delete will permanently remove the employee and all related records (salary payments, attendance, etc.).
+                    </small>
+                </div>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <?php if ($success): ?>
@@ -479,11 +518,8 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded, initializing employees index functionality');
-    
     // Initialize delete button event listeners
     const deleteButtons = document.querySelectorAll('.delete-employee-btn');
-    console.log(`Found ${deleteButtons.length} delete buttons`);
     
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -493,7 +529,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const employeeId = this.dataset.employeeId;
             const employeeName = this.dataset.employeeName;
             
-            console.log('Delete button clicked:', { employeeId, employeeName });
             confirmDelete(employeeId, employeeName);
         });
     });
@@ -521,36 +556,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 ],
                 destroy: true
             });
-            
-            console.log('DataTable initialized successfully');
         }
     }
 });
 
 // Confirm delete function
 function confirmDelete(employeeId, employeeName) {
-    console.log('confirmDelete function called');
-    console.log('Delete button clicked for employee:', employeeName, 'ID:', employeeId);
-    console.log('Employee ID type:', typeof employeeId);
-    console.log('Employee Name type:', typeof employeeName);
+    const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- You may need to handle related records (attendance, payments, etc.)\n\nContinue with deletion?`;
     
-    const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- Require manual removal of related records (attendance, payments, etc.)\n\nContinue with deletion?`;
+    if (confirm(message)) {
+        window.location.href = `index.php?delete=${employeeId}`;
+    }
+}
+
+// Force delete function
+function forceDeleteEmployee(employeeId, employeeName) {
+    const message = `⚠️ FORCE DELETE CONFIRMATION ⚠️
+
+Are you absolutely sure you want to force delete employee "${employeeName}"?
+
+This will PERMANENTLY delete:
+✗ Employee record
+✗ Associated user account
+✗ All salary payment records
+✗ All attendance records  
+✗ All working hours records
+
+This action CANNOT be undone!
+
+Type "DELETE" to confirm:`;
     
-    console.log('About to show confirmation dialog');
-    const userConfirmed = confirm(message);
-    console.log('User confirmation result:', userConfirmed);
+    const userInput = prompt(message);
     
-    if (userConfirmed) {
-        const redirectUrl = `index.php?delete=${employeeId}`;
-        console.log('User confirmed deletion, redirecting to:', redirectUrl);
-        console.log('Current URL before redirect:', window.location.href);
-        
-        // Add a small delay to ensure console logs are visible
-        setTimeout(() => {
-            window.location.href = redirectUrl;
-        }, 100);
+    if (userInput === "DELETE") {
+        window.location.href = `index.php?delete=${employeeId}&force_delete=1`;
     } else {
-        console.log('User cancelled deletion');
+        alert('Force delete cancelled. Employee was not deleted.');
     }
 }
 
