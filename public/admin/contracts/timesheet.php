@@ -152,19 +152,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
             <a href="add-payment.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-success btn-sm me-2">
                 <i class="fas fa-dollar-sign"></i> Add Payment
             </a>
-            <div class="btn-group me-2" role="group">
-                <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-download"></i> Export
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=pdf" target="_blank">
-                        <i class="fas fa-file-pdf text-danger"></i> Export PDF
-                    </a></li>
-                    <li><a class="dropdown-item" href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=excel">
-                        <i class="fas fa-file-excel text-success"></i> Export Excel
-                    </a></li>
-                </ul>
-            </div>
+            <a href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=pdf" target="_blank" class="btn btn-danger btn-sm me-1">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            <a href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=excel" class="btn btn-success btn-sm me-2">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
             <a href="index.php" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to Contracts
             </a>
@@ -694,7 +687,7 @@ if (Object.keys(monthlyData).length > 0) {
                 },
                 grid: {
                     drawOnChartArea: false,
-                },
+                }
             }
         }
     });
