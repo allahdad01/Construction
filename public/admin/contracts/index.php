@@ -71,8 +71,9 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate progress for each contract
+// Calculate progress and contract values for each contract
 foreach ($contracts as &$contract) {
+    // Calculate progress percentage
     if ($contract['contract_type'] === 'hourly') {
         $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
             min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
@@ -83,6 +84,28 @@ foreach ($contracts as &$contract) {
     } elseif ($contract['contract_type'] === 'monthly') {
         $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
             min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
+    }
+    
+    // Calculate contract total value if not set
+    if (empty($contract['total_amount']) || $contract['total_amount'] == 0) {
+        if ($contract['contract_type'] === 'hourly') {
+            $contract['calculated_total'] = $contract['rate_amount'] * ($contract['total_hours_required'] ?: 0);
+        } elseif ($contract['contract_type'] === 'daily') {
+            $contract['calculated_total'] = $contract['rate_amount'] * ($contract['total_days_required'] ?: 0);
+        } elseif ($contract['contract_type'] === 'monthly') {
+            // For monthly contracts, calculate based on total hours required
+            if ($contract['total_hours_required'] > 0) {
+                $total_months = ceil($contract['total_hours_required'] / (($contract['working_hours_per_day'] ?: 8) * 30));
+                $contract['calculated_total'] = $contract['rate_amount'] * $total_months;
+            } else {
+                // If no total hours required, show rate per month
+                $contract['calculated_total'] = $contract['rate_amount'];
+            }
+        } else {
+            $contract['calculated_total'] = $contract['total_amount'] ?: 0;
+        }
+    } else {
+        $contract['calculated_total'] = $contract['total_amount'];
     }
 }
 
@@ -99,10 +122,51 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id
 $stmt->execute([getCurrentCompanyId()]);
 $completed_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get contract values grouped by currency
-$stmt = $conn->prepare("SELECT currency, SUM(total_amount) as total FROM contracts WHERE company_id = ? AND status = 'active' GROUP BY currency");
+// Calculate contract values grouped by currency from active contracts
+$stmt = $conn->prepare("
+    SELECT c.*, 
+           COALESCE(SUM(cp.amount), 0) as amount_paid
+    FROM contracts c
+    LEFT JOIN contract_payments cp ON c.id = cp.contract_id AND cp.status = 'completed'
+    WHERE c.company_id = ? AND c.status = 'active'
+    GROUP BY c.id
+");
 $stmt->execute([getCurrentCompanyId()]);
-$contract_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$active_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate totals by currency
+$contract_values = [];
+foreach ($active_contracts as $contract) {
+    $currency = $contract['currency'] ?? 'USD';
+    
+    // Calculate total value if not set
+    if (empty($contract['total_amount']) || $contract['total_amount'] == 0) {
+        if ($contract['contract_type'] === 'hourly') {
+            $calculated_total = $contract['rate_amount'] * ($contract['total_hours_required'] ?: 0);
+        } elseif ($contract['contract_type'] === 'daily') {
+            $calculated_total = $contract['rate_amount'] * ($contract['total_days_required'] ?: 0);
+        } elseif ($contract['contract_type'] === 'monthly') {
+            if ($contract['total_hours_required'] > 0) {
+                $total_months = ceil($contract['total_hours_required'] / (($contract['working_hours_per_day'] ?: 8) * 30));
+                $calculated_total = $contract['rate_amount'] * $total_months;
+            } else {
+                $calculated_total = $contract['rate_amount'];
+            }
+        } else {
+            $calculated_total = $contract['total_amount'] ?: 0;
+        }
+    } else {
+        $calculated_total = $contract['total_amount'];
+    }
+    
+    if (!isset($contract_values[$currency])) {
+        $contract_values[$currency] = ['currency' => $currency, 'total' => 0];
+    }
+    $contract_values[$currency]['total'] += $calculated_total;
+}
+
+// Convert to indexed array for display
+$contract_values = array_values($contract_values);
 
 // Get contract type breakdown
 $stmt = $conn->prepare("
@@ -361,10 +425,15 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatCurrencyAmount($contract['total_amount'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
+                                            <strong><?php echo formatCurrencyAmount($contract['calculated_total'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
                                             <br><small class="text-muted">
                                                 Paid: <?php echo formatCurrencyAmount($contract['amount_paid'] ?? 0, $contract['currency'] ?? 'USD'); ?>
                                             </small>
+                                            <?php if (($contract['calculated_total'] ?? 0) > 0): ?>
+                                                <br><small class="text-info">
+                                                    Remaining: <?php echo formatCurrencyAmount(($contract['calculated_total'] ?? 0) - ($contract['amount_paid'] ?? 0), $contract['currency'] ?? 'USD'); ?>
+                                                </small>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                     <td>
