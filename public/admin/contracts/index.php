@@ -73,17 +73,25 @@ $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate progress and contract values for each contract
 foreach ($contracts as &$contract) {
+    // Ensure total_hours_worked is set
+    $contract['total_hours_worked'] = $contract['total_hours_worked'] ?? 0;
+    
     // Calculate progress percentage
+    $contract['progress_percentage'] = 0; // Default value
+    
     if ($contract['contract_type'] === 'hourly') {
-        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
-            min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
+        if ($contract['total_hours_required'] > 0) {
+            $contract['progress_percentage'] = min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100);
+        }
     } elseif ($contract['contract_type'] === 'daily') {
-        $total_days_worked = $contract['total_hours_worked'] / $contract['working_hours_per_day'];
-        $contract['progress_percentage'] = $contract['total_days_required'] > 0 ? 
-            min(100, ($total_days_worked / $contract['total_days_required']) * 100) : 0;
+        if ($contract['total_days_required'] > 0 && $contract['working_hours_per_day'] > 0) {
+            $total_days_worked = $contract['total_hours_worked'] / $contract['working_hours_per_day'];
+            $contract['progress_percentage'] = min(100, ($total_days_worked / $contract['total_days_required']) * 100);
+        }
     } elseif ($contract['contract_type'] === 'monthly') {
-        $contract['progress_percentage'] = $contract['total_hours_required'] > 0 ? 
-            min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100) : 0;
+        if ($contract['total_hours_required'] > 0) {
+            $contract['progress_percentage'] = min(100, ($contract['total_hours_worked'] / $contract['total_hours_required']) * 100);
+        }
     }
     
     // Calculate contract total value if not set
@@ -136,37 +144,40 @@ $active_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate totals by currency
 $contract_values = [];
-foreach ($active_contracts as $contract) {
-    $currency = $contract['currency'] ?? 'USD';
-    
-    // Calculate total value if not set
-    if (empty($contract['total_amount']) || $contract['total_amount'] == 0) {
-        if ($contract['contract_type'] === 'hourly') {
-            $calculated_total = $contract['rate_amount'] * ($contract['total_hours_required'] ?: 0);
-        } elseif ($contract['contract_type'] === 'daily') {
-            $calculated_total = $contract['rate_amount'] * ($contract['total_days_required'] ?: 0);
-        } elseif ($contract['contract_type'] === 'monthly') {
-            if ($contract['total_hours_required'] > 0) {
-                $total_months = ceil($contract['total_hours_required'] / (($contract['working_hours_per_day'] ?: 8) * 30));
-                $calculated_total = $contract['rate_amount'] * $total_months;
+if (!empty($active_contracts)) {
+    foreach ($active_contracts as $contract) {
+        $currency = $contract['currency'] ?? 'USD';
+        
+        // Calculate total value if not set
+        $calculated_total = 0;
+        if (empty($contract['total_amount']) || $contract['total_amount'] == 0) {
+            if ($contract['contract_type'] === 'hourly') {
+                $calculated_total = $contract['rate_amount'] * ($contract['total_hours_required'] ?: 0);
+            } elseif ($contract['contract_type'] === 'daily') {
+                $calculated_total = $contract['rate_amount'] * ($contract['total_days_required'] ?: 0);
+            } elseif ($contract['contract_type'] === 'monthly') {
+                if ($contract['total_hours_required'] > 0) {
+                    $total_months = ceil($contract['total_hours_required'] / (($contract['working_hours_per_day'] ?: 8) * 30));
+                    $calculated_total = $contract['rate_amount'] * $total_months;
+                } else {
+                    $calculated_total = $contract['rate_amount'];
+                }
             } else {
-                $calculated_total = $contract['rate_amount'];
+                $calculated_total = $contract['total_amount'] ?: 0;
             }
         } else {
-            $calculated_total = $contract['total_amount'] ?: 0;
+            $calculated_total = $contract['total_amount'];
         }
-    } else {
-        $calculated_total = $contract['total_amount'];
+        
+        if (!isset($contract_values[$currency])) {
+            $contract_values[$currency] = ['currency' => $currency, 'total' => 0];
+        }
+        $contract_values[$currency]['total'] += $calculated_total;
     }
     
-    if (!isset($contract_values[$currency])) {
-        $contract_values[$currency] = ['currency' => $currency, 'total' => 0];
-    }
-    $contract_values[$currency]['total'] += $calculated_total;
+    // Convert to indexed array for display
+    $contract_values = array_values($contract_values);
 }
-
-// Convert to indexed array for display
-$contract_values = array_values($contract_values);
 
 // Get contract type breakdown
 $stmt = $conn->prepare("
@@ -266,7 +277,9 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $0.00
                                 <?php else: ?>
                                     <?php foreach ($contract_values as $value): ?>
-                                        <div><?php echo formatCurrencyAmount($value['total'] ?? 0, $value['currency'] ?? 'USD'); ?></div>
+                                        <?php if (isset($value['total']) && isset($value['currency'])): ?>
+                                            <div><?php echo formatCurrencyAmount($value['total'], $value['currency']); ?></div>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -409,18 +422,19 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <div class="mb-2">
                                             <div class="progress" style="height: 20px;">
                                                 <div class="progress-bar <?php 
-                                                    echo $contract['progress_percentage'] >= 100 ? 'bg-success' : 
-                                                        ($contract['progress_percentage'] >= 75 ? 'bg-info' : 
-                                                        ($contract['progress_percentage'] >= 50 ? 'bg-warning' : 'bg-danger')); 
+                                                    $progress = $contract['progress_percentage'] ?? 0;
+                                                    echo $progress >= 100 ? 'bg-success' : 
+                                                        ($progress >= 75 ? 'bg-info' : 
+                                                        ($progress >= 50 ? 'bg-warning' : 'bg-danger')); 
                                                 ?>" 
-                                                style="width: <?php echo $contract['progress_percentage']; ?>%">
-                                                    <?php echo round($contract['progress_percentage'], 1); ?>%
+                                                style="width: <?php echo $progress; ?>%">
+                                                    <?php echo round($progress, 1); ?>%
                                                 </div>
                                             </div>
-                                                                        <small class="text-muted">
-                                <?php echo $contract['total_hours_worked']; ?> / 
-                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours
-                            </small>
+                                            <small class="text-muted">
+                                                <?php echo $contract['total_hours_worked'] ?? 0; ?> / 
+                                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
