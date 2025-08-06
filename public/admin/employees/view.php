@@ -14,6 +14,117 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
+// Handle leave days submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_leave') {
+    try {
+        $employee_id_post = (int)$_POST['employee_id'];
+        $leave_type = $_POST['leave_type'] ?? '';
+        $start_date = $_POST['start_date'] ?? '';
+        $end_date = $_POST['end_date'] ?? '';
+        $leave_reason = $_POST['leave_reason'] ?? '';
+        $half_day = isset($_POST['half_day']) ? 1 : 0;
+
+        // Validate required fields
+        if (empty($leave_type) || empty($start_date) || empty($end_date)) {
+            throw new Exception("Please fill in all required fields.");
+        }
+
+        // Validate employee belongs to current company
+        if ($employee_id_post !== $employee_id) {
+            throw new Exception("Invalid employee ID.");
+        }
+
+        // Calculate business days
+        $start = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        
+        if ($start > $end) {
+            throw new Exception("End date must be after start date.");
+        }
+
+        $business_days = 0;
+        $current = clone $start;
+        
+        while ($current <= $end) {
+            $day_of_week = $current->format('w');
+            if ($day_of_week != 0 && $day_of_week != 6) { // Not Sunday or Saturday
+                $business_days++;
+            }
+            $current->add(new DateInterval('P1D'));
+        }
+
+        // Handle half day
+        $leave_days = $half_day && $business_days === 1 ? 0.5 : $business_days;
+
+        if ($leave_days <= 0) {
+            throw new Exception("No business days selected for leave.");
+        }
+
+        // Start transaction
+        $conn->beginTransaction();
+
+        // Check if employee has enough remaining leave days
+        $stmt = $conn->prepare("SELECT remaining_leave_days FROM employees WHERE id = ? AND company_id = ?");
+        $stmt->execute([$employee_id, $company_id]);
+        $current_remaining = $stmt->fetchColumn();
+
+        if ($current_remaining < $leave_days) {
+            throw new Exception("Insufficient leave days remaining. Available: {$current_remaining} days, Requested: {$leave_days} days.");
+        }
+
+        // Create leave records for each business day
+        $current = clone $start;
+        while ($current <= $end) {
+            $day_of_week = $current->format('w');
+            if ($day_of_week != 0 && $day_of_week != 6) { // Business day
+                // Check if attendance record exists
+                $stmt = $conn->prepare("SELECT id FROM employee_attendance WHERE employee_id = ? AND date = ? AND company_id = ?");
+                $stmt->execute([$employee_id, $current->format('Y-m-d'), $company_id]);
+                
+                if ($stmt->fetch()) {
+                    // Update existing record
+                    $stmt = $conn->prepare("
+                        UPDATE employee_attendance 
+                        SET status = 'on_leave', leave_type = ?, notes = ?, updated_at = NOW()
+                        WHERE employee_id = ? AND date = ? AND company_id = ?
+                    ");
+                    $stmt->execute([$leave_type, $leave_reason, $employee_id, $current->format('Y-m-d'), $company_id]);
+                } else {
+                    // Create new attendance record
+                    $stmt = $conn->prepare("
+                        INSERT INTO employee_attendance 
+                        (company_id, employee_id, date, status, leave_type, notes, created_at) 
+                        VALUES (?, ?, ?, 'on_leave', ?, ?, NOW())
+                    ");
+                    $stmt->execute([$company_id, $employee_id, $current->format('Y-m-d'), $leave_type, $leave_reason]);
+                }
+            }
+            $current->add(new DateInterval('P1D'));
+        }
+
+        // Update employee leave balance
+        $stmt = $conn->prepare("
+            UPDATE employees 
+            SET used_leave_days = used_leave_days + ?, 
+                remaining_leave_days = remaining_leave_days - ?,
+                updated_at = NOW()
+            WHERE id = ? AND company_id = ?
+        ");
+        $stmt->execute([$leave_days, $leave_days, $employee_id, $company_id]);
+
+        // Commit transaction
+        $conn->commit();
+
+        $success = "Leave days added successfully! {$leave_days} business days from {$start_date} to {$end_date}.";
+        
+    } catch (Exception $e) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        $error = $e->getMessage();
+    }
+}
+
 // Get employee ID from URL
 $employee_id = (int)($_GET['id'] ?? 0);
 
@@ -104,6 +215,9 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
             <a href="edit.php?id=<?php echo $employee_id; ?>" class="btn btn-warning me-2">
                 <i class="fas fa-edit"></i> Edit Employee
             </a>
+            <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#addLeaveModal">
+                <i class="fas fa-calendar-times"></i> Add Leave Days
+            </button>
             <a href="index.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Employees
             </a>
@@ -399,6 +513,59 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
             </div>
         </div>
 
+        <!-- Recent Leave History -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Recent Leave History</h6>
+                </div>
+                <div class="card-body">
+                    <?php
+                    // Get recent leave records
+                    $stmt = $conn->prepare("
+                        SELECT date, leave_type, notes, status
+                        FROM employee_attendance 
+                        WHERE employee_id = ? AND company_id = ? AND status = 'on_leave'
+                        ORDER BY date DESC 
+                        LIMIT 10
+                    ");
+                    $stmt->execute([$employee_id, $company_id]);
+                    $leave_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+                    
+                    <?php if (empty($leave_records)): ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                            <p>No leave records yet</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($leave_records as $leave): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-calendar-times text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0"><?php echo ucfirst(str_replace('_', ' ', $leave['leave_type'] ?? 'Leave')); ?></h6>
+                                <small class="text-muted"><?php echo date('M j, Y', strtotime($leave['date'])); ?></small>
+                                <?php if (!empty($leave['notes'])): ?>
+                                    <br><small class="text-muted"><?php echo htmlspecialchars($leave['notes']); ?></small>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        
+                        <div class="text-center mt-3">
+                            <a href="../attendance/index.php?employee_id=<?php echo $employee_id; ?>" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-list"></i> View All Attendance
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
         <!-- Recent Salary Payments -->
         <div class="col-lg-6">
             <div class="card shadow mb-4">
@@ -480,9 +647,149 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
     </div>
 </div>
 
+<!-- Add Leave Days Modal -->
+<div class="modal fade" id="addLeaveModal" tabindex="-1" aria-labelledby="addLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" method="POST" id="addLeaveForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addLeaveModalLabel">
+                        <i class="fas fa-calendar-times"></i> Add Leave Days for <?php echo htmlspecialchars($display_name); ?>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add_leave">
+                    <input type="hidden" name="employee_id" value="<?php echo $employee_id; ?>">
+                    
+                    <div class="mb-3">
+                        <label for="leave_type" class="form-label">Leave Type *</label>
+                        <select class="form-control" id="leave_type" name="leave_type" required>
+                            <option value="">Select Leave Type</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="vacation">Vacation</option>
+                            <option value="personal">Personal Leave</option>
+                            <option value="emergency">Emergency Leave</option>
+                            <option value="maternity">Maternity Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+                            <option value="unpaid">Unpaid Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Start Date *</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">End Date *</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="leave_reason" class="form-label">Reason</label>
+                        <textarea class="form-control" id="leave_reason" name="leave_reason" rows="3" placeholder="Optional: Provide reason for leave"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="half_day" name="half_day" value="1">
+                            <label class="form-check-label" for="half_day">
+                                Half Day Leave (applies to single day only)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Current Leave Status:</strong><br>
+                        Total Leave Days: <?php echo $employee['total_leave_days'] ?? 20; ?> days<br>
+                        Used Leave Days: <?php echo $employee['used_leave_days'] ?? 0; ?> days<br>
+                        Remaining: <?php echo $employee['remaining_leave_days'] ?? 20; ?> days
+                    </div>
+
+                    <div id="leaveDaysCount" class="alert alert-warning" style="display: none;">
+                        <i class="fas fa-calculator"></i>
+                        <strong>Selected Range:</strong> <span id="daysText"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-plus"></i> Add Leave Days
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add any interactive functionality here
+    // Leave days calculation
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const halfDayCheckbox = document.getElementById('half_day');
+    const leaveDaysCount = document.getElementById('leaveDaysCount');
+    const daysText = document.getElementById('daysText');
+
+    function calculateLeaveDays() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (startDate && endDate && startDate <= endDate) {
+            // Calculate business days (excluding weekends)
+            let totalDays = 0;
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                // Check if it's a weekday (Monday = 1, Sunday = 0)
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday or Saturday
+                    totalDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // Handle half day
+            if (halfDayCheckbox.checked && totalDays === 1) {
+                daysText.textContent = `0.5 business day (Half day)`;
+            } else if (halfDayCheckbox.checked && totalDays > 1) {
+                daysText.textContent = `${totalDays} business days (Half day option only applies to single day)`;
+                halfDayCheckbox.checked = false; // Uncheck if more than 1 day
+            } else {
+                daysText.textContent = `${totalDays} business day${totalDays !== 1 ? 's' : ''}`;
+            }
+            
+            leaveDaysCount.style.display = 'block';
+        } else {
+            leaveDaysCount.style.display = 'none';
+        }
+    }
+
+    // Event listeners for date calculation
+    startDateInput.addEventListener('change', calculateLeaveDays);
+    endDateInput.addEventListener('change', calculateLeaveDays);
+    halfDayCheckbox.addEventListener('change', calculateLeaveDays);
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.min = today;
+    
+    // Update end date minimum when start date changes
+    startDateInput.addEventListener('change', function() {
+        endDateInput.min = this.value;
+        if (endDateInput.value && endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+        calculateLeaveDays();
+    });
+
     console.log('Employee view page loaded successfully!');
 });
 </script>
