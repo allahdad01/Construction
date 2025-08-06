@@ -412,8 +412,9 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                                 <i class="fas fa-tools"></i>
                                             </a>
                                             <button type="button" 
-                                                    class="btn btn-sm btn-danger" 
-                                                    onclick="confirmDelete(<?php echo $machine['id']; ?>, '<?php echo htmlspecialchars($machine['name']); ?>')"
+                                                    class="btn btn-sm btn-danger delete-machine-btn" 
+                                                    data-machine-id="<?php echo $machine['id']; ?>"
+                                                    data-machine-name="<?php echo htmlspecialchars($machine['name'], ENT_QUOTES); ?>"
                                                     title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -478,7 +479,7 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                             <i class="fas fa-tools"></i> <?php echo __('maintenance_schedule'); ?>
                         </a>
                         <a href="reports/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-chart-bar"></i> <?php echo __('machine_reports'); ?>
+                            <i class="fas fa-chart-bar"></i> Machine Reports
                         </a>
                     </div>
                 </div>
@@ -488,7 +489,7 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_statistics'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Machine Statistics</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -521,10 +522,30 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 </div>
 
 <script>
+// Handle delete button clicks
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.delete-machine-btn');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const machineId = this.getAttribute('data-machine-id');
+            const machineName = this.getAttribute('data-machine-name');
+            
+            console.log('Delete button clicked:', {machineId, machineName});
+            
+            confirmDelete(machineId, machineName);
+        });
+    });
+});
+
 function confirmDelete(machineId, machineName) {
-    const message = `Are you sure you want to delete machine "${machineName}"? This action cannot be undone.`;
+    const message = `Are you sure you want to delete machine "${machineName}"?\n\nThis action cannot be undone and will:\n- Remove the machine record\n- This may affect related contracts\n\nContinue with deletion?`;
+    
     if (confirm(message)) {
+        console.log('Redirecting to delete URL:', `index.php?delete=${machineId}`);
         window.location.href = `index.php?delete=${machineId}`;
+    } else {
+        console.log('Delete cancelled by user');
     }
 }
 </script>
