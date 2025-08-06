@@ -155,8 +155,17 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                             <td><?php echo htmlspecialchars($contract['machine_name']); ?> (<?php echo htmlspecialchars($contract['machine_code']); ?>)</td>
                         </tr>
                         <tr>
-                            <td><strong>Employee:</strong></td>
-                            <td><?php echo htmlspecialchars($contract['employee_name']); ?> (<?php echo htmlspecialchars($contract['employee_code']); ?>)</td>
+                            <td><strong>Employees:</strong></td>
+                            <td>
+                                <?php if (!empty($contract_employees)): ?>
+                                    <?php foreach ($contract_employees as $index => $employee): ?>
+                                        <?php echo htmlspecialchars($employee['employee_name'] ?? 'N/A'); ?> 
+                                        (<?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?>)<?php echo $index < count($contract_employees) - 1 ? ', ' : ''; ?>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-muted">No employees assigned</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -217,7 +226,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Amount Earned</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_earned, null, getCurrentCompanyId()); ?></div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($contract['currency'] ?? 'USD') . ' ' . number_format($total_amount_earned, 2); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -234,7 +243,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 Amount Paid</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_amount_paid, null, getCurrentCompanyId()); ?></div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($contract['currency'] ?? 'USD') . ' ' . number_format($total_amount_paid, 2); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-credit-card fa-2x text-gray-300"></i>
@@ -342,14 +351,14 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                 <tr>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatDate($wh['date'], getCurrentCompanyId()); ?></strong>
+                                            <strong><?php echo date('M j, Y', strtotime($wh['date'])); ?></strong>
                                             <br><small class="text-muted"><?php echo date('l', strtotime($wh['date'])); ?></small>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo htmlspecialchars($wh['employee_name']); ?></strong>
-                                            <br><small class="text-muted"><?php echo htmlspecialchars($wh['employee_code']); ?></small>
+                                            <strong><?php echo htmlspecialchars($wh['employee_name'] ?? 'N/A'); ?></strong>
+                                            <br><small class="text-muted"><?php echo htmlspecialchars($wh['employee_code'] ?? 'N/A'); ?></small>
                                         </div>
                                     </td>
                                     <td>
@@ -360,19 +369,22 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     <td>
                                         <div>
                                             <?php 
+                                            $currency = $contract['currency'] ?? 'USD';
                                             if ($contract['contract_type'] === 'hourly') {
-                                                echo formatCurrency($contract['rate_amount'], null, getCurrentCompanyId()) . '/hr';
+                                                echo $currency . ' ' . number_format($contract['rate_amount'], 2) . '/hr';
                                             } elseif ($contract['contract_type'] === 'daily') {
-                                                echo formatCurrency($contract['rate_amount'] / $contract['working_hours_per_day'], null, getCurrentCompanyId()) . '/hr';
+                                                $hourly_rate = $contract['rate_amount'] / ($contract['working_hours_per_day'] ?: 8);
+                                                echo $currency . ' ' . number_format($hourly_rate, 2) . '/hr';
                                             } else {
-                                                echo formatCurrency($contract['rate_amount'] / ($contract['total_hours_required'] ?: 270), null, getCurrentCompanyId()) . '/hr';
+                                                $hourly_rate = $contract['rate_amount'] / ($contract['total_hours_required'] ?: 270);
+                                                echo $currency . ' ' . number_format($hourly_rate, 2) . '/hr';
                                             }
                                             ?>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong class="text-success"><?php echo formatCurrency($daily_amount, null, getCurrentCompanyId()); ?></strong>
+                                            <strong class="text-success"><?php echo $currency . ' ' . number_format($daily_amount, 2); ?></strong>
                                         </div>
                                     </td>
                                     <td>
