@@ -121,7 +121,7 @@ $total_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ? AND status = 'active'");
 $stmt->execute([getCurrentCompanyId()]);
-$active_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$active_contracts_count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ? AND status = 'completed'");
 $stmt->execute([getCurrentCompanyId()]);
@@ -137,12 +137,12 @@ $stmt = $conn->prepare("
     GROUP BY c.id
 ");
 $stmt->execute([getCurrentCompanyId()]);
-$active_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$active_contracts_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate totals by currency
 $contract_values = [];
-if (!empty($active_contracts)) {
-    foreach ($active_contracts as $contract) {
+if (!empty($active_contracts_data)) {
+    foreach ($active_contracts_data as $contract) {
         $currency = $contract['currency'] ?? 'USD';
         
         // Calculate total value if not set
@@ -235,7 +235,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Active Contracts</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_contracts; ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_contracts_count; ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-play-circle fa-2x text-gray-300"></i>
