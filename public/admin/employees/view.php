@@ -24,7 +24,7 @@ if (!$employee_id) {
 
 // Get employee details
 $stmt = $conn->prepare("
-    SELECT e.*, u.email as user_email, u.status as user_status
+    SELECT e.*, u.first_name, u.last_name, u.email as user_email, u.status as user_status
     FROM employees e
     LEFT JOIN users u ON e.user_id = u.id
     WHERE e.id = ? AND e.company_id = ?
@@ -79,18 +79,18 @@ $attendance_stats = $stmt->fetch(PDO::FETCH_ASSOC);
 // Get salary payments
 $stmt = $conn->prepare("
     SELECT * FROM salary_payments 
-    WHERE employee_id = ? 
+    WHERE employee_id = ? AND company_id = ?
     ORDER BY payment_date DESC 
     LIMIT 10
 ");
-$stmt->execute([$employee_id]);
+$stmt->execute([$employee_id, $company_id]);
 $salary_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate salary statistics
-$total_paid = array_sum(array_column($salary_payments, 'amount'));
-$current_month_salary = $employee['monthly_salary'];
+$total_paid = array_sum(array_filter(array_column($salary_payments, 'amount_paid'), 'is_numeric'));
+$current_month_salary = $employee['monthly_salary'] ?? 0;
 $days_worked_this_month = $attendance_stats['present_days'] ?? 0;
-$salary_earned_this_month = ($current_month_salary / 30) * $days_worked_this_month;
+$salary_earned_this_month = $current_month_salary > 0 ? ($current_month_salary / 30) * $days_worked_this_month : 0;
 $salary_remaining = $salary_earned_this_month - $total_paid;
 ?>
 
@@ -127,20 +127,28 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                         <div class="col-md-2 text-center">
                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
                                 <?php 
-                                $name_parts = explode(' ', $employee['name']);
+                                $display_name = '';
+                                if (!empty($employee['first_name']) && !empty($employee['last_name'])) {
+                                    $display_name = $employee['first_name'] . ' ' . $employee['last_name'];
+                                } elseif (!empty($employee['name'])) {
+                                    $display_name = $employee['name'];
+                                } else {
+                                    $display_name = 'Employee';
+                                }
+                                $name_parts = explode(' ', $display_name);
                                 echo strtoupper(substr($name_parts[0], 0, 1) . (isset($name_parts[1]) ? substr($name_parts[1], 0, 1) : ''));
                                 ?>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h3 class="mb-1"><?php echo htmlspecialchars($employee['name']); ?></h3>
+                            <h3 class="mb-1"><?php echo htmlspecialchars($display_name); ?></h3>
                             <p class="text-muted mb-2">
-                                <span class="badge bg-primary"><?php echo htmlspecialchars($employee['employee_code']); ?></span>
-                                <span class="badge bg-<?php echo $employee['position'] === 'driver' ? 'info' : 'warning'; ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
+                                <span class="badge bg-primary"><?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?></span>
+                                <span class="badge bg-<?php echo ($employee['position'] ?? '') === 'driver' ? 'info' : 'warning'; ?>">
+                                    <?php echo ucfirst(str_replace('_', ' ', $employee['position'] ?? 'N/A')); ?>
                                 </span>
-                                <span class="badge bg-<?php echo $employee['status'] === 'active' ? 'success' : 'secondary'; ?>">
-                                    <?php echo ucfirst($employee['status']); ?>
+                                <span class="badge bg-<?php echo ($employee['status'] ?? 'inactive') === 'active' ? 'success' : 'secondary'; ?>">
+                                    <?php echo ucfirst($employee['status'] ?? 'inactive'); ?>
                                 </span>
                             </p>
                             <div class="row">
@@ -279,23 +287,40 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>First Name:</strong><br><?php echo htmlspecialchars($employee['first_name']); ?></p>
-                            <p><strong>Last Name:</strong><br><?php echo htmlspecialchars($employee['last_name']); ?></p>
-                            <p><strong>Employee Code:</strong><br><?php echo htmlspecialchars($employee['employee_code']); ?></p>
-                            <p><strong>Employee Type:</strong><br><?php echo ucfirst(str_replace('_', ' ', $employee['employee_type'])); ?></p>
+                            <p><strong>Full Name:</strong><br>
+                                <?php 
+                                if (!empty($employee['first_name']) && !empty($employee['last_name'])) {
+                                    echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']);
+                                } elseif (!empty($employee['name'])) {
+                                    echo htmlspecialchars($employee['name']);
+                                } else {
+                                    echo 'N/A';
+                                }
+                                ?>
+                            </p>
+                            <p><strong>Employee Code:</strong><br><?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?></p>
+                            <p><strong>Position:</strong><br><?php echo htmlspecialchars($employee['position'] ?? 'N/A'); ?></p>
+                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrency($employee['monthly_salary'] ?? 0); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Email:</strong><br><a href="mailto:<?php echo htmlspecialchars($employee['email']); ?>"><?php echo htmlspecialchars($employee['email']); ?></a></p>
-                            <p><strong>Phone:</strong><br><?php echo $employee['phone'] ? '<a href="tel:' . htmlspecialchars($employee['phone']) . '">' . htmlspecialchars($employee['phone']) . '</a>' : 'Not provided'; ?></p>
-                            <p><strong>Status:</strong><br><span class="badge bg-<?php echo $employee['status'] === 'active' ? 'success' : 'secondary'; ?>"><?php echo ucfirst($employee['status']); ?></span></p>
-                            <p><strong>Created:</strong><br><?php echo date('M j, Y', strtotime($employee['created_at'])); ?></p>
+                            <p><strong>Email:</strong><br>
+                                <?php if (!empty($employee['email'])): ?>
+                                    <a href="mailto:<?php echo htmlspecialchars($employee['email']); ?>"><?php echo htmlspecialchars($employee['email']); ?></a>
+                                <?php else: ?>
+                                    Not provided
+                                <?php endif; ?>
+                            </p>
+                            <p><strong>Phone:</strong><br>
+                                <?php if (!empty($employee['phone'])): ?>
+                                    <a href="tel:<?php echo htmlspecialchars($employee['phone']); ?>"><?php echo htmlspecialchars($employee['phone']); ?></a>
+                                <?php else: ?>
+                                    Not provided
+                                <?php endif; ?>
+                            </p>
+                            <p><strong>Status:</strong><br><span class="badge bg-<?php echo ($employee['status'] ?? 'inactive') === 'active' ? 'success' : 'secondary'; ?>"><?php echo ucfirst($employee['status'] ?? 'inactive'); ?></span></p>
+                            <p><strong>Hire Date:</strong><br><?php echo $employee['hire_date'] ? date('M j, Y', strtotime($employee['hire_date'])) : 'N/A'; ?></p>
                         </div>
                     </div>
-                    
-                    <?php if ($employee['address']): ?>
-                    <hr>
-                    <p><strong>Address:</strong><br><?php echo nl2br(htmlspecialchars($employee['address'])); ?></p>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -395,8 +420,14 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">$<?php echo number_format($payment['amount'], 2); ?></h6>
-                                <small class="text-muted"><?php echo date('M j, Y', strtotime($payment['payment_date'])); ?></small>
+                                <h6 class="mb-0">
+                                    <?php 
+                                    $currency = $payment['currency'] ?? 'USD';
+                                    $amount = $payment['amount_paid'] ?? 0;
+                                    echo $currency . ' ' . number_format($amount, 2); 
+                                    ?>
+                                </h6>
+                                <small class="text-muted"><?php echo $payment['payment_date'] ? date('M j, Y', strtotime($payment['payment_date'])) : 'No date'; ?></small>
                             </div>
                             <div class="flex-shrink-0">
                                 <span class="badge bg-success">Paid</span>
