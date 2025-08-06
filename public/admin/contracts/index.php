@@ -51,17 +51,12 @@ $stmt->execute($params);
 $total_records = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $limit);
 
-// Get contracts with related data
-$sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code,
-               COALESCE(SUM(wh.hours_worked), 0) as total_hours_worked,
-               COALESCE(SUM(cp.amount), 0) as amount_paid
+// Get contracts with related data (without working hours SUM to avoid issues)
+$sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code
         FROM contracts c
         LEFT JOIN projects p ON c.project_id = p.id
         LEFT JOIN machines m ON c.machine_id = m.id
-        LEFT JOIN working_hours wh ON c.id = wh.contract_id
-        LEFT JOIN contract_payments cp ON c.id = cp.contract_id AND cp.status = 'completed'
         $where_clause
-        GROUP BY c.id
         ORDER BY c.created_at DESC 
         LIMIT ? OFFSET ?";
 $params[] = $limit;
@@ -70,6 +65,29 @@ $params[] = $offset;
 $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate working hours and payments for each contract separately (like timesheet does)
+foreach ($contracts as &$contract) {
+    // Get total hours worked for this contract
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(hours_worked), 0) as total_hours_worked
+        FROM working_hours 
+        WHERE contract_id = ? AND company_id = ?
+    ");
+    $stmt->execute([$contract['id'], getCurrentCompanyId()]);
+    $hours_result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $contract['total_hours_worked'] = $hours_result['total_hours_worked'];
+    
+    // Get total amount paid for this contract
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(amount), 0) as amount_paid
+        FROM contract_payments 
+        WHERE contract_id = ? AND company_id = ? AND status = 'completed'
+    ");
+    $stmt->execute([$contract['id'], getCurrentCompanyId()]);
+    $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $contract['amount_paid'] = $payment_result['amount_paid'];
+}
 
 // Calculate progress and contract values for each contract
 foreach ($contracts as &$contract) {
