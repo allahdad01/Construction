@@ -146,11 +146,27 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Contract Timesheet</h1>
         <div>
-            <a href="index.php" class="btn btn-secondary btn-sm me-2">
-                <i class="fas fa-arrow-left"></i> Back to Contracts
-            </a>
-            <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm">
+            <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm me-2">
                 <i class="fas fa-plus"></i> Add Work Hours
+            </a>
+            <a href="add-payment.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-success btn-sm me-2">
+                <i class="fas fa-dollar-sign"></i> Add Payment
+            </a>
+            <div class="btn-group me-2" role="group">
+                <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=pdf" target="_blank">
+                        <i class="fas fa-file-pdf text-danger"></i> Export PDF
+                    </a></li>
+                    <li><a class="dropdown-item" href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=excel">
+                        <i class="fas fa-file-excel text-success"></i> Export Excel
+                    </a></li>
+                </ul>
+            </div>
+            <a href="index.php" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back to Contracts
             </a>
         </div>
     </div>
@@ -576,10 +592,27 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
             <h6 class="m-0 font-weight-bold text-primary">Monthly Work Hours & Revenue</h6>
         </div>
         <div class="card-body">
-            <canvas id="monthlyChart" width="400" height="100"></canvas>
+            <?php if (empty($monthly_data)): ?>
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <p>No working hours data available for chart display.</p>
+                </div>
+            <?php else: ?>
+                <canvas id="monthlyChart" width="400" height="100"></canvas>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Showing data for <?php echo count($monthly_data); ?> month(s). 
+                        Total hours: <?php echo array_sum(array_column($monthly_data, 'hours')); ?> | 
+                        Total amount: <?php echo formatCurrencyAmount(array_sum(array_column($monthly_data, 'amount')), $contract_currency); ?>
+                    </small>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 function confirmDelete(message) {
@@ -588,12 +621,20 @@ function confirmDelete(message) {
 
 // Monthly Chart
 const monthlyData = <?php echo json_encode($monthly_data); ?>;
-const months = Object.keys(monthlyData);
-const hoursData = months.map(month => monthlyData[month].hours);
-const amountData = months.map(month => monthlyData[month].amount);
+console.log('Monthly Data:', monthlyData);
 
-const ctx = document.getElementById('monthlyChart').getContext('2d');
-new Chart(ctx, {
+if (Object.keys(monthlyData).length > 0) {
+    const months = Object.keys(monthlyData);
+    const hoursData = months.map(month => monthlyData[month].hours || 0);
+    const amountData = months.map(month => monthlyData[month].amount || 0);
+    
+    console.log('Months:', months);
+    console.log('Hours Data:', hoursData);
+    console.log('Amount Data:', amountData);
+
+    const ctx = document.getElementById('monthlyChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
     type: 'bar',
     data: {
         labels: months.map(month => {
@@ -656,8 +697,11 @@ new Chart(ctx, {
                 },
             }
         }
+    });
     }
-});
+} else {
+    console.log('No monthly data available for chart');
+}
 </script>
 
 <?php require_once '../../../includes/footer.php'; ?>
