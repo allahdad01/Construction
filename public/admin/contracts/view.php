@@ -11,6 +11,67 @@ $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 
+// Currency symbol mapping function
+function getCurrencySymbol($currency) {
+    $symbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+        'AFN' => '؋',
+        'JPY' => '¥',
+        'INR' => '₹',
+        'CAD' => 'C$',
+        'AUD' => 'A$',
+        'CHF' => 'CHF',
+        'CNY' => '¥',
+        'SEK' => 'kr',
+        'NOK' => 'kr',
+        'DKK' => 'kr',
+        'PLN' => 'zł',
+        'CZK' => 'Kč',
+        'HUF' => 'Ft',
+        'RUB' => '₽',
+        'TRY' => '₺',
+        'BRL' => 'R$',
+        'MXN' => '$',
+        'ZAR' => 'R',
+        'AED' => 'د.إ',
+        'SAR' => 'ر.س',
+        'QAR' => 'ر.ق',
+        'KWD' => 'د.ك',
+        'BHD' => 'د.ب',
+        'OMR' => 'ر.ع.',
+        'JOD' => 'د.أ',
+        'LBP' => 'ل.ل',
+        'EGP' => 'ج.م',
+        'IQD' => 'ع.د',
+        'IRR' => '﷼',
+        'PKR' => '₨',
+        'BDT' => '৳',
+        'LKR' => 'Rs',
+        'NPR' => 'Rs',
+        'MMK' => 'K',
+        'THB' => '฿',
+        'VND' => '₫',
+        'KRW' => '₩',
+        'IDR' => 'Rp',
+        'MYR' => 'RM',
+        'SGD' => 'S$',
+        'PHP' => '₱',
+        'HKD' => 'HK$',
+        'TWD' => 'NT$',
+        'NZD' => 'NZ$'
+    ];
+    
+    return $symbols[$currency] ?? $currency;
+}
+
+// Format currency with proper symbol
+function formatCurrencyAmount($amount, $currency) {
+    $symbol = getCurrencySymbol($currency);
+    return $symbol . ' ' . number_format($amount, 2);
+}
+
 $error = '';
 $success = '';
 
@@ -97,7 +158,7 @@ $total_amount = $total_hours * $contract['rate_amount'];
                             <p><strong><?php echo __('contract_type'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($contract['contract_type'])); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong><?php echo __('rate_amount'); ?>:</strong> <?php echo formatCurrency($contract['rate_amount'], $contract['currency']); ?></p>
+                            <p><strong>Rate Amount:</strong> <?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?></p>
                             <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo formatDate($contract['start_date']); ?></p>
                             <p><strong><?php echo __('end_date'); ?>:</strong> <?php echo $contract['end_date'] ? formatDate($contract['end_date']) : __('not_set'); ?></p>
                             <p><strong><?php echo __('status'); ?>:</strong> 
@@ -144,7 +205,7 @@ $total_amount = $total_hours * $contract['rate_amount'];
                     </div>
                     <hr>
                     <div class="text-center">
-                        <h4 class="text-info"><?php echo formatCurrency($total_amount, $contract['currency']); ?></h4>
+                        <h4 class="text-info"><?php echo formatCurrencyAmount($total_amount, $contract['currency'] ?? 'USD'); ?></h4>
                         <small class="text-muted"><?php echo __('total_amount'); ?></small>
                     </div>
                 </div>
@@ -181,7 +242,7 @@ $total_amount = $total_hours * $contract['rate_amount'];
                                 <td><?php echo formatDate($hours['date']); ?></td>
                                 <td><?php echo htmlspecialchars($hours['employee_code'] . ' - ' . $hours['employee_name']); ?></td>
                                 <td><?php echo number_format($hours['hours_worked'], 2); ?></td>
-                                <td><?php echo formatCurrency($hours['hours_worked'] * $contract['rate_amount'], $contract['currency']); ?></td>
+                                <td><?php echo formatCurrencyAmount($hours['hours_worked'] * $contract['rate_amount'], $contract['currency'] ?? 'USD'); ?></td>
                                 <td><?php echo htmlspecialchars($hours['notes'] ?? ''); ?></td>
                             </tr>
                             <?php endforeach; ?>

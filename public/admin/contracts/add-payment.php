@@ -10,6 +10,27 @@ require_once '../../../includes/header.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+// Currency symbol mapping function
+function getCurrencySymbol($currency) {
+    $symbols = [
+        'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'AFN' => '؋', 'JPY' => '¥', 'INR' => '₹',
+        'CAD' => 'C$', 'AUD' => 'A$', 'CHF' => 'CHF', 'CNY' => '¥', 'SEK' => 'kr', 'NOK' => 'kr',
+        'DKK' => 'kr', 'PLN' => 'zł', 'CZK' => 'Kč', 'HUF' => 'Ft', 'RUB' => '₽', 'TRY' => '₺',
+        'BRL' => 'R$', 'MXN' => '$', 'ZAR' => 'R', 'AED' => 'د.إ', 'SAR' => 'ر.س', 'QAR' => 'ر.ق',
+        'KWD' => 'د.ك', 'BHD' => 'د.ب', 'OMR' => 'ر.ع.', 'JOD' => 'د.أ', 'LBP' => 'ل.ل',
+        'EGP' => 'ج.م', 'IQD' => 'ع.د', 'IRR' => '﷼', 'PKR' => '₨', 'BDT' => '৳', 'LKR' => 'Rs',
+        'NPR' => 'Rs', 'MMK' => 'K', 'THB' => '฿', 'VND' => '₫', 'KRW' => '₩', 'IDR' => 'Rp',
+        'MYR' => 'RM', 'SGD' => 'S$', 'PHP' => '₱', 'HKD' => 'HK$', 'TWD' => 'NT$', 'NZD' => 'NZ$'
+    ];
+    return $symbols[$currency] ?? $currency;
+}
+
+// Format currency with proper symbol
+function formatCurrencyAmount($amount, $currency) {
+    $symbol = getCurrencySymbol($currency);
+    return $symbol . ' ' . number_format($amount, 2);
+}
+
 // Get contract ID from URL
 $contract_id = isset($_GET['contract_id']) ? (int)$_GET['contract_id'] : 0;
 
@@ -207,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Total Earned</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_earned); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_earned, $contract['currency'] ?? 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -224,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 Total Paid</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_paid); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_paid, $contract['currency'] ?? 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-credit-card fa-2x text-gray-300"></i>
@@ -241,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Remaining</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($remaining_amount); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($remaining_amount, $contract['currency'] ?? 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
@@ -286,12 +307,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="amount" class="form-label">
-                                        <i class="fas fa-dollar-sign"></i> Amount *
+                                        <i class="fas fa-money-bill-wave"></i> Amount (<?php echo getCurrencySymbol($contract['currency'] ?? 'USD'); ?>) *
                                     </label>
-                                    <input type="number" class="form-control" id="amount" name="amount" 
-                                           value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>" 
-                                           step="0.01" min="0.01" required>
-                                    <small class="text-muted">Maximum: <?php echo formatCurrency($remaining_amount); ?></small>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><?php echo getCurrencySymbol($contract['currency'] ?? 'USD'); ?></span>
+                                        <input type="number" class="form-control" id="amount" name="amount" 
+                                               value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>" 
+                                               step="0.01" min="0.01" required>
+                                    </div>
+                                    <small class="text-muted">Maximum: <?php echo formatCurrencyAmount($remaining_amount, $contract['currency'] ?? 'USD'); ?></small>
                                 </div>
                             </div>
                         </div>

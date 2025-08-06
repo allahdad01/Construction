@@ -10,6 +10,27 @@ require_once '../../../includes/header.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+// Currency symbol mapping function
+function getCurrencySymbol($currency) {
+    $symbols = [
+        'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'AFN' => '؋', 'JPY' => '¥', 'INR' => '₹',
+        'CAD' => 'C$', 'AUD' => 'A$', 'CHF' => 'CHF', 'CNY' => '¥', 'SEK' => 'kr', 'NOK' => 'kr',
+        'DKK' => 'kr', 'PLN' => 'zł', 'CZK' => 'Kč', 'HUF' => 'Ft', 'RUB' => '₽', 'TRY' => '₺',
+        'BRL' => 'R$', 'MXN' => '$', 'ZAR' => 'R', 'AED' => 'د.إ', 'SAR' => 'ر.س', 'QAR' => 'ر.ق',
+        'KWD' => 'د.ك', 'BHD' => 'د.ب', 'OMR' => 'ر.ع.', 'JOD' => 'د.أ', 'LBP' => 'ل.ل',
+        'EGP' => 'ج.م', 'IQD' => 'ع.د', 'IRR' => '﷼', 'PKR' => '₨', 'BDT' => '৳', 'LKR' => 'Rs',
+        'NPR' => 'Rs', 'MMK' => 'K', 'THB' => '฿', 'VND' => '₫', 'KRW' => '₩', 'IDR' => 'Rp',
+        'MYR' => 'RM', 'SGD' => 'S$', 'PHP' => '₱', 'HKD' => 'HK$', 'TWD' => 'NT$', 'NZD' => 'NZ$'
+    ];
+    return $symbols[$currency] ?? $currency;
+}
+
+// Format currency with proper symbol
+function formatCurrencyAmount($amount, $currency) {
+    $symbol = getCurrencySymbol($currency);
+    return $symbol . ' ' . number_format($amount, 2);
+}
+
 // Get contract ID from URL
 $contract_id = isset($_GET['contract_id']) ? (int)$_GET['contract_id'] : 0;
 
@@ -158,11 +179,11 @@ if ($contract['contract_type'] === 'hourly') {
                         </tr>
                         <tr>
                             <td><strong>Rate:</strong></td>
-                            <td><?php echo formatCurrency($contract['rate_amount']); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
+                            <td><?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Rate per Hour:</strong></td>
-                            <td><strong><?php echo formatCurrency($rate_per_hour); ?></strong></td>
+                            <td><strong><?php echo formatCurrencyAmount($rate_per_hour, $contract['currency'] ?? 'USD'); ?></strong></td>
                         </tr>
                     </table>
                 </div>
