@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </tr>
                         <tr>
                             <td><strong>Rate:</strong></td>
-                            <td><?php echo formatCurrency($contract['rate_amount']); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
+                            <td><?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?> per <?php echo $contract['contract_type'] === 'hourly' ? 'hour' : ($contract['contract_type'] === 'daily' ? 'day' : 'month'); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Status:</strong></td>
@@ -349,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fas fa-info-circle"></i> Maximum Payment
                                     </label>
                                     <input type="text" class="form-control" id="max_amount" readonly 
-                                           value="<?php echo formatCurrency($remaining_amount); ?>">
+                                           value="<?php echo formatCurrencyAmount($remaining_amount, $contract['currency'] ?? 'USD'); ?>">
                                     <small class="text-muted">Remaining amount to be paid</small>
                                 </div>
                             </div>
@@ -389,24 +389,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-6">
                             <h6>Rate</h6>
-                            <p class="mb-1"><strong><?php echo formatCurrency($contract['rate_amount']); ?></strong></p>
+                            <p class="mb-1"><strong><?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?></strong></p>
                         </div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-6">
                             <h6>Total Earned</h6>
-                            <p class="mb-1"><strong class="text-success"><?php echo formatCurrency($total_earned); ?></strong></p>
+                            <p class="mb-1"><strong class="text-success"><?php echo formatCurrencyAmount($total_earned, $contract['currency'] ?? 'USD'); ?></strong></p>
                         </div>
                         <div class="col-6">
                             <h6>Total Paid</h6>
-                            <p class="mb-1"><strong class="text-info"><?php echo formatCurrency($total_paid); ?></strong></p>
+                            <p class="mb-1"><strong class="text-info"><?php echo formatCurrencyAmount($total_paid, $contract['currency'] ?? 'USD'); ?></strong></p>
                         </div>
                     </div>
                     <hr>
                     <div class="text-center">
                         <h6>Remaining Amount</h6>
-                        <h4 class="text-warning"><?php echo formatCurrency($remaining_amount); ?></h4>
+                        <h4 class="text-warning"><?php echo formatCurrencyAmount($remaining_amount, $contract['currency'] ?? 'USD'); ?></h4>
                         <small class="text-muted">Amount that can be paid</small>
                     </div>
                     
