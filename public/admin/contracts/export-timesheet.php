@@ -20,7 +20,7 @@ if (!$contract_id) {
 
 // Get contract details with project and machine info
 $stmt = $conn->prepare("
-    SELECT c.*, p.project_name, p.client_name, p.client_contact, m.name as machine_name, m.machine_code, m.type as machine_type
+    SELECT c.*, p.name as project_name, p.client_name, p.client_contact, m.name as machine_name, m.machine_code, m.type as machine_type
     FROM contracts c
     LEFT JOIN projects p ON c.project_id = p.id
     LEFT JOIN machines m ON c.machine_id = m.id
