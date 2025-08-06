@@ -14,6 +14,31 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
+
+
+// Get employee ID from URL
+$employee_id = (int)($_GET['id'] ?? 0);
+
+if (!$employee_id) {
+    header('Location: index.php');
+    exit;
+}
+
+// Get employee details
+$stmt = $conn->prepare("
+    SELECT e.*, u.first_name, u.last_name, u.email as user_email, u.status as user_status
+    FROM employees e
+    LEFT JOIN users u ON e.user_id = u.id
+    WHERE e.id = ? AND e.company_id = ?
+");
+$stmt->execute([$employee_id, $company_id]);
+$employee = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$employee) {
+    header('Location: index.php');
+    exit;
+}
+
 // Handle leave days submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_leave') {
     try {
@@ -123,29 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
         $error = $e->getMessage();
     }
-}
-
-// Get employee ID from URL
-$employee_id = (int)($_GET['id'] ?? 0);
-
-if (!$employee_id) {
-    header('Location: index.php');
-    exit;
-}
-
-// Get employee details
-$stmt = $conn->prepare("
-    SELECT e.*, u.first_name, u.last_name, u.email as user_email, u.status as user_status
-    FROM employees e
-    LEFT JOIN users u ON e.user_id = u.id
-    WHERE e.id = ? AND e.company_id = ?
-");
-$stmt->execute([$employee_id, $company_id]);
-$employee = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$employee) {
-    header('Location: index.php');
-    exit;
 }
 
 // Get employee statistics from working_hours (projects they've worked on)
