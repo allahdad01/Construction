@@ -52,11 +52,13 @@ $total_pages = ceil($total_records / $limit);
 
 // Get contracts with related data
 $sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code,
-               COALESCE(SUM(wh.hours_worked), 0) as total_hours_worked
+               COALESCE(SUM(wh.hours_worked), 0) as total_hours_worked,
+               COALESCE(SUM(cp.amount), 0) as amount_paid
         FROM contracts c
         LEFT JOIN projects p ON c.project_id = p.id
         LEFT JOIN machines m ON c.machine_id = m.id
         LEFT JOIN working_hours wh ON c.id = wh.contract_id
+        LEFT JOIN contract_payments cp ON c.id = cp.contract_id AND cp.status = 'completed'
         $where_clause
         GROUP BY c.id
         ORDER BY c.created_at DESC 
@@ -127,7 +129,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><?php echo __('contract_management'); ?></h1>
+        <h1 class="h3 mb-0 text-gray-800">Contract Management</h1>
         <a href="add.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> <?php echo __('add_contract'); ?>
         </a>
@@ -349,9 +351,12 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo formatCurrency($contract['total_amount']); ?></strong>
+                                            <strong><?php 
+                                                $currency = $contract['currency'] ?? 'USD';
+                                                echo $currency . ' ' . number_format($contract['total_amount'] ?? 0, 2); 
+                                            ?></strong>
                                             <br><small class="text-muted">
-                                                <?php echo __('paid'); ?>: <?php echo formatCurrency($contract['amount_paid']); ?>
+                                                Paid: <?php echo $currency . ' ' . number_format($contract['amount_paid'] ?? 0, 2); ?>
                                             </small>
                                         </div>
                                     </td>
