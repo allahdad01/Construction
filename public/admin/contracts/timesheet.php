@@ -561,15 +561,21 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="edit-payment.php?id=<?php echo $payment['id']; ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit">
+                                               class="btn btn-sm btn-warning" title="Edit Payment #<?php echo $payment['id']; ?>"
+                                               onclick="console.log('Edit URL:', this.href); return true;">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a href="delete-payment.php?id=<?php echo $payment['id']; ?>" 
-                                               class="btn btn-sm btn-danger" title="Delete"
-                                               onclick="return confirmDelete('Are you sure you want to delete this payment?')">
+                                               class="btn btn-sm btn-danger" title="Delete Payment #<?php echo $payment['id']; ?>"
+                                               onclick="console.log('Delete URL:', this.href); return confirmDelete('Are you sure you want to delete this payment?');">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
+                                        <!-- Debug info (remove after testing) -->
+                                        <small class="text-muted d-block mt-1">
+                                            Edit: <code>edit-payment.php?id=<?php echo $payment['id']; ?></code><br>
+                                            Delete: <code>delete-payment.php?id=<?php echo $payment['id']; ?></code>
+                                        </small>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
