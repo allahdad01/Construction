@@ -1,6 +1,7 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
+require_once '../../../config/currency_helper.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -98,9 +99,10 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id
 $stmt->execute([getCurrentCompanyId()]);
 $completed_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$stmt = $conn->prepare("SELECT SUM(total_amount) as total FROM contracts WHERE company_id = ? AND status = 'active'");
+// Get contract values grouped by currency
+$stmt = $conn->prepare("SELECT currency, SUM(total_amount) as total FROM contracts WHERE company_id = ? AND status = 'active' GROUP BY currency");
 $stmt->execute([getCurrentCompanyId()]);
-$total_contract_value = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$contract_values = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get contract type breakdown
 $stmt = $conn->prepare("
@@ -131,7 +133,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Contract Management</h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> <?php echo __('add_contract'); ?>
+            <i class="fas fa-plus"></i> Add Contract
         </a>
     </div>
 
@@ -143,7 +145,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                <?php echo __('total_contracts'); ?></div>
+                                Total Contracts</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_contracts; ?></div>
                         </div>
                         <div class="col-auto">
@@ -160,7 +162,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                <?php echo __('active_contracts'); ?></div>
+                                Active Contracts</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_contracts; ?></div>
                         </div>
                         <div class="col-auto">
@@ -177,7 +179,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <?php echo __('completed'); ?></div>
+                                Completed Contracts</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $completed_contracts; ?></div>
                         </div>
                         <div class="col-auto">
@@ -194,8 +196,16 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                <?php echo __('total_value'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($total_contract_value); ?></div>
+                                Total Contract Value</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php if (empty($contract_values)): ?>
+                                    $0.00
+                                <?php else: ?>
+                                    <?php foreach ($contract_values as $value): ?>
+                                        <div><?php echo formatCurrencyAmount($value['total'] ?? 0, $value['currency'] ?? 'USD'); ?></div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -211,7 +221,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('monthly_contract_revenue'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Contract Revenue</h6>
                 </div>
                 <div class="card-body">
                     <canvas id="revenueChart" width="100%" height="40"></canvas>
@@ -222,7 +232,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_types'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Contract Types</h6>
                 </div>
                 <div class="card-body">
                     <canvas id="contractTypeChart" width="100%" height="40"></canvas>
@@ -234,39 +244,39 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="<?php echo __('search_by_code_project_machine'); ?>" 
+                           placeholder="Search by code, project, or machine" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="type">
-                        <option value=""><?php echo __('all_types'); ?></option>
-                        <option value="hourly" <?php echo $type_filter === 'hourly' ? 'selected' : ''; ?>><?php echo __('hourly'); ?></option>
-                        <option value="daily" <?php echo $type_filter === 'daily' ? 'selected' : ''; ?>><?php echo __('daily'); ?></option>
-                        <option value="monthly" <?php echo $type_filter === 'monthly' ? 'selected' : ''; ?>><?php echo __('monthly'); ?></option>
+                        <option value="">All Types</option>
+                        <option value="hourly" <?php echo $type_filter === 'hourly' ? 'selected' : ''; ?>>Hourly</option>
+                        <option value="daily" <?php echo $type_filter === 'daily' ? 'selected' : ''; ?>>Daily</option>
+                        <option value="monthly" <?php echo $type_filter === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value=""><?php echo __('all_status'); ?></option>
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
-                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>><?php echo __('completed'); ?></option>
-                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
+                        <option value="">All Status</option>
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
+                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
+                        <i class="fas fa-search"></i> Search
                     </button>
                 </div>
                 <div class="col-md-2">
                     <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
+                        <i class="fas fa-times"></i> Clear
                     </a>
                 </div>
             </form>
@@ -276,15 +286,15 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Contracts Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_list'); ?></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Contract List</h6>
         </div>
         <div class="card-body">
             <?php if (empty($contracts)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-file-contract fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500"><?php echo __('no_contracts_found'); ?></p>
+                    <p class="text-gray-500">No contracts found</p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> <?php echo __('add_first_contract'); ?>
+                        <i class="fas fa-plus"></i> Add First Contract
                     </a>
                 </div>
             <?php else: ?>
@@ -292,13 +302,13 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th><?php echo __('contract_code'); ?></th>
-                                <th><?php echo __('project_machine'); ?></th>
-                                <th><?php echo __('type_rate'); ?></th>
-                                <th><?php echo __('progress'); ?></th>
-                                <th><?php echo __('value'); ?></th>
-                                <th><?php echo __('status'); ?></th>
-                                <th><?php echo __('actions'); ?></th>
+                                <th>Contract Code</th>
+                                <th>Project / Machine</th>
+                                <th>Type & Rate</th>
+                                <th>Progress</th>
+                                <th>Value</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -324,11 +334,11 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             ?>">
                                                 <?php echo ucfirst($contract['contract_type']); ?>
                                             </span>
-                                            <br>                                                <small class="text-muted">
-                                                    <?php echo formatCurrency($contract['rate_amount']); ?> 
-                                                    <?php echo $contract['contract_type'] === 'hourly' ? '/' . __('hr') : 
-                                                        ($contract['contract_type'] === 'daily' ? '/' . __('day') : '/' . __('month')); ?>
-                                                </small>
+                                            <br><small class="text-muted">
+                                                <?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?> 
+                                                <?php echo $contract['contract_type'] === 'hourly' ? '/hr' : 
+                                                    ($contract['contract_type'] === 'daily' ? '/day' : '/month'); ?>
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
@@ -343,20 +353,17 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <?php echo round($contract['progress_percentage'], 1); ?>%
                                                 </div>
                                             </div>
-                                            <small class="text-muted">
-                                                <?php echo $contract['total_hours_worked']; ?> / 
-                                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> <?php echo __('hours'); ?>
-                                            </small>
+                                                                        <small class="text-muted">
+                                <?php echo $contract['total_hours_worked']; ?> / 
+                                <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours
+                            </small>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php 
-                                                $currency = $contract['currency'] ?? 'USD';
-                                                echo $currency . ' ' . number_format($contract['total_amount'] ?? 0, 2); 
-                                            ?></strong>
+                                            <strong><?php echo formatCurrencyAmount($contract['total_amount'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
                                             <br><small class="text-muted">
-                                                Paid: <?php echo $currency . ' ' . number_format($contract['amount_paid'] ?? 0, 2); ?>
+                                                Paid: <?php echo formatCurrencyAmount($contract['amount_paid'] ?? 0, $contract['currency'] ?? 'USD'); ?>
                                             </small>
                                         </div>
                                     </td>
@@ -385,7 +392,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php if ($contract['status'] === 'active'): ?>
                                                 <a href="complete.php?id=<?php echo $contract['id']; ?>" 
                                                    class="btn btn-sm btn-primary" title="Complete"
-                                                   onclick="return confirmDelete('<?php echo __('confirm_complete_contract'); ?>')">
+                                                   onclick="return confirmDelete('Are you sure you want to complete this contract?')">
                                                     <i class="fas fa-check"></i>
                                                 </a>
                                             <?php endif; ?>
