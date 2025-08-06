@@ -67,15 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Invalid purchase date format.");
         }
 
-        // Start transaction
-        $conn->beginTransaction();
-
-        // Add currency column if it doesn't exist
+        // Add currency column if it doesn't exist (outside transaction)
         try {
             $conn->exec("ALTER TABLE machines ADD COLUMN purchase_currency VARCHAR(3) DEFAULT 'USD' AFTER purchase_cost");
         } catch (Exception $e) {
             // Column might already exist, ignore error
         }
+
+        // Start transaction
+        $conn->beginTransaction();
 
         // Update machine record
         $stmt = $conn->prepare("
