@@ -112,8 +112,9 @@ foreach ($contracts as &$contract) {
 
 // Calculate progress and contract values for each contract
 foreach ($contracts as &$contract) {
-    // Ensure total_hours_worked is set
+    // Ensure total_hours_worked and amount_paid are set
     $contract['total_hours_worked'] = $contract['total_hours_worked'] ?? 0;
+    $contract['amount_paid'] = $contract['amount_paid'] ?? 0;
     
     // Calculate progress percentage
     if ($contract['contract_type'] === 'hourly') {
