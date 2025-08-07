@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validate required fields
         $required_fields = ['space_name', 'space_type', 'vehicle_category', 'monthly_rate'];
         foreach ($required_fields as $field) {
-            if (empty($_POST[$field])) {
+            if (empty(trim($_POST[$field]))) {
                 throw new Exception("Field '$field' is required.");
             }
         }
@@ -70,16 +70,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             // Column might already exist, ignore error
         }
+        
+        try {
+            $conn->exec("ALTER TABLE parking_spaces ADD COLUMN description TEXT AFTER currency");
+        } catch (Exception $e) {
+            // Column might already exist, ignore error
+        }
 
         // Start transaction
         $conn->beginTransaction();
+
+        // Debug: Log the submitted data
+        error_log("Space Name: '" . $_POST['space_name'] . "'");
+        error_log("Description: '" . $_POST['description'] . "'");
 
         // Create parking space record
         $stmt = $conn->prepare("
             INSERT INTO parking_spaces (
                 company_id, space_code, space_name, space_type, vehicle_category,
-                size, monthly_rate, currency, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', NOW())
+                size, monthly_rate, currency, description, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', NOW())
         ");
 
         $stmt->execute([
@@ -90,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['vehicle_category'] ?? 'general',
             $_POST['size'] ?? '',
             $_POST['monthly_rate'],
-            $_POST['currency'] ?? 'USD'
+            $_POST['currency'] ?? 'USD',
+            $_POST['description'] ?? ''
         ]);
 
         $space_id = $conn->lastInsertId();
