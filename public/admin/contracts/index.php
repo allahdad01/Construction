@@ -75,16 +75,17 @@ if (!empty($contracts)) {
     error_log("First contract data: " . print_r($contracts[0], true));
 }
 
-// Process each contract to add working hours and payment data
-foreach ($contracts as $index => &$contract_data) {
-    error_log("Processing contract ID: " . $contract_data['id'] . " (Code: " . $contract_data['contract_code'] . ")");
+// Process each contract to add working hours, payment data, and calculate progress
+foreach ($contracts as $index => &$contract) {
+    error_log("Processing contract ID: " . $contract['id'] . " (Code: " . $contract['contract_code'] . ")");
+    
     // Get total hours worked for this contract (using exact timesheet method)
     $stmt = $conn->prepare("
         SELECT wh.hours_worked
         FROM working_hours wh
         WHERE wh.contract_id = ? AND wh.company_id = ?
     ");
-    $stmt->execute([$contract_data['id'], getCurrentCompanyId()]);
+    $stmt->execute([$contract['id'], getCurrentCompanyId()]);
     $hours_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Calculate total like timesheet does
@@ -92,10 +93,10 @@ foreach ($contracts as $index => &$contract_data) {
     foreach ($hours_records as $wh) {
         $total_hours_worked += $wh['hours_worked'];
     }
-    $contract_data['total_hours_worked'] = $total_hours_worked;
+    $contract['total_hours_worked'] = $total_hours_worked;
     
     // Debug: Log what we found
-    error_log("Contract ID: " . $contract_data['id'] . " (Code: " . $contract_data['contract_code'] . ") - Records found: " . count($hours_records) . " - Total hours: " . $total_hours_worked);
+    error_log("Contract ID: " . $contract['id'] . " (Code: " . $contract['contract_code'] . ") - Records found: " . count($hours_records) . " - Total hours: " . $total_hours_worked);
     
     // Get total amount paid for this contract
     $stmt = $conn->prepare("
@@ -103,65 +104,51 @@ foreach ($contracts as $index => &$contract_data) {
         FROM contract_payments 
         WHERE contract_id = ? AND company_id = ? AND status = 'completed'
     ");
-    $stmt->execute([$contract_data['id'], getCurrentCompanyId()]);
+    $stmt->execute([$contract['id'], getCurrentCompanyId()]);
     $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $contract_data['amount_paid'] = $payment_result['amount_paid'];
+    $contract['amount_paid'] = $payment_result['amount_paid'];
     
     // Debug: Log payment calculation
-    error_log("Contract ID: " . $contract_data['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract_data['amount_paid']);
+    error_log("Contract ID: " . $contract['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract['amount_paid']);
+    
+    // Ensure total_hours_worked and amount_paid are set
+    $contract['total_hours_worked'] = $contract['total_hours_worked'] ?? 0;
+    $contract['amount_paid'] = $contract['amount_paid'] ?? 0;
+    
+    // Calculate contract value if not set
+    $contract_total = 0;
+    if (!empty($contract['total_amount']) && $contract['total_amount'] > 0) {
+        $contract_total = $contract['total_amount'];
+    } else {
+        // Calculate based on contract type and terms
+        if ($contract['contract_type'] == 'hourly' && !empty($contract['hourly_rate'])) {
+            $contract_total = $total_hours_worked * $contract['hourly_rate'];
+        } elseif ($contract['contract_type'] == 'daily' && !empty($contract['daily_rate']) && !empty($contract['duration_days'])) {
+            $contract_total = $contract['duration_days'] * $contract['daily_rate'];
+        } elseif ($contract['contract_type'] == 'monthly' && !empty($contract['monthly_rate']) && !empty($contract['duration_months'])) {
+            $contract_total = $contract['duration_months'] * $contract['monthly_rate'];
+        } elseif ($contract['contract_type'] == 'fixed' && !empty($contract['fixed_amount'])) {
+            $contract_total = $contract['fixed_amount'];
+        }
+    }
+    $contract['calculated_total'] = $contract_total;
+    
+    // Calculate progress percentage
+    $progress_percentage = 0;
+    if (!empty($contract['duration_hours']) && $contract['duration_hours'] > 0) {
+        $progress_percentage = ($total_hours_worked / $contract['duration_hours']) * 100;
+        $progress_percentage = min(100, $progress_percentage); // Cap at 100%
+    }
+    $contract['progress_percentage'] = $progress_percentage;
 }
-// Unset the reference to prevent issues with subsequent foreach loops
-unset($contract_data);
+
+// Unset the reference to prevent issues
+unset($contract);
+
 error_log("Finished processing all contracts. Final contract array structure for debugging:");
 foreach ($contracts as $debug_contract) {
     error_log("Contract ID: " . $debug_contract['id'] . " - amount_paid exists: " . (isset($debug_contract['amount_paid']) ? 'YES' : 'NO') . " - value: " . ($debug_contract['amount_paid'] ?? 'NOT_SET'));
 }
-
-// Calculate progress and contract values for each contract
-foreach ($contracts as $index => &$contract_item) {
-    // Ensure total_hours_worked and amount_paid are set
-    $contract_item['total_hours_worked'] = $contract_item['total_hours_worked'] ?? 0;
-    $contract_item['amount_paid'] = $contract_item['amount_paid'] ?? 0;
-    
-    // Calculate progress percentage
-    if ($contract_item['contract_type'] === 'hourly') {
-        $contract_item['progress_percentage'] = $contract_item['total_hours_required'] > 0 ? 
-            min(100, ($contract_item['total_hours_worked'] / $contract_item['total_hours_required']) * 100) : 0;
-    } elseif ($contract_item['contract_type'] === 'daily') {
-        $total_days_worked = $contract_item['total_hours_worked'] / ($contract_item['working_hours_per_day'] ?: 8);
-        $contract_item['progress_percentage'] = $contract_item['total_days_required'] > 0 ? 
-            min(100, ($total_days_worked / $contract_item['total_days_required']) * 100) : 0;
-    } elseif ($contract_item['contract_type'] === 'monthly') {
-        $contract_item['progress_percentage'] = $contract_item['total_hours_required'] > 0 ? 
-            min(100, ($contract_item['total_hours_worked'] / $contract_item['total_hours_required']) * 100) : 0;
-    } else {
-        $contract_item['progress_percentage'] = 0;
-    }
-    
-    // Calculate contract total value if not set
-    if (empty($contract_item['total_amount']) || $contract_item['total_amount'] == 0) {
-        if ($contract_item['contract_type'] === 'hourly') {
-            $contract_item['calculated_total'] = $contract_item['rate_amount'] * ($contract_item['total_hours_required'] ?: 0);
-        } elseif ($contract_item['contract_type'] === 'daily') {
-            $contract_item['calculated_total'] = $contract_item['rate_amount'] * ($contract_item['total_days_required'] ?: 0);
-        } elseif ($contract_item['contract_type'] === 'monthly') {
-            // For monthly contracts, calculate based on total hours required
-            if ($contract_item['total_hours_required'] > 0) {
-                $total_months = ceil($contract_item['total_hours_required'] / (($contract_item['working_hours_per_day'] ?: 8) * 30));
-                $contract_item['calculated_total'] = $contract_item['rate_amount'] * $total_months;
-            } else {
-                // If no total hours required, show rate per month
-                $contract_item['calculated_total'] = $contract_item['rate_amount'];
-            }
-        } else {
-            $contract_item['calculated_total'] = $contract_item['total_amount'] ?: 0;
-        }
-    } else {
-        $contract_item['calculated_total'] = $contract_item['total_amount'];
-    }
-}
-// Unset the reference to prevent issues with subsequent operations
-unset($contract_item);
 
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ?");
