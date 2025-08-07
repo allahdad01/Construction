@@ -436,13 +436,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($contracts as $contract): 
-                                // Safety check: ensure amount_paid exists
-                                if (!isset($contract['amount_paid'])) {
-                                    $contract['amount_paid'] = 0;
-                                    error_log("WARNING: amount_paid missing for contract ID " . $contract['id'] . " - setting to 0");
-                                }
-                            ?>
+                            <?php foreach ($contracts as $contract): ?>
                                 <tr>
                                     <td>
                                         <strong><?php echo htmlspecialchars($contract['contract_code']); ?></strong>
