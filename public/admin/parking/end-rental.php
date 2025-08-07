@@ -97,8 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $success = "Rental ended successfully! The parking space is now available.";
         
-        // Redirect to view page after a short delay
-        header("Refresh: 2; URL=view-rental.php?id=" . $rental_id);
+        // Set a flag to redirect after showing success message
+        $redirect_after_success = true;
 
     } catch (Exception $e) {
         $conn->rollBack();
@@ -126,6 +126,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php if ($success): ?>
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+        <?php if (isset($redirect_after_success) && $redirect_after_success): ?>
+            <script>
+                setTimeout(function() {
+                    window.location.href = 'view-rental.php?id=<?php echo $rental_id; ?>';
+                }, 2000);
+            </script>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- End Rental Form -->
