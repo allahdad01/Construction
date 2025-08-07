@@ -103,22 +103,6 @@ if (!empty($rentals)) {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-<<<<<<< HEAD
-                            <p><strong><?php echo __('space_code'); ?>:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
-                            <p><strong><?php echo __('space_number'); ?>:</strong> <?php echo htmlspecialchars($space['space_number'] ?? 'N/A'); ?></p>
-                            <p><strong><?php echo __('space_type'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($space['space_type'] ?? 'Unknown')); ?></p>
-                            <p><strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrency($space['daily_rate'] ?? 0, $space['currency'] ?? 'USD'); ?></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong><?php echo __('currency'); ?>:</strong> <?php echo htmlspecialchars($space['currency'] ?? 'USD'); ?></p>
-                            <p><strong><?php echo __('status'); ?>:</strong> 
-                                <span class="badge badge-<?php echo ($space['status'] ?? 'unknown') == 'available' ? 'success' : 'warning'; ?>">
-                                    <?php echo ucfirst(htmlspecialchars($space['status'] ?? 'Unknown')); ?>
-                                </span>
-                            </p>
-                            <p><strong><?php echo __('created_at'); ?>:</strong> <?php echo formatDateTime($space['created_at'] ?? date('Y-m-d H:i:s')); ?></p>
-                            <p><strong><?php echo __('updated_at'); ?>:</strong> <?php echo formatDateTime($space['updated_at'] ?? date('Y-m-d H:i:s')); ?></p>
-=======
                             <p><strong>Space Code:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($space['space_code']); ?></span></p>
                             <p><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></p>
                             <p><strong>Vehicle Category:</strong> 
@@ -158,7 +142,6 @@ if (!empty($rentals)) {
                             <?php if (isset($space['capacity']) && $space['capacity'] > 1): ?>
                                 <p><strong>Vehicle Capacity:</strong> <?php echo $space['capacity']; ?> vehicles</p>
                             <?php endif; ?>
->>>>>>> 5d808641c1ebb1fce35a7bad192428809727e569
                         </div>
                     </div>
                     
