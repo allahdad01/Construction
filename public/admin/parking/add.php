@@ -170,13 +170,14 @@ function generateParkingSpaceCode($company_id) {
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="space_name" class="form-label">Space Name *</label>
-                            <input type="text" class="form-control" id="space_name" name="space_name" 
-                                   value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" 
-                                   placeholder="e.g., Main Parking Lot A, Construction Zone 1, etc." required>
-                            <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
-                        </div>
+                                        <div class="mb-3">
+                    <label for="space_name" class="form-label">Space Name *</label>
+                    <input type="text" class="form-control" id="space_name" name="space_name" 
+                           value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" 
+                           placeholder="e.g., Main Parking Lot A, Construction Zone 1, etc." 
+                           style="text-transform: none;" required>
+                    <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
+                </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
@@ -262,11 +263,15 @@ function generateParkingSpaceCode($company_id) {
                 <div class="mb-3">
                     <label for="description" class="form-label">Description & Features</label>
                     <textarea class="form-control" id="description" name="description" rows="3" 
-                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."
+                              style="text-transform: none; resize: vertical;"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
                     <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
                 </div>
 
                 <div class="text-end">
+                    <button type="button" class="btn btn-info me-2" onclick="testSpaces()">
+                        <i class="fas fa-test"></i> Test Spaces
+                    </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Add Parking Space
                     </button>
@@ -280,6 +285,38 @@ function generateParkingSpaceCode($company_id) {
 document.addEventListener('DOMContentLoaded', function() {
     const vehicleCategorySelect = document.getElementById('vehicle_category');
     const sizeSelect = document.getElementById('size');
+    const spaceNameInput = document.getElementById('space_name');
+    const descriptionTextarea = document.getElementById('description');
+    
+    // Ensure spaces work in text inputs
+    if (spaceNameInput) {
+        spaceNameInput.addEventListener('keydown', function(e) {
+            // Allow space key (keyCode 32)
+            if (e.keyCode === 32) {
+                e.stopPropagation();
+            }
+        });
+        
+        // Debug: Log what's being typed
+        spaceNameInput.addEventListener('input', function(e) {
+            console.log('Space name input:', e.target.value);
+        });
+    }
+    
+    // Ensure spaces work in textarea
+    if (descriptionTextarea) {
+        descriptionTextarea.addEventListener('keydown', function(e) {
+            // Allow space key (keyCode 32)
+            if (e.keyCode === 32) {
+                e.stopPropagation();
+            }
+        });
+        
+        // Debug: Log what's being typed
+        descriptionTextarea.addEventListener('input', function(e) {
+            console.log('Description input:', e.target.value);
+        });
+    }
     
     vehicleCategorySelect.addEventListener('change', function() {
         const category = this.value;
@@ -308,6 +345,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 sizeSelect.value = 'medium';
         }
     });
+    
+    // Test function to check if spaces work
+    window.testSpaces = function() {
+        const spaceNameInput = document.getElementById('space_name');
+        const descriptionTextarea = document.getElementById('description');
+        
+        if (spaceNameInput) {
+            spaceNameInput.value = 'Test Space Name';
+            console.log('Set space name to:', spaceNameInput.value);
+        }
+        
+        if (descriptionTextarea) {
+            descriptionTextarea.value = 'Test description with spaces';
+            console.log('Set description to:', descriptionTextarea.value);
+        }
+        
+        alert('Test values set. Check console for details.');
+    };
 });
 </script>
 
