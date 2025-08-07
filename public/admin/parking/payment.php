@@ -435,15 +435,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+// DataTable initialization
 $(document).ready(function() {
     $('#paymentsTable').DataTable({
         "order": [[1, "desc"]],
         "pageLength": 10
     });
+});
+
+// Space handling with vanilla JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Payment page space handling initialized');
     
     // Function to enable spaces in input fields
     function enableSpacesInInput(input) {
         if (input) {
+            console.log('Enabling spaces for input:', input.id);
+            
             // Remove any existing event listeners that might block spaces
             input.removeEventListener('keydown', null);
             input.removeEventListener('keypress', null);
@@ -451,8 +459,11 @@ $(document).ready(function() {
             
             // Add space handling
             input.addEventListener('keydown', function(e) {
+                console.log('Key pressed:', e.key, 'KeyCode:', e.keyCode);
+                
                 // Explicitly allow space key
                 if (e.key === ' ' || e.keyCode === 32) {
+                    console.log('Space key detected, preventing default');
                     e.preventDefault();
                     e.stopPropagation();
                     
@@ -463,6 +474,7 @@ $(document).ready(function() {
                     this.value = value.substring(0, start) + ' ' + value.substring(end);
                     this.selectionStart = this.selectionEnd = start + 1;
                     
+                    console.log('Space inserted manually');
                     return false;
                 }
             });
@@ -471,6 +483,52 @@ $(document).ready(function() {
             input.setAttribute('type', 'text');
             input.style.textTransform = 'none';
             input.style.letterSpacing = 'normal';
+            
+            console.log('Space handling enabled for:', input.id);
+        } else {
+            console.log('Input not found');
+        }
+    }
+    
+    // Function to enable spaces in textarea
+    function enableSpacesInTextarea(textarea) {
+        if (textarea) {
+            console.log('Enabling spaces for textarea:', textarea.id);
+            
+            // Remove any existing event listeners that might block spaces
+            textarea.removeEventListener('keydown', null);
+            textarea.removeEventListener('keypress', null);
+            textarea.removeEventListener('keyup', null);
+            
+            // Add space handling
+            textarea.addEventListener('keydown', function(e) {
+                console.log('Textarea key pressed:', e.key, 'KeyCode:', e.keyCode);
+                
+                // Explicitly allow space key
+                if (e.key === ' ' || e.keyCode === 32) {
+                    console.log('Space key detected in textarea, preventing default');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Manually insert space
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    this.value = value.substring(0, start) + ' ' + value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    
+                    console.log('Space inserted manually in textarea');
+                    return false;
+                }
+            });
+            
+            // Ensure the textarea is properly configured
+            textarea.style.textTransform = 'none';
+            textarea.style.letterSpacing = 'normal';
+            
+            console.log('Space handling enabled for textarea:', textarea.id);
+        } else {
+            console.log('Textarea not found');
         }
     }
     
@@ -480,34 +538,26 @@ $(document).ready(function() {
     
     // Enable spaces in textarea
     const notesTextarea = document.getElementById('notes');
-    if (notesTextarea) {
-        // Remove any existing event listeners that might block spaces
-        notesTextarea.removeEventListener('keydown', null);
-        notesTextarea.removeEventListener('keypress', null);
-        notesTextarea.removeEventListener('keyup', null);
+    enableSpacesInTextarea(notesTextarea);
+    
+    // Additional check after a short delay
+    setTimeout(function() {
+        console.log('Checking elements after delay...');
+        const refInput = document.getElementById('reference_number');
+        const notesArea = document.getElementById('notes');
         
-        // Add space handling
-        notesTextarea.addEventListener('keydown', function(e) {
-            // Explicitly allow space key
-            if (e.key === ' ' || e.keyCode === 32) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Manually insert space
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                const value = this.value;
-                this.value = value.substring(0, start) + ' ' + value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 1;
-                
-                return false;
-            }
-        });
+        if (refInput) {
+            console.log('Reference input found:', refInput.value);
+        } else {
+            console.log('Reference input not found');
+        }
         
-        // Ensure the textarea is properly configured
-        notesTextarea.style.textTransform = 'none';
-        notesTextarea.style.letterSpacing = 'normal';
-    }
+        if (notesArea) {
+            console.log('Notes textarea found:', notesArea.value);
+        } else {
+            console.log('Notes textarea not found');
+        }
+    }, 1000);
 });
 </script>
 
