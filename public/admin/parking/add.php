@@ -80,10 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Debug: Log the submitted data
-        error_log("Space Name: '" . $_POST['space_name'] . "'");
-        error_log("Description: '" . $_POST['description'] . "'");
-
         // Create parking space record
         $stmt = $conn->prepare("
             INSERT INTO parking_spaces (
@@ -271,12 +267,6 @@ function generateParkingSpaceCode($company_id) {
                 </div>
 
                 <div class="text-end">
-                    <button type="button" class="btn btn-info me-2" onclick="testSpaces()">
-                        <i class="fas fa-test"></i> Test Spaces
-                    </button>
-                    <button type="button" class="btn btn-warning me-2" onclick="insertSpace()">
-                        <i class="fas fa-plus"></i> Add Space
-                    </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Add Parking Space
                     </button>
@@ -293,17 +283,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const spaceNameInput = document.getElementById('space_name');
     const descriptionTextarea = document.getElementById('description');
     
-    // Force enable spaces in text inputs
+    // Enable spaces in text inputs
     if (spaceNameInput) {
         // Remove any existing event listeners that might block spaces
         spaceNameInput.removeEventListener('keydown', null);
         spaceNameInput.removeEventListener('keypress', null);
         spaceNameInput.removeEventListener('keyup', null);
         
-        // Add comprehensive space handling
+        // Add space handling
         spaceNameInput.addEventListener('keydown', function(e) {
-            console.log('Key pressed:', e.key, 'KeyCode:', e.keyCode);
-            
             // Explicitly allow space key
             if (e.key === ' ' || e.keyCode === 32) {
                 e.preventDefault();
@@ -316,14 +304,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value = value.substring(0, start) + ' ' + value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 1;
                 
-                console.log('Space inserted manually');
                 return false;
             }
-        });
-        
-        // Debug: Log what's being typed
-        spaceNameInput.addEventListener('input', function(e) {
-            console.log('Space name input value:', e.target.value);
         });
         
         // Ensure the field is properly configured
@@ -332,17 +314,15 @@ document.addEventListener('DOMContentLoaded', function() {
         spaceNameInput.style.letterSpacing = 'normal';
     }
     
-    // Force enable spaces in textarea
+    // Enable spaces in textarea
     if (descriptionTextarea) {
         // Remove any existing event listeners that might block spaces
         descriptionTextarea.removeEventListener('keydown', null);
         descriptionTextarea.removeEventListener('keypress', null);
         descriptionTextarea.removeEventListener('keyup', null);
         
-        // Add comprehensive space handling
+        // Add space handling
         descriptionTextarea.addEventListener('keydown', function(e) {
-            console.log('Textarea key pressed:', e.key, 'KeyCode:', e.keyCode);
-            
             // Explicitly allow space key
             if (e.key === ' ' || e.keyCode === 32) {
                 e.preventDefault();
@@ -355,14 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value = value.substring(0, start) + ' ' + value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 1;
                 
-                console.log('Space inserted manually in textarea');
                 return false;
             }
-        });
-        
-        // Debug: Log what's being typed
-        descriptionTextarea.addEventListener('input', function(e) {
-            console.log('Description input value:', e.target.value);
         });
         
         // Ensure the textarea is properly configured
@@ -397,34 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 sizeSelect.value = 'medium';
         }
     });
-    
-    // Test function to check if spaces work
-    window.testSpaces = function() {
-        const spaceNameInput = document.getElementById('space_name');
-        const descriptionTextarea = document.getElementById('description');
-        
-        if (spaceNameInput) {
-            spaceNameInput.value = 'Test Space Name';
-            console.log('Set space name to:', spaceNameInput.value);
-        }
-        
-        if (descriptionTextarea) {
-            descriptionTextarea.value = 'Test description with spaces';
-            console.log('Set description to:', descriptionTextarea.value);
-        }
-        
-        alert('Test values set. Check console for details.');
-    };
-    
-    // Additional test function
-    window.insertSpace = function() {
-        const spaceNameInput = document.getElementById('space_name');
-        if (spaceNameInput) {
-            const currentValue = spaceNameInput.value;
-            spaceNameInput.value = currentValue + ' ';
-            console.log('Space added manually. New value:', spaceNameInput.value);
-        }
-    };
 });
 </script>
 
