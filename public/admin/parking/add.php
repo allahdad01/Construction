@@ -162,7 +162,9 @@ function generateParkingSpaceCode($company_id) {
                         <div class="mb-3">
                             <label for="space_name" class="form-label">Space Name *</label>
                             <input type="text" class="form-control" id="space_name" name="space_name" 
-                                   value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" required>
+                                   value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" 
+                                   placeholder="e.g., Main Parking Lot A, Construction Zone 1, etc." required>
+                            <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -249,7 +251,8 @@ function generateParkingSpaceCode($company_id) {
                 <div class="mb-3">
                     <label for="description" class="form-label">Description & Features</label>
                     <textarea class="form-control" id="description" name="description" rows="3" 
-                              placeholder="Additional features: security cameras, charging stations, loading dock, etc."><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                    <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
                 </div>
 
                 <div class="text-end">

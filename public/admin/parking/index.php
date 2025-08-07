@@ -211,22 +211,51 @@ foreach ($currency_revenues as $currency_revenue) {
         </div>
     </div>
 
+    <!-- Quick Actions Bar -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="btn-group" role="group">
+                <a href="index.php" class="btn btn-outline-primary <?php echo empty($status_filter) ? 'active' : ''; ?>">
+                    <i class="fas fa-list"></i> All Spaces
+                </a>
+                <a href="index.php?status=available" class="btn btn-outline-success <?php echo $status_filter === 'available' ? 'active' : ''; ?>">
+                    <i class="fas fa-check-circle"></i> Available
+                </a>
+                <a href="index.php?status=occupied" class="btn btn-outline-warning <?php echo $status_filter === 'occupied' ? 'active' : ''; ?>">
+                    <i class="fas fa-car"></i> Occupied
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="add.php" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Space
+            </a>
+        </div>
+    </div>
+
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter Parking Spaces</h6>
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-search"></i> Search & Filter
+            </h6>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchForm">
+                <i class="fas fa-filter"></i> Toggle Filters
+            </button>
         </div>
-        <div class="card-body">
+        <div class="card-body collapse show" id="searchForm">
             <form method="GET" class="row g-3">
-                <div class="col-md-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by space name or code" 
+                           placeholder="Search by space name, code, or description" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Category</label>
                     <select class="form-control" name="category">
                         <option value="">All Categories</option>
-                        <option value="machines" <?php echo $category_filter === 'machines' ? 'selected' : ''; ?>>🏗️ Machines</option>
+                        <option value="machines" <?php echo $category_filter === 'machines' ? 'selected' : ''; ?>>🏗️ Construction Machines</option>
                         <option value="cars" <?php echo $category_filter === 'cars' ? 'selected' : ''; ?>>🚗 Cars</option>
                         <option value="trucks" <?php echo $category_filter === 'trucks' ? 'selected' : ''; ?>>🚛 Trucks</option>
                         <option value="vans" <?php echo $category_filter === 'vans' ? 'selected' : ''; ?>>🚐 Vans</option>
@@ -236,32 +265,42 @@ foreach ($currency_revenues as $currency_revenue) {
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Type</label>
                     <select class="form-control" name="type">
                         <option value="">All Types</option>
-                        <option value="covered" <?php echo $type_filter === 'covered' ? 'selected' : ''; ?>>Covered</option>
-                        <option value="uncovered" <?php echo $type_filter === 'uncovered' ? 'selected' : ''; ?>>Uncovered</option>
-                        <option value="indoor" <?php echo $type_filter === 'indoor' ? 'selected' : ''; ?>>Indoor</option>
-                        <option value="outdoor" <?php echo $type_filter === 'outdoor' ? 'selected' : ''; ?>>Outdoor</option>
+                        <option value="covered" <?php echo $type_filter === 'covered' ? 'selected' : ''; ?>>🏠 Covered</option>
+                        <option value="uncovered" <?php echo $type_filter === 'uncovered' ? 'selected' : ''; ?>>🌤️ Uncovered</option>
+                        <option value="indoor" <?php echo $type_filter === 'indoor' ? 'selected' : ''; ?>>🏢 Indoor</option>
+                        <option value="outdoor" <?php echo $type_filter === 'outdoor' ? 'selected' : ''; ?>>🌳 Outdoor</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Status</label>
                     <select class="form-control" name="status">
                         <option value="">All Status</option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>Available</option>
-                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>Occupied</option>
+                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>✅ Available</option>
+                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>🚗 Occupied</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                </div>
-                <div class="col-md-1">
-                    <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> Clear
-                    </a>
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
                 </div>
             </form>
+            <?php if (!empty($search) || !empty($category_filter) || !empty($type_filter) || !empty($status_filter)): ?>
+            <div class="mt-3">
+                <a href="index.php" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times"></i> Clear All Filters
+                </a>
+                <small class="text-muted ms-2">
+                    Showing <?php echo count($parking_spaces); ?> of <?php echo $total_records; ?> spaces
+                </small>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -302,6 +341,9 @@ foreach ($currency_revenues as $currency_revenue) {
                                     <td>
                                         <div>
                                             <strong><?php echo htmlspecialchars($space['space_name']); ?></strong>
+                                            <?php if (!empty($space['description'])): ?>
+                                                <br><small class="text-muted"><?php echo htmlspecialchars(substr($space['description'], 0, 50)); ?><?php echo strlen($space['description']) > 50 ? '...' : ''; ?></small>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                     <td>
@@ -361,23 +403,32 @@ foreach ($currency_revenues as $currency_revenue) {
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="view.php?id=<?php echo $space['id']; ?>" 
-                                               class="btn btn-sm btn-info" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="edit.php?id=<?php echo $space['id']; ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="rentals.php?space_id=<?php echo $space['id']; ?>" 
-                                               class="btn btn-sm btn-success" title="Rentals">
-                                                <i class="fas fa-list"></i>
-                                            </a>
-                                            <a href="add-rental.php?space_id=<?php echo $space['id']; ?>" 
-                                               class="btn btn-sm btn-primary" title="Add Rental">
-                                                <i class="fas fa-plus"></i>
-                                            </a>
+                                        <div class="d-flex flex-column gap-1">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="view.php?id=<?php echo $space['id']; ?>" 
+                                                   class="btn btn-outline-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="edit.php?id=<?php echo $space['id']; ?>" 
+                                                   class="btn btn-outline-warning" title="Edit Space">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                            <?php if ($space['status'] === 'available'): ?>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="add-rental.php?space_id=<?php echo $space['id']; ?>" 
+                                                   class="btn btn-outline-success" title="Add Rental">
+                                                    <i class="fas fa-plus"></i> Rent
+                                                </a>
+                                            </div>
+                                            <?php else: ?>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="view.php?id=<?php echo $space['id']; ?>" 
+                                                   class="btn btn-outline-primary" title="View Rentals">
+                                                    <i class="fas fa-list"></i> Rentals
+                                                </a>
+                                            </div>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>

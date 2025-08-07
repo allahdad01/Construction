@@ -68,18 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update parking space record
         $stmt = $conn->prepare("
             UPDATE parking_spaces SET
-                space_name = ?, space_type = ?, size = ?,
-                monthly_rate = ?, currency = ?, status = ?, updated_at = NOW()
+                space_name = ?, space_type = ?, vehicle_category = ?, size = ?,
+                monthly_rate = ?, currency = ?, status = ?, description = ?, updated_at = NOW()
             WHERE id = ? AND company_id = ?
         ");
 
         $stmt->execute([
             $_POST['space_name'],
             $_POST['space_type'],
+            $_POST['vehicle_category'] ?? 'general',
             $_POST['size'] ?? '',
             $_POST['monthly_rate'],
             $_POST['currency'] ?? 'USD',
             $_POST['status'] ?? 'available',
+            $_POST['description'] ?? '',
             $space_id,
             $company_id
         ]);
@@ -134,20 +136,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="space_name" class="form-label"><?php echo __('space_name'); ?> *</label>
+                            <label for="space_name" class="form-label">Space Name *</label>
                             <input type="text" class="form-control" id="space_name" name="space_name" 
                                    value="<?php echo htmlspecialchars($_POST['space_name'] ?? $space['space_name'] ?? ''); ?>" required>
+                            <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="space_type" class="form-label"><?php echo __('space_type'); ?> *</label>
+                            <label for="space_type" class="form-label">Space Type *</label>
                             <select class="form-control" id="space_type" name="space_type" required>
-                                <option value=""><?php echo __('select_space_type'); ?></option>
-                                <option value="standard" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'standard') ? 'selected' : ''; ?>><?php echo __('standard'); ?></option>
-                                <option value="large" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'large') ? 'selected' : ''; ?>><?php echo __('large'); ?></option>
-                                <option value="covered" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'covered') ? 'selected' : ''; ?>><?php echo __('covered'); ?></option>
-                                <option value="uncovered" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'uncovered') ? 'selected' : ''; ?>><?php echo __('uncovered'); ?></option>
+                                <option value="">Select Space Type</option>
+                                <option value="covered" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'covered') ? 'selected' : ''; ?>>🏠 Covered</option>
+                                <option value="uncovered" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'uncovered') ? 'selected' : ''; ?>>🌤️ Uncovered</option>
+                                <option value="indoor" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'indoor') ? 'selected' : ''; ?>>🏢 Indoor</option>
+                                <option value="outdoor" <?php echo (($_POST['space_type'] ?? $space['space_type']) == 'outdoor') ? 'selected' : ''; ?>>🌳 Outdoor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="vehicle_category" class="form-label">Vehicle Category *</label>
+                            <select class="form-control" id="vehicle_category" name="vehicle_category" required>
+                                <option value="">Select Vehicle Category</option>
+                                <option value="machines" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'machines') ? 'selected' : ''; ?>>🏗️ Construction Machines</option>
+                                <option value="cars" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'cars') ? 'selected' : ''; ?>>🚗 Cars</option>
+                                <option value="trucks" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'trucks') ? 'selected' : ''; ?>>🚛 Trucks</option>
+                                <option value="vans" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'vans') ? 'selected' : ''; ?>>🚐 Vans</option>
+                                <option value="motorcycles" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'motorcycles') ? 'selected' : ''; ?>>🏍️ Motorcycles</option>
+                                <option value="trailers" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'trailers') ? 'selected' : ''; ?>>🚛 Trailers</option>
+                                <option value="general" <?php echo (($_POST['vehicle_category'] ?? $space['vehicle_category']) == 'general') ? 'selected' : ''; ?>>🅿️ General</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="size" class="form-label">Space Size</label>
+                            <select class="form-control" id="size" name="size">
+                                <option value="">Auto-detect from category</option>
+                                <option value="small" <?php echo (($_POST['size'] ?? $space['size']) == 'small') ? 'selected' : ''; ?>>Small (Cars, Motorcycles)</option>
+                                <option value="medium" <?php echo (($_POST['size'] ?? $space['size']) == 'medium') ? 'selected' : ''; ?>>Medium (Vans, Small Trucks)</option>
+                                <option value="large" <?php echo (($_POST['size'] ?? $space['size']) == 'large') ? 'selected' : ''; ?>>Large (Trucks, Small Machines)</option>
+                                <option value="xlarge" <?php echo (($_POST['size'] ?? $space['size']) == 'xlarge') ? 'selected' : ''; ?>>Extra Large (Heavy Machines)</option>
+                                <option value="custom" <?php echo (($_POST['size'] ?? $space['size']) == 'custom') ? 'selected' : ''; ?>>Custom Size</option>
                             </select>
                         </div>
                     </div>
@@ -156,14 +190,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
+                            <label for="monthly_rate" class="form-label">Monthly Rate *</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
                                    value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? $space['monthly_rate'] ?? ''); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
+                            <label for="currency" class="form-label">Currency</label>
                             <select class="form-control" id="currency" name="currency">
                                 <option value="USD" <?php echo (($_POST['currency'] ?? $space['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
                                 <option value="AFN" <?php echo (($_POST['currency'] ?? $space['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
@@ -180,37 +214,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="size" class="form-label"><?php echo __('size'); ?></label>
-                            <input type="text" class="form-control" id="size" name="size" 
-                                   value="<?php echo htmlspecialchars($_POST['size'] ?? $space['size'] ?? ''); ?>" 
-                                   placeholder="e.g., 3m x 6m">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="available" <?php echo (($_POST['status'] ?? $space['status']) == 'available') ? 'selected' : ''; ?>>✅ Available</option>
+                                <option value="occupied" <?php echo (($_POST['status'] ?? $space['status']) == 'occupied') ? 'selected' : ''; ?>>🚗 Occupied</option>
+                                <option value="maintenance" <?php echo (($_POST['status'] ?? $space['status']) == 'maintenance') ? 'selected' : ''; ?>>🔧 Maintenance</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="status" class="form-label"><?php echo __('status'); ?></label>
-                            <select class="form-control" id="status" name="status">
-                                <option value="available" <?php echo (($_POST['status'] ?? $space['status']) == 'available') ? 'selected' : ''; ?>><?php echo __('available'); ?></option>
-                                <option value="in_use" <?php echo (($_POST['status'] ?? $space['status']) == 'in_use') ? 'selected' : ''; ?>><?php echo __('in_use'); ?></option>
-                                <option value="maintenance" <?php echo (($_POST['status'] ?? $space['status']) == 'maintenance') ? 'selected' : ''; ?>><?php echo __('maintenance'); ?></option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description & Features</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" 
+                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."><?php echo htmlspecialchars($_POST['description'] ?? $space['description'] ?? ''); ?></textarea>
+                    <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
                 </div>
 
 
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> <?php echo __('update_parking_space'); ?>
+                        <i class="fas fa-save"></i> Update Parking Space
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const vehicleCategorySelect = document.getElementById('vehicle_category');
+    const sizeSelect = document.getElementById('size');
+    
+    vehicleCategorySelect.addEventListener('change', function() {
+        const category = this.value;
+        
+        // Auto-suggest size based on vehicle category
+        switch(category) {
+            case 'motorcycles':
+                sizeSelect.value = 'small';
+                break;
+            case 'cars':
+                sizeSelect.value = 'small';
+                break;
+            case 'vans':
+                sizeSelect.value = 'medium';
+                break;
+            case 'trucks':
+                sizeSelect.value = 'large';
+                break;
+            case 'machines':
+                sizeSelect.value = 'xlarge';
+                break;
+            case 'trailers':
+                sizeSelect.value = 'large';
+                break;
+            default:
+                sizeSelect.value = 'medium';
+        }
+    });
+});
+</script>
 
 <?php require_once '../../../includes/footer.php'; ?>
