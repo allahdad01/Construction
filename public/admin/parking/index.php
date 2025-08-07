@@ -18,6 +18,7 @@ $offset = ($page - 1) * $limit;
 // Search functionality
 $search = $_GET['search'] ?? '';
 $type_filter = $_GET['type'] ?? '';
+$category_filter = $_GET['category'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
 // Build query
@@ -33,6 +34,11 @@ if (!empty($search)) {
 if (!empty($type_filter)) {
     $where_conditions[] = "space_type = ?";
     $params[] = $type_filter;
+}
+
+if (!empty($category_filter)) {
+    $where_conditions[] = "vehicle_category = ?";
+    $params[] = $category_filter;
 }
 
 if (!empty($status_filter)) {
@@ -114,9 +120,11 @@ foreach ($currency_revenues as $currency_revenue) {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><?php echo __('parking_space_management'); ?></h1>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-parking"></i> Parking Management
+        </h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> <?php echo __('add_parking_space'); ?>
+            <i class="fas fa-plus"></i> Add Parking Space
         </a>
     </div>
 
@@ -128,7 +136,7 @@ foreach ($currency_revenues as $currency_revenue) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                <?php echo __('total_spaces'); ?></div>
+                                Total Parking Spaces</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -145,7 +153,7 @@ foreach ($currency_revenues as $currency_revenue) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                <?php echo __('available'); ?></div>
+                                Available Spaces</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $available_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -162,7 +170,7 @@ foreach ($currency_revenues as $currency_revenue) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <?php echo __('active_rentals'); ?></div>
+                                Active Rentals</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_rentals; ?></div>
                         </div>
                         <div class="col-auto">
@@ -179,7 +187,7 @@ foreach ($currency_revenues as $currency_revenue) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                <?php echo __('monthly_revenue'); ?></div>
+                                Monthly Revenue</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php if (count($currency_revenues) > 1): ?>
                                     <?php foreach ($currency_revenues as $index => $currency_revenue): ?>
@@ -206,38 +214,51 @@ foreach ($currency_revenues as $currency_revenue) {
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Search & Filter Parking Spaces</h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="<?php echo __('search_by_space_name_or_code'); ?>" 
+                           placeholder="Search by space name or code" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
+                    <select class="form-control" name="category">
+                        <option value="">All Categories</option>
+                        <option value="machines" <?php echo $category_filter === 'machines' ? 'selected' : ''; ?>>🏗️ Machines</option>
+                        <option value="cars" <?php echo $category_filter === 'cars' ? 'selected' : ''; ?>>🚗 Cars</option>
+                        <option value="trucks" <?php echo $category_filter === 'trucks' ? 'selected' : ''; ?>>🚛 Trucks</option>
+                        <option value="vans" <?php echo $category_filter === 'vans' ? 'selected' : ''; ?>>🚐 Vans</option>
+                        <option value="motorcycles" <?php echo $category_filter === 'motorcycles' ? 'selected' : ''; ?>>🏍️ Motorcycles</option>
+                        <option value="trailers" <?php echo $category_filter === 'trailers' ? 'selected' : ''; ?>>🚛 Trailers</option>
+                        <option value="general" <?php echo $category_filter === 'general' ? 'selected' : ''; ?>>🅿️ General</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <select class="form-control" name="type">
-                        <option value=""><?php echo __('all_types'); ?></option>
-                        <option value="machine" <?php echo $type_filter === 'machine' ? 'selected' : ''; ?>><?php echo __('machine'); ?></option>
-                        <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>><?php echo __('container'); ?></option>
-                        <option value="equipment" <?php echo $type_filter === 'equipment' ? 'selected' : ''; ?>><?php echo __('equipment'); ?></option>
+                        <option value="">All Types</option>
+                        <option value="covered" <?php echo $type_filter === 'covered' ? 'selected' : ''; ?>>Covered</option>
+                        <option value="uncovered" <?php echo $type_filter === 'uncovered' ? 'selected' : ''; ?>>Uncovered</option>
+                        <option value="indoor" <?php echo $type_filter === 'indoor' ? 'selected' : ''; ?>>Indoor</option>
+                        <option value="outdoor" <?php echo $type_filter === 'outdoor' ? 'selected' : ''; ?>>Outdoor</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value=""><?php echo __('all_status'); ?></option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>><?php echo __('available'); ?></option>
-                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>><?php echo __('occupied'); ?></option>
+                        <option value="">All Status</option>
+                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>Available</option>
+                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>Occupied</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
+                        <i class="fas fa-search"></i> Search
                     </button>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <a href="index.php" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
+                        <i class="fas fa-times"></i> Clear
                     </a>
                 </div>
             </form>
@@ -263,13 +284,13 @@ foreach ($currency_revenues as $currency_revenue) {
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th><?php echo __('space_code'); ?></th>
-                                <th><?php echo __('space_name'); ?></th>
-                                <th><?php echo __('type_size'); ?></th>
-                                <th><?php echo __('rate'); ?></th>
-                                <th><?php echo __('status'); ?></th>
-                                <th><?php echo __('active_rentals'); ?></th>
-                                <th><?php echo __('actions'); ?></th>
+                                <th>Space Code</th>
+                                <th>Space Name</th>
+                                <th>Vehicle Category / Type</th>
+                                <th>Size & Rate</th>
+                                <th>Status</th>
+                                <th>Active Rentals</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -286,13 +307,27 @@ foreach ($currency_revenues as $currency_revenue) {
                                     <td>
                                         <div>
                                             <span class="badge <?php 
-                                                echo $space['space_type'] === 'machine' ? 'bg-primary' : 
-                                                    ($space['space_type'] === 'container' ? 'bg-success' : 'bg-info'); 
+                                                $category = $space['vehicle_category'] ?? 'general';
+                                                echo $category === 'machines' ? 'bg-primary' : 
+                                                    ($category === 'cars' ? 'bg-success' : 
+                                                    ($category === 'trucks' ? 'bg-warning' : 
+                                                    ($category === 'motorcycles' ? 'bg-info' : 'bg-secondary'))); 
                                             ?>">
-                                                <?php echo ucfirst($space['space_type']); ?>
+                                                <?php 
+                                                $category_display = [
+                                                    'machines' => '🏗️ Machines',
+                                                    'cars' => '🚗 Cars', 
+                                                    'trucks' => '🚛 Trucks',
+                                                    'vans' => '🚐 Vans',
+                                                    'motorcycles' => '🏍️ Motorcycles',
+                                                    'trailers' => '🚛 Trailers',
+                                                    'general' => '🅿️ General'
+                                                ];
+                                                echo $category_display[$category] ?? ucfirst($category); 
+                                                ?>
                                             </span>
                                             <br><small class="text-muted">
-                                                <?php echo htmlspecialchars($space['size']); ?>
+                                                <?php echo ucfirst($space['space_type'] ?? 'standard'); ?> • <?php echo ucfirst($space['size'] ?? 'medium'); ?>
                                             </small>
                                         </div>
                                     </td>
@@ -301,10 +336,14 @@ foreach ($currency_revenues as $currency_revenue) {
                                             <strong>
                                                 <?php 
                                                 $currency = $space['currency'] ?? 'USD';
-                                                echo $currency . ' ' . number_format($space['monthly_rate'], 2); 
+                                                $symbol = $currency === 'AFN' ? '؋' : ($currency === 'EUR' ? '€' : '$');
+                                                echo $symbol . number_format($space['monthly_rate'], 2); 
                                                 ?>
                                             </strong>
-                                            <br><small class="text-muted"><?php echo __('per_month'); ?></small>
+                                            <br><small class="text-muted">per month</small>
+                                            <?php if (isset($space['capacity']) && $space['capacity'] > 1): ?>
+                                                <br><small class="text-info"><?php echo $space['capacity']; ?> vehicles</small>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                     <td>
@@ -316,8 +355,8 @@ foreach ($currency_revenues as $currency_revenue) {
                                     </td>
                                     <td>
                                         <div class="text-center">
-                                            <span class="badge bg-info">
-                                                <?php echo $space['active_rentals']; ?> <?php echo __('active'); ?>
+                                            <span class="badge <?php echo $space['active_rentals'] > 0 ? 'bg-success' : 'bg-secondary'; ?>">
+                                                <?php echo $space['active_rentals']; ?> active
                                             </span>
                                         </div>
                                     </td>
@@ -353,15 +392,15 @@ foreach ($currency_revenues as $currency_revenue) {
                         <ul class="pagination justify-content-center">
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        <?php echo __('previous'); ?>
+                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                        Previous
                                     </a>
                                 </li>
                             <?php endif; ?>
                             
                             <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
                                 <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
                                         <?php echo $i; ?>
                                     </a>
                                 </li>
@@ -369,8 +408,8 @@ foreach ($currency_revenues as $currency_revenue) {
                             
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        <?php echo __('next'); ?>
+                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
+                                        Next
                                     </a>
                                 </li>
                             <?php endif; ?>
