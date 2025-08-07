@@ -38,6 +38,11 @@ if (!$rental) {
     exit;
 }
 
+// Get parking space details
+$stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
+$stmt->execute([$rental['parking_space_id'], $company_id]);
+$space = $stmt->fetch(PDO::FETCH_ASSOC);
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
