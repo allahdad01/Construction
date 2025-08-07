@@ -227,8 +227,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-3">
                     <label for="description" class="form-label">Description & Features</label>
                     <textarea class="form-control" id="description" name="description" rows="3" 
-                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."><?php echo htmlspecialchars($_POST['description'] ?? $space['description'] ?? ''); ?></textarea>
-                    <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
+                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."
+                              style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['description'] ?? $space['description'] ?? ''); ?></textarea>
+                    <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space. You can use spaces in descriptions.</small>
                 </div>
 
 
@@ -247,6 +248,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 document.addEventListener('DOMContentLoaded', function() {
     const vehicleCategorySelect = document.getElementById('vehicle_category');
     const sizeSelect = document.getElementById('size');
+    const descriptionTextarea = document.getElementById('description');
+    
+    // Enable spaces in textarea
+    if (descriptionTextarea) {
+        // Remove any existing event listeners that might block spaces
+        descriptionTextarea.removeEventListener('keydown', null);
+        descriptionTextarea.removeEventListener('keypress', null);
+        descriptionTextarea.removeEventListener('keyup', null);
+        
+        // Add space handling
+        descriptionTextarea.addEventListener('keydown', function(e) {
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                return false;
+            }
+        });
+        
+        // Ensure the textarea is properly configured
+        descriptionTextarea.style.textTransform = 'none';
+        descriptionTextarea.style.letterSpacing = 'normal';
+    }
     
     vehicleCategorySelect.addEventListener('change', function() {
         const category = this.value;

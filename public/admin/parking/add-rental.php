@@ -311,7 +311,9 @@ function generateParkingRentalCode($company_id) {
                 <div class="mb-3">
                     <label for="notes" class="form-label">Notes & Special Instructions</label>
                     <textarea class="form-control" id="notes" name="notes" rows="3" 
-                              placeholder="Any special instructions, parking rules, or additional information..."><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
+                              placeholder="Any special instructions, parking rules, or additional information..."
+                              style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
+                    <small class="form-text text-muted">You can use spaces in notes and descriptions.</small>
                 </div>
 
                 <div class="text-end">
@@ -330,6 +332,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const monthlyRateInput = document.getElementById('monthly_rate');
     const currencySelect = document.getElementById('currency');
     const currencySymbol = document.getElementById('currency-symbol');
+    const notesTextarea = document.getElementById('notes');
+    
+    // Enable spaces in textarea
+    if (notesTextarea) {
+        // Remove any existing event listeners that might block spaces
+        notesTextarea.removeEventListener('keydown', null);
+        notesTextarea.removeEventListener('keypress', null);
+        notesTextarea.removeEventListener('keyup', null);
+        
+        // Add space handling
+        notesTextarea.addEventListener('keydown', function(e) {
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                return false;
+            }
+        });
+        
+        // Ensure the textarea is properly configured
+        notesTextarea.style.textTransform = 'none';
+        notesTextarea.style.letterSpacing = 'normal';
+    }
     
     // Update currency symbol
     function updateCurrencySymbol() {

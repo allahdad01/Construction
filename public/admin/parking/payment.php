@@ -312,7 +312,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="mb-3">
                                 <label for="notes" class="form-label">Payment Notes</label>
                                 <textarea class="form-control" id="notes" name="notes" rows="2" 
-                                          placeholder="Additional payment details..."></textarea>
+                                          placeholder="Additional payment details..."
+                                          style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
+                                <small class="form-text text-muted">You can use spaces in payment notes.</small>
                             </div>
 
                             <div class="d-flex justify-content-between">
@@ -436,6 +438,37 @@ $(document).ready(function() {
         "order": [[1, "desc"]],
         "pageLength": 10
     });
+    
+    // Enable spaces in textarea
+    const notesTextarea = document.getElementById('notes');
+    if (notesTextarea) {
+        // Remove any existing event listeners that might block spaces
+        notesTextarea.removeEventListener('keydown', null);
+        notesTextarea.removeEventListener('keypress', null);
+        notesTextarea.removeEventListener('keyup', null);
+        
+        // Add space handling
+        notesTextarea.addEventListener('keydown', function(e) {
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                return false;
+            }
+        });
+        
+        // Ensure the textarea is properly configured
+        notesTextarea.style.textTransform = 'none';
+        notesTextarea.style.letterSpacing = 'normal';
+    }
 });
 </script>
 
