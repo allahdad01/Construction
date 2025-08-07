@@ -55,7 +55,7 @@ $total_rentals = count($rentals);
             <i class="fas fa-parking"></i> Parking Space Details
         </h1>
         <div>
-            <?php if ($parking_space['status'] === 'available'): ?>
+            <?php if ($space['status'] === 'available'): ?>
                 <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success">
                     <i class="fas fa-plus"></i> Add Rental
                 </a>
