@@ -6,7 +6,6 @@ require_once '../../../config/currency_helper.php';
 // Check if user is authenticated and has appropriate role
 requireAuth();
 requireAnyRole(['company_admin', 'super_admin']);
-require_once '../../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -37,6 +36,9 @@ if (!$rental) {
     header('Location: index.php');
     exit;
 }
+
+// Now include header after all potential redirects
+require_once '../../../includes/header.php';
 
 // Check if rental is ended and has no payments
 $is_ended_without_payments = ($rental['status'] === 'ended' && empty($rental['total_amount']));
