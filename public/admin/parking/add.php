@@ -175,7 +175,8 @@ function generateParkingSpaceCode($company_id) {
                     <input type="text" class="form-control" id="space_name" name="space_name" 
                            value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" 
                            placeholder="e.g., Main Parking Lot A, Construction Zone 1, etc." 
-                           style="text-transform: none;" required>
+                           style="text-transform: none; text-indent: 0; letter-spacing: normal;" 
+                           autocomplete="off" spellcheck="false" required>
                     <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
                 </div>
                     </div>
@@ -264,13 +265,17 @@ function generateParkingSpaceCode($company_id) {
                     <label for="description" class="form-label">Description & Features</label>
                     <textarea class="form-control" id="description" name="description" rows="3" 
                               placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."
-                              style="text-transform: none; resize: vertical;"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                              style="text-transform: none; text-indent: 0; letter-spacing: normal; resize: vertical;"
+                              autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
                     <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
                 </div>
 
                 <div class="text-end">
                     <button type="button" class="btn btn-info me-2" onclick="testSpaces()">
                         <i class="fas fa-test"></i> Test Spaces
+                    </button>
+                    <button type="button" class="btn btn-warning me-2" onclick="insertSpace()">
+                        <i class="fas fa-plus"></i> Add Space
                     </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Add Parking Space
@@ -288,34 +293,81 @@ document.addEventListener('DOMContentLoaded', function() {
     const spaceNameInput = document.getElementById('space_name');
     const descriptionTextarea = document.getElementById('description');
     
-    // Ensure spaces work in text inputs
+    // Force enable spaces in text inputs
     if (spaceNameInput) {
+        // Remove any existing event listeners that might block spaces
+        spaceNameInput.removeEventListener('keydown', null);
+        spaceNameInput.removeEventListener('keypress', null);
+        spaceNameInput.removeEventListener('keyup', null);
+        
+        // Add comprehensive space handling
         spaceNameInput.addEventListener('keydown', function(e) {
-            // Allow space key (keyCode 32)
-            if (e.keyCode === 32) {
+            console.log('Key pressed:', e.key, 'KeyCode:', e.keyCode);
+            
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
                 e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                console.log('Space inserted manually');
+                return false;
             }
         });
         
         // Debug: Log what's being typed
         spaceNameInput.addEventListener('input', function(e) {
-            console.log('Space name input:', e.target.value);
+            console.log('Space name input value:', e.target.value);
         });
+        
+        // Ensure the field is properly configured
+        spaceNameInput.setAttribute('type', 'text');
+        spaceNameInput.style.textTransform = 'none';
+        spaceNameInput.style.letterSpacing = 'normal';
     }
     
-    // Ensure spaces work in textarea
+    // Force enable spaces in textarea
     if (descriptionTextarea) {
+        // Remove any existing event listeners that might block spaces
+        descriptionTextarea.removeEventListener('keydown', null);
+        descriptionTextarea.removeEventListener('keypress', null);
+        descriptionTextarea.removeEventListener('keyup', null);
+        
+        // Add comprehensive space handling
         descriptionTextarea.addEventListener('keydown', function(e) {
-            // Allow space key (keyCode 32)
-            if (e.keyCode === 32) {
+            console.log('Textarea key pressed:', e.key, 'KeyCode:', e.keyCode);
+            
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
                 e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                console.log('Space inserted manually in textarea');
+                return false;
             }
         });
         
         // Debug: Log what's being typed
         descriptionTextarea.addEventListener('input', function(e) {
-            console.log('Description input:', e.target.value);
+            console.log('Description input value:', e.target.value);
         });
+        
+        // Ensure the textarea is properly configured
+        descriptionTextarea.style.textTransform = 'none';
+        descriptionTextarea.style.letterSpacing = 'normal';
     }
     
     vehicleCategorySelect.addEventListener('change', function() {
@@ -362,6 +414,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         alert('Test values set. Check console for details.');
+    };
+    
+    // Additional test function
+    window.insertSpace = function() {
+        const spaceNameInput = document.getElementById('space_name');
+        if (spaceNameInput) {
+            const currentValue = spaceNameInput.value;
+            spaceNameInput.value = currentValue + ' ';
+            console.log('Space added manually. New value:', spaceNameInput.value);
+        }
     };
 });
 </script>
