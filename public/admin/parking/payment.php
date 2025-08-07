@@ -558,6 +558,51 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Notes textarea not found');
         }
     }, 1000);
+    
+    // Check if form is visible (for remaining amount > 0)
+    const paymentForm = document.querySelector('form');
+    if (paymentForm) {
+        console.log('Payment form found');
+        const formNotes = paymentForm.querySelector('#notes');
+        if (formNotes) {
+            console.log('Notes field found in form');
+            // Re-apply space handling to the form notes field
+            enableSpacesInTextarea(formNotes);
+        } else {
+            console.log('Notes field not found in form');
+        }
+    } else {
+        console.log('Payment form not found - rental might be fully paid');
+    }
+    
+    // More aggressive approach - check for notes field multiple times
+    let checkCount = 0;
+    const maxChecks = 10;
+    const checkInterval = setInterval(function() {
+        checkCount++;
+        console.log('Checking for notes field, attempt:', checkCount);
+        
+        const notesField = document.getElementById('notes');
+        if (notesField) {
+            console.log('Notes field found on attempt', checkCount);
+            enableSpacesInTextarea(notesField);
+            clearInterval(checkInterval);
+        } else if (checkCount >= maxChecks) {
+            console.log('Notes field not found after', maxChecks, 'attempts');
+            clearInterval(checkInterval);
+        }
+    }, 500);
+    
+    // Also check for any textarea with id containing 'notes'
+    const allTextareas = document.querySelectorAll('textarea');
+    console.log('Found', allTextareas.length, 'textareas on page');
+    allTextareas.forEach(function(textarea, index) {
+        console.log('Textarea', index, ':', textarea.id, textarea.name);
+        if (textarea.id === 'notes' || textarea.name === 'notes') {
+            console.log('Found notes textarea, applying space handling');
+            enableSpacesInTextarea(textarea);
+        }
+    });
 });
 </script>
 
