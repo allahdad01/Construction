@@ -1,6 +1,7 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
+require_once '../../../config/currency_helper.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -25,16 +26,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $rental = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$rental) {
-            throw new Exception(__('area_rental_not_found'));
-        }
-        
-        // Check if rental has active contracts (if contracts table references area_rentals)
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM contracts WHERE area_rental_id = ? AND status = 'active'");
-        $stmt->execute([$rental_id]);
-        $active_contracts = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        if ($active_contracts > 0) {
-            throw new Exception(__('cannot_delete_rental_has_active_contracts', ['count' => $active_contracts]));
+            throw new Exception("Area rental not found.");
         }
         
         // Start transaction
@@ -53,7 +45,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         // Commit transaction
         $conn->commit();
         
-        $success = __('area_rental_deleted_successfully');
+        $success = "Area rental deleted successfully!";
     } catch (Exception $e) {
         // Rollback transaction on error
         if ($conn->inTransaction()) {
@@ -67,8 +59,9 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 $type_filter = $_GET['type'] ?? '';
+$area_type_filter = $_GET['area_type'] ?? '';
 $page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
+$per_page = 15;
 $offset = ($page - 1) * $per_page;
 
 // Build query with filters
@@ -76,9 +69,9 @@ $where_conditions = ["ar.company_id = ?"];
 $params = [$company_id];
 
 if (!empty($search)) {
-    $where_conditions[] = "(ar.rental_code LIKE ? OR ar.client_name LIKE ? OR ra.area_name LIKE ? OR ra.area_code LIKE ?)";
+    $where_conditions[] = "(ar.rental_code LIKE ? OR ar.client_name LIKE ? OR ra.area_name LIKE ? OR ra.area_code LIKE ? OR ar.business_type LIKE ?)";
     $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
+    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
 }
 
 if (!empty($status_filter)) {
@@ -87,8 +80,13 @@ if (!empty($status_filter)) {
 }
 
 if (!empty($type_filter)) {
-    $where_conditions[] = "ra.area_type = ?";
+    $where_conditions[] = "ar.rental_type = ?";
     $params[] = $type_filter;
+}
+
+if (!empty($area_type_filter)) {
+    $where_conditions[] = "ra.area_type = ?";
+    $params[] = $area_type_filter;
 }
 
 $where_clause = implode(' AND ', $where_conditions);
@@ -104,56 +102,101 @@ $count_stmt->execute($params);
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $per_page);
 
-// Get area rentals with pagination
-$area_rentals_query = "
-    SELECT ar.*, 
-           ra.area_name,
-           ra.area_code,
-           ra.area_type,
-           ra.size,
-           CASE 
-               WHEN ar.end_date IS NULL THEN 'Ongoing'
-               WHEN ar.end_date > CURDATE() THEN 'Active'
-               ELSE 'Expired'
-           END as rental_status
-    FROM area_rentals ar 
+// Get area rentals with enhanced data
+$stmt = $conn->prepare("
+    SELECT 
+        ar.*,
+        ra.area_name,
+        ra.area_code,
+        ra.area_type,
+        ra.area_size_sqm,
+        ra.has_electricity,
+        ra.has_water,
+        ra.has_security,
+        ra.has_parking,
+        ra.has_loading_dock,
+        ra.is_covered,
+        ra.currency as area_currency,
+        ra.monthly_rate as area_monthly_rate,
+        COALESCE(SUM(arp.amount), 0) as total_paid,
+        COUNT(arp.id) as payment_count,
+        COUNT(arm.id) as maintenance_count,
+        COUNT(arv.id) as visit_count
+    FROM area_rentals ar
     LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
+    LEFT JOIN area_rental_payments arp ON ar.id = arp.area_rental_id
+    LEFT JOIN area_rental_maintenance arm ON ar.id = arm.area_rental_id
+    LEFT JOIN area_rental_visits arv ON ar.id = arv.area_rental_id
     WHERE $where_clause
-    ORDER BY ar.created_at DESC 
-    LIMIT ? OFFSET ?
-";
-$stmt = $conn->prepare($area_rentals_query);
-$params_with_limits = array_merge($params, [$per_page, $offset]);
-$stmt->execute($params_with_limits);
+    GROUP BY ar.id
+    ORDER BY ar.created_at DESC
+    LIMIT $per_page OFFSET $offset
+");
+$stmt->execute($params);
 $area_rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get statistics
-$stats_stmt = $conn->prepare("
+$stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_rentals,
-        COUNT(CASE WHEN ar.status = 'active' THEN 1 END) as active_rentals,
-        COUNT(CASE WHEN ar.status = 'completed' THEN 1 END) as completed_rentals,
-        COUNT(CASE WHEN ra.status = 'available' THEN 1 END) as available_rentals,
-        COUNT(CASE WHEN ra.status = 'rented' THEN 1 END) as rented_rentals,
-        AVG(ar.daily_rate) as avg_rate,
-        SUM(ar.total_amount) as total_revenue
-    FROM area_rentals ar
-    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
-    WHERE ar.company_id = ?
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_rentals,
+        SUM(CASE WHEN status = 'ended' THEN 1 ELSE 0 END) as ended_rentals,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_rentals,
+        SUM(monthly_rate) as total_monthly_revenue,
+        AVG(monthly_rate) as avg_monthly_rate
+    FROM area_rentals 
+    WHERE company_id = ?
 ");
-$stats_stmt->execute([$company_id]);
-$stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$company_id]);
+$stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get total payments received
+$stmt = $conn->prepare("
+    SELECT 
+        COALESCE(SUM(arp.amount), 0) as total_payments,
+        arp.currency
+    FROM area_rental_payments arp
+    JOIN area_rentals ar ON arp.area_rental_id = ar.id
+    WHERE ar.company_id = ?
+    GROUP BY arp.currency
+    ORDER BY total_payments DESC
+");
+$stmt->execute([$company_id]);
+$payment_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get area type distribution
+$stmt = $conn->prepare("
+    SELECT 
+        ra.area_type,
+        COUNT(*) as count,
+        SUM(ar.monthly_rate) as total_revenue
+    FROM area_rentals ar
+    JOIN rental_areas ra ON ar.rental_area_id = ra.id
+    WHERE ar.company_id = ? AND ar.status = 'active'
+    GROUP BY ra.area_type
+    ORDER BY count DESC
+");
+$stmt->execute([$company_id]);
+$area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-map-marker-alt"></i> <?php echo __('area_rentals'); ?>
-        </h1>
-        <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> <?php echo __('add_area_rental'); ?>
-        </a>
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-map-marked-alt"></i> Area Rentals Management
+            </h1>
+            <p class="text-muted mb-0">Manage land rentals for commercial, residential, and industrial use</p>
+        </div>
+        <div class="btn-group" role="group">
+            <a href="add.php" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Rental
+            </a>
+            <a href="../rental-areas/" class="btn btn-primary">
+                <i class="fas fa-map"></i> Manage Areas
+            </a>
+        </div>
     </div>
 
     <?php if ($error): ?>
@@ -172,12 +215,12 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                <?php echo __('total_rentals'); ?>
+                                Total Rentals
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_rentals']; ?></div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-map-marker-alt fa-2x text-gray-300"></i>
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -190,9 +233,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                <?php echo __('available'); ?>
+                                Active Rentals
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['available_rentals']; ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['active_rentals']; ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-check-circle fa-2x text-gray-300"></i>
@@ -208,12 +251,14 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <?php echo __('rented'); ?>
+                                Monthly Revenue
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['rented_rentals']; ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php echo formatCurrencyAmount($stats['total_monthly_revenue'] ?? 0, 'USD'); ?>
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-key fa-2x text-gray-300"></i>
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -226,14 +271,14 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                <?php echo __('total_value'); ?>
+                                Avg Monthly Rate
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$
-    <?php echo number_format((float)($stats['total_value'] ?? 0), 2); ?>
-</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php echo formatCurrencyAmount($stats['avg_monthly_rate'] ?? 0, 'USD'); ?>
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -241,177 +286,294 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Filters and Search -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('filters'); ?></h6>
+    <!-- Revenue Details -->
+    <?php if (!empty($payment_stats)): ?>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-chart-line"></i> Actual Revenue (All Time)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <?php foreach ($payment_stats as $payment_stat): ?>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">
+                                <?php echo formatCurrencyAmount($payment_stat['total_payments'], $payment_stat['currency']); ?>
+                            </span>
+                            <span class="badge bg-success"><?php echo $payment_stat['currency']; ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label for="search" class="form-label"><?php echo __('search'); ?></label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="<?php echo __('search_by_name_code_or_location'); ?>">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-chart-pie"></i> Area Type Distribution
+                    </h6>
                 </div>
-                <div class="col-md-3">
-                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
-                    <select class="form-control" id="status" name="status">
-                        <option value=""><?php echo __('all_status'); ?></option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>><?php echo __('available'); ?></option>
-                        <option value="rented" <?php echo $status_filter === 'rented' ? 'selected' : ''; ?>><?php echo __('rented'); ?></option>
-                        <option value="maintenance" <?php echo $status_filter === 'maintenance' ? 'selected' : ''; ?>><?php echo __('maintenance'); ?></option>
-                    </select>
+                <div class="card-body">
+                    <?php if (!empty($area_type_stats)): ?>
+                        <?php foreach ($area_type_stats as $area_stat): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">
+                                    <?php echo ucfirst($area_stat['area_type']); ?> (<?php echo $area_stat['count']; ?>)
+                                </span>
+                                <span class="badge bg-info">
+                                    <?php echo formatCurrencyAmount($area_stat['total_revenue'], 'USD'); ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">No active rentals by area type.</p>
+                    <?php endif; ?>
                 </div>
-                <div class="col-md-3">
-                    <label for="type" class="form-label"><?php echo __('type'); ?></label>
-                    <select class="form-control" id="type" name="type">
-                        <option value=""><?php echo __('all_types'); ?></option>
-                        <option value="warehouse" <?php echo $type_filter === 'warehouse' ? 'selected' : ''; ?>><?php echo __('warehouse'); ?></option>
-                        <option value="office" <?php echo $type_filter === 'office' ? 'selected' : ''; ?>><?php echo __('office'); ?></option>
-                        <option value="parking" <?php echo $type_filter === 'parking' ? 'selected' : ''; ?>><?php echo __('parking'); ?></option>
-                        <option value="land" <?php echo $type_filter === 'land' ? 'selected' : ''; ?>><?php echo __('land'); ?></option>
-                        <option value="other" <?php echo $type_filter === 'other' ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-flex">
-                        <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
-                        </button>
-                        <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> <?php echo __('clear'); ?>
-                        </a>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Quick Actions Bar -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="btn-group" role="group">
+                <a href="?status=" class="btn btn-outline-primary <?php echo empty($status_filter) ? 'active' : ''; ?>">
+                    All Rentals
+                </a>
+                <a href="?status=active" class="btn btn-outline-success <?php echo $status_filter === 'active' ? 'active' : ''; ?>">
+                    Active
+                </a>
+                <a href="?status=pending" class="btn btn-outline-warning <?php echo $status_filter === 'pending' ? 'active' : ''; ?>">
+                    Pending
+                </a>
+                <a href="?status=ended" class="btn btn-outline-secondary <?php echo $status_filter === 'ended' ? 'active' : ''; ?>">
+                    Ended
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="add.php" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Rental
+            </a>
+        </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-search"></i> Search & Filter
+            </h6>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchFilters">
+                <i class="fas fa-filter"></i> Toggle Filters
+            </button>
+        </div>
+        <div class="collapse show" id="searchFilters">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               value="<?php echo htmlspecialchars($search); ?>" 
+                               placeholder="Search by rental code, client name, area name...">
                     </div>
-                </div>
-            </form>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">All Status</option>
+                            <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
+                            <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                            <option value="ended" <?php echo $status_filter === 'ended' ? 'selected' : ''; ?>>Ended</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="type" class="form-label">Rental Type</label>
+                        <select class="form-control" id="type" name="type">
+                            <option value="">All Types</option>
+                            <option value="commercial" <?php echo $type_filter === 'commercial' ? 'selected' : ''; ?>>Commercial</option>
+                            <option value="residential" <?php echo $type_filter === 'residential' ? 'selected' : ''; ?>>Residential</option>
+                            <option value="industrial" <?php echo $type_filter === 'industrial' ? 'selected' : ''; ?>>Industrial</option>
+                            <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>>Container</option>
+                            <option value="event" <?php echo $type_filter === 'event' ? 'selected' : ''; ?>>Event</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="area_type" class="form-label">Area Type</label>
+                        <select class="form-control" id="area_type" name="area_type">
+                            <option value="">All Areas</option>
+                            <option value="commercial" <?php echo $area_type_filter === 'commercial' ? 'selected' : ''; ?>>Commercial</option>
+                            <option value="industrial" <?php echo $area_type_filter === 'industrial' ? 'selected' : ''; ?>>Industrial</option>
+                            <option value="residential" <?php echo $area_type_filter === 'residential' ? 'selected' : ''; ?>>Residential</option>
+                            <option value="container" <?php echo $area_type_filter === 'container' ? 'selected' : ''; ?>>Container</option>
+                            <option value="event" <?php echo $area_type_filter === 'event' ? 'selected' : ''; ?>>Event</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <?php if (!empty($search) || !empty($status_filter) || !empty($type_filter) || !empty($area_type_filter)): ?>
+                    <div class="mt-3">
+                        <a href="index.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times"></i> Clear All Filters
+                        </a>
+                        <span class="text-muted ms-2">Showing <?php echo count($area_rentals); ?> of <?php echo $total_records; ?> rentals</span>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
     <!-- Area Rentals Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('area_rentals_list'); ?></h6>
-            <div class="dropdown no-arrow">
-                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
-                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
-                    <div class="dropdown-header"><?php echo __('export_options'); ?>:</div>
-                    <a class="dropdown-item" href="#" onclick="exportToCSV()">
-                        <i class="fas fa-file-csv me-2"></i><?php echo __('export_to_csv'); ?>
-                    </a>
-                    <a class="dropdown-item" href="#" onclick="exportToPDF()">
-                        <i class="fas fa-file-pdf me-2"></i><?php echo __('export_to_pdf'); ?>
-                    </a>
-                </div>
-            </div>
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list"></i> Area Rentals (<?php echo $total_records; ?> total)
+            </h6>
         </div>
         <div class="card-body">
             <?php if (empty($area_rentals)): ?>
-                <div class="text-center py-4">
-                    <i class="fas fa-map-marker-alt fa-3x text-gray-300 mb-3"></i>
-                    <h5 class="text-gray-500"><?php echo __('no_area_rentals_found'); ?></h5>
-                    <p class="text-gray-400"><?php echo __('add_first_area_rental_to_get_started'); ?></p>
+                <div class="text-center py-5">
+                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Area Rentals Found</h5>
+                    <p class="text-muted">Get started by adding your first area rental.</p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> <?php echo __('add_area_rental'); ?>
+                        <i class="fas fa-plus"></i> Add First Rental
                     </a>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered datatable" id="rentalsTable">
+                    <table class="table table-bordered" id="areaRentalsTable">
                         <thead>
                             <tr>
-                                <th><?php echo __('rental_code'); ?></th>
-                                <th><?php echo __('client_name'); ?></th>
-                                <th><?php echo __('area'); ?></th>
-                                <th><?php echo __('duration'); ?></th>
-                                <th><?php echo __('daily_rate'); ?></th>
-                                <th><?php echo __('total_amount'); ?></th>
-                                <th><?php echo __('status'); ?></th>
-                                <th><?php echo __('actions'); ?></th>
+                                <th>Rental Details</th>
+                                <th>Area Information</th>
+                                <th>Financial</th>
+                                <th>Status & Dates</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($area_rentals as $rental): ?>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-file-contract text-white"></i>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <strong class="text-primary"><?php echo htmlspecialchars($rental['rental_code']); ?></strong>
+                                            <span class="text-dark"><?php echo htmlspecialchars($rental['client_name']); ?></span>
+                                            <?php if (!empty($rental['business_type'])): ?>
+                                                <small class="text-muted"><?php echo htmlspecialchars($rental['business_type']); ?></small>
+                                            <?php endif; ?>
+                                            <div class="mt-1">
+                                                <span class="badge bg-<?php echo $rental['rental_type'] === 'commercial' ? 'primary' : ($rental['rental_type'] === 'residential' ? 'success' : 'warning'); ?>">
+                                                    <?php echo ucfirst($rental['rental_type']); ?>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h6 class="mb-0"><?php echo htmlspecialchars($rental['rental_code']); ?></h6>
-                                            <small class="text-muted"><?php echo date('M j, Y', strtotime($rental['created_at'])); ?></small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <strong><?php echo htmlspecialchars($rental['area_name']); ?></strong>
+                                            <small class="text-muted"><?php echo htmlspecialchars($rental['area_code']); ?></small>
+                                            <span class="badge bg-info"><?php echo ucfirst($rental['area_type']); ?></span>
+                                            <?php if (!empty($rental['area_size_sqm'])): ?>
+                                                <small class="text-muted"><?php echo number_format($rental['area_size_sqm'], 1); ?> sqm</small>
+                                            <?php endif; ?>
+                                            <div class="mt-1">
+                                                <?php if ($rental['has_electricity']): ?>
+                                                    <i class="fas fa-bolt text-success" title="Electricity"></i>
+                                                <?php endif; ?>
+                                                <?php if ($rental['has_water']): ?>
+                                                    <i class="fas fa-tint text-info" title="Water"></i>
+                                                <?php endif; ?>
+                                                <?php if ($rental['has_security']): ?>
+                                                    <i class="fas fa-shield-alt text-warning" title="Security"></i>
+                                                <?php endif; ?>
+                                                <?php if ($rental['has_parking']): ?>
+                                                    <i class="fas fa-car text-primary" title="Parking"></i>
+                                                <?php endif; ?>
+                                                <?php if ($rental['is_covered']): ?>
+                                                    <i class="fas fa-home text-secondary" title="Covered"></i>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-0"><?php echo htmlspecialchars($rental['client_name']); ?></h6>
-                                        <?php if ($rental['client_contact']): ?>
-                                        <small class="text-muted"><?php echo htmlspecialchars($rental['client_contact']); ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-0"><?php echo htmlspecialchars($rental['area_name']); ?></h6>
-                                        <small class="text-muted"><?php echo htmlspecialchars($rental['area_code']) . ' - ' . ucfirst($rental['area_type']); ?></small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <small class="text-muted"><?php echo __('start'); ?>:</small> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?><br>
-                                        <?php if ($rental['end_date']): ?>
-                                        <small class="text-muted"><?php echo __('end'); ?>:</small> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
-                                        <?php else: ?>
-                                        <small class="text-muted"><?php echo __('ongoing'); ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <h6 class="text-success mb-0">$<?php echo number_format($rental['daily_rate'], 2); ?></h6>
-                                        <small class="text-muted"><?php echo __('per_day'); ?></small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <h6 class="text-primary mb-0">$<?php echo number_format($rental['total_amount'] ?? 0, 2); ?></h6>
-                                        <?php if ($rental['amount_paid'] > 0): ?>
-                                        <small class="text-success">$<?php echo number_format($rental['amount_paid'], 2); ?> <?php echo __('paid'); ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : ($rental['status'] === 'completed' ? 'primary' : 'secondary'); ?>">
-                                        <?php echo ucfirst($rental['status']); ?>
-                                    </span><br>
-                                    <small class="badge bg-light text-dark"><?php echo $rental['rental_status']; ?></small>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="view.php?id=<?php echo $rental['id']; ?>" 
-                                           class="btn btn-sm btn-outline-primary" 
-                                           title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="edit.php?id=<?php echo $rental['id']; ?>" 
-                                           class="btn btn-sm btn-outline-warning" 
-                                           title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $rental['id']; ?>, '<?php echo htmlspecialchars($rental['rental_code']); ?>')"
-                                                title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <strong class="text-success">
+                                                <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?>
+                                            </strong>
+                                            <small class="text-muted">Monthly Rate</small>
+                                            <?php if ($rental['total_paid'] > 0): ?>
+                                                <div class="mt-1">
+                                                    <small class="text-success">
+                                                        Paid: <?php echo formatCurrencyAmount($rental['total_paid'], $rental['currency'] ?? 'USD'); ?>
+                                                    </small>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <?php echo $rental['payment_count']; ?> payments
+                                                    </small>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary'); ?>">
+                                                <?php echo ucfirst($rental['status']); ?>
+                                            </span>
+                                            <small class="text-muted">
+                                                Start: <?php echo date('M j, Y', strtotime($rental['start_date'])); ?>
+                                            </small>
+                                            <?php if (!empty($rental['end_date'])): ?>
+                                                <small class="text-muted">
+                                                    End: <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
+                                                </small>
+                                            <?php else: ?>
+                                                <small class="text-info">Ongoing</small>
+                                            <?php endif; ?>
+                                            <?php if ($rental['maintenance_count'] > 0): ?>
+                                                <small class="text-warning">
+                                                    <i class="fas fa-tools"></i> <?php echo $rental['maintenance_count']; ?> maintenance
+                                                </small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="view.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="edit.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-warning" title="Edit Rental">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <?php if ($rental['status'] === 'active'): ?>
+                                                    <a href="payment.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-success" title="Payment">
+                                                        <i class="fas fa-credit-card"></i>
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($rental['status'] === 'active'): ?>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="maintenance.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-info" title="Maintenance">
+                                                    <i class="fas fa-tools"></i>
+                                                </a>
+                                                <a href="visits.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-secondary" title="Visits">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                </a>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -419,33 +581,33 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
-                <nav aria-label="Area rentals pagination">
-                    <ul class="pagination justify-content-center">
-                        <?php if ($page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
-                                                                            <?php echo __('previous'); ?>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                        
-                        <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                            <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-                        
-                        <?php if ($page < $total_pages): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>">
-                                                                            <?php echo __('next'); ?>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav>
+                    <nav aria-label="Area rentals pagination">
+                        <ul class="pagination justify-content-center">
+                            <?php if ($page > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>&area_type=<?php echo urlencode($area_type_filter); ?>">
+                                        Previous
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                                <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>&area_type=<?php echo urlencode($area_type_filter); ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <?php if ($page < $total_pages): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>&area_type=<?php echo urlencode($area_type_filter); ?>">
+                                        Next
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -453,60 +615,20 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    if ($.fn.DataTable) {
-        $('#rentalsTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[0, 'asc']],
-            columnDefs: [
-                {
-                    targets: -1,
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
-    }
-});
-
-// Confirm delete function
-function confirmDelete(rentalId, rentalName) {
-    if (confirm(`<?php echo __('confirm_delete_area_rental'); ?> "${rentalName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
-        window.location.href = `index.php?delete=${rentalId}`;
-    }
-}
-
-// Export functions
-function exportToCSV() {
-    const table = document.getElementById('rentalsTable');
-    const rows = table.querySelectorAll('tr');
-    let csv = [];
-    
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('td, th');
-        const rowData = Array.from(cols).map(col => {
-            let text = col.textContent.trim();
-            text = text.replace(/"/g, '""');
-            return `"${text}"`;
-        });
-        csv.push(rowData.join(','));
+$(document).ready(function() {
+    $('#areaRentalsTable').DataTable({
+        "order": [[0, "desc"]],
+        "pageLength": 15,
+        "responsive": true,
+        "language": {
+            "search": "Search rentals:",
+            "lengthMenu": "Show _MENU_ rentals per page",
+            "info": "Showing _START_ to _END_ of _TOTAL_ rentals",
+            "infoEmpty": "Showing 0 to 0 of 0 rentals",
+            "infoFiltered": "(filtered from _MAX_ total rentals)"
+        }
     });
-    
-    const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'area_rentals.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-}
-
-function exportToPDF() {
-    alert('<?php echo __('pdf_export_feature_coming_soon'); ?>');
-}
+});
 </script>
 
 <?php require_once '../../../includes/footer.php'; ?>
