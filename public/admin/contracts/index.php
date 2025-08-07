@@ -106,7 +106,13 @@ foreach ($contracts as $index => &$contract) {
     ");
     $stmt->execute([$contract['id'], getCurrentCompanyId()]);
     $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $contract['amount_paid'] = $payment_result['amount_paid'];
+    
+    // Ensure amount_paid is always set to a valid numeric value
+    $amount_paid_value = 0;
+    if ($payment_result && isset($payment_result['amount_paid'])) {
+        $amount_paid_value = floatval($payment_result['amount_paid']);
+    }
+    $contract['amount_paid'] = $amount_paid_value;
     
     // Debug: Log payment calculation
     error_log("Contract ID: " . $contract['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract['amount_paid']);
@@ -491,10 +497,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <strong><?php echo formatCurrencyAmount($contract['calculated_total'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
                                             <br><small class="text-muted">
                                                 Paid: <?php 
-                                                // Enhanced debugging for amount_paid
-                                                $amount_paid = isset($contract['amount_paid']) ? $contract['amount_paid'] : 0;
-                                                error_log("DISPLAY TIME - Contract ID: " . $contract['id'] . " - amount_paid exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . " - value: " . $amount_paid);
-                                                echo "<!-- ENHANCED DEBUG: Contract ID: {$contract['id']}, amount_paid key exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . ", value: $amount_paid -->";
+                                                $amount_paid = $contract['amount_paid'] ?? 0;
                                                 echo formatCurrencyAmount($amount_paid, $contract['currency'] ?? 'USD'); 
                                                 ?>
                                             </small>
@@ -502,7 +505,7 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <br><small class="text-info">
                                                     Remaining: <?php 
                                                     $calculated_total = $contract['calculated_total'] ?? 0;
-                                                    $amount_paid_for_remaining = isset($contract['amount_paid']) ? $contract['amount_paid'] : 0;
+                                                    $amount_paid_for_remaining = $contract['amount_paid'] ?? 0;
                                                     echo formatCurrencyAmount($calculated_total - $amount_paid_for_remaining, $contract['currency'] ?? 'USD'); 
                                                     ?>
                                                 </small>
