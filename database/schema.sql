@@ -201,6 +201,25 @@ CREATE TABLE parking_rentals (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Parking Payments Table
+CREATE TABLE parking_payments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    rental_id INT NOT NULL,
+    payment_code VARCHAR(20) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'USD',
+    payment_method VARCHAR(50) NOT NULL,
+    payment_date DATE NOT NULL,
+    reference_number VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    FOREIGN KEY (rental_id) REFERENCES parking_rentals(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_payment_code (payment_code)
+);
+
 -- Rental Areas Table
 CREATE TABLE rental_areas (
     id INT PRIMARY KEY AUTO_INCREMENT,
