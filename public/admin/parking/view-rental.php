@@ -61,6 +61,38 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                 <a href="end-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-danger">
                     <i class="fas fa-stop"></i> End Rental
                 </a>
+            <?php elseif ($rental['status'] === 'ended'): ?>
+                <?php 
+                // Check if there are remaining payments for ended rental
+                $stmt = $conn->prepare("
+                    SELECT SUM(amount) as total_paid 
+                    FROM parking_payments 
+                    WHERE rental_id = ? AND company_id = ?
+                ");
+                $stmt->execute([$rental_id, $company_id]);
+                $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $total_paid = $payment_result['total_paid'] ?? 0;
+                
+                // Calculate expected amount for ended rental
+                $expected_amount = 0;
+                if (!empty($rental['total_amount'])) {
+                    $expected_amount = $rental['total_amount'];
+                } elseif (!empty($rental['end_date'])) {
+                    $start_date = new DateTime($rental['start_date']);
+                    $end_date = new DateTime($rental['end_date']);
+                    $total_days = $start_date->diff($end_date)->days;
+                    $daily_rate = $rental['monthly_rate'] / 30;
+                    $expected_amount = $total_days * $daily_rate;
+                }
+                
+                $remaining_amount = max(0, $expected_amount - $total_paid);
+                ?>
+                
+                <?php if ($remaining_amount > 0): ?>
+                    <a href="payment.php?id=<?php echo $rental_id; ?>" class="btn btn-warning">
+                        <i class="fas fa-clock"></i> Late Payment
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
             <a href="view.php?id=<?php echo $rental['parking_space_id']; ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Space

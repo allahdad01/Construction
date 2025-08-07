@@ -38,6 +38,9 @@ if (!$rental) {
     exit;
 }
 
+// Check if rental is ended and has no payments
+$is_ended_without_payments = ($rental['status'] === 'ended' && empty($rental['total_amount']));
+
 // Get parking space details
 $stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
 $stmt->execute([$rental['parking_space_id'], $company_id]);
@@ -61,7 +64,7 @@ $start_date = new DateTime($rental['start_date']);
 $end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : null;
 
 if ($end_date && $end_date > $start_date) {
-    // Fixed rental period
+    // Fixed rental period (ended rental)
     $total_amount = $rental['total_amount'] ?? 0;
     $current_amount = $total_amount;
     $remaining_amount = max(0, $total_amount - $total_paid);
@@ -72,6 +75,15 @@ if ($end_date && $end_date > $start_date) {
     $current_amount = $current_days * $daily_rate;
     $total_amount = $current_amount; // For ongoing rentals, total = current
     $remaining_amount = max(0, $current_amount - $total_paid);
+}
+
+// For ended rentals without total_amount, calculate based on actual days
+if ($rental['status'] === 'ended' && empty($rental['total_amount']) && $end_date) {
+    $actual_days = $start_date->diff($end_date)->days;
+    $daily_rate = $rental['monthly_rate'] / 30;
+    $total_amount = $actual_days * $daily_rate;
+    $current_amount = $total_amount;
+    $remaining_amount = max(0, $total_amount - $total_paid);
 }
 
 // Handle form submission
@@ -219,6 +231,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <small class="text-info">
                                 <i class="fas fa-info-circle"></i> 
                                 Ongoing rental - amount increases daily (<?php echo $current_days; ?> days so far)
+                            </small>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($rental['status'] === 'ended' && $remaining_amount > 0): ?>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-warning">
+                                <i class="fas fa-clock"></i> 
+                                Late payment for ended rental (ended on <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>)
                             </small>
                         </div>
                     <?php endif; ?>
@@ -392,6 +414,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p><strong>End Date:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?></p>
                     <?php endif; ?>
                     <p><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                    <?php if ($rental['status'] === 'ended'): ?>
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-secondary">Ended</span>
+                            <?php if ($remaining_amount > 0): ?>
+                                <span class="badge bg-warning">Pending Payment</span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
