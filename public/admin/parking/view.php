@@ -43,9 +43,25 @@ $stmt = $conn->prepare("
 $stmt->execute([$space_id, $company_id]);
 $rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate total earnings
-$total_earnings = array_sum(array_column($rentals, 'total_amount'));
+// Calculate total earnings from actual payments
+$total_earnings = 0;
 $total_rentals = count($rentals);
+
+// Get all payments for this parking space's rentals
+if (!empty($rentals)) {
+    $rental_ids = array_column($rentals, 'id');
+    $placeholders = str_repeat('?,', count($rental_ids) - 1) . '?';
+    
+    $stmt = $conn->prepare("
+        SELECT SUM(amount) as total_payments 
+        FROM parking_payments 
+        WHERE rental_id IN ($placeholders) AND company_id = ?
+    ");
+    $params = array_merge($rental_ids, [$company_id]);
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $total_earnings = $result['total_payments'] ?? 0;
+}
 ?>
 
 <div class="container-fluid">
@@ -177,9 +193,35 @@ $total_rentals = count($rentals);
                                 <h4 class="text-success">
                                     <?php echo formatCurrencyAmount($total_earnings ?? 0, $space['currency'] ?? 'USD'); ?>
                                 </h4>
-                                <small class="text-muted">Total Earnings</small>
+                                <small class="text-muted">Total Payments Received</small>
                             </div>
                         </div>
+                        <?php if (!empty($rentals)): ?>
+                        <div class="col-12 mb-3">
+                            <div class="text-center">
+                                <?php 
+                                // Calculate total expected amount from all rentals
+                                $total_expected = 0;
+                                foreach ($rentals as $rental) {
+                                    if (!empty($rental['total_amount'])) {
+                                        $total_expected += $rental['total_amount'];
+                                    } else {
+                                        // For ongoing rentals, calculate current amount
+                                        $start_date = new DateTime($rental['start_date']);
+                                        $current_date = new DateTime();
+                                        $current_days = $start_date->diff($current_date)->days;
+                                        $daily_rate = $rental['monthly_rate'] / 30;
+                                        $total_expected += $current_days * $daily_rate;
+                                    }
+                                }
+                                ?>
+                                <h4 class="text-info">
+                                    <?php echo formatCurrencyAmount($total_expected, $space['currency'] ?? 'USD'); ?>
+                                </h4>
+                                <small class="text-muted">Total Expected</small>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <div class="col-12">
                             <div class="text-center">
                                 <span class="badge bg-<?php echo ($space['status'] == 'available') ? 'success' : 'warning'; ?> p-2">
@@ -285,8 +327,37 @@ $total_rentals = count($rentals);
                                 <td>
                                     <div>
                                         <strong><?php echo formatCurrencyAmount($rental['monthly_rate'] ?? 0, $rental['currency'] ?? 'USD'); ?>/month</strong>
+                                        <?php 
+                                        // Get payments for this rental
+                                        $stmt = $conn->prepare("
+                                            SELECT SUM(amount) as total_paid 
+                                            FROM parking_payments 
+                                            WHERE rental_id = ? AND company_id = ?
+                                        ");
+                                        $stmt->execute([$rental['id'], $company_id]);
+                                        $payment_result = $stmt->fetch(PDO::FETCH_ASSOC);
+                                        $total_paid = $payment_result['total_paid'] ?? 0;
+                                        
+                                        // Calculate expected amount
+                                        if (!empty($rental['total_amount'])) {
+                                            $expected_amount = $rental['total_amount'];
+                                        } else {
+                                            // For ongoing rentals, calculate current amount
+                                            $start_date = new DateTime($rental['start_date']);
+                                            $current_date = new DateTime();
+                                            $current_days = $start_date->diff($current_date)->days;
+                                            $daily_rate = $rental['monthly_rate'] / 30;
+                                            $expected_amount = $current_days * $daily_rate;
+                                        }
+                                        ?>
                                         <?php if (!empty($rental['total_amount'])): ?>
                                             <br><strong>Total:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?>
+                                        <?php else: ?>
+                                            <br><strong>Current:</strong> <?php echo formatCurrencyAmount($expected_amount, $rental['currency'] ?? 'USD'); ?>
+                                        <?php endif; ?>
+                                        <br><small class="text-success">Paid: <?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></small>
+                                        <?php if ($total_paid < $expected_amount): ?>
+                                            <br><small class="text-warning">Due: <?php echo formatCurrencyAmount($expected_amount - $total_paid, $rental['currency'] ?? 'USD'); ?></small>
                                         <?php endif; ?>
                                     </div>
                                 </td>
