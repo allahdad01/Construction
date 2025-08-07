@@ -55,6 +55,9 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                 <a href="edit-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-warning">
                     <i class="fas fa-edit"></i> Edit Rental
                 </a>
+                <a href="payment.php?id=<?php echo $rental_id; ?>" class="btn btn-success">
+                    <i class="fas fa-credit-card"></i> Payment
+                </a>
                 <a href="end-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-danger">
                     <i class="fas fa-stop"></i> End Rental
                 </a>

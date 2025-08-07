@@ -292,6 +292,9 @@ $total_rentals = count($rentals);
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <?php if ($rental['status'] == 'active'): ?>
+                                            <a href="payment.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-success" title="Payment">
+                                                <i class="fas fa-credit-card"></i>
+                                            </a>
                                             <a href="edit-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-warning" title="Edit Rental">
                                                 <i class="fas fa-edit"></i>
                                             </a>
