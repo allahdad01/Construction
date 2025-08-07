@@ -111,6 +111,8 @@ foreach ($contracts as &$contract) {
     // Debug: Log payment calculation
     error_log("Contract ID: " . $contract['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract['amount_paid']);
 }
+// Unset the reference to prevent issues with subsequent foreach loops
+unset($contract);
 error_log("Finished processing all contracts. Final contract array structure for debugging:");
 foreach ($contracts as $debug_contract) {
     error_log("Contract ID: " . $debug_contract['id'] . " - amount_paid exists: " . (isset($debug_contract['amount_paid']) ? 'YES' : 'NO') . " - value: " . ($debug_contract['amount_paid'] ?? 'NOT_SET'));
@@ -159,6 +161,8 @@ foreach ($contracts as &$contract) {
         $contract['calculated_total'] = $contract['total_amount'];
     }
 }
+// Unset the reference to prevent issues with subsequent operations
+unset($contract);
 
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ?");
@@ -432,7 +436,13 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($contracts as $contract): ?>
+                            <?php foreach ($contracts as $contract): 
+                                // Safety check: ensure amount_paid exists
+                                if (!isset($contract['amount_paid'])) {
+                                    $contract['amount_paid'] = 0;
+                                    error_log("WARNING: amount_paid missing for contract ID " . $contract['id'] . " - setting to 0");
+                                }
+                            ?>
                                 <tr>
                                     <td>
                                         <strong><?php echo htmlspecialchars($contract['contract_code']); ?></strong>
