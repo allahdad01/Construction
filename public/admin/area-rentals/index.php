@@ -135,15 +135,31 @@ $stmt = $conn->prepare("
 $stmt->execute($params);
 $area_rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get statistics
+// Get statistics by currency
 $stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_rentals,
         SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_rentals,
         SUM(CASE WHEN status = 'ended' THEN 1 ELSE 0 END) as ended_rentals,
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_rentals,
+        currency,
         SUM(monthly_rate) as total_monthly_revenue,
         AVG(monthly_rate) as avg_monthly_rate
+    FROM area_rentals 
+    WHERE company_id = ?
+    GROUP BY currency
+    ORDER BY total_monthly_revenue DESC
+");
+$stmt->execute([$company_id]);
+$stats_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get overall statistics (without currency grouping)
+$stmt = $conn->prepare("
+    SELECT 
+        COUNT(*) as total_rentals,
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_rentals,
+        SUM(CASE WHEN status = 'ended' THEN 1 ELSE 0 END) as ended_rentals,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_rentals
     FROM area_rentals 
     WHERE company_id = ?
 ");
@@ -164,17 +180,18 @@ $stmt = $conn->prepare("
 $stmt->execute([$company_id]);
 $payment_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get area type distribution
+// Get area type distribution by currency
 $stmt = $conn->prepare("
     SELECT 
         ra.area_type,
+        ar.currency,
         COUNT(*) as count,
         SUM(ar.monthly_rate) as total_revenue
     FROM area_rentals ar
     JOIN rental_areas ra ON ar.rental_area_id = ra.id
     WHERE ar.company_id = ? AND ar.status = 'active'
-    GROUP BY ra.area_type
-    ORDER BY count DESC
+    GROUP BY ra.area_type, ar.currency
+    ORDER BY ra.area_type, total_revenue DESC
 ");
 $stmt->execute([$company_id]);
 $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -254,7 +271,17 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 Monthly Revenue
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <?php echo formatCurrencyAmount($stats['total_monthly_revenue'] ?? 0, 'USD'); ?>
+                                <?php if (!empty($stats_by_currency)): ?>
+                                    <?php foreach ($stats_by_currency as $index => $stat): ?>
+                                        <?php if ($index > 0): ?><br><?php endif; ?>
+                                        <span class="text-<?php echo $stat['currency'] === 'USD' ? 'success' : ($stat['currency'] === 'AFN' ? 'warning' : 'info'); ?>">
+                                            <?php echo formatCurrencyAmount($stat['total_monthly_revenue'], $stat['currency']); ?>
+                                        </span>
+                                        <small class="text-muted"><?php echo $stat['currency']; ?></small>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-muted">No revenue data</span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -274,7 +301,17 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 Avg Monthly Rate
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <?php echo formatCurrencyAmount($stats['avg_monthly_rate'] ?? 0, 'USD'); ?>
+                                <?php if (!empty($stats_by_currency)): ?>
+                                    <?php foreach ($stats_by_currency as $index => $stat): ?>
+                                        <?php if ($index > 0): ?><br><?php endif; ?>
+                                        <span class="text-<?php echo $stat['currency'] === 'USD' ? 'success' : ($stat['currency'] === 'AFN' ? 'warning' : 'info'); ?>">
+                                            <?php echo formatCurrencyAmount($stat['avg_monthly_rate'], $stat['currency']); ?>
+                                        </span>
+                                        <small class="text-muted"><?php echo $stat['currency']; ?></small>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-muted">No rate data</span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -317,14 +354,31 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="card-body">
                     <?php if (!empty($area_type_stats)): ?>
-                        <?php foreach ($area_type_stats as $area_stat): ?>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold">
-                                    <?php echo ucfirst($area_stat['area_type']); ?> (<?php echo $area_stat['count']; ?>)
-                                </span>
-                                <span class="badge bg-info">
-                                    <?php echo formatCurrencyAmount($area_stat['total_revenue'], 'USD'); ?>
-                                </span>
+                        <?php 
+                        $grouped_area_stats = [];
+                        foreach ($area_type_stats as $area_stat) {
+                            $area_type = $area_stat['area_type'];
+                            if (!isset($grouped_area_stats[$area_type])) {
+                                $grouped_area_stats[$area_type] = [];
+                            }
+                            $grouped_area_stats[$area_type][] = $area_stat;
+                        }
+                        ?>
+                        <?php foreach ($grouped_area_stats as $area_type => $stats): ?>
+                            <div class="mb-3">
+                                <h6 class="text-primary mb-2">
+                                    <?php echo ucfirst($area_type); ?>
+                                </h6>
+                                <?php foreach ($stats as $stat): ?>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-muted">
+                                            <?php echo $stat['count']; ?> rental(s)
+                                        </span>
+                                        <span class="badge bg-<?php echo $stat['currency'] === 'USD' ? 'success' : ($stat['currency'] === 'AFN' ? 'warning' : 'info'); ?>">
+                                            <?php echo formatCurrencyAmount($stat['total_revenue'], $stat['currency']); ?>
+                                        </span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
