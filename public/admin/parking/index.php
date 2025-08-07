@@ -1,6 +1,7 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
+require_once '../../../config/currency_helper.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -97,16 +98,17 @@ $stmt = $conn->prepare("
 $stmt->execute([getCurrentCompanyId()]);
 $active_rentals = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-// Get total monthly revenue by currency
+// Get total revenue from actual payments by currency
 $stmt = $conn->prepare("
     SELECT 
-        COALESCE(ps.currency, 'USD') as currency,
-        SUM(ps.monthly_rate) as total 
-    FROM parking_rentals pr 
-    JOIN parking_spaces ps ON pr.parking_space_id = ps.id 
-    WHERE ps.company_id = ? AND pr.status = 'active'
-    GROUP BY COALESCE(ps.currency, 'USD')
-    ORDER BY total DESC
+        pp.currency,
+        SUM(pp.amount) as total_payments
+    FROM parking_payments pp
+    JOIN parking_rentals pr ON pp.rental_id = pr.id
+    JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+    WHERE ps.company_id = ? 
+    GROUP BY pp.currency
+    ORDER BY total_payments DESC
 ");
 $stmt->execute([getCurrentCompanyId()]);
 $currency_revenues = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -114,8 +116,22 @@ $currency_revenues = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Calculate overall total (for backward compatibility)
 $total_revenue = 0;
 foreach ($currency_revenues as $currency_revenue) {
-    $total_revenue += $currency_revenue['total'];
+    $total_revenue += $currency_revenue['total_payments'];
 }
+
+// Get monthly potential revenue from active rentals
+$stmt = $conn->prepare("
+    SELECT 
+        COALESCE(ps.currency, 'USD') as currency,
+        SUM(ps.monthly_rate) as total_monthly 
+    FROM parking_rentals pr 
+    JOIN parking_spaces ps ON pr.parking_space_id = ps.id 
+    WHERE ps.company_id = ? AND pr.status = 'active'
+    GROUP BY COALESCE(ps.currency, 'USD')
+    ORDER BY total_monthly DESC
+");
+$stmt->execute([getCurrentCompanyId()]);
+$monthly_potential = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
@@ -187,16 +203,16 @@ foreach ($currency_revenues as $currency_revenue) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Monthly Revenue</div>
+                                Total Revenue</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php if (count($currency_revenues) > 1): ?>
                                     <?php foreach ($currency_revenues as $index => $currency_revenue): ?>
                                         <div class="<?php echo $index > 0 ? 'small' : ''; ?>">
-                                            <?php echo $currency_revenue['currency']; ?>: <?php echo number_format($currency_revenue['total'], 2); ?>
+                                            <?php echo formatCurrencyAmount($currency_revenue['total_payments'], $currency_revenue['currency']); ?>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php elseif (count($currency_revenues) == 1): ?>
-                                    <?php echo $currency_revenues[0]['currency']; ?>: <?php echo number_format($currency_revenues[0]['total'], 2); ?>
+                                    <?php echo formatCurrencyAmount($currency_revenues[0]['total_payments'], $currency_revenues[0]['currency']); ?>
                                 <?php else: ?>
                                     $0.00
                                 <?php endif; ?>
@@ -210,6 +226,58 @@ foreach ($currency_revenues as $currency_revenue) {
             </div>
         </div>
     </div>
+
+    <!-- Revenue Details -->
+    <?php if (!empty($currency_revenues) || !empty($monthly_potential)): ?>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-chart-line"></i> Actual Revenue (All Time)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($currency_revenues)): ?>
+                        <?php foreach ($currency_revenues as $currency_revenue): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">
+                                    <?php echo formatCurrencyAmount($currency_revenue['total_payments'], $currency_revenue['currency']); ?>
+                                </span>
+                                <span class="badge bg-success"><?php echo $currency_revenue['currency']; ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">No revenue recorded yet.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-calendar"></i> Monthly Potential (Active Rentals)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($monthly_potential)): ?>
+                        <?php foreach ($monthly_potential as $potential): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">
+                                    <?php echo formatCurrencyAmount($potential['total_monthly'], $potential['currency']); ?>
+                                </span>
+                                <span class="badge bg-info"><?php echo $potential['currency']; ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">No active rentals.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Quick Actions Bar -->
     <div class="row mb-4">
