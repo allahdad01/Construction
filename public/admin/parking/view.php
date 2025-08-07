@@ -265,12 +265,21 @@ $total_rentals = count($rentals);
                                 <td>
                                     <div>
                                         <strong>Start:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'] ?? 'now')); ?>
-                                        <?php if (!empty($rental['end_date'])): ?>
-                                            <br><strong>End:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
-                                            <br><small class="text-muted"><?php echo $rental['total_days'] ?? 0; ?> days</small>
-                                        <?php else: ?>
-                                            <br><small class="text-info">Ongoing rental</small>
-                                        <?php endif; ?>
+                                        <?php 
+                                        // Calculate days properly
+                                        $current_date = new DateTime();
+                                        $start_date = new DateTime($rental['start_date']);
+                                        $end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : null;
+                                        
+                                        if ($end_date && $end_date > $start_date) {
+                                            $total_days = $start_date->diff($end_date)->days;
+                                            echo '<br><strong>End:</strong> ' . date('M j, Y', strtotime($rental['end_date']));
+                                            echo '<br><small class="text-muted">' . $total_days . ' days</small>';
+                                        } else {
+                                            $current_days = $start_date->diff($current_date)->days;
+                                            echo '<br><small class="text-info">Ongoing rental (' . $current_days . ' days)</small>';
+                                        }
+                                        ?>
                                     </div>
                                 </td>
                                 <td>

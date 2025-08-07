@@ -99,13 +99,31 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                         <div class="col-md-6">
                             <p><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
-                            <?php if (!empty($rental['end_date'])): ?>
-                                <p><strong>End Date:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?></p>
-                                <p><strong>Total Days:</strong> <?php echo $rental['total_days']; ?> days</p>
-                            <?php else: ?>
-                                <p><strong>End Date:</strong> <span class="text-info">Ongoing rental</span></p>
-                            <?php endif; ?>
+                            <?php 
+                            // Calculate current days and amounts for ongoing rentals
+                            $current_date = new DateTime();
+                            $start_date = new DateTime($rental['start_date']);
+                            $end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : null;
+                            
+                            // Calculate total days
+                            if ($end_date && $end_date > $start_date) {
+                                $total_days = $start_date->diff($end_date)->days;
+                                $end_date_display = date('M j, Y', strtotime($rental['end_date']));
+                                echo '<p><strong>End Date:</strong> ' . $end_date_display . '</p>';
+                                echo '<p><strong>Total Days:</strong> ' . $total_days . ' days</p>';
+                            } else {
+                                // For ongoing rentals, calculate days from start to today
+                                $current_days = $start_date->diff($current_date)->days;
+                                $daily_rate = $rental['monthly_rate'] / 30;
+                                $current_amount = $current_days * $daily_rate;
+                                
+                                echo '<p><strong>End Date:</strong> <span class="text-info">Ongoing rental</span></p>';
+                                echo '<p><strong>Days So Far:</strong> ' . $current_days . ' days</p>';
+                                echo '<p><strong>Current Amount:</strong> ' . formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD') . '</p>';
+                            }
+                            ?>
                             <p><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                            <p><strong>Daily Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'] / 30, $rental['currency'] ?? 'USD'); ?></p>
                             <?php if (!empty($rental['total_amount'])): ?>
                                 <p><strong>Total Amount:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>
                             <?php endif; ?>

@@ -52,10 +52,25 @@ $stmt = $conn->prepare("
 $stmt->execute([$rental_id, $company_id]);
 $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate total paid and remaining amount
+// Calculate total paid and current amount for ongoing rentals
 $total_paid = array_sum(array_column($payments, 'amount'));
-$total_amount = $rental['total_amount'] ?? 0;
-$remaining_amount = max(0, $total_amount - $total_paid);
+
+// Calculate current amount for ongoing rentals
+$current_date = new DateTime();
+$start_date = new DateTime($rental['start_date']);
+$end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : null;
+
+if ($end_date && $end_date > $start_date) {
+    // Fixed rental period
+    $total_amount = $rental['total_amount'] ?? 0;
+    $remaining_amount = max(0, $total_amount - $total_paid);
+} else {
+    // Ongoing rental - calculate current amount based on days
+    $current_days = $start_date->diff($current_date)->days;
+    $daily_rate = $rental['monthly_rate'] / 30;
+    $current_amount = $current_days * $daily_rate;
+    $remaining_amount = max(0, $current_amount - $total_paid);
+}
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -159,8 +174,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6">
-                            <h4 class="text-primary"><?php echo formatCurrencyAmount($total_amount, $rental['currency'] ?? 'USD'); ?></h4>
-                            <small class="text-muted">Total Amount</small>
+                            <?php if ($end_date && $end_date > $start_date): ?>
+                                <h4 class="text-primary"><?php echo formatCurrencyAmount($total_amount, $rental['currency'] ?? 'USD'); ?></h4>
+                                <small class="text-muted">Total Amount</small>
+                            <?php else: ?>
+                                <h4 class="text-primary"><?php echo formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD'); ?></h4>
+                                <small class="text-muted">Current Amount</small>
+                            <?php endif; ?>
                         </div>
                         <div class="col-6">
                             <h4 class="text-success"><?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></h4>
@@ -177,6 +197,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <br><span class="badge bg-success">Fully Paid</span>
                         <?php endif; ?>
                     </div>
+                    <?php if (!$end_date || $end_date <= $start_date): ?>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-info">
+                                <i class="fas fa-info-circle"></i> 
+                                Ongoing rental - amount increases daily (<?php echo $current_days; ?> days so far)
+                            </small>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
