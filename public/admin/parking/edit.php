@@ -138,7 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label for="space_name" class="form-label">Space Name *</label>
                             <input type="text" class="form-control" id="space_name" name="space_name" 
-                                   value="<?php echo htmlspecialchars($_POST['space_name'] ?? $space['space_name'] ?? ''); ?>" required>
+                                   value="<?php echo htmlspecialchars($_POST['space_name'] ?? $space['space_name'] ?? ''); ?>" 
+                                   style="text-transform: none;" autocomplete="off" spellcheck="false" required>
                             <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
                         </div>
                     </div>
@@ -249,6 +250,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const vehicleCategorySelect = document.getElementById('vehicle_category');
     const sizeSelect = document.getElementById('size');
     const descriptionTextarea = document.getElementById('description');
+    
+    // Enable spaces in input fields
+    const spaceNameInput = document.getElementById('space_name');
+    if (spaceNameInput) {
+        // Remove any existing event listeners that might block spaces
+        spaceNameInput.removeEventListener('keydown', null);
+        spaceNameInput.removeEventListener('keypress', null);
+        spaceNameInput.removeEventListener('keyup', null);
+        
+        // Add space handling
+        spaceNameInput.addEventListener('keydown', function(e) {
+            // Explicitly allow space key
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manually insert space
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + ' ' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                
+                return false;
+            }
+        });
+        
+        // Ensure the input is properly configured
+        spaceNameInput.setAttribute('type', 'text');
+        spaceNameInput.style.textTransform = 'none';
+        spaceNameInput.style.letterSpacing = 'normal';
+    }
     
     // Enable spaces in textarea
     if (descriptionTextarea) {

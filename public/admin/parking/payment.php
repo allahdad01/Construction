@@ -304,7 +304,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="mb-3">
                                         <label for="reference_number" class="form-label">Reference Number</label>
                                         <input type="text" class="form-control" id="reference_number" name="reference_number" 
-                                               placeholder="Transaction ID, Check #, etc.">
+                                               placeholder="Transaction ID, Check #, etc."
+                                               style="text-transform: none;" autocomplete="off" spellcheck="false">
+                                        <small class="form-text text-muted">You can use spaces in reference numbers.</small>
                                     </div>
                                 </div>
                             </div>
@@ -438,6 +440,43 @@ $(document).ready(function() {
         "order": [[1, "desc"]],
         "pageLength": 10
     });
+    
+    // Function to enable spaces in input fields
+    function enableSpacesInInput(input) {
+        if (input) {
+            // Remove any existing event listeners that might block spaces
+            input.removeEventListener('keydown', null);
+            input.removeEventListener('keypress', null);
+            input.removeEventListener('keyup', null);
+            
+            // Add space handling
+            input.addEventListener('keydown', function(e) {
+                // Explicitly allow space key
+                if (e.key === ' ' || e.keyCode === 32) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Manually insert space
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    this.value = value.substring(0, start) + ' ' + value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    
+                    return false;
+                }
+            });
+            
+            // Ensure the input is properly configured
+            input.setAttribute('type', 'text');
+            input.style.textTransform = 'none';
+            input.style.letterSpacing = 'normal';
+        }
+    }
+    
+    // Enable spaces in input fields
+    const referenceNumberInput = document.getElementById('reference_number');
+    enableSpacesInInput(referenceNumberInput);
     
     // Enable spaces in textarea
     const notesTextarea = document.getElementById('notes');

@@ -224,7 +224,9 @@ function generateParkingRentalCode($company_id) {
                         <div class="mb-3">
                             <label for="client_name" class="form-label">Client Name *</label>
                             <input type="text" class="form-control" id="client_name" name="client_name" 
-                                   value="<?php echo htmlspecialchars($_POST['client_name'] ?? ''); ?>" required>
+                                   value="<?php echo htmlspecialchars($_POST['client_name'] ?? ''); ?>" 
+                                   style="text-transform: none;" autocomplete="off" spellcheck="false" required>
+                            <small class="form-text text-muted">You can use spaces in client names.</small>
                         </div>
                     </div>
                 </div>
@@ -235,7 +237,9 @@ function generateParkingRentalCode($company_id) {
                             <label for="client_contact" class="form-label">Client Contact</label>
                             <input type="text" class="form-control" id="client_contact" name="client_contact" 
                                    value="<?php echo htmlspecialchars($_POST['client_contact'] ?? ''); ?>"
-                                   placeholder="Phone, Email, or Address">
+                                   placeholder="Phone, Email, or Address"
+                                   style="text-transform: none;" autocomplete="off" spellcheck="false">
+                            <small class="form-text text-muted">You can use spaces in contact information.</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -264,7 +268,9 @@ function generateParkingRentalCode($company_id) {
                             <label for="vehicle_registration" class="form-label">Vehicle Registration/License Plate</label>
                             <input type="text" class="form-control" id="vehicle_registration" name="vehicle_registration" 
                                    value="<?php echo htmlspecialchars($_POST['vehicle_registration'] ?? ''); ?>"
-                                   placeholder="License plate number or ID">
+                                   placeholder="License plate number or ID"
+                                   style="text-transform: none;" autocomplete="off" spellcheck="false">
+                            <small class="form-text text-muted">You can use spaces in registration numbers.</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -333,6 +339,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const currencySelect = document.getElementById('currency');
     const currencySymbol = document.getElementById('currency-symbol');
     const notesTextarea = document.getElementById('notes');
+    const clientNameInput = document.getElementById('client_name');
+    const clientContactInput = document.getElementById('client_contact');
+    const vehicleRegistrationInput = document.getElementById('vehicle_registration');
+    
+    // Function to enable spaces in input fields
+    function enableSpacesInInput(input) {
+        if (input) {
+            // Remove any existing event listeners that might block spaces
+            input.removeEventListener('keydown', null);
+            input.removeEventListener('keypress', null);
+            input.removeEventListener('keyup', null);
+            
+            // Add space handling
+            input.addEventListener('keydown', function(e) {
+                // Explicitly allow space key
+                if (e.key === ' ' || e.keyCode === 32) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Manually insert space
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    this.value = value.substring(0, start) + ' ' + value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    
+                    return false;
+                }
+            });
+            
+            // Ensure the input is properly configured
+            input.setAttribute('type', 'text');
+            input.style.textTransform = 'none';
+            input.style.letterSpacing = 'normal';
+        }
+    }
+    
+    // Enable spaces in input fields
+    enableSpacesInInput(clientNameInput);
+    enableSpacesInInput(clientContactInput);
+    enableSpacesInInput(vehicleRegistrationInput);
     
     // Enable spaces in textarea
     if (notesTextarea) {
