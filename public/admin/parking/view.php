@@ -52,14 +52,19 @@ $total_rentals = count($rentals);
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-parking"></i> <?php echo __('parking_space_details'); ?>
+            <i class="fas fa-parking"></i> Parking Space Details
         </h1>
         <div>
+            <?php if ($parking_space['status'] === 'available'): ?>
+                <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Rental
+                </a>
+            <?php endif; ?>
             <a href="edit.php?id=<?php echo $space_id; ?>" class="btn btn-primary">
-                <i class="fas fa-edit"></i> <?php echo __('edit_parking_space'); ?>
+                <i class="fas fa-edit"></i> Edit Space
             </a>
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_parking_spaces'); ?>
+                <i class="fas fa-arrow-left"></i> Back to Parking
             </a>
         </div>
     </div>
@@ -77,32 +82,59 @@ $total_rentals = count($rentals);
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space_information'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Parking Space Information</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong><?php echo __('space_code'); ?>:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
-                            <p><strong><?php echo __('space_number'); ?>:</strong> <?php echo htmlspecialchars($space['space_number']); ?></p>
-                            <p><strong><?php echo __('space_type'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($space['space_type'])); ?></p>
-                            <p><strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrency($space['daily_rate'], $space['currency']); ?></p>
+                            <p><strong>Space Code:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($space['space_code']); ?></span></p>
+                            <p><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></p>
+                            <p><strong>Vehicle Category:</strong> 
+                                <?php 
+                                $category_display = [
+                                    'machines' => '🏗️ Construction Machines',
+                                    'cars' => '🚗 Cars', 
+                                    'trucks' => '🚛 Trucks',
+                                    'vans' => '🚐 Vans',
+                                    'motorcycles' => '🏍️ Motorcycles',
+                                    'trailers' => '🚛 Trailers',
+                                    'general' => '🅿️ General'
+                                ];
+                                $category = $space['vehicle_category'] ?? 'general';
+                                echo $category_display[$category] ?? ucfirst($category);
+                                ?>
+                            </p>
+                            <p><strong>Space Type:</strong> <?php echo ucfirst(htmlspecialchars($space['space_type'] ?? 'standard')); ?></p>
+                            <p><strong>Size:</strong> <?php echo ucfirst(htmlspecialchars($space['size'] ?? 'medium')); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong><?php echo __('currency'); ?>:</strong> <?php echo htmlspecialchars($space['currency']); ?></p>
-                            <p><strong><?php echo __('status'); ?>:</strong> 
-                                <span class="badge badge-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?>">
-                                    <?php echo ucfirst(htmlspecialchars($space['status'])); ?>
+                            <p><strong>Monthly Rate:</strong> 
+                                <?php 
+                                require_once '../../../config/currency_helper.php';
+                                echo formatCurrencyAmount($space['monthly_rate'], $space['currency'] ?? 'USD'); 
+                                ?>
+                            </p>
+                            <p><strong>Daily Rate:</strong> 
+                                <?php echo formatCurrencyAmount($space['monthly_rate'] / 30, $space['currency'] ?? 'USD'); ?>
+                            </p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?>">
+                                    <?php echo ucfirst(htmlspecialchars($space['status'] ?? 'available')); ?>
                                 </span>
                             </p>
-                            <p><strong><?php echo __('created_at'); ?>:</strong> <?php echo formatDateTime($space['created_at']); ?></p>
-                            <p><strong><?php echo __('updated_at'); ?>:</strong> <?php echo formatDateTime($space['updated_at']); ?></p>
+                            <p><strong>Created:</strong> <?php echo date('M j, Y', strtotime($space['created_at'] ?? 'now')); ?></p>
+                            <?php if (isset($space['capacity']) && $space['capacity'] > 1): ?>
+                                <p><strong>Vehicle Capacity:</strong> <?php echo $space['capacity']; ?> vehicles</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
-                    <?php if ($space['description']): ?>
+                    <?php if (!empty($space['description'])): ?>
                     <div class="row">
                         <div class="col-12">
-                            <p><strong><?php echo __('description'); ?>:</strong> <?php echo htmlspecialchars($space['description']); ?></p>
+                            <hr>
+                            <p><strong>Features & Description:</strong></p>
+                            <p class="text-muted"><?php echo nl2br(htmlspecialchars($space['description'])); ?></p>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -113,20 +145,35 @@ $total_rentals = count($rentals);
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space_summary'); ?></h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Space Summary</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12 mb-3">
                             <div class="text-center">
                                 <h4 class="text-primary"><?php echo $total_rentals; ?></h4>
-                                <small class="text-muted"><?php echo __('total_rentals'); ?></small>
+                                <small class="text-muted">Total Rentals</small>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-12 mb-3">
                             <div class="text-center">
-                                <h4 class="text-success"><?php echo formatCurrency($total_earnings, $space['currency']); ?></h4>
-                                <small class="text-muted"><?php echo __('total_earnings'); ?></small>
+                                <h4 class="text-success">
+                                    <?php echo formatCurrencyAmount($total_earnings ?? 0, $space['currency'] ?? 'USD'); ?>
+                                </h4>
+                                <small class="text-muted">Total Earnings</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-center">
+                                <span class="badge bg-<?php echo ($space['status'] == 'available') ? 'success' : 'warning'; ?> p-2">
+                                    <?php 
+                                    if ($space['status'] == 'available') {
+                                        echo '✅ Available for Rent';
+                                    } else {
+                                        echo '🚗 Currently Occupied';
+                                    }
+                                    ?>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -138,39 +185,104 @@ $total_rentals = count($rentals);
     <!-- Parking Rentals -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_rentals'); ?></h6>
-            <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus"></i> <?php echo __('add_rental'); ?>
-            </a>
+            <h6 class="m-0 font-weight-bold text-primary">Parking Rentals History</h6>
+            <?php if ($space['status'] === 'available'): ?>
+                <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus"></i> Add New Rental
+                </a>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <?php if (empty($rentals)): ?>
-                <p class="text-muted text-center"><?php echo __('no_parking_rentals_found'); ?></p>
+                <div class="text-center py-4">
+                    <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No parking rentals found for this space.</p>
+                    <?php if ($space['status'] === 'available'): ?>
+                        <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add First Rental
+                        </a>
+                    <?php endif; ?>
+                </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="rentalsTable">
                         <thead>
                             <tr>
-                                <th><?php echo __('start_date'); ?></th>
-                                <th><?php echo __('end_date'); ?></th>
-                                <th><?php echo __('employee'); ?></th>
-                                <th><?php echo __('days_rented'); ?></th>
-                                <th><?php echo __('total_amount'); ?></th>
-                                <th><?php echo __('status'); ?></th>
+                                <th>Rental Code</th>
+                                <th>Client & Vehicle</th>
+                                <th>Rental Period</th>
+                                <th>Rate & Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($rentals as $rental): ?>
                             <tr>
-                                <td><?php echo formatDate($rental['start_date']); ?></td>
-                                <td><?php echo formatDate($rental['end_date']); ?></td>
-                                <td><?php echo htmlspecialchars($rental['client_name'] . ' (' . ($rental['first_name'] ? $rental['first_name'] . ' ' . $rental['last_name'] : 'No user') . ')'); ?></td>
-                                <td><?php echo $rental['days_rented']; ?></td>
-                                <td><?php echo formatCurrency($rental['total_amount'], $rental['currency']); ?></td>
                                 <td>
-                                    <span class="badge badge-<?php echo $rental['status'] == 'active' ? 'success' : 'secondary'; ?>">
-                                        <?php echo ucfirst(htmlspecialchars($rental['status'])); ?>
+                                    <strong><?php echo htmlspecialchars($rental['rental_code'] ?? 'N/A'); ?></strong>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($rental['client_name'] ?? 'N/A'); ?></strong>
+                                        <?php if (!empty($rental['client_contact'])): ?>
+                                            <br><small class="text-muted"><?php echo htmlspecialchars($rental['client_contact']); ?></small>
+                                        <?php endif; ?>
+                                        <?php if (!empty($rental['vehicle_type']) || !empty($rental['vehicle_registration'])): ?>
+                                            <br>
+                                            <span class="badge bg-info">
+                                                <?php 
+                                                $vehicle_info = [];
+                                                if (!empty($rental['vehicle_type'])) {
+                                                    $vehicle_info[] = $rental['vehicle_type'];
+                                                }
+                                                if (!empty($rental['vehicle_registration'])) {
+                                                    $vehicle_info[] = $rental['vehicle_registration'];
+                                                }
+                                                echo htmlspecialchars(implode(' - ', $vehicle_info));
+                                                ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>Start:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'] ?? 'now')); ?>
+                                        <?php if (!empty($rental['end_date'])): ?>
+                                            <br><strong>End:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
+                                            <br><small class="text-muted"><?php echo $rental['total_days'] ?? 0; ?> days</small>
+                                        <?php else: ?>
+                                            <br><small class="text-info">Ongoing rental</small>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong><?php echo formatCurrencyAmount($rental['monthly_rate'] ?? 0, $rental['currency'] ?? 'USD'); ?>/month</strong>
+                                        <?php if (!empty($rental['total_amount'])): ?>
+                                            <br><strong>Total:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?php echo $rental['status'] == 'active' ? 'success' : 'secondary'; ?>">
+                                        <?php echo ucfirst(htmlspecialchars($rental['status'] ?? 'unknown')); ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="view-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <?php if ($rental['status'] == 'active'): ?>
+                                            <a href="edit-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-warning" title="Edit Rental">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="end-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-danger" title="End Rental">
+                                                <i class="fas fa-stop"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
