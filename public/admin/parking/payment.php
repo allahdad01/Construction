@@ -63,12 +63,14 @@ $end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : nu
 if ($end_date && $end_date > $start_date) {
     // Fixed rental period
     $total_amount = $rental['total_amount'] ?? 0;
+    $current_amount = $total_amount;
     $remaining_amount = max(0, $total_amount - $total_paid);
 } else {
     // Ongoing rental - calculate current amount based on days
     $current_days = $start_date->diff($current_date)->days;
     $daily_rate = $rental['monthly_rate'] / 30;
     $current_amount = $current_days * $daily_rate;
+    $total_amount = $current_amount; // For ongoing rentals, total = current
     $remaining_amount = max(0, $current_amount - $total_paid);
 }
 
@@ -134,7 +136,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Recalculate totals
         $total_paid = array_sum(array_column($payments, 'amount'));
-        $remaining_amount = max(0, $total_amount - $total_paid);
+        
+        // Recalculate based on rental type
+        if ($end_date && $end_date > $start_date) {
+            // Fixed rental period
+            $total_amount = $rental['total_amount'] ?? 0;
+            $current_amount = $total_amount;
+            $remaining_amount = max(0, $total_amount - $total_paid);
+        } else {
+            // Ongoing rental - recalculate current amount
+            $current_days = $start_date->diff($current_date)->days;
+            $daily_rate = $rental['monthly_rate'] / 30;
+            $current_amount = $current_days * $daily_rate;
+            $total_amount = $current_amount;
+            $remaining_amount = max(0, $current_amount - $total_paid);
+        }
 
     } catch (Exception $e) {
         $conn->rollBack();
