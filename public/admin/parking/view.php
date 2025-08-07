@@ -67,20 +67,28 @@ if (!empty($rentals)) {
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-parking"></i> Parking Space Details
-        </h1>
         <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-parking"></i> <?php echo htmlspecialchars($space['space_name'] ?? 'Parking Space'); ?>
+            </h1>
+            <p class="text-muted mb-0">
+                <span class="badge bg-primary"><?php echo htmlspecialchars($space['space_code']); ?></span>
+                <span class="badge bg-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?>">
+                    <?php echo ucfirst($space['status']); ?>
+                </span>
+            </p>
+        </div>
+        <div class="btn-group" role="group">
             <?php if ($space['status'] === 'available'): ?>
                 <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success">
                     <i class="fas fa-plus"></i> Add Rental
                 </a>
             <?php endif; ?>
             <a href="edit.php?id=<?php echo $space_id; ?>" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Space
+                <i class="fas fa-edit"></i> Edit
             </a>
-            <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Parking
+            <a href="index.php" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
     </div>
@@ -93,54 +101,185 @@ if (!empty($rentals)) {
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Rentals
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_rentals; ?></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Earnings
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php echo formatCurrencyAmount($total_earnings ?? 0, $space['currency'] ?? 'USD'); ?>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Monthly Rate
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php echo formatCurrencyAmount($space['monthly_rate'], $space['currency'] ?? 'USD'); ?>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?> shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?> text-uppercase mb-1">
+                                Status
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php echo ucfirst($space['status']); ?>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-<?php echo $space['status'] == 'available' ? 'check-circle' : 'car'; ?> fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Parking Space Details -->
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Parking Space Information</h6>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle"></i> Space Information
+                    </h6>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="edit.php?id=<?php echo $space_id; ?>" class="btn btn-outline-primary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <?php if ($space['status'] === 'available'): ?>
+                            <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-outline-success">
+                                <i class="fas fa-plus"></i> Add Rental
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Space Code:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($space['space_code']); ?></span></p>
-                            <p><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></p>
-                            <p><strong>Vehicle Category:</strong> 
-                                <?php 
-                                $category_display = [
-                                    'machines' => '🏗️ Construction Machines',
-                                    'cars' => '🚗 Cars', 
-                                    'trucks' => '🚛 Trucks',
-                                    'vans' => '🚐 Vans',
-                                    'motorcycles' => '🏍️ Motorcycles',
-                                    'trailers' => '🚛 Trailers',
-                                    'general' => '🅿️ General'
-                                ];
-                                $category = $space['vehicle_category'] ?? 'general';
-                                echo $category_display[$category] ?? ucfirst($category);
-                                ?>
-                            </p>
-                            <p><strong>Space Type:</strong> <?php echo ucfirst(htmlspecialchars($space['space_type'] ?? 'standard')); ?></p>
-                            <p><strong>Size:</strong> <?php echo ucfirst(htmlspecialchars($space['size'] ?? 'medium')); ?></p>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Space Code</label>
+                                <div><span class="badge bg-primary fs-6"><?php echo htmlspecialchars($space['space_code']); ?></span></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Space Name</label>
+                                <div class="fw-bold"><?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Vehicle Category</label>
+                                <div>
+                                    <?php 
+                                    $category_display = [
+                                        'machines' => '🏗️ Construction Machines',
+                                        'cars' => '🚗 Cars', 
+                                        'trucks' => '🚛 Trucks',
+                                        'vans' => '🚐 Vans',
+                                        'motorcycles' => '🏍️ Motorcycles',
+                                        'trailers' => '🚛 Trailers',
+                                        'general' => '🅿️ General'
+                                    ];
+                                    $category = $space['vehicle_category'] ?? 'general';
+                                    echo $category_display[$category] ?? ucfirst($category);
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Space Type</label>
+                                <div class="fw-bold">
+                                    <?php 
+                                    $type_display = [
+                                        'covered' => '🏠 Covered',
+                                        'uncovered' => '🌤️ Uncovered',
+                                        'indoor' => '🏢 Indoor',
+                                        'outdoor' => '🌳 Outdoor'
+                                    ];
+                                    $type = $space['space_type'] ?? 'standard';
+                                    echo $type_display[$type] ?? ucfirst($type);
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Size</label>
+                                <div class="fw-bold"><?php echo ucfirst(htmlspecialchars($space['size'] ?? 'medium')); ?></div>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Monthly Rate:</strong> 
-                                <?php 
-                                require_once '../../../config/currency_helper.php';
-                                echo formatCurrencyAmount($space['monthly_rate'], $space['currency'] ?? 'USD'); 
-                                ?>
-                            </p>
-                            <p><strong>Daily Rate:</strong> 
-                                <?php echo formatCurrencyAmount($space['monthly_rate'] / 30, $space['currency'] ?? 'USD'); ?>
-                            </p>
-                            <p><strong>Status:</strong> 
-                                <span class="badge bg-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?>">
-                                    <?php echo ucfirst(htmlspecialchars($space['status'] ?? 'available')); ?>
-                                </span>
-                            </p>
-                            <p><strong>Created:</strong> <?php echo date('M j, Y', strtotime($space['created_at'] ?? 'now')); ?></p>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Monthly Rate</label>
+                                <div class="fw-bold fs-5 text-primary">
+                                    <?php 
+                                    require_once '../../../config/currency_helper.php';
+                                    echo formatCurrencyAmount($space['monthly_rate'], $space['currency'] ?? 'USD'); 
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Daily Rate</label>
+                                <div class="fw-bold text-info">
+                                    <?php echo formatCurrencyAmount($space['monthly_rate'] / 30, $space['currency'] ?? 'USD'); ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Status</label>
+                                <div>
+                                    <span class="badge bg-<?php echo $space['status'] == 'available' ? 'success' : 'warning'; ?> fs-6">
+                                        <?php echo ucfirst(htmlspecialchars($space['status'] ?? 'available')); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Created</label>
+                                <div class="fw-bold"><?php echo date('M j, Y', strtotime($space['created_at'] ?? 'now')); ?></div>
+                            </div>
                             <?php if (isset($space['capacity']) && $space['capacity'] > 1): ?>
-                                <p><strong>Vehicle Capacity:</strong> <?php echo $space['capacity']; ?> vehicles</p>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Vehicle Capacity</label>
+                                    <div class="fw-bold"><?php echo $space['capacity']; ?> vehicles</div>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -149,8 +288,12 @@ if (!empty($rentals)) {
                     <div class="row">
                         <div class="col-12">
                             <hr>
-                            <p><strong>Features & Description:</strong></p>
-                            <p class="text-muted"><?php echo nl2br(htmlspecialchars($space['description'])); ?></p>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Features & Description</label>
+                                <div class="p-3 bg-light rounded">
+                                    <?php echo nl2br(htmlspecialchars($space['description'])); ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -227,12 +370,19 @@ if (!empty($rentals)) {
     <!-- Parking Rentals -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Parking Rentals History</h6>
-            <?php if ($space['status'] === 'available'): ?>
-                <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success btn-sm">
-                    <i class="fas fa-plus"></i> Add New Rental
-                </a>
-            <?php endif; ?>
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-history"></i> Rental History
+            </h6>
+            <div class="btn-group btn-group-sm" role="group">
+                <?php if ($space['status'] === 'available'): ?>
+                    <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Add Rental
+                    </a>
+                <?php endif; ?>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#rentalFilters">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <?php if (empty($rentals)): ?>
@@ -350,20 +500,26 @@ if (!empty($rentals)) {
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a href="view-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-primary" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <?php if ($rental['status'] == 'active'): ?>
-                                            <a href="payment.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-success" title="Payment">
-                                                <i class="fas fa-credit-card"></i>
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="view-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
                                             </a>
+                                            <?php if ($rental['status'] == 'active'): ?>
+                                                <a href="payment.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-success" title="Payment">
+                                                    <i class="fas fa-credit-card"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($rental['status'] == 'active'): ?>
+                                        <div class="btn-group btn-group-sm" role="group">
                                             <a href="edit-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-warning" title="Edit Rental">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a href="end-rental.php?id=<?php echo $rental['id']; ?>" class="btn btn-outline-danger" title="End Rental">
                                                 <i class="fas fa-stop"></i>
                                             </a>
+                                        </div>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -373,6 +529,87 @@ if (!empty($rentals)) {
                     </table>
                 </div>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="edit.php?id=<?php echo $space_id; ?>" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-edit"></i><br>
+                                <small>Edit Space</small>
+                            </a>
+                        </div>
+                        <?php if ($space['status'] === 'available'): ?>
+                        <div class="col-md-6 mb-3">
+                            <a href="add-rental.php?space_id=<?php echo $space_id; ?>" class="btn btn-outline-success w-100">
+                                <i class="fas fa-plus"></i><br>
+                                <small>Add Rental</small>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <div class="col-md-6 mb-3">
+                            <a href="index.php" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-arrow-left"></i><br>
+                                <small>Back to List</small>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="payment.php" class="btn btn-outline-info w-100">
+                                <i class="fas fa-credit-card"></i><br>
+                                <small>Payment History</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar"></i> Space Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary"><?php echo $total_rentals; ?></h4>
+                            <small class="text-muted">Total Rentals</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">
+                                <?php echo formatCurrencyAmount($total_earnings ?? 0, $space['currency'] ?? 'USD'); ?>
+                            </h4>
+                            <small class="text-muted">Total Earnings</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h5 class="text-info">
+                                <?php echo formatCurrencyAmount($space['monthly_rate'], $space['currency'] ?? 'USD'); ?>
+                            </h5>
+                            <small class="text-muted">Monthly Rate</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-warning">
+                                <?php echo formatCurrencyAmount($space['monthly_rate'] / 30, $space['currency'] ?? 'USD'); ?>
+                            </h5>
+                            <small class="text-muted">Daily Rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
