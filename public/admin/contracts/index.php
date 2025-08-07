@@ -76,7 +76,9 @@ if (!empty($contracts)) {
 }
 
 // Calculate working hours and payments for each contract separately (like timesheet does)
+error_log("Starting foreach loop for " . count($contracts) . " contracts");
 foreach ($contracts as &$contract) {
+    error_log("Processing contract ID: " . $contract['id'] . " (Code: " . $contract['contract_code'] . ")");
     // Get total hours worked for this contract (using exact timesheet method)
     $stmt = $conn->prepare("
         SELECT wh.hours_worked
@@ -108,6 +110,10 @@ foreach ($contracts as &$contract) {
     
     // Debug: Log payment calculation
     error_log("Contract ID: " . $contract['id'] . " - Payment result: " . print_r($payment_result, true) . " - Amount paid: " . $contract['amount_paid']);
+}
+error_log("Finished processing all contracts. Final contract array structure for debugging:");
+foreach ($contracts as $debug_contract) {
+    error_log("Contract ID: " . $debug_contract['id'] . " - amount_paid exists: " . (isset($debug_contract['amount_paid']) ? 'YES' : 'NO') . " - value: " . ($debug_contract['amount_paid'] ?? 'NOT_SET'));
 }
 
 // Calculate progress and contract values for each contract
@@ -495,9 +501,10 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <strong><?php echo formatCurrencyAmount($contract['calculated_total'] ?? 0, $contract['currency'] ?? 'USD'); ?></strong>
                                             <br><small class="text-muted">
                                                 Paid: <?php 
-                                                // Debug amount_paid
+                                                // Debug amount_paid - Log at display time
+                                                error_log("DISPLAY TIME - Contract ID: " . $contract['id'] . " - amount_paid key exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . " - contract keys: " . implode(', ', array_keys($contract)));
                                                 $amount_paid = $contract['amount_paid'] ?? 0;
-                                                echo "<!-- Debug Amount Paid: Contract ID: {$contract['id']}, amount_paid key exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . ", value: $amount_paid -->";
+                                                echo "<!-- Debug Amount Paid: Contract ID: {$contract['id']}, amount_paid key exists: " . (isset($contract['amount_paid']) ? 'YES' : 'NO') . ", value: $amount_paid, all keys: " . implode(', ', array_keys($contract)) . " -->";
                                                 echo formatCurrencyAmount($amount_paid, $contract['currency'] ?? 'USD'); 
                                                 ?>
                                             </small>
