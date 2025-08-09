@@ -18,7 +18,7 @@ try {
                 SUM(amount) as revenue,
                 COUNT(*) as transactions
             FROM company_payments 
-            WHERE payment_date BETWEEN ? AND ? AND status = 'completed'
+            WHERE payment_date BETWEEN ? AND ? AND payment_status = 'completed'
             GROUP BY DATE(payment_date)
             ORDER BY date
         ");
@@ -375,9 +375,9 @@ try {
                                 if ($is_super_admin) {
                                     $stmt = $conn->prepare("
                                         SELECT payment_date, 'Subscription Payment' as description, 
-                                               amount, status, 'Revenue' as type
+                                               amount, payment_status as status, 'Revenue' as type, currency
                                         FROM company_payments 
-                                        WHERE payment_date BETWEEN ? AND ?
+                                        WHERE payment_date BETWEEN ? AND ? AND payment_status = 'completed'
                                         ORDER BY payment_date DESC
                                         LIMIT 20
                                     ");
@@ -385,12 +385,12 @@ try {
                                 } else {
                                     $stmt = $conn->prepare("
                                         (SELECT expense_date as date, description, amount, 
-                                                'Expense' as type, 'Completed' as status
+                                                'Expense' as type, 'Completed' as status, currency
                                          FROM expenses 
                                          WHERE company_id = ? AND expense_date BETWEEN ? AND ?)
                                         UNION ALL
                                         (SELECT payment_date as date, CONCAT('Salary - ', e.name) as description,
-                                                amount_paid as amount, 'Salary' as type, 'Completed' as status
+                                                amount_paid as amount, 'Salary' as type, 'Completed' as status, sp.currency as currency
                                          FROM salary_payments sp
                                          JOIN employees e ON sp.employee_id = e.id
                                          WHERE sp.company_id = ? AND sp.payment_date BETWEEN ? AND ?)
@@ -417,7 +417,7 @@ try {
                                         echo ($transaction['type'] ?? 'Revenue') === 'Revenue' ? 'text-success' : 
                                             (($transaction['type'] ?? '') === 'Expense' ? 'text-danger' : 'text-warning'); 
                                     ?>">
-                                        <?php echo formatCurrency($transaction['amount']); ?>
+                                        <?php echo formatCurrencyAmount($transaction['amount'], $transaction['currency'] ?? 'USD'); ?>
                                     </td>
                                     <td>
                                         <span class="badge badge-success">
