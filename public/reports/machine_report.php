@@ -322,7 +322,7 @@ try {
                                                 <?php echo htmlspecialchars($machine['machine_code']); ?>
                                             </div>
                                             <div class="text-xs text-muted">
-                                                <?php echo htmlspecialchars($machine['machine_name']); ?>
+                                                <?php echo htmlspecialchars($machine['name'] ?? ($machine['machine_name'] ?? 'N/A')); ?>
                                             </div>
                                             <div class="text-xs text-success">
                                                 <?php echo formatCurrency($machine['earnings']); ?>
@@ -374,7 +374,9 @@ try {
                                         foreach ($age_ranges as $range => $years):
                                             $current_year = date('Y');
                                             $filtered_machines = array_filter($machine_data, function($m) use ($years, $current_year) {
-                                                $age = $current_year - $m['year'];
+                                                $yearManufactured = $m['year_manufactured'] ?? $m['year'] ?? null;
+                                                if (!$yearManufactured) { return false; }
+                                                $age = (int)$current_year - (int)$yearManufactured;
                                                 return $age >= $years[0] && $age <= $years[1];
                                             });
                                             $count = count($filtered_machines);
