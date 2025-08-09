@@ -117,7 +117,31 @@ try {
         }
         $overview_data['total_earnings_by_currency'] = $earn_map;
         $overview_data['total_earnings'] = array_sum($earn_map);
-        
+
+        // Expenses by currency
+        $stmt = $conn->prepare("
+            SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total
+            FROM expenses
+            WHERE company_id = ? AND expense_date BETWEEN ? AND ?
+            GROUP BY COALESCE(currency, 'USD')
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $exp_map = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+        $overview_data['total_expenses_by_currency'] = $exp_map;
+        $overview_data['total_expenses'] = array_sum($exp_map);
+
+        // Salary payments by currency
+        $stmt = $conn->prepare("
+            SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount_paid), 0) as total
+            FROM salary_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY COALESCE(currency, 'USD')
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $sal_map = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+        $overview_data['total_salary_by_currency'] = $sal_map;
+        $overview_data['total_salary_payments'] = array_sum($sal_map);
+
         // Earnings trend: sum all payment sources by date
         $trend_data = [];
         // Contract payments by date
@@ -397,19 +421,62 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                         <tbody>
                                             <tr>
                                                 <td>Total Earnings</td>
-                                                <td class="text-success"><?php echo formatCurrency($overview_data['total_earnings']); ?></td>
+                                                <td class="text-success">
+                                                    <?php if (!empty($overview_data['total_earnings_by_currency'])): ?>
+                                                        <?php $idx = 0; foreach ($overview_data['total_earnings_by_currency'] as $cur => $amt): ?>
+                                                            <div class="<?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></div>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        $0.00
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Total Expenses</td>
-                                                <td class="text-danger"><?php echo formatCurrency($overview_data['total_expenses']); ?></td>
+                                                <td class="text-danger">
+                                                    <?php if (!empty($overview_data['total_expenses_by_currency'])): ?>
+                                                        <?php $idx = 0; foreach ($overview_data['total_expenses_by_currency'] as $cur => $amt): ?>
+                                                            <div class="<?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></div>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        $0.00
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Salary Payments</td>
-                                                <td class="text-warning"><?php echo formatCurrency($overview_data['total_salary_payments']); ?></td>
+                                                <td class="text-warning">
+                                                    <?php if (!empty($overview_data['total_salary_by_currency'])): ?>
+                                                        <?php $idx = 0; foreach ($overview_data['total_salary_by_currency'] as $cur => $amt): ?>
+                                                            <div class="<?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></div>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        $0.00
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
                                             <tr class="table-info">
                                                 <td><strong>Net Profit</strong></td>
-                                                <td class="text-primary"><strong><?php echo formatCurrency($overview_data['total_earnings'] - $overview_data['total_expenses'] - $overview_data['total_salary_payments']); ?></strong></td>
+                                                <td class="text-primary">
+                                                    <?php 
+                                                    $allCurrencies = array_unique(array_merge(
+                                                        array_keys($overview_data['total_earnings_by_currency'] ?? []),
+                                                        array_keys($overview_data['total_expenses_by_currency'] ?? []),
+                                                        array_keys($overview_data['total_salary_by_currency'] ?? [])
+                                                    ));
+                                                    if (!empty($allCurrencies)) {
+                                                        $idx = 0;
+                                                        foreach ($allCurrencies as $cur) {
+                                                            $net = ($overview_data['total_earnings_by_currency'][$cur] ?? 0)
+                                                                 - ($overview_data['total_expenses_by_currency'][$cur] ?? 0)
+                                                                 - ($overview_data['total_salary_by_currency'][$cur] ?? 0);
+                                                            echo '<div class="' . ($idx++ > 0 ? 'small' : '') . '\">' . formatCurrencyAmount($net, $cur) . '</div>';
+                                                        }
+                                                    } else {
+                                                        echo '$0.00';
+                                                    }
+                                                    ?>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
