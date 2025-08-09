@@ -116,18 +116,52 @@ function getCompanyStats($conn, $company_id, $start_date, $end_date) {
     $stmt->execute([$company_id, $start_date, $end_date]);
     $stats['total_hours'] = $stmt->fetchColumn();
     
-    // Total earnings by currency
+    // Total earnings by currency (contracts + area rentals + parking)
+    // Contracts
     $stmt = $conn->prepare("
-        SELECT c.currency as currency, 
-               COALESCE(SUM(wh.hours_worked * c.rate_amount / NULLIF(c.working_hours_per_day,0)), 0) as total
-        FROM working_hours wh
-        JOIN contracts c ON wh.contract_id = c.id
-        WHERE wh.company_id = ? AND wh.date BETWEEN ? AND ?
-        GROUP BY c.currency
-        ORDER BY total DESC
+        SELECT COALESCE(cp.currency, c.currency, 'USD') as currency, 
+               COALESCE(SUM(cp.amount), 0) as total
+        FROM contract_payments cp
+        JOIN contracts c ON cp.contract_id = c.id
+        WHERE cp.company_id = ? AND cp.status = 'completed' AND cp.payment_date BETWEEN ? AND ?
+        GROUP BY COALESCE(cp.currency, c.currency, 'USD')
     ");
     $stmt->execute([$company_id, $start_date, $end_date]);
-    $stats['total_earnings_by_currency'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $earn_contracts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    // Area rentals
+    $stmt = $conn->prepare("
+        SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total
+        FROM area_rental_payments
+        WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+        GROUP BY COALESCE(currency, 'USD')
+    ");
+    $stmt->execute([$company_id, $start_date, $end_date]);
+    $earn_areas = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    // Parking
+    $stmt = $conn->prepare("
+        SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total
+        FROM parking_payments
+        WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+        GROUP BY COALESCE(currency, 'USD')
+    ");
+    $stmt->execute([$company_id, $start_date, $end_date]);
+    $earn_parking = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    // Merge earnings per currency
+    $earnings_by_currency = [];
+    foreach ([$earn_contracts, $earn_areas, $earn_parking] as $src) {
+        foreach ($src as $cur => $amt) {
+            $earnings_by_currency[$cur] = ($earnings_by_currency[$cur] ?? 0) + ($amt ?? 0);
+        }
+    }
+    // Sort desc by amount
+    arsort($earnings_by_currency);
+    $stats['total_earnings_by_currency'] = [];
+    foreach ($earnings_by_currency as $cur => $amt) {
+        $stats['total_earnings_by_currency'][] = ['currency' => $cur, 'total' => $amt];
+    }
     
     // Total expenses by currency
     $stmt = $conn->prepare("

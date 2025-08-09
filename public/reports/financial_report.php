@@ -41,19 +41,48 @@ try {
         
     } else {
         // Company-specific financial data
-        // Revenue by currency (from contracts)
+        // Revenue by currency from actual payments (contracts, area rentals, parking)
+        // Contract payments
         $stmt = $conn->prepare("
-            SELECT DATE(wh.date) as date, c.currency,
-                   SUM(wh.hours_worked * c.rate_amount / NULLIF(c.working_hours_per_day,0)) as revenue
-            FROM working_hours wh
-            JOIN contracts c ON wh.contract_id = c.id
-            WHERE wh.company_id = ? AND wh.date BETWEEN ? AND ?
-            GROUP BY DATE(wh.date), c.currency
+            SELECT DATE(cp.payment_date) as date, COALESCE(cp.currency, c.currency, 'USD') as currency,
+                   SUM(cp.amount) as revenue
+            FROM contract_payments cp
+            JOIN contracts c ON cp.contract_id = c.id
+            WHERE cp.company_id = ? AND cp.status = 'completed' AND cp.payment_date BETWEEN ? AND ?
+            GROUP BY DATE(cp.payment_date), COALESCE(cp.currency, c.currency, 'USD')
             ORDER BY date
         ");
         $stmt->execute([$company_id, $start_date, $end_date]);
-        $revenue_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        $revenue_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Area rental payments
+        $stmt = $conn->prepare("
+            SELECT DATE(payment_date) as date, COALESCE(currency, 'USD') as currency,
+                   SUM(amount) as revenue
+            FROM area_rental_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY DATE(payment_date), COALESCE(currency, 'USD')
+            ORDER BY date
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $revenue_area = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Parking payments
+        $stmt = $conn->prepare("
+            SELECT DATE(payment_date) as date, COALESCE(currency, 'USD') as currency,
+                   SUM(amount) as revenue
+            FROM parking_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY DATE(payment_date), COALESCE(currency, 'USD')
+            ORDER BY date
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $revenue_parking = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Merge all revenue rows
+        $revenue_rows = array_merge($revenue_contracts, $revenue_area, $revenue_parking);
+        $revenue_data = $revenue_rows;
+
         // Expenses by currency
         $stmt = $conn->prepare("
             SELECT DATE(expense_date) as date, COALESCE(currency, 'USD') as currency,
