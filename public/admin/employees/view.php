@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             throw new Exception("Invalid employee ID.");
         }
 
-        // Calculate business days
+        // Calculate business days (drivers and driver assistants: all days are business days)
         $start = new DateTime($start_date);
         $end = new DateTime($end_date);
         
@@ -67,12 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             throw new Exception("End date must be after start date.");
         }
 
+        $isDriverRole = in_array(strtolower($employee['position'] ?? ''), ['driver','driver_assistant']);
+
         $business_days = 0;
         $current = clone $start;
         
         while ($current <= $end) {
-            $day_of_week = $current->format('w');
-            if ($day_of_week != 0 && $day_of_week != 6) { // Not Sunday or Saturday
+            $day_of_week = (int)$current->format('w');
+            $isBusinessDay = $isDriverRole ? true : ($day_of_week !== 0 && $day_of_week !== 6);
+            if ($isBusinessDay) {
                 $business_days++;
             }
             $current->add(new DateInterval('P1D'));
@@ -100,8 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         // Create leave records for each business day
         $current = clone $start;
         while ($current <= $end) {
-            $day_of_week = $current->format('w');
-            if ($day_of_week != 0 && $day_of_week != 6) { // Business day
+            $day_of_week = (int)$current->format('w');
+            $isDriverRole = in_array(strtolower($employee['position'] ?? ''), ['driver','driver_assistant']);
+            $isBusinessDay = $isDriverRole ? true : ($day_of_week !== 0 && $day_of_week !== 6);
+            if ($isBusinessDay) { // Business day
                 // Check if attendance record exists
                 $stmt = $conn->prepare("SELECT id FROM employee_attendance WHERE employee_id = ? AND date = ? AND company_id = ?");
                 $stmt->execute([$employee_id, $current->format('Y-m-d'), $company_id]);
