@@ -24,32 +24,34 @@ try {
                 ct.contract_code,
                 ct.contract_type,
                 ct.rate_amount,
-                ct.working_hours_per_day,
+                COALESCE(ct.working_hours_per_day, 8) as working_hours_per_day,
                 ct.start_date,
                 ct.end_date,
                 ct.status,
+                ct.currency,
                 c.company_name,
-                p.project_name,
+                COALESCE(p.name, p.project_name) as project_name,
                 m.name as machine_name,
-                e.name as employee_name,
+                MAX(e.name) as employee_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
-                COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
+                COALESCE(SUM(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day, 8),0)), 0) as earnings,
                 COUNT(DISTINCT wh.date) as working_days
             FROM contracts ct
             JOIN companies c ON ct.company_id = c.id
-            JOIN projects p ON ct.project_id = p.id
-            JOIN machines m ON ct.machine_id = m.id
-            JOIN employees e ON ct.company_id = e.company_id
+            LEFT JOIN projects p ON ct.project_id = p.id
+            LEFT JOIN machines m ON ct.machine_id = m.id
             LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
-            WHERE ct.status = 'active'
+            LEFT JOIN employees e ON e.id = wh.employee_id
+            WHERE (ct.start_date <= ? AND (ct.end_date IS NULL OR ct.end_date >= ?))
+              AND ct.status IN ('active','completed')
             GROUP BY ct.id
-            ORDER BY earnings DESC
+            ORDER BY ct.created_at DESC
         ");
-        $stmt->execute([$start_date, $end_date]);
+        $stmt->execute([$start_date, $end_date, $end_date, $start_date]);
         $contract_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
     } else {
-        // Company-specific contract data
+        // Company-specific contract data (date-range overlap; include completed)
         $stmt = $conn->prepare("
             SELECT 
                 ct.id,
@@ -60,46 +62,50 @@ try {
                 ct.start_date,
                 ct.end_date,
                 ct.status,
+                ct.currency,
                 COALESCE(p.name, p.project_name) as project_name,
                 m.name as machine_name,
-                e.name as employee_name,
+                MAX(e.name) as employee_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
                 COALESCE(SUM(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day, 8),0)), 0) as earnings,
                 COUNT(DISTINCT wh.date) as working_days,
-                COALESCE(SUM(cp.amount), 0) as payments_received
+                COALESCE(SUM(CASE WHEN COALESCE(cp.currency, ct.currency) = ct.currency THEN cp.amount ELSE 0 END), 0) as payments_received
             FROM contracts ct
             LEFT JOIN projects p ON ct.project_id = p.id
             LEFT JOIN machines m ON ct.machine_id = m.id
-            LEFT JOIN employees e ON ct.company_id = e.company_id
             LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
+            LEFT JOIN employees e ON e.id = wh.employee_id
             LEFT JOIN contract_payments cp ON ct.id = cp.contract_id AND cp.payment_date BETWEEN ? AND ? AND cp.status = 'completed'
-            WHERE ct.company_id = ? AND ct.status = 'active'
+            WHERE ct.company_id = ? 
+              AND (ct.start_date <= ? AND (ct.end_date IS NULL OR ct.end_date >= ?))
+              AND ct.status IN ('active','completed')
             GROUP BY ct.id
-            ORDER BY earnings DESC
+            ORDER BY ct.created_at DESC
         ");
-        $stmt->execute([$start_date, $end_date, $start_date, $end_date, $company_id]);
+        $stmt->execute([$start_date, $end_date, $start_date, $end_date, $company_id, $end_date, $start_date]);
         $contract_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    // Get contract type statistics
+    // Get contract type statistics (date overlap; include completed)
     $stmt = $conn->prepare("
         SELECT 
             contract_type,
             COUNT(*) as count,
             AVG(rate_amount) as avg_rate,
             SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
-            SUM(COALESCE(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day, 0)) as total_earnings
+            SUM(COALESCE(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day, 8),0), 0)) as total_earnings
         FROM contracts ct
         LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
-        WHERE ct.status = 'active'
-        " . (!$is_super_admin ? "AND ct.company_id = ?" : "") . "
+        WHERE (ct.start_date <= ? AND (ct.end_date IS NULL OR ct.end_date >= ?))
+          AND ct.status IN ('active','completed')
+          " . (!$is_super_admin ? "AND ct.company_id = ?" : "") . "
         GROUP BY contract_type
     ");
     
     if ($is_super_admin) {
-        $stmt->execute([$start_date, $end_date]);
+        $stmt->execute([$start_date, $end_date, $end_date, $start_date]);
     } else {
-        $stmt->execute([$start_date, $end_date, $company_id]);
+        $stmt->execute([$start_date, $end_date, $end_date, $start_date, $company_id]);
     }
     $contract_types = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -267,9 +273,9 @@ try {
                                         <br><small class="text-muted"><?php echo htmlspecialchars($contract['company_name']); ?></small>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo htmlspecialchars($contract['project_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($contract['machine_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($contract['employee_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($contract['project_name'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($contract['machine_name'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($contract['employee_name'] ?? 'N/A'); ?></td>
                                     <td>
                                         <span class="badge badge-<?php 
                                             echo $contract['contract_type'] === 'hourly' ? 'primary' : 
@@ -278,20 +284,20 @@ try {
                                             <?php echo ucfirst($contract['contract_type']); ?>
                                         </span>
                                     </td>
-                                    <td><?php echo formatCurrency($contract['rate_amount']); ?></td>
-                                    <td><?php echo number_format($contract['total_hours'], 1); ?> hrs</td>
-                                    <td><?php echo number_format($contract['working_days']); ?> days</td>
-                                    <td class="text-success"><?php echo formatCurrency($contract['earnings']); ?></td>
+                                    <td><?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?></td>
+                                    <td><?php echo number_format((float)$contract['total_hours'], 1); ?> hrs</td>
+                                    <td><?php echo number_format((float)$contract['working_days']); ?> days</td>
+                                    <td class="text-success"><?php echo formatCurrencyAmount($contract['earnings'], $contract['currency'] ?? 'USD'); ?></td>
                                     <?php if (!$is_super_admin): ?>
-                                    <td class="text-info"><?php echo formatCurrency($contract['payments_received']); ?></td>
-                                    <td class="text-warning"><?php echo formatCurrency($contract['earnings'] - $contract['payments_received']); ?></td>
+                                    <td class="text-info"><?php echo formatCurrencyAmount($contract['payments_received'], $contract['currency'] ?? 'USD'); ?></td>
+                                    <td class="text-warning"><?php echo formatCurrencyAmount(($contract['earnings'] - $contract['payments_received']), $contract['currency'] ?? 'USD'); ?></td>
                                     <?php endif; ?>
                                     <td>
                                         <?php
                                         $progress = 0;
                                         if ($contract['total_hours'] > 0 && $contract['working_hours_per_day'] > 0) {
                                             $expected_hours = $contract['working_days'] * $contract['working_hours_per_day'];
-                                            $progress = ($contract['total_hours'] / $expected_hours) * 100;
+                                            $progress = $expected_hours > 0 ? ($contract['total_hours'] / $expected_hours) * 100 : 0;
                                         }
                                         $progress_color = $progress >= 80 ? 'success' : ($progress >= 60 ? 'warning' : 'danger');
                                         ?>
@@ -337,7 +343,7 @@ try {
                                                 <?php echo htmlspecialchars($contract['project_name']); ?>
                                             </div>
                                             <div class="text-xs text-success">
-                                                <?php echo formatCurrency($contract['earnings']); ?>
+                                                <?php echo formatCurrencyAmount($contract['earnings'], $contract['currency'] ?? 'USD'); ?>
                                             </div>
                                         </div>
                                         <div class="col-auto">
