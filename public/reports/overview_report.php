@@ -297,13 +297,15 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <?php if (!empty($overview_data['total_earnings_by_currency'])): ?>
-                                        <?php $idx = 0; foreach ($overview_data['total_earnings_by_currency'] as $cur => $amt): ?>
-                                            <h4 class="text-success <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></h4>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <h3 class="text-success">$0.00</h3>
-                                    <?php endif; ?>
+                                    <div class="stacked-amounts">
+                                        <?php if (!empty($overview_data['total_earnings_by_currency'])): ?>
+                                            <?php $idx = 0; foreach ($overview_data['total_earnings_by_currency'] as $cur => $amt): ?>
+                                                <div class="text-success <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <h3 class="text-success">$0.00</h3>
+                                        <?php endif; ?>
+                                    </div>
                                     <p class="text-muted mb-0">Total Earnings</p>
                                 </div>
                             </div>
@@ -316,13 +318,15 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <?php if (!empty($overview_data['total_expenses_by_currency'])): ?>
-                                        <?php $idx = 0; foreach ($overview_data['total_expenses_by_currency'] as $cur => $amt): ?>
-                                            <h4 class="text-warning <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></h4>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <h3 class="text-warning">$0.00</h3>
-                                    <?php endif; ?>
+                                    <div class="stacked-amounts">
+                                        <?php if (!empty($overview_data['total_expenses_by_currency'])): ?>
+                                            <?php $idx = 0; foreach ($overview_data['total_expenses_by_currency'] as $cur => $amt): ?>
+                                                <div class="text-warning <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <h3 class="text-warning">$0.00</h3>
+                                        <?php endif; ?>
+                                    </div>
                                     <p class="text-muted mb-0">Total Expenses</p>
                                 </div>
                             </div>

@@ -486,6 +486,17 @@ date_default_timezone_set($company_timezone);
             background: var(--gray-500);
         }
 
+        /* Global modal and chart stability fixes */
+        .modal, .modal-backdrop { position: fixed; }
+        body.modal-open { padding-right: 0 !important; }
+        .card .card-body { position: relative; }
+        canvas { display: block; }
+        .chart-area, .chart-pie { min-height: 220px; }
+
+        /* Utility: stack multi-currency amounts neatly */
+        .stacked-amounts > div { line-height: 1.2; }
+        .stacked-amounts > div.small { font-size: 0.85rem; opacity: 0.85; }
+
         /* Utility Classes */
         .text-gradient {
             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));

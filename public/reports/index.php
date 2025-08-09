@@ -476,16 +476,18 @@ function exportReport(report_type, format) {
                                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 <?php echo __('total_earnings'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    <?php if (!empty($stats['total_earnings_by_currency'])): ?>
-                                        <?php foreach ($stats['total_earnings_by_currency'] as $idx => $row): ?>
-                                            <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
-                                                <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        $0.00
-                                    <?php endif; ?>
-                                </div>
+                            <div class="stacked-amounts">
+                                <?php if (!empty($stats['total_earnings_by_currency'])): ?>
+                                    <?php foreach ($stats['total_earnings_by_currency'] as $idx => $row): ?>
+                                        <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
+                                            <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
+                            </div>
+                        </div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -523,16 +525,18 @@ function exportReport(report_type, format) {
                                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('total_expenses'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    <?php if (!empty($stats['total_expenses_by_currency'])): ?>
-                                        <?php foreach ($stats['total_expenses_by_currency'] as $idx => $row): ?>
-                                            <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
-                                                <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        $0.00
-                                    <?php endif; ?>
-                                </div>
+                            <div class="stacked-amounts">
+                                <?php if (!empty($stats['total_expenses_by_currency'])): ?>
+                                    <?php foreach ($stats['total_expenses_by_currency'] as $idx => $row): ?>
+                                        <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
+                                            <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
+                            </div>
+                        </div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-receipt fa-2x text-gray-300"></i>
