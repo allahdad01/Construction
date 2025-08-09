@@ -78,6 +78,22 @@ try {
         if ($result) {
             $overview_data = array_merge($overview_data, $result);
         }
+        // Contracted hours estimate over date range
+        $stmt = $conn->prepare("
+            SELECT COALESCE(SUM(
+                COALESCE(total_hours_required,
+                    (COALESCE(working_hours_per_day, 8) * 
+                     GREATEST(0, DATEDIFF(LEAST(COALESCE(end_date, :end_date), :end_date), GREATEST(COALESCE(start_date, :start_date), :start_date)) + 1)
+                    )
+                )
+            ), 0) as total_contract_hours
+            FROM contracts
+            WHERE company_id = :company_id AND status = 'active'
+              AND COALESCE(end_date, :end_date) >= :start_date
+              AND COALESCE(start_date, :start_date) <= :end_date
+        ");
+        $stmt->execute([':company_id' => $company_id, ':start_date' => $start_date, ':end_date' => $end_date]);
+        $overview_data['total_contract_hours'] = $stmt->fetchColumn();
         
         // Compute total earnings from payments (contracts + area rentals + parking) per currency
         // Contracts
@@ -294,7 +310,8 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <h3 class="text-info"><?php echo number_format($overview_data['total_hours'], 1); ?></h3>
+                                    <h4 class="text-info mb-1"><?php echo number_format($overview_data['total_hours'], 1); ?> hrs</h4>
+                                    <div class="small text-muted"><?php echo number_format($overview_data['total_contract_hours'] ?? 0, 1); ?> hrs contracted</div>
                                     <p class="text-muted mb-0">Total Hours</p>
                                 </div>
                             </div>

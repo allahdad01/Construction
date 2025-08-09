@@ -107,7 +107,7 @@ function getCompanyStats($conn, $company_id, $start_date, $end_date) {
     $stmt->execute([$company_id]);
     $stats['total_contracts'] = $stmt->fetchColumn();
     
-    // Total working hours
+    // Total worked hours
     $stmt = $conn->prepare("
         SELECT COALESCE(SUM(hours_worked), 0) as total 
         FROM working_hours 
@@ -115,6 +115,23 @@ function getCompanyStats($conn, $company_id, $start_date, $end_date) {
     ");
     $stmt->execute([$company_id, $start_date, $end_date]);
     $stats['total_hours'] = $stmt->fetchColumn();
+
+    // Total contracted hours (estimate using overlap of contract dates with filter range)
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(
+            COALESCE(total_hours_required,
+                (COALESCE(working_hours_per_day, 8) * 
+                 GREATEST(0, DATEDIFF(LEAST(COALESCE(end_date, :end_date), :end_date), GREATEST(COALESCE(start_date, :start_date), :start_date)) + 1)
+                )
+            )
+        ), 0) as total_contract_hours
+        FROM contracts
+        WHERE company_id = :company_id AND status = 'active'
+          AND COALESCE(end_date, :end_date) >= :start_date
+          AND COALESCE(start_date, :start_date) <= :end_date
+    ");
+    $stmt->execute([':company_id' => $company_id, ':start_date' => $start_date, ':end_date' => $end_date]);
+    $stats['total_contract_hours'] = $stmt->fetchColumn();
     
     // Total earnings by currency (contracts + area rentals + parking)
     // Contracts
@@ -472,10 +489,11 @@ function exportReport(report_type, format) {
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <?php echo __('total_hours'); ?></div>
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    <?php echo __('total_hours'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    <?php echo number_format($stats['total_hours'] ?? 0, 1); ?>
+                                    <div><?php echo number_format($stats['total_hours'] ?? 0, 1); ?> hrs (Worked)</div>
+                                    <div class="small text-muted"><?php echo number_format($stats['total_contract_hours'] ?? 0, 1); ?> hrs (Contracted)</div>
                                 </div>
                             </div>
                             <div class="col-auto">
