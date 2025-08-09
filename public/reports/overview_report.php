@@ -250,7 +250,6 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
     
     return $insights;
 }
-?>
 
 <div class="overview-report">
     <!-- Key Metrics -->

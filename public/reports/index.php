@@ -287,6 +287,18 @@ function getCompanyChartData($conn, $company_id, $start_date, $end_date) {
 
 ?>
 
+<style>
+/***** Fix sticky behavior for charts and modals *****/
+.card .card-body { position: relative; }
+/***** Ensure the Expense Breakdown chart container keeps height to avoid layout jumps *****/
+#expenseChart { display: block; }
+.card.shadow .card-body { overflow: visible; }
+/***** Modal fixes: prevent page shift on modal open and keep modals above sticky headers *****/
+.modal { position: fixed; }
+.modal-backdrop { position: fixed; }
+body.modal-open { padding-right: 0 !important; }
+</style>
+
 <script>
 function exportReport(report_type, format) {
     const start_date = document.getElementById('start_date').value || '<?php echo date('Y-m-01'); ?>';
@@ -296,7 +308,6 @@ function exportReport(report_type, format) {
     window.open(url, '_blank');
 }
 </script>
-?>
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
