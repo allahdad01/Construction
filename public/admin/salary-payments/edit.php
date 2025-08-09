@@ -42,6 +42,16 @@ $stmt = $conn->prepare("SELECT id, employee_code, name, position, monthly_salary
 $stmt->execute([$company_id]);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Helper to fetch days worked in current month for an employee
+function getDaysWorkedThisMonth($employeeId, $companyId) {
+    global $conn;
+    $startOfMonth = date('Y-m-01');
+    $endOfMonth = date('Y-m-t');
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND status = 'present' AND date BETWEEN ? AND ?");
+    $stmt->execute([$companyId, $employeeId, $startOfMonth, $endOfMonth]);
+    return (int)$stmt->fetchColumn();
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -155,10 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <select class="form-control" id="employee_id" name="employee_id" required>
                                 <option value=""><?php echo __('select_employee'); ?></option>
                                 <?php foreach ($employees as $employee): ?>
+                                <?php 
+                                    $workedDays = getDaysWorkedThisMonth($employee['id'], $company_id);
+                                    $isDriver = in_array($employee['position'], ['driver','driver_assistant']);
+                                    $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDays) : $employee['monthly_salary'];
+                                ?>
                                 <option value="<?php echo $employee['id']; ?>" 
                                         <?php echo ($payment['employee_id'] == $employee['id']) ? 'selected' : ''; ?>
-                                        data-salary="<?php echo $employee['monthly_salary']; ?>">
-                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - Monthly: ' . formatCurrency($employee['monthly_salary'])); ?>
+                                        data-salary="<?php echo $displaySalary; ?>"
+                                        data-worked-days="<?php echo $workedDays; ?>"
+                                        data-is-driver="<?php echo $isDriver ? '1':'0'; ?>">
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? ('Worked Days: ' . $workedDays . ' => ') : 'Monthly: ') . formatCurrency($displaySalary)); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -268,14 +285,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-// Update amount when employee is selected (copy monthly salary as default)
+// Update amount when employee is selected (worked days for drivers/assistants)
 document.getElementById('employee_id').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const monthlySalary = selectedOption.getAttribute('data-salary');
-    
-    if (monthlySalary && monthlySalary > 0) {
-        document.getElementById('amount_paid').value = monthlySalary;
-    }
+    const opt = this.options[this.selectedIndex];
+    const salary = parseFloat(opt.getAttribute('data-salary')) || 0;
+    document.getElementById('amount_paid').value = salary.toFixed(2);
 });
 </script>
 

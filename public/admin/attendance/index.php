@@ -11,6 +11,35 @@ $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 
+// Auto-mark present for today's business day if no record exists
+try {
+    $today = date('Y-m-d');
+    $dayOfWeek = date('w');
+    // Only Monday-Friday (1-5)
+    if (in_array($dayOfWeek, ['1','2','3','4','5'])) {
+        // Get active employees hired on or before today
+        $stmt = $conn->prepare("SELECT id FROM employees WHERE company_id = ? AND status = 'active' AND (hire_date IS NULL OR hire_date <= ?)");
+        $stmt->execute([$company_id, $today]);
+        $activeEmployees = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!empty($activeEmployees)) {
+            $insertStmt = $conn->prepare(
+                "INSERT INTO employee_attendance (company_id, employee_id, date, status, created_at) 
+                 SELECT ?, ?, ?, 'present', NOW() 
+                 FROM DUAL 
+                 WHERE NOT EXISTS (
+                     SELECT 1 FROM employee_attendance ea 
+                     WHERE ea.company_id = ? AND ea.employee_id = ? AND ea.date = ?
+                 )"
+            );
+            foreach ($activeEmployees as $employeeId) {
+                $insertStmt->execute([$company_id, $employeeId, $today, $company_id, $employeeId, $today]);
+            }
+        }
+    }
+} catch (Exception $e) {
+    // Silently ignore auto-mark errors to not block page load
+}
+
 $error = '';
 $success = '';
 

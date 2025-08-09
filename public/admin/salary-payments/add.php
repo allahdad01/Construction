@@ -19,6 +19,16 @@ $stmt = $conn->prepare("SELECT e.id, e.employee_code, e.name, e.position, e.mont
 $stmt->execute([$company_id]);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Helper to fetch days worked in current month for an employee
+function getDaysWorkedThisMonth($employeeId, $companyId) {
+    global $conn;
+    $startOfMonth = date('Y-m-01');
+    $endOfMonth = date('Y-m-t');
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND status = 'present' AND date BETWEEN ? AND ?");
+    $stmt->execute([$companyId, $employeeId, $startOfMonth, $endOfMonth]);
+    return (int)$stmt->fetchColumn();
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -143,8 +153,13 @@ function generateSalaryPaymentCode($company_id) {
                             <select class="form-control" id="employee_id" name="employee_id" required>
                                 <option value=""><?php echo __('select_employee'); ?></option>
                                 <?php foreach ($employees as $employee): ?>
-                                <option value="<?php echo $employee['id']; ?>" <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - Monthly: ' . formatCurrency($employee['monthly_salary'])); ?>
+                                <?php 
+                                    $workedDays = getDaysWorkedThisMonth($employee['id'], $company_id);
+                                    $isDriver = in_array($employee['position'], ['driver','driver_assistant']);
+                                    $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDays) : $employee['monthly_salary'];
+                                ?>
+                                <option value="<?php echo $employee['id']; ?>" data-salary="<?php echo $displaySalary; ?>" data-worked-days="<?php echo $workedDays; ?>" data-is-driver="<?php echo $isDriver ? '1':'0'; ?>" <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? ('Worked Days: ' . $workedDays . ' => ') : 'Monthly: ') . formatCurrency($displaySalary)); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -219,4 +234,21 @@ function generateSalaryPaymentCode($company_id) {
     </div>
 </div>
 
+<script>
+// Auto-fill amount based on selected employee
+const employeeSelect = document.getElementById('employee_id');
+const amountInput = document.getElementById('amount_paid');
+if (employeeSelect && amountInput) {
+  employeeSelect.addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    const isDriver = opt.getAttribute('data-is-driver') === '1';
+    const salary = parseFloat(opt.getAttribute('data-salary')) || 0;
+    if (isDriver) {
+      amountInput.value = salary.toFixed(2);
+    } else {
+      amountInput.value = salary.toFixed(2);
+    }
+  });
+}
+</script>
 <?php require_once '../../../includes/footer.php'; ?>

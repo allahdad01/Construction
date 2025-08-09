@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     // Update existing record
                     $stmt = $conn->prepare("
                         UPDATE employee_attendance 
-                        SET status = 'on_leave', leave_type = ?, notes = ?, updated_at = NOW()
+                        SET status = 'leave', leave_type = ?, notes = ?, updated_at = NOW()
                         WHERE employee_id = ? AND date = ? AND company_id = ?
                     ");
                     $stmt->execute([$leave_type, $leave_reason, $employee_id, $current->format('Y-m-d'), $company_id]);
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $stmt = $conn->prepare("
                         INSERT INTO employee_attendance 
                         (company_id, employee_id, date, status, leave_type, notes, created_at) 
-                        VALUES (?, ?, ?, 'on_leave', ?, ?, NOW())
+                        VALUES (?, ?, ?, 'leave', ?, ?, NOW())
                     ");
                     $stmt->execute([$company_id, $employee_id, $current->format('Y-m-d'), $leave_type, $leave_reason]);
                 }
