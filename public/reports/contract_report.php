@@ -8,6 +8,13 @@ $contract_data = [];
 $contract_performance = [];
 $contract_types = [];
 
+// Initialize summary aggregates to safe defaults
+$total_contracts = 0;
+$total_earnings = 0.0;
+$total_hours = 0.0;
+$avg_earnings = 0.0;
+$avg_hours = 0.0;
+
 try {
     if ($is_super_admin) {
         // System-wide contract data
@@ -49,23 +56,23 @@ try {
                 ct.contract_code,
                 ct.contract_type,
                 ct.rate_amount,
-                ct.working_hours_per_day,
+                COALESCE(ct.working_hours_per_day, 8) as working_hours_per_day,
                 ct.start_date,
                 ct.end_date,
                 ct.status,
-                p.project_name,
+                COALESCE(p.name, p.project_name) as project_name,
                 m.name as machine_name,
                 e.name as employee_name,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
-                COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
+                COALESCE(SUM(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day, 8),0)), 0) as earnings,
                 COUNT(DISTINCT wh.date) as working_days,
                 COALESCE(SUM(cp.amount), 0) as payments_received
             FROM contracts ct
-            JOIN projects p ON ct.project_id = p.id
-            JOIN machines m ON ct.machine_id = m.id
-            JOIN employees e ON ct.company_id = e.company_id
+            LEFT JOIN projects p ON ct.project_id = p.id
+            LEFT JOIN machines m ON ct.machine_id = m.id
+            LEFT JOIN employees e ON ct.company_id = e.company_id
             LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
-            LEFT JOIN contract_payments cp ON ct.id = cp.contract_id AND cp.payment_date BETWEEN ? AND ?
+            LEFT JOIN contract_payments cp ON ct.id = cp.contract_id AND cp.payment_date BETWEEN ? AND ? AND cp.status = 'completed'
             WHERE ct.company_id = ? AND ct.status = 'active'
             GROUP BY ct.id
             ORDER BY earnings DESC
@@ -122,23 +129,23 @@ try {
                             <tbody>
                                 <tr>
                                     <td><strong>Total Active Contracts</strong></td>
-                                    <td><?php echo number_format($total_contracts); ?></td>
+                                    <td><?php echo number_format((float)$total_contracts); ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Total Earnings</strong></td>
-                                    <td class="text-success"><?php echo formatCurrency($total_earnings); ?></td>
+                                    <td class="text-success"><?php echo formatCurrency((float)$total_earnings); ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Total Working Hours</strong></td>
-                                    <td><?php echo number_format($total_hours, 1); ?> hours</td>
+                                    <td><?php echo number_format((float)$total_hours, 1); ?> hours</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Average Earnings per Contract</strong></td>
-                                    <td><?php echo formatCurrency($avg_earnings); ?></td>
+                                    <td><?php echo formatCurrency((float)$avg_earnings); ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Average Hours per Contract</strong></td>
-                                    <td><?php echo number_format($avg_hours, 1); ?> hours</td>
+                                    <td><?php echo number_format((float)$avg_hours, 1); ?> hours</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -169,10 +176,10 @@ try {
                                 <?php foreach ($contract_types as $type): ?>
                                 <tr>
                                     <td><?php echo ucfirst($type['contract_type']); ?></td>
-                                    <td><?php echo number_format($type['count']); ?></td>
-                                    <td><?php echo formatCurrency($type['avg_rate']); ?></td>
-                                    <td><?php echo number_format($type['total_hours'], 1); ?></td>
-                                    <td class="text-success"><?php echo formatCurrency($type['total_earnings']); ?></td>
+                                    <td><?php echo number_format((float)$type['count']); ?></td>
+                                    <td><?php echo formatCurrency((float)$type['avg_rate']); ?></td>
+                                    <td><?php echo number_format((float)$type['total_hours'], 1); ?></td>
+                                    <td class="text-success"><?php echo formatCurrency((float)$type['total_earnings']); ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -207,15 +214,15 @@ try {
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-1">
                             <span>Active Contracts</span>
-                            <span><?php echo number_format($total_contracts); ?></span>
+                            <span><?php echo number_format((float)$total_contracts); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span>Total Earnings</span>
-                            <span><?php echo formatCurrency($total_earnings); ?></span>
+                            <span><?php echo formatCurrency((float)$total_earnings); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span>Total Hours</span>
-                            <span><?php echo number_format($total_hours, 1); ?> hrs</span>
+                            <span><?php echo number_format((float)$total_hours, 1); ?> hrs</span>
                         </div>
                     </div>
                 </div>
