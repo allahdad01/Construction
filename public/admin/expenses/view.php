@@ -75,7 +75,7 @@ if (!$expense) {
                                 <span class="badge badge-info"><?php echo ucfirst(str_replace('_', ' ', $expense['category'])); ?></span>
                             </p>
                             <p><strong><?php echo __('amount'); ?>:</strong> 
-                                <span class="text-danger h5"><?php echo formatCurrency($expense['amount'], $expense['currency'] ?? 'USD'); ?></span>
+                                <span class="text-danger h5"><?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?></span>
                             </p>
                             <p><strong><?php echo __('expense_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($expense['expense_date'])); ?></p>
                         </div>
@@ -84,7 +84,7 @@ if (!$expense) {
                             <?php if ($expense['reference_number']): ?>
                             <p><strong><?php echo __('reference_number'); ?>:</strong> <?php echo htmlspecialchars($expense['reference_number']); ?></p>
                             <?php endif; ?>
-                            <p><strong><?php echo __('currency'); ?>:</strong> <?php echo strtoupper($expense['currency'] ?? 'USD'); ?></p>
+                            <p><strong><?php echo __('currency'); ?>:</strong> <?php echo getCurrencyDisplay($expense['currency'] ?? 'USD'); ?></p>
                         </div>
                     </div>
 
@@ -116,7 +116,7 @@ if (!$expense) {
                 <div class="card-body">
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('total_amount'); ?></h6>
-                        <h4 class="text-danger"><?php echo formatCurrency($expense['amount'], $expense['currency'] ?? 'USD'); ?></h4>
+                        <h4 class="text-danger"><?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?></h4>
                     </div>
                     
                     <div class="mb-3">
