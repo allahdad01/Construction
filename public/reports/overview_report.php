@@ -83,16 +83,16 @@ try {
             SELECT COALESCE(SUM(
                 COALESCE(total_hours_required,
                     (COALESCE(working_hours_per_day, 8) * 
-                     GREATEST(0, DATEDIFF(LEAST(COALESCE(end_date, :end_date), :end_date), GREATEST(COALESCE(start_date, :start_date), :start_date)) + 1)
+                     GREATEST(0, DATEDIFF(LEAST(COALESCE(end_date, ?), ?), GREATEST(COALESCE(start_date, ?), ?)) + 1)
                     )
                 )
             ), 0) as total_contract_hours
             FROM contracts
-            WHERE company_id = :company_id AND status = 'active'
-              AND COALESCE(end_date, :end_date) >= :start_date
-              AND COALESCE(start_date, :start_date) <= :end_date
+            WHERE company_id = ? AND status = 'active'
+              AND COALESCE(end_date, ?) >= ?
+              AND COALESCE(start_date, ?) <= ?
         ");
-        $stmt->execute([':company_id' => $company_id, ':start_date' => $start_date, ':end_date' => $end_date]);
+        $stmt->execute([$end_date, $end_date, $start_date, $start_date, $company_id, $end_date, $start_date, $start_date, $end_date]);
         $overview_data['total_contract_hours'] = $stmt->fetchColumn();
         
         // Compute total earnings from payments (contracts + area rentals + parking) per currency
