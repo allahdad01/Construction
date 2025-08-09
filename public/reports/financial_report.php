@@ -110,7 +110,8 @@ try {
 } catch (Exception $e) {
     $error = "Error loading financial data: " . $e->getMessage();
 }
-// Note: No closing PHP tag here to prevent accidental output
+// Note: Close PHP before HTML to avoid parse error in some environments
+?>
 
 <div class="financial-report">
     <div class="row">
