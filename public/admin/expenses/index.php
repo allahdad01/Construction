@@ -144,21 +144,24 @@ $stmt = $conn->prepare("
 $stmt->execute([$company_id]);
 $recent_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-// Get category breakdown
+// Get category breakdown by currency
 $stmt = $conn->prepare("
-    SELECT category, COUNT(*) as count, SUM(amount) as total 
+    SELECT category, COALESCE(currency, 'USD') as currency, COUNT(*) as count, SUM(amount) as total 
     FROM expenses 
     WHERE company_id = ? 
-    GROUP BY category 
+    GROUP BY category, COALESCE(currency, 'USD') 
     ORDER BY total DESC
 ");
 $stmt->execute([getCurrentCompanyId()]);
 $category_breakdown = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate total expenses for percentage calculation
-$stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE company_id = ?");
+// Calculate totals by currency for percentage calculation
+$stmt = $conn->prepare("SELECT COALESCE(currency, 'USD') as currency, SUM(amount) as total FROM expenses WHERE company_id = ? GROUP BY COALESCE(currency, 'USD')");
 $stmt->execute([getCurrentCompanyId()]);
-$total_amount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+$totals_by_currency_map = [];
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $totals_by_currency_map[$row['currency']] = $row['total'];
+}
 
 // Get expense categories for filter
 $stmt = $conn->prepare("SELECT DISTINCT category FROM expenses WHERE company_id = ? ORDER BY category");
@@ -200,7 +203,20 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 <?php echo __('monthly_expenses'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($monthly_expenses); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php 
+                                $stmt = $conn->prepare("SELECT COALESCE(currency, 'USD') as currency, SUM(amount) as total FROM expenses WHERE company_id = ? AND expense_date >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY) GROUP BY COALESCE(currency, 'USD') ORDER BY total DESC");
+                                $stmt->execute([$company_id]);
+                                $monthly_expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                if (!empty($monthly_expenses_by_currency)) {
+                                    foreach ($monthly_expenses_by_currency as $idx => $row) {
+                                        echo ($idx > 0 ? '<div class="small">' : '<div>') . formatCurrencyAmount($row['total'], $row['currency']) . '</div>';
+                                    }
+                                } else {
+                                    echo '$0.00';
+                                }
+                                ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -236,7 +252,20 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('recent_7_days'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrency($recent_expenses); ?></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?php 
+                                $stmt = $conn->prepare("SELECT COALESCE(currency, 'USD') as currency, SUM(amount) as total FROM expenses WHERE company_id = ? AND expense_date >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY) GROUP BY COALESCE(currency, 'USD') ORDER BY total DESC");
+                                $stmt->execute([$company_id]);
+                                $recent_expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                if (!empty($recent_expenses_by_currency)) {
+                                    foreach ($recent_expenses_by_currency as $idx => $row) {
+                                        echo ($idx > 0 ? '<div class="small">' : '<div>') . formatCurrencyAmount($row['total'], $row['currency']) . '</div>';
+                                    }
+                                } else {
+                                    echo '$0.00';
+                                }
+                                ?>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -346,9 +375,9 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                         </span>
                                     </td>
                                     <td>
-                                        <div>
-                                            <strong class="text-danger"><?php echo formatCurrency($expense['amount']); ?></strong>
-                                        </div>
+                                                            <div>
+                        <strong class="text-danger"><?php echo formatCurrencyAmount($expense['amount'], $expense['currency'] ?? 'USD'); ?></strong>
+                    </div>
                                     </td>
                                     <td>
                                         <div>
@@ -457,10 +486,12 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                     </span>
                                 </td>
                                 <td><?php echo $category['count']; ?></td>
-                                <td><strong><?php echo formatCurrency($category['total']); ?></strong></td>
+                                <td><strong><?php echo formatCurrencyAmount($category['total'], $category['currency'] ?? 'USD'); ?></strong> <small class="text-muted ms-1"><?php echo htmlspecialchars($category['currency'] ?? 'USD'); ?></small></td>
                                 <td>
                                     <?php 
-                                    $percentage = $total_amount > 0 ? ($category['total'] / $total_amount) * 100 : 0;
+                                    $currency_code = $category['currency'] ?? 'USD';
+                                    $total_amount_for_currency = $totals_by_currency_map[$currency_code] ?? 0;
+                                    $percentage = $total_amount_for_currency > 0 ? ($category['total'] / $total_amount_for_currency) * 100 : 0;
                                     echo round($percentage, 1) . '%';
                                     ?>
                                 </td>
