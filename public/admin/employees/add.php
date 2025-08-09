@@ -51,6 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
+        // Ensure salary_currency column exists
+        try {
+            $conn->exec("ALTER TABLE employees ADD COLUMN salary_currency VARCHAR(3) DEFAULT 'AFN' AFTER monthly_salary");
+        } catch (Exception $e) {
+            // Ignore if already exists
+        }
+
         // Create user account
         $user_role = $_POST['position'] === 'driver' ? 'driver' : 'driver_assistant';
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -81,9 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO employees (
                 company_id, user_id, employee_code, name, email, phone,
-                position, monthly_salary, hire_date, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+                position, monthly_salary, salary_currency, hire_date, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
         ");
+
+        $hire_date = $_POST['hire_date'] ?? date('Y-m-d');
+        $salary_currency = $_POST['salary_currency'] ?? 'AFN';
 
         $stmt->execute([
             $company_id,
@@ -94,10 +104,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['phone'] ?? '',
             $_POST['position'],
             $_POST['monthly_salary'],
-            $_POST['hire_date'] ?? date('Y-m-d'),
+            $salary_currency,
+            $hire_date,
         ]);
 
         $employee_id = $conn->lastInsertId();
+
+        // Backfill attendance: mark 'present' for business days from hire_date to today if none exists
+        try {
+            $start = new DateTime($hire_date);
+            $today = new DateTime(date('Y-m-d'));
+            $insertStmt = $conn->prepare(
+                "INSERT INTO employee_attendance (company_id, employee_id, date, status, created_at)
+                 SELECT ?, ?, ?, 'present', NOW()
+                 FROM DUAL
+                 WHERE NOT EXISTS (
+                    SELECT 1 FROM employee_attendance ea WHERE ea.company_id = ? AND ea.employee_id = ? AND ea.date = ?
+                 )"
+            );
+            $current = clone $start;
+            while ($current <= $today) {
+                $dayOfWeek = (int)$current->format('w');
+                if ($dayOfWeek !== 0 && $dayOfWeek !== 6) { // Mon-Fri only
+                    $dateStr = $current->format('Y-m-d');
+                    $insertStmt->execute([$company_id, $employee_id, $dateStr, $company_id, $employee_id, $dateStr]);
+                }
+                $current->add(new DateInterval('P1D'));
+            }
+        } catch (Exception $e) {
+            // ignore backfill errors to not block creation
+        }
 
         // Commit transaction
         $conn->commit();
@@ -224,7 +260,12 @@ function generateRandomPassword($length = 8) {
                                 <div class="mb-3">
                                     <label for="monthly_salary" class="form-label">Monthly Salary *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">$</span>
+                                        <select class="form-select" id="salary_currency" name="salary_currency" style="max-width: 140px;">
+                                            <option value="AFN" <?php echo (($_POST['salary_currency'] ?? 'AFN') === 'AFN') ? 'selected' : ''; ?>>AFN</option>
+                                            <option value="USD" <?php echo (($_POST['salary_currency'] ?? '') === 'USD') ? 'selected' : ''; ?>>USD</option>
+                                            <option value="EUR" <?php echo (($_POST['salary_currency'] ?? '') === 'EUR') ? 'selected' : ''; ?>>EUR</option>
+                                            <option value="GBP" <?php echo (($_POST['salary_currency'] ?? '') === 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                                        </select>
                                         <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
                                                value="<?php echo htmlspecialchars($_POST['monthly_salary'] ?? ''); ?>"
                                                step="0.01" min="0" required>
@@ -387,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDailyRate() {
         const salary = parseFloat(monthlySalaryInput.value) || 0;
         const dailyRate = salary / 30;
-        dailyRateDisplay.value = '$' + dailyRate.toFixed(2);
+        dailyRateDisplay.value = dailyRate.toFixed(2) + ' per day';
     }
 
     nameInput.addEventListener('input', updateEmployeeCodePreview);
