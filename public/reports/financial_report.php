@@ -41,43 +41,38 @@ try {
         
     } else {
         // Company-specific financial data
+        // Revenue by currency (from contracts)
         $stmt = $conn->prepare("
-            SELECT 
-                DATE(wh.date) as date,
-                SUM(wh.hours_worked * c.rate_amount / c.working_hours_per_day) as revenue,
-                COUNT(DISTINCT wh.contract_id) as active_contracts
+            SELECT DATE(wh.date) as date, c.currency,
+                   SUM(wh.hours_worked * c.rate_amount / NULLIF(c.working_hours_per_day,0)) as revenue
             FROM working_hours wh
             JOIN contracts c ON wh.contract_id = c.id
             WHERE wh.company_id = ? AND wh.date BETWEEN ? AND ?
-            GROUP BY DATE(wh.date)
+            GROUP BY DATE(wh.date), c.currency
             ORDER BY date
         ");
         $stmt->execute([$company_id, $start_date, $end_date]);
         $revenue_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get expenses
+        // Expenses by currency
         $stmt = $conn->prepare("
-            SELECT 
-                DATE(expense_date) as date,
-                SUM(amount) as expenses,
-                COUNT(*) as transactions
+            SELECT DATE(expense_date) as date, COALESCE(currency, 'USD') as currency,
+                   SUM(amount) as expenses
             FROM expenses 
             WHERE company_id = ? AND expense_date BETWEEN ? AND ?
-            GROUP BY DATE(expense_date)
+            GROUP BY DATE(expense_date), COALESCE(currency, 'USD')
             ORDER BY date
         ");
         $stmt->execute([$company_id, $start_date, $end_date]);
         $expense_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get salary payments
+        // Salary payments by currency
         $stmt = $conn->prepare("
-            SELECT 
-                DATE(payment_date) as date,
-                SUM(amount_paid) as salary_payments,
-                COUNT(*) as transactions
+            SELECT DATE(payment_date) as date, COALESCE(currency, 'USD') as currency,
+                   SUM(amount_paid) as salary_payments
             FROM salary_payments 
             WHERE company_id = ? AND payment_date BETWEEN ? AND ?
-            GROUP BY DATE(payment_date)
+            GROUP BY DATE(payment_date), COALESCE(currency, 'USD')
             ORDER BY date
         ");
         $stmt->execute([$company_id, $start_date, $end_date]);
@@ -104,8 +99,25 @@ try {
                                     <td><strong>Total Revenue</strong></td>
                                     <td class="text-success">
                                         <?php 
-                                        $total_revenue = array_sum(array_column($revenue_data, 'revenue'));
-                                        echo formatCurrency($total_revenue);
+                                        if ($is_super_admin) {
+                                            $total_revenue = array_sum(array_column($revenue_data, 'revenue'));
+                                            echo formatCurrency($total_revenue);
+                                        } else {
+                                            // Sum by currency
+                                            $totals = [];
+                                            foreach ($revenue_data as $row) {
+                                                $cur = $row['currency'] ?? 'USD';
+                                                $totals[$cur] = ($totals[$cur] ?? 0) + ($row['revenue'] ?? 0);
+                                            }
+                                            if (!empty($totals)) {
+                                                $idx = 0;
+                                                foreach ($totals as $cur => $amt) {
+                                                    echo '<div class="' . ($idx++ > 0 ? 'small' : '') . '">' . formatCurrencyAmount($amt, $cur) . '</div>';
+                                                }
+                                            } else {
+                                                echo '$0.00';
+                                            }
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -114,8 +126,19 @@ try {
                                     <td><strong>Total Expenses</strong></td>
                                     <td class="text-danger">
                                         <?php 
-                                        $total_expenses = array_sum(array_column($expense_data, 'expenses'));
-                                        echo formatCurrency($total_expenses);
+                                        $totals = [];
+                                        foreach ($expense_data as $row) {
+                                            $cur = $row['currency'] ?? 'USD';
+                                            $totals[$cur] = ($totals[$cur] ?? 0) + ($row['expenses'] ?? 0);
+                                        }
+                                        if (!empty($totals)) {
+                                            $idx = 0;
+                                            foreach ($totals as $cur => $amt) {
+                                                echo '<div class="' . ($idx++ > 0 ? 'small' : '') . '">' . formatCurrencyAmount($amt, $cur) . '</div>';
+                                            }
+                                        } else {
+                                            echo '$0.00';
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -123,8 +146,19 @@ try {
                                     <td><strong>Salary Payments</strong></td>
                                     <td class="text-warning">
                                         <?php 
-                                        $total_salary = array_sum(array_column($salary_data, 'salary_payments'));
-                                        echo formatCurrency($total_salary);
+                                        $totals = [];
+                                        foreach ($salary_data as $row) {
+                                            $cur = $row['currency'] ?? 'USD';
+                                            $totals[$cur] = ($totals[$cur] ?? 0) + ($row['salary_payments'] ?? 0);
+                                        }
+                                        if (!empty($totals)) {
+                                            $idx = 0;
+                                            foreach ($totals as $cur => $amt) {
+                                                echo '<div class="' . ($idx++ > 0 ? 'small' : '') . '">' . formatCurrencyAmount($amt, $cur) . '</div>';
+                                            }
+                                        } else {
+                                            echo '$0.00';
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -132,8 +166,32 @@ try {
                                     <td><strong>Net Profit</strong></td>
                                     <td class="text-primary">
                                         <?php 
-                                        $net_profit = $total_revenue - $total_expenses - $total_salary;
-                                        echo formatCurrency($net_profit);
+                                        // Compute net profit per currency (revenue - expenses - salary)
+                                        $revTotals = [];
+                                        foreach ($revenue_data as $row) {
+                                            $cur = $row['currency'] ?? 'USD';
+                                            $revTotals[$cur] = ($revTotals[$cur] ?? 0) + ($row['revenue'] ?? 0);
+                                        }
+                                        $expTotals = [];
+                                        foreach ($expense_data as $row) {
+                                            $cur = $row['currency'] ?? 'USD';
+                                            $expTotals[$cur] = ($expTotals[$cur] ?? 0) + ($row['expenses'] ?? 0);
+                                        }
+                                        $salTotals = [];
+                                        foreach ($salary_data as $row) {
+                                            $cur = $row['currency'] ?? 'USD';
+                                            $salTotals[$cur] = ($salTotals[$cur] ?? 0) + ($row['salary_payments'] ?? 0);
+                                        }
+                                        $allCurrencies = array_unique(array_merge(array_keys($revTotals), array_keys($expTotals), array_keys($salTotals)));
+                                        if (!empty($allCurrencies)) {
+                                            $idx = 0;
+                                            foreach ($allCurrencies as $cur) {
+                                                $net = ($revTotals[$cur] ?? 0) - ($expTotals[$cur] ?? 0) - ($salTotals[$cur] ?? 0);
+                                                echo '<div class="' . ($idx++ > 0 ? 'small' : '') . '">' . formatCurrencyAmount($net, $cur) . '</div>';
+                                            }
+                                        } else {
+                                            echo '$0.00';
+                                        }
                                         ?>
                                     </td>
                                 </tr>

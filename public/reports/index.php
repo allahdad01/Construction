@@ -116,33 +116,40 @@ function getCompanyStats($conn, $company_id, $start_date, $end_date) {
     $stmt->execute([$company_id, $start_date, $end_date]);
     $stats['total_hours'] = $stmt->fetchColumn();
     
-    // Total earnings
+    // Total earnings by currency
     $stmt = $conn->prepare("
-        SELECT COALESCE(SUM(wh.hours_worked * c.rate_amount / c.working_hours_per_day), 0) as total
+        SELECT c.currency as currency, 
+               COALESCE(SUM(wh.hours_worked * c.rate_amount / NULLIF(c.working_hours_per_day,0)), 0) as total
         FROM working_hours wh
         JOIN contracts c ON wh.contract_id = c.id
         WHERE wh.company_id = ? AND wh.date BETWEEN ? AND ?
+        GROUP BY c.currency
+        ORDER BY total DESC
     ");
     $stmt->execute([$company_id, $start_date, $end_date]);
-    $stats['total_earnings'] = $stmt->fetchColumn();
+    $stats['total_earnings_by_currency'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Total expenses
+    // Total expenses by currency
     $stmt = $conn->prepare("
-        SELECT COALESCE(SUM(amount), 0) as total 
+        SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total 
         FROM expenses 
         WHERE company_id = ? AND expense_date BETWEEN ? AND ?
+        GROUP BY COALESCE(currency, 'USD')
+        ORDER BY total DESC
     ");
     $stmt->execute([$company_id, $start_date, $end_date]);
-    $stats['total_expenses'] = $stmt->fetchColumn();
+    $stats['total_expenses_by_currency'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Total salary payments
+    // Total salary payments by currency (not shown in cards but useful later)
     $stmt = $conn->prepare("
-        SELECT COALESCE(SUM(amount_paid), 0) as total 
+        SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount_paid), 0) as total 
         FROM salary_payments 
         WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+        GROUP BY COALESCE(currency, 'USD')
+        ORDER BY total DESC
     ");
     $stmt->execute([$company_id, $start_date, $end_date]);
-    $stats['total_salary_payments'] = $stmt->fetchColumn();
+    $stats['total_salary_by_currency'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     return $stats;
 }
@@ -407,7 +414,15 @@ function exportReport(report_type, format) {
                                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 <?php echo __('total_earnings'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    <?php echo formatCurrency($stats['total_earnings'] ?? 0); ?>
+                                    <?php if (!empty($stats['total_earnings_by_currency'])): ?>
+                                        <?php foreach ($stats['total_earnings_by_currency'] as $idx => $row): ?>
+                                            <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
+                                                <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        $0.00
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -445,7 +460,15 @@ function exportReport(report_type, format) {
                                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 <?php echo __('total_expenses'); ?></div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    <?php echo formatCurrency($stats['total_expenses'] ?? 0); ?>
+                                    <?php if (!empty($stats['total_expenses_by_currency'])): ?>
+                                        <?php foreach ($stats['total_expenses_by_currency'] as $idx => $row): ?>
+                                            <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
+                                                <?php echo formatCurrencyAmount($row['total'], $row['currency'] ?? 'USD'); ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        $0.00
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-auto">
