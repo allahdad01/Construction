@@ -1,10 +1,12 @@
 <?php
 require_once '../../config/config.php';
 require_once '../../config/database.php';
-require_once '../../includes/header.php';
 
-// Check if user is authenticated
+// Check if user is authenticated BEFORE any output
 requireAuth();
+
+// Only include header after auth (header.php outputs HTML)
+require_once '../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
