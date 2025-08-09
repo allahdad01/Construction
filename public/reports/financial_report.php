@@ -335,7 +335,9 @@ try {
                         $stmt->execute([$company_id, $start_date, $end_date]);
                         $expense_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         ?>
-                        <canvas id="expenseChart" height="200"></canvas>
+                        <div class="fixed-chart">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
                         <div class="mt-3">
                             <?php foreach ($expense_categories as $category): ?>
                             <div class="d-flex justify-content-between mb-1">
