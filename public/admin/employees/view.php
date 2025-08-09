@@ -205,6 +205,7 @@ $current_month_salary = $employee['monthly_salary'] ?? 0;
 $days_worked_this_month = $attendance_stats['present_days'] ?? 0;
 $salary_earned_this_month = $current_month_salary > 0 ? ($current_month_salary / 30) * $days_worked_this_month : 0;
 $salary_remaining = $salary_earned_this_month - $total_paid;
+$salary_currency = $employee['salary_currency'] ?? 'AFN';
 ?>
 
 <div class="container-fluid">
@@ -287,22 +288,24 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                                 <div class="col-md-6">
                                     <p class="mb-1">
                                         <i class="fas fa-dollar-sign text-muted me-2"></i>
-                                        Monthly Salary: $<?php echo number_format($employee['monthly_salary'], 2); ?>
+                                        Monthly Salary: <?php echo formatCurrencyAmount($employee['monthly_salary'] ?? 0, $salary_currency); ?>
                                     </p>
                                     <p class="mb-1">
                                         <i class="fas fa-calendar text-muted me-2"></i>
-                                        Daily Rate: $<?php echo number_format($employee['daily_rate'], 2); ?>
+                                        Daily Rate: <?php echo formatCurrencyAmount(($employee['monthly_salary'] ?? 0) / 30, $salary_currency); ?>
                                     </p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-end">
-                                <h5 class="text-success">$<?php echo number_format($salary_earned_this_month, 2); ?></h5>
+                                <h5 class="text-success"><?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></h5>
                                 <small class="text-muted">Earned This Month</small>
                                 <hr>
                                 <h5 class="text-info"><?php echo $days_worked_this_month; ?> days</h5>
                                 <small class="text-muted">Days Worked This Month</small>
+                                <br>
+                                <small class="text-muted">Leave Days This Month: <?php echo $attendance_stats['leave_days'] ?? 0; ?></small>
                             </div>
                         </div>
                     </div>
@@ -416,7 +419,7 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                             </p>
                             <p><strong>Employee Code:</strong><br><?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?></p>
                             <p><strong>Position:</strong><br><?php echo htmlspecialchars($employee['position'] ?? 'N/A'); ?></p>
-                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrency($employee['monthly_salary'] ?? 0); ?></p>
+                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'] ?? 0, $salary_currency); ?></p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Email:</strong><br>
@@ -450,13 +453,13 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Monthly Salary:</strong><br>$<?php echo number_format($employee['monthly_salary'], 2); ?></p>
-                            <p><strong>Daily Rate:</strong><br>$<?php echo number_format($employee['daily_rate'], 2); ?></p>
-                            <p><strong>Earned This Month:</strong><br>$<?php echo number_format($salary_earned_this_month, 2); ?></p>
+                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'], $salary_currency); ?></p>
+                            <p><strong>Daily Rate:</strong><br><?php echo formatCurrencyAmount(($employee['monthly_salary'] ?? 0) / 30, $salary_currency); ?></p>
+                            <p><strong>Earned This Month:</strong><br><?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Total Paid:</strong><br>$<?php echo number_format($total_paid, 2); ?></p>
-                            <p><strong>Remaining:</strong><br>$<?php echo number_format($salary_remaining, 2); ?></p>
+                            <p><strong>Total Paid:</strong><br><?php echo formatCurrencyAmount($total_paid, $salary_currency); ?></p>
+                            <p><strong>Remaining:</strong><br><?php echo formatCurrencyAmount($salary_remaining, $salary_currency); ?></p>
                             <p><strong>Days Worked:</strong><br><?php echo $days_worked_this_month; ?> days</p>
                         </div>
                     </div>
@@ -471,7 +474,7 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                             <?php echo number_format($payment_percentage, 1); ?>%
                         </div>
                     </div>
-                    <small class="text-muted">Payment Progress: $<?php echo number_format($total_paid, 2); ?> of $<?php echo number_format($salary_earned_this_month, 2); ?></small>
+                    <small class="text-muted">Payment Progress: <?php echo formatCurrencyAmount($total_paid, $salary_currency); ?> of <?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></small>
                 </div>
             </div>
         </div>
@@ -500,7 +503,7 @@ $salary_remaining = $salary_earned_this_month - $total_paid;
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0"><?php echo htmlspecialchars($contract['contract_name']); ?></h6>
+                                <h6 class="mb-0"><?php echo htmlspecialchars($contract['contract_name'] ?? ($contract['contract_code'] ?? ('Contract #' . ($contract['id'] ?? 'N/A')))); ?></h6>
                                 <small class="text-muted"><?php echo htmlspecialchars($contract['project_name'] ?? 'No Project'); ?></small>
                             </div>
                             <div class="flex-shrink-0">
