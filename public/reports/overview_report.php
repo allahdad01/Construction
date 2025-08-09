@@ -63,7 +63,6 @@ try {
                 COUNT(DISTINCT m.id) as total_machines,
                 COUNT(DISTINCT ct.id) as total_contracts,
                 SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
-                SUM(COALESCE(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day, 0)) as total_earnings,
                 SUM(COALESCE(exp.amount, 0)) as total_expenses,
                 SUM(COALESCE(sp.amount_paid, 0)) as total_salary_payments
             FROM employees e
@@ -80,19 +79,83 @@ try {
             $overview_data = array_merge($overview_data, $result);
         }
         
-        // Get earnings trend
+        // Compute total earnings from payments (contracts + area rentals + parking) per currency
+        // Contracts
         $stmt = $conn->prepare("
-            SELECT 
-                DATE(wh.date) as date,
-                SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day) as earnings
-            FROM working_hours wh
-            JOIN contracts ct ON wh.contract_id = ct.id
-            WHERE wh.company_id = ? AND wh.date BETWEEN ? AND ?
-            GROUP BY DATE(wh.date)
-            ORDER BY date
+            SELECT COALESCE(cp.currency, c.currency, 'USD') as currency, COALESCE(SUM(cp.amount), 0) as total
+            FROM contract_payments cp
+            JOIN contracts c ON cp.contract_id = c.id
+            WHERE cp.company_id = ? AND cp.status = 'completed' AND cp.payment_date BETWEEN ? AND ?
+            GROUP BY COALESCE(cp.currency, c.currency, 'USD')
         ");
         $stmt->execute([$company_id, $start_date, $end_date]);
-        $trend_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $earn_contracts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        // Area rentals
+        $stmt = $conn->prepare("
+            SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total
+            FROM area_rental_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY COALESCE(currency, 'USD')
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $earn_areas = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        // Parking
+        $stmt = $conn->prepare("
+            SELECT COALESCE(currency, 'USD') as currency, COALESCE(SUM(amount), 0) as total
+            FROM parking_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY COALESCE(currency, 'USD')
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        $earn_parking = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        // Merge
+        $earn_map = [];
+        foreach ([$earn_contracts, $earn_areas, $earn_parking] as $src) {
+            foreach ($src as $cur => $amt) {
+                $earn_map[$cur] = ($earn_map[$cur] ?? 0) + ($amt ?? 0);
+            }
+        }
+        $overview_data['total_earnings_by_currency'] = $earn_map;
+        $overview_data['total_earnings'] = array_sum($earn_map);
+        
+        // Earnings trend: sum all payment sources by date
+        $trend_data = [];
+        // Contract payments by date
+        $stmt = $conn->prepare("
+            SELECT DATE(payment_date) as date, SUM(amount) as revenue
+            FROM contract_payments
+            WHERE company_id = ? AND status = 'completed' AND payment_date BETWEEN ? AND ?
+            GROUP BY DATE(payment_date)
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $trend_data[$row['date']] = ($trend_data[$row['date']] ?? 0) + ($row['revenue'] ?? 0);
+        }
+        // Area rental payments by date
+        $stmt = $conn->prepare("
+            SELECT DATE(payment_date) as date, SUM(amount) as revenue
+            FROM area_rental_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY DATE(payment_date)
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $trend_data[$row['date']] = ($trend_data[$row['date']] ?? 0) + ($row['revenue'] ?? 0);
+        }
+        // Parking payments by date
+        $stmt = $conn->prepare("
+            SELECT DATE(payment_date) as date, SUM(amount) as revenue
+            FROM parking_payments
+            WHERE company_id = ? AND payment_date BETWEEN ? AND ?
+            GROUP BY DATE(payment_date)
+        ");
+        $stmt->execute([$company_id, $start_date, $end_date]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $trend_data[$row['date']] = ($trend_data[$row['date']] ?? 0) + ($row['revenue'] ?? 0);
+        }
+        ksort($trend_data);
+        // Normalize for chart
+        $trend_data = array_map(function($date, $val){ return ['date' => $date, 'earnings' => $val]; }, array_keys($trend_data), $trend_data);
     }
     
     // Generate insights
@@ -195,7 +258,13 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <h3 class="text-success"><?php echo formatCurrency($overview_data['total_earnings']); ?></h3>
+                                    <?php if (!empty($overview_data['total_earnings_by_currency'])): ?>
+                                        <?php $idx = 0; foreach ($overview_data['total_earnings_by_currency'] as $cur => $amt): ?>
+                                            <h4 class="text-success <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></h4>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <h3 class="text-success">$0.00</h3>
+                                    <?php endif; ?>
                                     <p class="text-muted mb-0">Total Earnings</p>
                                 </div>
                             </div>
