@@ -208,7 +208,9 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                 </div>
                 <div class="card-body">
                     <?php if (!$is_super_admin && !empty($attendance_data)): ?>
-                        <canvas id="attendanceChart" height="200"></canvas>
+                        <div class="fixed-chart">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
                         <div class="mt-3">
                             <?php
                             $total_present = array_sum(array_column($attendance_data, 'present_days'));

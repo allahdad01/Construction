@@ -216,7 +216,9 @@ try {
                     <h6 class="m-0 font-weight-bold text-primary">Contract Status</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="contractStatusChart" height="200"></canvas>
+                    <div class="fixed-chart">
+                        <canvas id="contractStatusChart"></canvas>
+                    </div>
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-1">
                             <span>Active Contracts</span>

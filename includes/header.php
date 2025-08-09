@@ -493,6 +493,21 @@ date_default_timezone_set($company_timezone);
         canvas { display: block; }
         .chart-area, .chart-pie { min-height: 220px; }
 
+        /* Fixed chart utility for donut/compact charts inside side cards */
+        .fixed-chart {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            overflow: hidden;
+        }
+        .fixed-chart > canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Utility: stack multi-currency amounts neatly */
         .stacked-amounts > div { line-height: 1.2; }
         .stacked-amounts > div.small { font-size: 0.85rem; opacity: 0.85; }

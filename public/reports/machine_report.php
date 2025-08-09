@@ -195,7 +195,9 @@ try {
                     <h6 class="m-0 font-weight-bold text-primary">Machine Utilization</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="machineUtilizationChart" height="200"></canvas>
+                    <div class="fixed-chart">
+                        <canvas id="machineUtilizationChart"></canvas>
+                    </div>
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-1">
                             <span>Active Machines</span>
