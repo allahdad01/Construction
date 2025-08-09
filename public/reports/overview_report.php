@@ -300,7 +300,13 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <h3 class="text-warning"><?php echo formatCurrency($overview_data['total_expenses']); ?></h3>
+                                    <?php if (!empty($overview_data['total_expenses_by_currency'])): ?>
+                                        <?php $idx = 0; foreach ($overview_data['total_expenses_by_currency'] as $cur => $amt): ?>
+                                            <h4 class="text-warning <?php echo $idx++ > 0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount($amt, $cur); ?></h4>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <h3 class="text-warning">$0.00</h3>
+                                    <?php endif; ?>
                                     <p class="text-muted mb-0">Total Expenses</p>
                                 </div>
                             </div>
