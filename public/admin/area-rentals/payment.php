@@ -22,6 +22,68 @@ if (!$rental_id) {
     exit;
 }
 
+// Detect payments table columns and whether company_id exists
+$payCols = [];
+try { $payCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_payments")->fetchAll(PDO::FETCH_ASSOC)); } catch (Exception $e) {}
+$hasPaymentCompanyId = in_array('company_id', $payCols, true);
+
+// AJAX: fetch a payment record
+if (isset($_GET['action']) && $_GET['action'] === 'get') {
+    header('Content-Type: application/json');
+    try {
+        $sql = "SELECT * FROM area_rental_payments WHERE id = ? AND area_rental_id = ?" . ($hasPaymentCompanyId ? " AND company_id = ?" : "");
+        $stmt = $conn->prepare($sql);
+        $params = [(int)($_GET['pid'] ?? 0), $rental_id]; if ($hasPaymentCompanyId) { $params[] = $company_id; }
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($row ?: []);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// Update/Delete actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    try {
+        if ($_POST['action'] === 'update') {
+            $pid = (int)($_POST['id'] ?? 0);
+            if (!$pid) { throw new Exception('Invalid payment id'); }
+            // Allowed columns (present in this page schema); guard existence
+            $allowed = [
+                'amount' => ($_POST['amount'] === '' ? null : $_POST['amount']),
+                'payment_method' => $_POST['payment_method'] ?? null,
+                'reference_number' => $_POST['reference_number'] ?? null,
+                'payment_date' => $_POST['payment_date'] ?? null,
+                'notes' => $_POST['notes'] ?? null,
+                'currency' => $_POST['currency'] ?? null,
+            ];
+            $setParts = [];
+            $params = [];
+            foreach ($allowed as $col => $val) {
+                if (in_array($col, $payCols, true) && $val !== null) { $setParts[] = "$col = ?"; $params[] = $val; }
+            }
+            if (empty($setParts)) { throw new Exception('Nothing to update'); }
+            $params[] = $pid; $params[] = $rental_id; if ($hasPaymentCompanyId) { $params[] = $company_id; }
+            $sql = 'UPDATE area_rental_payments SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?' . ($hasPaymentCompanyId ? ' AND company_id = ?' : '');
+            $stmt = $conn->prepare($sql); $stmt->execute($params);
+            header('Location: payment.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+        if ($_POST['action'] === 'delete') {
+            $pid = (int)($_POST['id'] ?? 0);
+            if (!$pid) { throw new Exception('Invalid payment id'); }
+            $sql = 'DELETE FROM area_rental_payments WHERE id = ? AND area_rental_id = ?' . ($hasPaymentCompanyId ? ' AND company_id = ?' : '');
+            $stmt = $conn->prepare($sql);
+            $params = [$pid, $rental_id]; if ($hasPaymentCompanyId) { $params[] = $company_id; }
+            $stmt->execute($params);
+            header('Location: payment.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+    } catch (Exception $e) { $error = $e->getMessage(); }
+}
+
 // Get rental details with area information
 $stmt = $conn->prepare("
     SELECT 
@@ -51,8 +113,8 @@ $total_amount = $rental['monthly_rate'];
 $total_paid = $rental['total_paid'] ?? 0;
 $remaining_amount = $total_amount - $total_paid;
 
-// Handle form submission for new payment
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle form submission for new payment (create)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
     try {
         // Validate payment amount
         $payment_amount = (float)$_POST['payment_amount'];
@@ -73,14 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
 
         // Insert payment record
-        $stmt = $conn->prepare("
-            INSERT INTO area_rental_payments (
-                area_rental_id, amount, payment_method, reference_number, 
-                payment_date, notes, currency, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-
-        $stmt->execute([
+        $columns = ['area_rental_id','amount','payment_method','reference_number','payment_date','notes','currency'];
+        $placeholders = '?,?,?,?,?,?,?';
+        $values = [
             $rental_id,
             $payment_amount,
             trim($_POST['payment_method']),
@@ -88,7 +145,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['payment_date'] ?? date('Y-m-d'),
             trim($_POST['notes'] ?? ''),
             $rental['currency'] ?? 'USD'
-        ]);
+        ];
+        if ($hasPaymentCompanyId) { $columns[] = 'company_id'; $placeholders .= ',?'; $values[] = $company_id; }
+        $sql = 'INSERT INTO area_rental_payments (' . implode(',', $columns) . ') VALUES (' . $placeholders . ')';
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($values);
 
         // Update rental status if fully paid
         $new_total_paid = $total_paid + $payment_amount;
@@ -101,27 +162,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->commit();
 
         $success = "Payment recorded successfully!";
-        
-        // Redirect to refresh the page
         header("Location: payment.php?id=$rental_id&success=1");
         exit;
 
     } catch (Exception $e) {
-        // Rollback transaction on error
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
-        }
+        if ($conn->inTransaction()) { $conn->rollBack(); }
         $error = $e->getMessage();
     }
 }
 
 // Get payment history
-$stmt = $conn->prepare("
-    SELECT * FROM area_rental_payments 
-    WHERE area_rental_id = ? 
-    ORDER BY payment_date DESC, created_at DESC
-");
-$stmt->execute([$rental_id]);
+$sql = "SELECT * FROM area_rental_payments WHERE area_rental_id = ?" . ($hasPaymentCompanyId ? " AND company_id = ?" : "") . " ORDER BY payment_date DESC, created_at DESC";
+$stmt = $conn->prepare($sql);
+$params = [$rental_id]; if ($hasPaymentCompanyId) { $params[] = $company_id; }
+$stmt->execute($params);
 $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Move header include after all potential redirects
@@ -152,7 +206,7 @@ require_once '../../../includes/header.php';
     <?php endif; ?>
 
     <?php if ($success || isset($_GET['success'])): ?>
-        <div class="alert alert-success">Payment recorded successfully!</div>
+        <div class="alert alert-success">Action completed successfully!</div>
     <?php endif; ?>
 
     <div class="row">
@@ -232,7 +286,7 @@ require_once '../../../includes/header.php';
             </div>
         </div>
 
-        <!-- Payment Summary -->
+        <!-- Payment Summary & History -->
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -323,6 +377,7 @@ require_once '../../../includes/header.php';
                                         <th>Method</th>
                                         <th>Reference</th>
                                         <th>Notes</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -353,6 +408,13 @@ require_once '../../../includes/header.php';
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-primary" onclick="viewPayment(<?php echo (int)$payment['id']; ?>)" title="View"><i class="fas fa-eye"></i></button>
+                                                <button type="button" class="btn btn-outline-warning" onclick="editPayment(<?php echo (int)$payment['id']; ?>)" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button type="button" class="btn btn-outline-danger" onclick="deletePayment(<?php echo (int)$payment['id']; ?>)" title="Delete"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -365,65 +427,118 @@ require_once '../../../includes/header.php';
     </div>
 </div>
 
+<!-- View Modal -->
+<div class="modal fade" id="viewPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Payment Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="viewPaymentBody"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Payment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" id="editPaymentForm">
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="id" id="edit_id">
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label">Amount</label>
+            <input type="number" step="0.01" class="form-control" name="amount" id="edit_amount">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Method</label>
+            <select class="form-control" name="payment_method" id="edit_method">
+              <option value="cash">Cash</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="check">Check</option>
+              <option value="credit_card">Credit Card</option>
+              <option value="mobile_payment">Mobile Payment</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Payment Date</label>
+            <input type="date" class="form-control" name="payment_date" id="edit_date">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Reference</label>
+            <input type="text" class="form-control" name="reference_number" id="edit_reference">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Currency</label>
+            <input type="text" class="form-control" name="currency" id="edit_currency">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" id="edit_notes"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Enable spaces in text inputs and textareas
-    const textInputs = document.querySelectorAll('input[type="text"], textarea');
-    
-    // Function to enable spaces in input fields
-    function enableSpacesInInput(input) {
-        if (input) {
-            // Remove any existing event listeners that might block spaces
-            input.removeEventListener('keydown', null);
-            input.removeEventListener('keypress', null);
-            input.removeEventListener('keyup', null);
-            
-            // Add space handling
-            input.addEventListener('keydown', function(e) {
-                // Explicitly allow space key
-                if (e.key === ' ' || e.keyCode === 32) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Manually insert space
-                    const start = this.selectionStart;
-                    const end = this.selectionEnd;
-                    const value = this.value;
-                    this.value = value.substring(0, start) + ' ' + value.substring(end);
-                    this.selectionStart = this.selectionEnd = start + 1;
-                    
-                    return false;
-                }
-            });
-            
-            // Ensure the input is properly configured
-            if (input.type === 'text') {
-                input.setAttribute('type', 'text');
-                input.style.textTransform = 'none';
-                input.style.letterSpacing = 'normal';
-            }
-        }
-    }
-    
-    // Enable spaces in all text inputs and textareas
-    textInputs.forEach(enableSpacesInInput);
-    
-    // Initialize DataTable for payments
-    if (document.getElementById('paymentsTable')) {
-        $('#paymentsTable').DataTable({
-            order: [[0, 'desc']],
-            pageLength: 10,
-            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
-            language: {
-                search: "Search payments:",
-                lengthMenu: "Show _MENU_ payments per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ payments",
-                infoEmpty: "Showing 0 to 0 of 0 payments",
-                infoFiltered: "(filtered from _MAX_ total payments)"
-            }
-        });
-    }
-});
+async function viewPayment(id){
+  try{
+    const res = await fetch(`payment.php?id=<?php echo $rental_id; ?>&action=get&pid=${id}`);
+    const d = await res.json();
+    const html = `
+      <div><strong>Amount:</strong> <?php echo getCurrencySymbol($rental['currency'] ?? 'USD'); ?>${(d.amount ?? 0)}</div>
+      <div><strong>Method:</strong> ${(d.payment_method ?? '-')}</div>
+      <div><strong>Date:</strong> ${(d.payment_date ?? '-')}</div>
+      <div><strong>Reference:</strong> ${(d.reference_number ?? '-')}</div>
+      <div><strong>Currency:</strong> ${(d.currency ?? '-')}</div>
+      <div><strong>Notes:</strong><br>${(d.notes ?? '').toString().replace(/</g,'&lt;')}</div>
+    `;
+    document.getElementById('viewPaymentBody').innerHTML = html;
+    new bootstrap.Modal(document.getElementById('viewPaymentModal')).show();
+  }catch(e){ alert('Failed to load payment'); }
+}
+
+async function editPayment(id){
+  try{
+    const res = await fetch(`payment.php?id=<?php echo $rental_id; ?>&action=get&pid=${id}`);
+    const d = await res.json();
+    document.getElementById('edit_id').value = d.id || id;
+    document.getElementById('edit_amount').value = d.amount || '';
+    document.getElementById('edit_method').value = d.payment_method || 'cash';
+    document.getElementById('edit_date').value = d.payment_date || '';
+    document.getElementById('edit_reference').value = d.reference_number || '';
+    document.getElementById('edit_currency').value = d.currency || '<?php echo $rental['currency'] ?? 'USD'; ?>';
+    document.getElementById('edit_notes').value = d.notes || '';
+    new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+  }catch(e){ alert('Failed to load payment for edit'); }
+}
+
+async function deletePayment(id){
+  if(!confirm('Delete this payment?')) return;
+  const fd = new FormData();
+  fd.append('action','delete');
+  fd.append('id', id);
+  const res = await fetch(`payment.php?id=<?php echo $rental_id; ?>`, { method:'POST', body: fd });
+  if(res.ok){ location.reload(); } else { alert('Failed to delete'); }
+}
 </script>
 
 <?php require_once '../../../includes/footer.php'; ?>
