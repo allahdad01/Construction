@@ -40,12 +40,22 @@ if (!$rental) {
     exit;
 }
 
+// Detect visits table columns
+$__visitCols = [];
+try {
+    $__visitCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_visits")->fetchAll(PDO::FETCH_ASSOC));
+} catch (Exception $e) { $__visitCols = []; }
+$__hasVisitCompanyId = in_array('company_id', $__visitCols, true);
+
 // AJAX: fetch a visit record
 if (isset($_GET['action']) && $_GET['action'] === 'get') {
     header('Content-Type: application/json');
     try {
-        $stmt = $conn->prepare("SELECT * FROM area_rental_visits WHERE id = ? AND area_rental_id = ?");
-        $stmt->execute([(int)($_GET['vid'] ?? 0), $rental_id]);
+        $sql = "SELECT * FROM area_rental_visits WHERE id = ? AND area_rental_id = ?" . ($__hasVisitCompanyId ? " AND company_id = ?" : "");
+        $stmt = $conn->prepare($sql);
+        $params = [(int)($_GET['vid'] ?? 0), $rental_id];
+        if ($__hasVisitCompanyId) { $params[] = $company_id; }
+        $stmt->execute($params);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         echo json_encode($row ?: []);
     } catch (Exception $e) {
@@ -58,13 +68,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'get') {
 // Update/Delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     try {
-        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_visits")->fetchAll(PDO::FETCH_ASSOC));
+        $cols = $__visitCols;
         if ($_POST['action'] === 'update') {
             $vid = (int)($_POST['id'] ?? 0);
             if (!$vid) { throw new Exception('Invalid visit id'); }
             // Map allowed fields with optional fallbacks
             $map = [
-                // logical => [possible column names]
                 'visit_type' => ['visit_type','type'],
                 'purpose' => ['purpose'],
                 'visit_date' => ['visit_date','date'],
@@ -87,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (empty($setParts)) { throw new Exception('Nothing to update'); }
             $params[] = $vid;
             $params[] = $rental_id;
-            $sql = 'UPDATE area_rental_visits SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?';
+            $sql = 'UPDATE area_rental_visits SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?' . ($__hasVisitCompanyId ? ' AND company_id = ?' : '');
+            if ($__hasVisitCompanyId) { $params[] = $company_id; }
             $stmt = $conn->prepare($sql);
             $stmt->execute($params);
             header('Location: visits.php?id=' . $rental_id . '&success=1');
@@ -96,8 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($_POST['action'] === 'delete') {
             $vid = (int)($_POST['id'] ?? 0);
             if (!$vid) { throw new Exception('Invalid visit id'); }
-            $stmt = $conn->prepare('DELETE FROM area_rental_visits WHERE id = ? AND area_rental_id = ?');
-            $stmt->execute([$vid, $rental_id]);
+            $sql = 'DELETE FROM area_rental_visits WHERE id = ? AND area_rental_id = ?' . ($__hasVisitCompanyId ? ' AND company_id = ?' : '');
+            $stmt = $conn->prepare($sql);
+            $params = [$vid, $rental_id];
+            if ($__hasVisitCompanyId) { $params[] = $company_id; }
+            $stmt->execute($params);
             header('Location: visits.php?id=' . $rental_id . '&success=1');
             exit;
         }
@@ -118,10 +131,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
         // Dynamic insert based on available columns
-        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_visits")->fetchAll(PDO::FETCH_ASSOC));
+        $cols = $__visitCols;
         $columns = ['area_rental_id'];
         $placeholders = ['?'];
         $params = [$rental_id];
+        if (in_array('company_id', $cols, true)) { $columns[] = 'company_id'; $placeholders[] = '?'; $params[] = $company_id; }
         // Helper to add if column exists
         $addCol = function($c, $v) use (&$columns,&$placeholders,&$params,$cols) {
             if (in_array($c, $cols, true)) { $columns[] = $c; $placeholders[] = '?'; $params[] = $v; }
@@ -163,12 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get visit history
-$stmt = $conn->prepare("
-    SELECT * FROM area_rental_visits 
-    WHERE area_rental_id = ? 
-    ORDER BY visit_date DESC, created_at DESC
-");
-$stmt->execute([$rental_id]);
+$sql = "SELECT * FROM area_rental_visits WHERE area_rental_id = ?" . ($__hasVisitCompanyId ? " AND company_id = ?" : "") . " ORDER BY visit_date DESC, created_at DESC";
+$stmt = $conn->prepare($sql);
+$params = [$rental_id]; if ($__hasVisitCompanyId) { $params[] = $company_id; }
+$stmt->execute($params);
 $visit_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Move header include after all potential redirects

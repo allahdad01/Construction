@@ -40,12 +40,22 @@ if (!$rental) {
     exit;
 }
 
+// Detect maintenance table columns
+$__maintCols = [];
+try {
+    $__maintCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_maintenance")->fetchAll(PDO::FETCH_ASSOC));
+} catch (Exception $e) { $__maintCols = []; }
+$__hasMaintCompanyId = in_array('company_id', $__maintCols, true);
+
 // AJAX: fetch a maintenance record
 if (isset($_GET['action']) && $_GET['action'] === 'get') {
     header('Content-Type: application/json');
     try {
-        $stmt = $conn->prepare("SELECT * FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?");
-        $stmt->execute([(int)($_GET['mid'] ?? 0), $rental_id]);
+        $sql = "SELECT * FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?" . ($__hasMaintCompanyId ? " AND company_id = ?" : "");
+        $stmt = $conn->prepare($sql);
+        $params = [(int)($_GET['mid'] ?? 0), $rental_id];
+        if ($__hasMaintCompanyId) { $params[] = $company_id; }
+        $stmt->execute($params);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         echo json_encode($row ?: []);
     } catch (Exception $e) {
@@ -62,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $mid = (int)($_POST['id'] ?? 0);
             if (!$mid) { throw new Exception('Invalid maintenance id'); }
             // Determine updatable columns dynamically
-            $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_maintenance")->fetchAll(PDO::FETCH_ASSOC));
+            $cols = $__maintCols;
             $allowed = [
                 'maintenance_type' => trim($_POST['maintenance_type'] ?? ''),
                 'description' => trim($_POST['description'] ?? ''),
@@ -85,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (empty($setParts)) { throw new Exception('Nothing to update'); }
             $params[] = $mid;
             $params[] = $rental_id;
-            $sql = 'UPDATE area_rental_maintenance SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?';
+            $sql = 'UPDATE area_rental_maintenance SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?' . ($__hasMaintCompanyId ? ' AND company_id = ?' : '');
+            if ($__hasMaintCompanyId) { $params[] = $company_id; }
             $stmt = $conn->prepare($sql);
             $stmt->execute($params);
             header('Location: maintenance.php?id=' . $rental_id . '&success=1');
@@ -94,8 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($_POST['action'] === 'delete') {
             $mid = (int)($_POST['id'] ?? 0);
             if (!$mid) { throw new Exception('Invalid maintenance id'); }
-            $stmt = $conn->prepare('DELETE FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?');
-            $stmt->execute([$mid, $rental_id]);
+            $sql = 'DELETE FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?' . ($__hasMaintCompanyId ? ' AND company_id = ?' : '');
+            $stmt = $conn->prepare($sql);
+            $params = [$mid, $rental_id];
+            if ($__hasMaintCompanyId) { $params[] = $company_id; }
+            $stmt->execute($params);
             header('Location: maintenance.php?id=' . $rental_id . '&success=1');
             exit;
         }
@@ -120,10 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
 
         // Dynamic insert based on available columns
-        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_maintenance")->fetchAll(PDO::FETCH_ASSOC));
+        $cols = $__maintCols;
         $columns = ['area_rental_id'];
         $placeholders = ['?'];
         $params = [$rental_id];
+        if (in_array('company_id', $cols, true)) { $columns[] = 'company_id'; $placeholders[] = '?'; $params[] = $company_id; }
         $addCol = function($c, $v) use (&$columns,&$placeholders,&$params,$cols) {
             if (in_array($c, $cols, true)) { $columns[] = $c; $placeholders[] = '?'; $params[] = $v; }
         };
@@ -287,15 +302,21 @@ require_once '../../../includes/header.php';
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="estimated_cost" class="form-label">Estimated Cost</label>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="estimated_cost" name="estimated_cost" 
-                                           placeholder="0.00">
+                                    <?php if (in_array('estimated_cost', $__maintCols, true)): ?>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="estimated_cost" name="estimated_cost" placeholder="0.00">
+                                    <?php else: ?>
+                                    <input type="number" class="form-control" placeholder="Not available" disabled>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="actual_cost" class="form-label">Actual Cost</label>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="actual_cost" name="actual_cost" 
-                                           placeholder="0.00">
+                                    <?php if (in_array('actual_cost', $__maintCols, true)): ?>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="actual_cost" name="actual_cost" placeholder="0.00">
+                                    <?php else: ?>
+                                    <input type="number" class="form-control" placeholder="Not available" disabled>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
