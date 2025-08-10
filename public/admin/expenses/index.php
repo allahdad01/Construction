@@ -14,6 +14,60 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
+// Handle land rent settings save
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_land_rent') {
+    try {
+        $enabled = isset($_POST['land_rent_enabled']) ? 1 : 0;
+        $type = in_array($_POST['land_rent_type'] ?? 'monthly', ['monthly','yearly'], true) ? $_POST['land_rent_type'] : 'monthly';
+        $amount = (float)($_POST['land_rent_amount'] ?? 0);
+        $currency = $_POST['land_rent_currency'] ?? 'USD';
+        $start_date = $_POST['land_rent_start_date'] ?? date('Y-m-d');
+        $advance = (float)($_POST['land_rent_advance_paid'] ?? 0);
+        $extra = (float)($_POST['land_rent_extra_paid'] ?? 0);
+        $pairs = [
+            'land_rent_enabled' => $enabled,
+            'land_rent_type' => $type,
+            'land_rent_amount' => $amount,
+            'land_rent_currency' => $currency,
+            'land_rent_start_date' => $start_date,
+            'land_rent_advance_paid' => $advance,
+            'land_rent_extra_paid' => $extra,
+        ];
+        foreach ($pairs as $k => $v) {
+            $stmt = $conn->prepare("INSERT INTO company_settings (company_id, setting_key, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+            $stmt->execute([$company_id, $k, (string)$v]);
+        }
+        $success = 'Land rent settings updated.';
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+
+// Load land rent settings
+$land = [
+    'enabled' => (int)getCompanySettingLocal($conn, $company_id, 'land_rent_enabled', '0'),
+    'type' => getCompanySettingLocal($conn, $company_id, 'land_rent_type', 'monthly'),
+    'amount' => (float)getCompanySettingLocal($conn, $company_id, 'land_rent_amount', '0'),
+    'currency' => getCompanySettingLocal($conn, $company_id, 'land_rent_currency', 'USD'),
+    'start_date' => getCompanySettingLocal($conn, $company_id, 'land_rent_start_date', date('Y-m-01')),
+    'advance_paid' => (float)getCompanySettingLocal($conn, $company_id, 'land_rent_advance_paid', '0'),
+    'extra_paid' => (float)getCompanySettingLocal($conn, $company_id, 'land_rent_extra_paid', '0'),
+];
+
+// Calculate statement
+$days_elapsed = 0; $months_elapsed = 0; $owed = 0.0; $remaining = 0.0; $total_paid = $land['advance_paid'] + $land['extra_paid']; $daily_rate = 0.0;
+try {
+    $start = new DateTime($land['start_date']);
+    $today = new DateTime(date('Y-m-d'));
+    if ($today >= $start) {
+        $days_elapsed = (int)$start->diff($today)->days;
+        $months_elapsed = (int)$start->diff($today)->m + ($start->diff($today)->y * 12);
+        $daily_rate = ($land['type'] === 'yearly') ? ((float)$land['amount'] / 365.0) : ((float)$land['amount'] / 30.0);
+        $owed = $daily_rate * $days_elapsed;
+        $remaining = max(0.0, $owed - $total_paid);
+    }
+} catch (Exception $e) {}
+
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $expense_id = (int)$_GET['delete'];
@@ -318,6 +372,88 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     </a>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Land Rent Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-home"></i> Company Land Rent</h6>
+            <div>
+                <a href="land-rent-print.php" class="btn btn-sm btn-outline-dark" target="_blank"><i class="fas fa-print"></i> Print Statement</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="POST" class="mb-3">
+                <input type="hidden" name="action" value="update_land_rent">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-2">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="land_enabled" name="land_rent_enabled" <?php echo $land['enabled'] ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="land_enabled">Land is rented</label>
+                        </div>
+                        <label class="form-label">Type</label>
+                        <select class="form-control" name="land_rent_type">
+                            <option value="monthly" <?php echo $land['type']==='monthly'?'selected':''; ?>>Monthly</option>
+                            <option value="yearly" <?php echo $land['type']==='yearly'?'selected':''; ?>>Yearly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" step="0.01" min="0" name="land_rent_amount" value="<?php echo htmlspecialchars((string)$land['amount']); ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Currency</label>
+                        <select class="form-control" name="land_rent_currency">
+                            <option value="USD" <?php echo $land['currency']==='USD'?'selected':''; ?>>USD</option>
+                            <option value="AFN" <?php echo $land['currency']==='AFN'?'selected':''; ?>>AFN</option>
+                            <option value="EUR" <?php echo $land['currency']==='EUR'?'selected':''; ?>>EUR</option>
+                            <option value="GBP" <?php echo $land['currency']==='GBP'?'selected':''; ?>>GBP</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" name="land_rent_start_date" value="<?php echo htmlspecialchars($land['start_date']); ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Advance Paid</label>
+                        <input type="number" class="form-control" step="0.01" min="0" name="land_rent_advance_paid" value="<?php echo htmlspecialchars((string)$land['advance_paid']); ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Extra Paid (to date)</label>
+                        <input type="number" class="form-control" step="0.01" min="0" name="land_rent_extra_paid" value="<?php echo htmlspecialchars((string)$land['extra_paid']); ?>">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-muted">Duration</div>
+                        <div class="fw-bold"><?php echo number_format($days_elapsed); ?> days (<?php echo number_format($months_elapsed); ?> months)</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-muted">Owed Until Today</div>
+                        <div class="fw-bold"><?php echo formatCurrencyAmount($owed, $land['currency']); ?></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-muted">Paid To Date</div>
+                        <div class="fw-bold"><?php echo formatCurrencyAmount($total_paid, $land['currency']); ?></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-muted">Remaining</div>
+                        <div class="fw-bold text-danger"><?php echo formatCurrencyAmount($remaining, $land['currency']); ?></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
