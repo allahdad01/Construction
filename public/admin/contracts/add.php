@@ -11,6 +11,18 @@ $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 
+// Ensure contract_machines table exists
+try {
+    $conn->exec("CREATE TABLE IF NOT EXISTS contract_machines (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        company_id INT NOT NULL,
+        contract_id INT NOT NULL,
+        machine_id INT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_contract_machine (company_id, contract_id, machine_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+} catch (Exception $e) {}
+
 $error = '';
 $success = '';
 
@@ -28,11 +40,16 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['project_id', 'machine_id', 'contract_type', 'rate_amount', 'start_date'];
+        $required_fields = ['project_id', 'contract_type', 'rate_amount', 'start_date'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
+        }
+        // Validate at least one machine
+        $machine_ids = $_POST['machine_ids'] ?? [];
+        if (empty($machine_ids) || !is_array($machine_ids)) {
+            throw new Exception('Please select at least one machine.');
         }
 
         // Validate rate amount
@@ -54,7 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Create contract record
+        // Create contract record (use first machine as primary for backward compatibility)
+        $primary_machine_id = (int)$machine_ids[0];
         $stmt = $conn->prepare("
             INSERT INTO contracts (
                 company_id, contract_code, project_id, machine_id,
@@ -68,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $company_id,
             $contract_code,
             $_POST['project_id'],
-            $_POST['machine_id'],
+            $primary_machine_id,
             $_POST['contract_type'],
             $_POST['rate_amount'],
             $_POST['currency'] ?? 'USD',
@@ -81,9 +99,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $contract_id = $conn->lastInsertId();
 
-        // Update machine status to 'in_use'
-        $stmt = $conn->prepare("UPDATE machines SET status = 'in_use' WHERE id = ?");
-        $stmt->execute([$_POST['machine_id']]);
+        // Insert all selected machines into contract_machines and set them in use
+        $ins = $conn->prepare("INSERT IGNORE INTO contract_machines (company_id, contract_id, machine_id) VALUES (?, ?, ?)");
+        $upd = $conn->prepare("UPDATE machines SET status = 'in_use' WHERE id = ?");
+        foreach ($machine_ids as $mid) {
+            $mid = (int)$mid;
+            if ($mid > 0) {
+                $ins->execute([$company_id, $contract_id, $mid]);
+                $upd->execute([$mid]);
+            }
+        }
 
         // Commit transaction
         $conn->commit();
@@ -171,15 +196,15 @@ function generateContractCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="machine_id" class="form-label"><?php echo __('machine'); ?> *</label>
-                            <select class="form-control" id="machine_id" name="machine_id" required>
-                                <option value=""><?php echo __('select_machine'); ?></option>
+                            <label for="machine_ids" class="form-label"><?php echo __('machine'); ?> *</label>
+                            <select class="form-control" id="machine_ids" name="machine_ids[]" multiple required>
                                 <?php foreach ($machines as $machine): ?>
-                                <option value="<?php echo $machine['id']; ?>" <?php echo (isset($_POST['machine_id']) && $_POST['machine_id'] == $machine['id']) ? 'selected' : ''; ?>>
+                                <option value="<?php echo $machine['id']; ?>" <?php echo (isset($_POST['machine_ids']) && in_array($machine['id'], (array)$_POST['machine_ids'])) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($machine['machine_code'] . ' - ' . $machine['name'] . ' (' . $machine['type'] . ')'); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple machines.</small>
                         </div>
                     </div>
                 </div>

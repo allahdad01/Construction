@@ -71,6 +71,18 @@ $machine_search = '%' . $machine['machine_code'] . '%';
 $stmt->execute([$company_id, $machine_search, $machine_search]);
 $maintenance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Load active assignment
+$active_assignment = null;
+try {
+    $st = $conn->prepare("SELECT ma.*, d.name AS driver_name, a.name AS assistant_name
+                           FROM machine_assignments ma
+                           LEFT JOIN employees d ON ma.driver_employee_id = d.id
+                           LEFT JOIN employees a ON ma.assistant_employee_id = a.id
+                           WHERE ma.company_id = ? AND ma.machine_id = ? AND ma.status = 'active' ORDER BY ma.start_date DESC LIMIT 1");
+    $st->execute([$company_id, $machine_id]);
+    $active_assignment = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+} catch (Exception $e) {}
+
 // Helper function for capacity hints
 function getCapacityHint($type) {
     $hints = [
@@ -89,13 +101,13 @@ function getCapacityHint($type) {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-truck"></i> Machine Details
+            <i class="fas fa-cogs"></i> Machine Details
         </h1>
         <div>
-            <a href="edit.php?id=<?php echo $machine_id; ?>" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Machine
+            <a href="assign.php?machine_id=<?php echo (int)$machine_id; ?>" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-user-cog"></i> Assign Operators
             </a>
-            <a href="index.php" class="btn btn-secondary">
+            <a href="index.php" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to Machines
             </a>
         </div>
@@ -425,6 +437,22 @@ function getCapacityHint($type) {
                         <h5><?php echo ucfirst(str_replace('_', ' ', $machine['type'])); ?></h5>
                         <p class="text-muted"><?php echo $current_type['desc']; ?></p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Current Assignment -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Current Assignment</h6>
+                </div>
+                <div class="card-body">
+                    <?php if ($active_assignment): ?>
+                        <div><strong>Driver:</strong> <?php echo htmlspecialchars($active_assignment['driver_name'] ?? ''); ?></div>
+                        <div><strong>Assistant:</strong> <?php echo htmlspecialchars($active_assignment['assistant_name'] ?? 'None'); ?></div>
+                        <div class="small text-muted">Since <?php echo htmlspecialchars($active_assignment['start_date']); ?></div>
+                    <?php else: ?>
+                        <div class="text-muted">No active assignment</div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
