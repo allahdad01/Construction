@@ -480,13 +480,12 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger delete-employee-btn" 
-                                                data-employee-id="<?php echo $employee['id']; ?>"
-                                                data-employee-name="<?php echo htmlspecialchars($employee['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                title="Delete Employee">
+                                        <a href="delete.php?id=<?php echo $employee['id']; ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to delete employee <?php echo htmlspecialchars($employee['name'], ENT_QUOTES, 'UTF-8'); ?>? This action cannot be undone.');"
+                                           title="Delete Employee">
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -532,21 +531,6 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize delete button event listeners
-    const deleteButtons = document.querySelectorAll('.delete-employee-btn');
-    
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const employeeId = this.dataset.employeeId;
-            const employeeName = this.dataset.employeeName;
-            
-            confirmDelete(employeeId, employeeName);
-        });
-    });
-    
     // Initialize DataTable with proper destroy handling
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
         const table = $('#employeesTable');
@@ -573,23 +557,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-// Confirm delete function
-function confirmDelete(employeeId, employeeName) {
-    const message = `Are you sure you want to delete employee "${employeeName}"?\n\nThis action cannot be undone and will:\n- Remove the employee record\n- Delete associated user account (if exists)\n- You may need to handle related records (attendance, payments, etc.)\n\nContinue with deletion?`;
-    
-    console.log('confirmDelete called for:', employeeName, 'ID:', employeeId);
-    const userConfirmed = confirm(message);
-    console.log('User confirmed:', userConfirmed);
-    
-    if (userConfirmed) {
-        const redirectUrl = `index.php?delete=${employeeId}`;
-        console.log('Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
-    } else {
-        console.log('User cancelled delete');
-    }
-}
 
 // Force delete function
 function forceDeleteEmployee(employeeId, employeeName) {
