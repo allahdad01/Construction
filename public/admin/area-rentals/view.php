@@ -61,8 +61,9 @@ $duration_text = implode(', ', $parts);
 $range_text = date('M j, Y', strtotime($rental['start_date'])) . ' to ' . ($rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'present');
 
 // Days elapsed (inclusive)
-$asOfDate = $rental['end_date'] ? new DateTime($rental['end_date']) : new DateTime();
-$days_elapsed = $startDt->diff($asOfDate)->days + 1;
+$asOfDate = new DateTime();
+$interval = $startDt->diff($asOfDate);
+$days_elapsed = $interval->invert === 1 ? 0 : ($interval->days + 1);
 
 // Effective daily rate (fallback to monthly/30)
 $daily_rate_effective = (float)($rental['daily_rate'] ?? 0);
