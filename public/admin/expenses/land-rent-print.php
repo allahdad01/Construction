@@ -38,6 +38,14 @@ try {
 
 $days=0;$months=0;$owed=0.0;$remain=0.0;$daily=0.0;
 try{ $st=new DateTime($land['start_date']); $td=new DateTime(date('Y-m-d')); if($td>=$st){ $di=$st->diff($td); $days=(int)$di->days; $months = (int)$di->m + ($di->y*12); $daily = ($land['type']==='yearly')?($land['amount']/365.0):($land['amount']/30.0); $owed=$daily*$days; $remain=max(0.0,$owed-$paid);} }catch(Exception $e){}
+
+// Fetch individual payments for table
+$payments = [];
+try {
+  $ps = $conn->prepare("SELECT payment_date, amount, currency, method, reference, notes FROM land_rent_payments WHERE company_id = ? ORDER BY payment_date ASC, id ASC");
+  $ps->execute([$company_id]);
+  $payments = $ps->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) { $payments = []; }
 ?>
 <!doctype html>
 <html>
@@ -80,6 +88,34 @@ try{ $st=new DateTime($land['start_date']); $td=new DateTime(date('Y-m-d')); if(
   <tr><th>Owed Until Today</th><td><?php echo formatCurrencyAmount($owed, $land['currency']); ?></td></tr>
   <tr><th>Paid To Date</th><td><?php echo formatCurrencyAmount($paid, $land['currency']); ?></td></tr>
   <tr><th>Remaining</th><td><?php echo formatCurrencyAmount($remain, $land['currency']); ?></td></tr>
+</table>
+
+<h3>Payments</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:15%">Date</th>
+      <th style="width:20%" class="right">Amount</th>
+      <th style="width:10%">Currency</th>
+      <th style="width:15%">Method</th>
+      <th style="width:20%">Reference</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (empty($payments)): ?>
+      <tr><td colspan="6" class="muted">No payments recorded.</td></tr>
+    <?php else: foreach ($payments as $p): ?>
+      <tr>
+        <td><?php echo htmlspecialchars($p['payment_date']); ?></td>
+        <td class="right"><?php echo formatCurrencyAmount((float)$p['amount'], $p['currency'] ?: $land['currency']); ?></td>
+        <td><?php echo htmlspecialchars($p['currency'] ?: $land['currency']); ?></td>
+        <td><?php echo htmlspecialchars($p['method'] ?? ''); ?></td>
+        <td><?php echo htmlspecialchars($p['reference'] ?? ''); ?></td>
+        <td><?php echo htmlspecialchars($p['notes'] ?? ''); ?></td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
 </table>
 
 </body>
