@@ -226,6 +226,9 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
             <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#addLeaveModal">
                 <i class="fas fa-calendar-times"></i> Add Leave Days
             </button>
+            <a href="print.php?id=<?php echo $employee_id; ?>" target="_blank" class="btn btn-outline-dark me-2">
+                <i class="fas fa-print"></i> Print
+            </a>
             <a href="index.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Employees
             </a>
