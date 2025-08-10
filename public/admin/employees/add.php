@@ -48,18 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Generate random password
         $password = generateRandomPassword();
 
+        // Ensure salary_currency column exists (DDL outside transaction to avoid implicit commits)
+        try {
+            $conn->exec("ALTER TABLE employees ADD COLUMN salary_currency VARCHAR(3) DEFAULT 'AFN' AFTER monthly_salary");
+        } catch (Exception $e) {
+            // Ignore if already exists
+        }
+
         // Start transaction
         $txnStarted = false;
         if (!$conn->inTransaction()) {
             $conn->beginTransaction();
             $txnStarted = true;
-        }
-
-        // Ensure salary_currency column exists
-        try {
-            $conn->exec("ALTER TABLE employees ADD COLUMN salary_currency VARCHAR(3) DEFAULT 'AFN' AFTER monthly_salary");
-        } catch (Exception $e) {
-            // Ignore if already exists
         }
 
         // Create user account
