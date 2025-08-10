@@ -17,7 +17,7 @@ if (!$space_id) {
     exit;
 }
 
-// Fetch parking space
+// Fetch parking space (include descriptive fields if present)
 $stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
 $stmt->execute([$space_id, $company_id]);
 $space = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -28,15 +28,16 @@ if (!$space) {
 }
 $currency = $space['currency'] ?? 'USD';
 
-// Fetch rentals for this space
+// Fetch rentals for this space (include commonly used fields)
 $stmt = $conn->prepare("SELECT * FROM parking_rentals WHERE parking_space_id = ? AND company_id = ? ORDER BY start_date DESC");
 $stmt->execute([$space_id, $company_id]);
-$rentals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rentals = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 // Payments across rentals
 $payCols = [];
 try { $payCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM parking_payments")->fetchAll(PDO::FETCH_ASSOC)); } catch (Exception $e) {}
 $hasCurrency = in_array('currency', $payCols, true);
+$hasCompanyCol = in_array('company_id', $payCols, true);
 
 $payments = [];
 $total_by_currency = [];
@@ -59,6 +60,42 @@ if (!empty($rentals)) {
         $cur = $p['currency'] ?? 'USD';
         $total_by_currency[$cur] = ($total_by_currency[$cur] ?? 0) + (float)($p['amount'] ?? 0);
     }
+}
+
+// Compute per-rental financials (days, expected, paid, due)
+$perRental = [];
+$overall_expected = 0.0;
+foreach ($rentals as $r) {
+    $rental_currency = $r['currency'] ?? $currency;
+    $start = !empty($r['start_date']) ? new DateTime($r['start_date']) : new DateTime();
+    $asOf = !empty($r['end_date']) ? new DateTime($r['end_date']) : new DateTime();
+    $days = max(0, $start->diff($asOf)->days);
+    $daily = ((float)($r['monthly_rate'] ?? 0)) / 30.0;
+    $expected = !empty($r['total_amount']) ? (float)$r['total_amount'] : ($daily * $days);
+    // Sum paid for this rental in matching currency
+    $sumSql = "SELECT COALESCE(SUM(amount),0) FROM parking_payments WHERE rental_id = ? AND company_id = ?" . ($hasCurrency ? " AND COALESCE(currency, ?) = ?" : "");
+    $sumStmt = $conn->prepare($sumSql);
+    $sumParams = [$r['id'], $company_id]; if ($hasCurrency) { $sumParams[] = $rental_currency; $sumParams[] = $rental_currency; }
+    $sumStmt->execute($sumParams);
+    $paid = (float)$sumStmt->fetchColumn();
+    $due = max(0.0, $expected - $paid);
+    $perRental[] = [
+        'rental_code' => $r['rental_code'] ?? 'N/A',
+        'client_name' => $r['client_name'] ?? 'N/A',
+        'client_contact' => $r['client_contact'] ?? '-',
+        'vehicle_type' => $r['vehicle_type'] ?? '-',
+        'vehicle_registration' => $r['vehicle_registration'] ?? '-',
+        'start_date' => $r['start_date'] ?? null,
+        'end_date' => $r['end_date'] ?? null,
+        'days' => $days,
+        'monthly_rate' => (float)($r['monthly_rate'] ?? 0),
+        'currency' => $rental_currency,
+        'expected' => $expected,
+        'paid' => $paid,
+        'due' => $due,
+        'status' => $r['status'] ?? 'unknown',
+    ];
+    $overall_expected += $expected;
 }
 
 ?><!DOCTYPE html>
@@ -109,6 +146,11 @@ if (!empty($rentals)) {
       <div><strong>Size:</strong> <?php echo htmlspecialchars($space['size'] ?? 'medium'); ?></div>
       <div><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount((float)($space['monthly_rate'] ?? 0), $currency); ?></div>
       <div><strong>Daily Rate:</strong> <?php echo formatCurrencyAmount(((float)($space['monthly_rate'] ?? 0))/30.0, $currency); ?></div>
+      <div><strong>Capacity:</strong> <?php echo isset($space['capacity']) ? (int)$space['capacity'] : '-'; ?></div>
+      <div><strong>Created:</strong> <?php echo !empty($space['created_at']) ? date('M j, Y', strtotime($space['created_at'])) : '-'; ?></div>
+      <?php if (!empty($space['description'])): ?>
+      <div style="grid-column: 1 / span 2;"><strong>Description:</strong><br><span class="small"><?php echo nl2br(htmlspecialchars($space['description'])); ?></span></div>
+      <?php endif; ?>
     </div>
   </div>
 </div>
@@ -131,7 +173,7 @@ if (!empty($rentals)) {
 <div class="card">
   <div class="card-header">Rentals</div>
   <div class="card-body">
-    <?php if (empty($rentals)): ?>
+    <?php if (empty($perRental)): ?>
       <div class="small muted">No rentals found for this space.</div>
     <?php else: ?>
       <table>
@@ -139,30 +181,39 @@ if (!empty($rentals)) {
           <tr>
             <th>Rental Code</th>
             <th>Client</th>
+            <th>Contact</th>
+            <th>Vehicle</th>
             <th>Period</th>
-            <th>Rate</th>
+            <th class="right">Days</th>
+            <th class="right">Rate (mo)</th>
+            <th class="right">Expected</th>
+            <th class="right">Paid</th>
+            <th class="right">Due</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($rentals as $r): ?>
+          <?php foreach ($perRental as $row): ?>
             <tr>
-              <td><?php echo htmlspecialchars($r['rental_code'] ?? 'N/A'); ?></td>
-              <td><?php echo htmlspecialchars(($r['client_name'] ?? 'N/A')); ?></td>
+              <td><?php echo htmlspecialchars($row['rental_code']); ?></td>
+              <td><?php echo htmlspecialchars($row['client_name']); ?></td>
+              <td><?php echo htmlspecialchars($row['client_contact']); ?></td>
+              <td><?php echo htmlspecialchars(trim(($row['vehicle_type'] ?? '-') . ' ' . ($row['vehicle_registration'] ?? ''))); ?></td>
               <td>
-                <?php echo date('M j, Y', strtotime($r['start_date'] ?? 'now')); ?>
-                <?php if (!empty($r['end_date'])): ?>
-                  — <?php echo date('M j, Y', strtotime($r['end_date'])); ?>
-                <?php else: ?>
-                  — Ongoing
-                <?php endif; ?>
+                <?php echo $row['start_date'] ? date('M j, Y', strtotime($row['start_date'])) : '-'; ?>
+                <?php echo $row['end_date'] ? ' — ' . date('M j, Y', strtotime($row['end_date'])) : ' — Ongoing'; ?>
               </td>
-              <td class="right"><?php echo formatCurrencyAmount((float)($r['monthly_rate'] ?? 0), $r['currency'] ?? $currency); ?>/month</td>
-              <td><?php echo ucfirst(htmlspecialchars($r['status'] ?? 'unknown')); ?></td>
+              <td class="right"><?php echo (int)$row['days']; ?></td>
+              <td class="right"><?php echo formatCurrencyAmount($row['monthly_rate'], $row['currency']); ?></td>
+              <td class="right"><?php echo formatCurrencyAmount($row['expected'], $row['currency']); ?></td>
+              <td class="right"><?php echo formatCurrencyAmount($row['paid'], $row['currency']); ?></td>
+              <td class="right"><?php echo formatCurrencyAmount($row['due'], $row['currency']); ?></td>
+              <td><?php echo ucfirst(htmlspecialchars($row['status'])); ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
+      <div class="small muted" style="margin-top:8px;">Overall expected: <?php echo formatCurrencyAmount($overall_expected, $currency); ?></div>
     <?php endif; ?>
   </div>
 </div>
