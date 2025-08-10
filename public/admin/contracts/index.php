@@ -166,6 +166,27 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([getCurrentCompanyId()]);
 $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Monthly paid amounts by currency (last 30 days, completed payments)
+$monthly_paid_by_currency = [];
+$dateCol = null;
+try {
+    $rs = $conn->query("SHOW COLUMNS FROM contract_payments LIKE 'payment_date'");
+    if ($rs && $rs->fetch()) { $dateCol = 'payment_date'; }
+    else {
+        $rs = $conn->query("SHOW COLUMNS FROM contract_payments LIKE 'created_at'");
+        if ($rs && $rs->fetch()) { $dateCol = 'created_at'; }
+    }
+} catch (Exception $e) { $dateCol = 'payment_date'; }
+if ($dateCol) {
+    $stmt = $conn->prepare("SELECT COALESCE(currency,'USD') AS currency, SUM(amount) AS total
+                             FROM contract_payments
+                             WHERE company_id = ? AND status = 'completed' AND $dateCol >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+                             GROUP BY COALESCE(currency,'USD')
+                             ORDER BY total DESC");
+    $stmt->execute([getCurrentCompanyId()]);
+    $monthly_paid_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
 ?>
 
 <div class="container-fluid">
@@ -265,6 +286,15 @@ $monthly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <h6 class="m-0 font-weight-bold text-primary"><?php echo __('monthly_contract_revenue'); ?></h6>
                 </div>
                 <div class="card-body">
+                    <?php if (!empty($monthly_paid_by_currency)): ?>
+                        <div class="stacked-amounts mb-3">
+                            <?php foreach ($monthly_paid_by_currency as $i => $row): ?>
+                                <div class="<?php echo $i>0 ? 'small' : ''; ?>"><?php echo formatCurrencyAmount((float)$row['total'], $row['currency']); ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-muted small mb-2">No payments in last 30 days</div>
+                    <?php endif; ?>
                     <canvas id="revenueChart" width="100%" height="40"></canvas>
                 </div>
             </div>
