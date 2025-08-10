@@ -11,8 +11,17 @@ $conn = $db->getConnection();
 $user = getCurrentUser();
 $company_id = getCurrentCompanyId();
 
-// Resolve employee for current user
-$empStmt = $conn->prepare('SELECT id, name, position, salary_amount, salary_currency FROM employees WHERE company_id = ? AND user_id = ? LIMIT 1');
+// Resolve employee for current user with dynamic columns
+$cols = [];
+try {
+    $rs = $conn->query("SHOW COLUMNS FROM employees");
+    foreach ($rs->fetchAll(PDO::FETCH_ASSOC) as $c) { $cols[] = $c['Field']; }
+} catch (Exception $e) {}
+$selFields = ['id','name','position'];
+if (in_array('salary_amount', $cols, true)) { $selFields[] = 'salary_amount'; }
+if (in_array('salary_currency', $cols, true)) { $selFields[] = 'salary_currency'; }
+$empSql = 'SELECT ' . implode(',', $selFields) . ' FROM employees WHERE company_id = ? AND user_id = ? LIMIT 1';
+$empStmt = $conn->prepare($empSql);
 $empStmt->execute([$company_id, $user['id']]);
 $employee = $empStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -40,12 +49,14 @@ if ($employee) {
           <div><strong><?php echo htmlspecialchars($employee['position'] ?? ''); ?></strong></div>
         </div></div>
       </div>
+      <?php if (isset($employee['salary_amount'])): ?>
       <div class="col-md-4">
         <div class="card"><div class="card-body">
           <div class="text-muted">Base Salary</div>
           <div><strong><?php echo formatCurrencyAmount((float)($employee['salary_amount'] ?? 0), $employee['salary_currency'] ?? 'USD'); ?></strong></div>
         </div></div>
       </div>
+      <?php endif; ?>
     </div>
 
     <div class="card">
