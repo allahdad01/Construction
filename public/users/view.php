@@ -310,7 +310,7 @@ if ($user['employee_code']) {
                         </button>
                         <?php endif; ?>
                         
-                        <button class="btn btn-info btn-sm" onclick="resetPassword(<?php echo $user_id; ?>)">
+                        <button class="btn btn-info btn-sm" onclick="openResetModal(<?php echo $user_id; ?>, '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name'], ENT_QUOTES, 'UTF-8'); ?>')">
                             <i class="fas fa-key"></i> <?php echo __('reset_password'); ?>
                         </button>
                         
@@ -324,6 +324,36 @@ if ($user['employee_code']) {
             </div>
         </div>
     </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-key"></i> Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="resetPasswordForm">
+          <input type="hidden" id="reset_user_id" value="">
+          <div class="mb-3">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-control" id="new_password" minlength="8" required>
+            <small class="text-muted">Minimum 8 characters</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="confirm_password" minlength="8" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitResetPassword()">Reset</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -400,6 +430,34 @@ async function resetPassword(userId) {
     }
   } catch (e) { alert('Server error'); }
 }
+
+function openResetModal(userId, userName) {
+   document.getElementById('reset_user_id').value = String(userId);
+   document.getElementById('new_password').value = '';
+   document.getElementById('confirm_password').value = '';
+   const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+   modal.show();
+ }
+
+ async function submitResetPassword() {
+   const userId = document.getElementById('reset_user_id').value;
+   const pw = document.getElementById('new_password').value;
+   const pw2 = document.getElementById('confirm_password').value;
+   if (pw.length < 8) { alert('Password must be at least 8 characters long.'); return; }
+   if (pw !== pw2) { alert('Passwords do not match.'); return; }
+   try {
+     const resp = await fetch('reset_password.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId), new_password: pw }) });
+     const data = await resp.json();
+     if (data.success) {
+       alert('Password reset successfully');
+       bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
+     } else {
+       alert(data.message || 'Failed to reset password');
+     }
+   } catch (e) {
+     alert('Server error');
+   }
+ }
 
 // Inline confirm used on anchor; no JS delete handler needed
 </script>

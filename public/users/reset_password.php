@@ -17,6 +17,7 @@ try {
     $company_id = getCurrentCompanyId();
 
     $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+    $newPassword = isset($_POST['new_password']) ? (string)$_POST['new_password'] : '';
     if (!$userId) { http_response_code(400); echo json_encode(['success'=>false,'message'=>'Invalid user']); exit; }
 
     // Ensure user belongs to this company
@@ -25,18 +26,20 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) { http_response_code(404); echo json_encode(['success'=>false,'message'=>'User not found']); exit; }
 
-    // Generate secure temp password
-    $bytes = random_bytes(8);
-    $temp = bin2hex($bytes); // 16 hex chars
+    // Validate provided password
+    if (strlen($newPassword) < 8) {
+        http_response_code(400);
+        echo json_encode(['success'=>false,'message'=>'Password must be at least 8 characters long.']);
+        exit;
+    }
 
-    // Hash password (assuming password_hash is used)
-    $hash = password_hash($temp, PASSWORD_DEFAULT);
+    // Hash password
+    $hash = password_hash($newPassword, PASSWORD_DEFAULT);
 
     $upd = $conn->prepare('UPDATE users SET password = ?, updated_at = NOW() WHERE id = ? AND company_id = ?');
     $upd->execute([$hash, $userId, $company_id]);
 
-    // In a real system, email the password to $user['email'].
-    echo json_encode(['success'=>true,'message'=>'Password reset','temporary_password'=>$temp]);
+    echo json_encode(['success'=>true,'message'=>'Password reset successfully']);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success'=>false,'message'=>'Server error']);
