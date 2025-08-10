@@ -40,6 +40,70 @@ if (!$rental) {
     exit;
 }
 
+// AJAX: fetch a maintenance record
+if (isset($_GET['action']) && $_GET['action'] === 'get') {
+    header('Content-Type: application/json');
+    try {
+        $stmt = $conn->prepare("SELECT * FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?");
+        $stmt->execute([(int)($_GET['mid'] ?? 0), $rental_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($row ?: []);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// Update/Delete actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    try {
+        if ($_POST['action'] === 'update') {
+            $mid = (int)($_POST['id'] ?? 0);
+            if (!$mid) { throw new Exception('Invalid maintenance id'); }
+            // Determine updatable columns dynamically
+            $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_maintenance")->fetchAll(PDO::FETCH_ASSOC));
+            $allowed = [
+                'maintenance_type' => trim($_POST['maintenance_type'] ?? ''),
+                'description' => trim($_POST['description'] ?? ''),
+                'priority' => $_POST['priority'] ?? null,
+                'status' => $_POST['status'] ?? null,
+                'estimated_cost' => ($_POST['estimated_cost'] === '' ? null : $_POST['estimated_cost']),
+                'actual_cost' => ($_POST['actual_cost'] === '' ? null : $_POST['actual_cost']),
+                'maintenance_date' => ($_POST['maintenance_date'] === '' ? null : $_POST['maintenance_date']),
+                'completed_date' => ($_POST['completed_date'] === '' ? null : $_POST['completed_date']),
+                'notes' => trim($_POST['notes'] ?? '')
+            ];
+            $setParts = [];
+            $params = [];
+            foreach ($allowed as $col => $val) {
+                if (in_array($col, $cols, true)) {
+                    $setParts[] = "$col = ?";
+                    $params[] = $val;
+                }
+            }
+            if (empty($setParts)) { throw new Exception('Nothing to update'); }
+            $params[] = $mid;
+            $params[] = $rental_id;
+            $sql = 'UPDATE area_rental_maintenance SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?';
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($params);
+            header('Location: maintenance.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+        if ($_POST['action'] === 'delete') {
+            $mid = (int)($_POST['id'] ?? 0);
+            if (!$mid) { throw new Exception('Invalid maintenance id'); }
+            $stmt = $conn->prepare('DELETE FROM area_rental_maintenance WHERE id = ? AND area_rental_id = ?');
+            $stmt->execute([$mid, $rental_id]);
+            header('Location: maintenance.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+
 // Handle form submission for new maintenance record
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -412,12 +476,16 @@ require_once '../../../includes/header.php';
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button type="button" class="btn btn-outline-primary" 
-                                                        onclick="viewMaintenance(<?php echo $record['id']; ?>)" title="View">
+                                                        onclick="viewMaintenance(<?php echo (int)$record['id']; ?>)" title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-outline-warning" 
-                                                        onclick="editMaintenance(<?php echo $record['id']; ?>)" title="Edit">
+                                                        onclick="editMaintenance(<?php echo (int)$record['id']; ?>)" title="Edit">
                                                     <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="deleteMaintenance(<?php echo (int)$record['id']; ?>)" title="Delete">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -431,6 +499,100 @@ require_once '../../../includes/header.php';
             </div>
         </div>
     </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal fade" id="viewMaintenanceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Maintenance Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="viewMaintenanceBody">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editMaintenanceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Maintenance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" id="editMaintenanceForm">
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="id" id="edit_id">
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label">Type</label>
+            <input type="text" class="form-control" name="maintenance_type" id="edit_type">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" id="edit_description"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Priority</label>
+              <select class="form-control" name="priority" id="edit_priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Status</label>
+              <select class="form-control" name="status" id="edit_status">
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Maintenance Date</label>
+              <input type="date" class="form-control" name="maintenance_date" id="edit_maintenance_date">
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Completed Date</label>
+              <input type="date" class="form-control" name="completed_date" id="edit_completed_date">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Estimated Cost</label>
+              <input type="number" step="0.01" class="form-control" name="estimated_cost" id="edit_estimated_cost">
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Actual Cost</label>
+              <input type="number" step="0.01" class="form-control" name="actual_cost" id="edit_actual_cost">
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" id="edit_notes"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -493,14 +655,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function viewMaintenance(id) {
-    // TODO: Implement view maintenance details modal
-    alert('View maintenance details for ID: ' + id);
+async function viewMaintenance(id) {
+  try {
+    const res = await fetch(`maintenance.php?id=<?php echo $rental_id; ?>&action=get&mid=${id}`);
+    const data = await res.json();
+    const html = `
+      <div class="row">
+        <div class="col-md-6"><strong>Type:</strong> ${data.maintenance_type ?? '-'}</div>
+        <div class="col-md-6"><strong>Status:</strong> ${data.status ?? '-'}</div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6"><strong>Date:</strong> ${data.maintenance_date ?? '-'}</div>
+        <div class="col-md-6"><strong>Completed:</strong> ${data.completed_date ?? '-'}</div>
+      </div>
+      <div class="mt-2"><strong>Description:</strong><br>${(data.description ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong>Notes:</strong><br>${(data.notes ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="row mt-2">
+        <div class="col-md-6"><strong>Estimated Cost:</strong> ${data.estimated_cost ?? '-'}</div>
+        <div class="col-md-6"><strong>Actual Cost:</strong> ${data.actual_cost ?? '-'}</div>
+      </div>
+    `;
+    document.getElementById('viewMaintenanceBody').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('viewMaintenanceModal'));
+    modal.show();
+  } catch (e) { alert('Failed to load maintenance details'); }
 }
 
-function editMaintenance(id) {
-    // TODO: Implement edit maintenance modal
-    alert('Edit maintenance for ID: ' + id);
+async function editMaintenance(id) {
+  try {
+    const res = await fetch(`maintenance.php?id=<?php echo $rental_id; ?>&action=get&mid=${id}`);
+    const d = await res.json();
+    document.getElementById('edit_id').value = d.id || id;
+    document.getElementById('edit_type').value = d.maintenance_type || '';
+    document.getElementById('edit_description').value = d.description || '';
+    document.getElementById('edit_priority').value = (d.priority || 'medium');
+    document.getElementById('edit_status').value = (d.status || 'pending');
+    document.getElementById('edit_maintenance_date').value = d.maintenance_date || '';
+    document.getElementById('edit_completed_date').value = d.completed_date || '';
+    document.getElementById('edit_estimated_cost').value = d.estimated_cost || '';
+    document.getElementById('edit_actual_cost').value = d.actual_cost || '';
+    document.getElementById('edit_notes').value = d.notes || '';
+    const modal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
+    modal.show();
+  } catch (e) { alert('Failed to load maintenance for edit'); }
+}
+
+async function deleteMaintenance(id) {
+  if (!confirm('Delete this maintenance record?')) return;
+  const form = new FormData();
+  form.append('action', 'delete');
+  form.append('id', id);
+  const res = await fetch(`maintenance.php?id=<?php echo $rental_id; ?>`, { method: 'POST', body: form });
+  if (res.ok) { location.reload(); } else { alert('Failed to delete'); }
 }
 </script>
 
