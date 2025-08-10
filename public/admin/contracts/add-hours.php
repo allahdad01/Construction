@@ -42,14 +42,14 @@ if (!in_array((int)($contract['machine_id'] ?? 0), $contract_machine_ids, true) 
     $contract_machine_ids[] = (int)$contract['machine_id'];
 }
 
-// Build allowed employees: active drivers and assistants assigned to any of the contract machines
+// Build allowed employees: active drivers assigned as driver to any of the contract machines (exclude assistants)
 $employees = [];
 if (!empty($contract_machine_ids)) {
     $ph = implode(',', array_fill(0, count($contract_machine_ids), '?'));
     $params = array_merge([getCurrentCompanyId()], $contract_machine_ids);
     $sql = "SELECT DISTINCT e.id, e.name, e.employee_code
             FROM machine_assignments ma
-            JOIN employees e ON e.id IN (ma.driver_employee_id, COALESCE(ma.assistant_employee_id, 0))
+            JOIN employees e ON e.id = ma.driver_employee_id
             WHERE ma.company_id = ? AND ma.status='active' AND ma.machine_id IN ($ph) AND e.status='active'";
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);

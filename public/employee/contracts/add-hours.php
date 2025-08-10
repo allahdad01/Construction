@@ -5,7 +5,8 @@ require_once '../../../config/currency_helper.php';
 require_once '../../../includes/header.php';
 
 requireAuth();
-requireAnyRole(['driver','driver_assistant']);
+// Only drivers can add hours
+requireAnyRole(['driver']);
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -27,6 +28,31 @@ $stmt->execute([$contract_id, $company_id]);
 $contract = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$contract) { header('Location: ../'); exit; }
 
+// Fetch contract machines list
+$contract_machine_ids = [];
+try {
+    $st = $conn->prepare('SELECT machine_id FROM contract_machines WHERE company_id = ? AND contract_id = ?');
+    $st->execute([$company_id, $contract_id]);
+    $contract_machine_ids = array_map('intval', array_column($st->fetchAll(PDO::FETCH_ASSOC), 'machine_id'));
+} catch (Exception $e) {}
+if (!in_array((int)($contract['machine_id'] ?? 0), $contract_machine_ids, true) && !empty($contract['machine_id'])) {
+    $contract_machine_ids[] = (int)$contract['machine_id'];
+}
+
+// Verify this driver is actively assigned to any machine of this contract
+$assigned_machine_ids = [];
+if (!empty($contract_machine_ids)) {
+    $ph = implode(',', array_fill(0, count($contract_machine_ids), '?'));
+    $params = array_merge([$company_id, $employee['id']], $contract_machine_ids);
+    $sql = "SELECT DISTINCT ma.machine_id FROM machine_assignments ma WHERE ma.company_id=? AND ma.driver_employee_id=? AND ma.status='active' AND ma.machine_id IN ($ph)";
+    $st = $conn->prepare($sql);
+    $st->execute($params);
+    $assigned_machine_ids = array_map('intval', array_column($st->fetchAll(PDO::FETCH_ASSOC), 'machine_id'));
+}
+if (empty($assigned_machine_ids)) {
+    echo '<div class="container-fluid"><div class="alert alert-danger">You are not assigned as driver to any machine of this contract.</div></div>'; require_once '../../../includes/footer.php'; exit;
+}
+
 // Compute rate per hour
 $rate_per_hour = 0.0;
 if ($contract['contract_type'] === 'hourly') { $rate_per_hour = (float)$contract['rate_amount']; }
@@ -40,10 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $_POST['date'] ?? '';
     $hours_worked = (float)($_POST['hours_worked'] ?? 0);
     $notes = trim($_POST['notes'] ?? '');
+    $selected_machine_id = isset($_POST['machine_id']) ? (int)$_POST['machine_id'] : 0;
 
     if (!$date) { $error = 'Please select a date.'; }
     elseif ($hours_worked <= 0) { $error = 'Hours worked must be greater than 0.'; }
     elseif ($hours_worked > 24) { $error = 'Hours worked cannot exceed 24 hours per day.'; }
+    elseif ($selected_machine_id > 0 && !in_array($selected_machine_id, $assigned_machine_ids, true)) { $error = 'Invalid machine selection.'; }
     else {
         // Ensure unique per day
         $chk = $conn->prepare('SELECT id FROM working_hours WHERE company_id=? AND contract_id=? AND employee_id=? AND date=?');
@@ -52,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         else {
             try {
                 $ins = $conn->prepare('INSERT INTO working_hours (company_id, contract_id, machine_id, employee_id, date, hours_worked, notes) VALUES (?,?,?,?,?,?,?)');
-                $ins->execute([$company_id, $contract_id, $contract['machine_id'], $employee['id'], $date, $hours_worked, $notes]);
+                $ins->execute([$company_id, $contract_id, ($selected_machine_id ?: $assigned_machine_ids[0]), $employee['id'], $date, $hours_worked, $notes]);
                 $success = 'Hours added successfully';
                 $_POST = [];
             } catch (Exception $e) { $error = 'Failed to add hours: ' . $e->getMessage(); }
@@ -74,7 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <table class="table table-borderless">
             <tr><td><strong>Contract:</strong></td><td><?php echo htmlspecialchars($contract['contract_code'] ?? ('#'.$contract_id)); ?></td></tr>
             <tr><td><strong>Project:</strong></td><td><?php echo htmlspecialchars($contract['project_name'] ?? ''); ?></td></tr>
-            <tr><td><strong>Machine:</strong></td><td><?php echo htmlspecialchars($contract['machine_name'] ?? ''); ?></td></tr>
+            <tr><td><strong>Machine(s):</strong></td><td>
+              <?php
+                // Display assigned machines for this driver on this contract
+                $ph = implode(',', array_fill(0, count($assigned_machine_ids), '?'));
+                $st2 = $conn->prepare("SELECT machine_code, name FROM machines WHERE id IN ($ph)");
+                $st2->execute($assigned_machine_ids);
+                $names = [];
+                foreach ($st2->fetchAll(PDO::FETCH_ASSOC) as $row) { $names[] = $row['machine_code'].' - '.$row['name']; }
+                echo htmlspecialchars(implode(', ', $names));
+              ?>
+            </td></tr>
           </table>
         </div>
         <div class="col-md-6">
@@ -110,7 +148,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <small class="text-muted">Calculated automatically</small>
           </div>
         </div>
-        <div class="mb-3">
+        <?php if (count($assigned_machine_ids) > 1): ?>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label class="form-label">Machine *</label>
+            <select class="form-control" name="machine_id" required>
+              <?php
+                $st3 = $conn->prepare("SELECT id, machine_code, name FROM machines WHERE id IN (".implode(',', array_fill(0, count($assigned_machine_ids), '?')).")");
+                $st3->execute($assigned_machine_ids);
+                foreach ($st3->fetchAll(PDO::FETCH_ASSOC) as $row):
+              ?>
+                <option value="<?php echo $row['id']; ?>" <?php echo (!empty($_POST['machine_id']) && $_POST['machine_id']==$row['id'])?'selected':''; ?>><?php echo htmlspecialchars($row['machine_code'].' - '.$row['name']); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <?php endif; ?>
+        <div class="mb-3 mt-3">
           <label class="form-label">Notes</label>
           <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..."><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
         </div>
