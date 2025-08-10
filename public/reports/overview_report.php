@@ -528,7 +528,17 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                             </tr>
                                             <tr>
                                                 <td>Total Working Hours</td>
-                                                <td><?php echo number_format($overview_data['total_hours'], 1); ?> hrs</td>
+                                                <td>
+                                                    <?php 
+                                                    $worked = (float)($overview_data['total_hours'] ?? 0);
+                                                    $contracted = (float)($overview_data['total_contract_hours'] ?? 0);
+                                                    $remaining = max(0, $contracted - $worked);
+                                                    echo number_format($worked, 1) . ' hrs (Worked)';
+                                                    ?>
+                                                    <div class="small text-muted">
+                                                        <?php echo number_format($contracted, 1); ?> hrs contracted • <?php echo number_format($remaining, 1); ?> hrs remaining
+                                                    </div>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
