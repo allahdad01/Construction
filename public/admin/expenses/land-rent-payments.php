@@ -26,6 +26,17 @@ try {
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 } catch (Exception $e) {}
 
+// Helper: generate expense code
+function generateExpenseCodeForLRP(PDO $conn, int $companyId): string {
+    $stmt = $conn->prepare("SELECT company_code FROM companies WHERE id = ?");
+    $stmt->execute([$companyId]);
+    $company_code = ($stmt->fetch(PDO::FETCH_ASSOC)['company_code'] ?? 'CMP');
+    $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM expenses WHERE company_id = ?");
+    $stmt->execute([$companyId]);
+    $next = (int)$stmt->fetch(PDO::FETCH_ASSOC)['cnt'] + 1;
+    return strtoupper($company_code) . 'EXP' . str_pad((string)$next, 3, '0', STR_PAD_LEFT);
+}
+
 // Handle new payment
 if ($_SERVER['REQUEST_METHOD']==='POST') {
   try {
@@ -36,11 +47,45 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $reference = $_POST['reference'] ?? null;
     $notes = $_POST['notes'] ?? null;
     if ($amount <= 0) { throw new Exception('Amount must be greater than 0'); }
+
+    $conn->beginTransaction();
+
+    // Insert payment
     $stmt=$conn->prepare("INSERT INTO land_rent_payments (company_id, payment_date, amount, currency, method, reference, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
     $stmt->execute([$company_id, $date, $amount, $currency, $method, $reference, $notes]);
+    $paymentId = (int)$conn->lastInsertId();
+
+    // Mirror as expense (category 'rent')
+    try {
+        $expense_code = generateExpenseCodeForLRP($conn, $company_id);
+        $refTag = 'LRP:' . $paymentId;
+        $desc = 'Company land rent payment';
+        $insExp = $conn->prepare("INSERT INTO expenses (company_id, expense_code, category, amount, currency, expense_date, description, payment_method, reference_number, created_at) VALUES (?, ?, 'rent', ?, ?, ?, ?, ?, ?, NOW())");
+        $insExp->execute([$company_id, $expense_code, $amount, $currency, $date, $desc, $method, $refTag]);
+    } catch (Exception $ex) {
+        // Do not block payment on expense failure
+    }
+
+    $conn->commit();
     $success = 'Payment recorded.';
-  } catch (Exception $e) { $error = $e->getMessage(); }
+  } catch (Exception $e) { if ($conn->inTransaction()) { $conn->rollBack(); } $error = $e->getMessage(); }
 }
+
+// Backfill any payments missing in expenses (by reference tag)
+try {
+    $missingStmt = $conn->prepare("SELECT lrp.* FROM land_rent_payments lrp LEFT JOIN expenses e ON e.company_id = lrp.company_id AND e.reference_number = CONCAT('LRP:', lrp.id) WHERE lrp.company_id = ? AND e.id IS NULL");
+    $missingStmt->execute([$company_id]);
+    $missing = $missingStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($missing as $row) {
+        try {
+            $expense_code = generateExpenseCodeForLRP($conn, $company_id);
+            $refTag = 'LRP:' . (int)$row['id'];
+            $desc = 'Company land rent payment';
+            $insExp = $conn->prepare("INSERT INTO expenses (company_id, expense_code, category, amount, currency, expense_date, description, payment_method, reference_number, created_at) VALUES (?, ?, 'rent', ?, ?, ?, ?, ?, ?, NOW())");
+            $insExp->execute([$company_id, $expense_code, (float)$row['amount'], ($row['currency'] ?? 'USD'), $row['payment_date'], $desc, ($row['method'] ?? 'cash'), $refTag]);
+        } catch (Exception $ex) { /* continue */ }
+    }
+} catch (Exception $e) { /* ignore */ }
 
 // Fetch payment history
 $stmt=$conn->prepare("SELECT * FROM land_rent_payments WHERE company_id = ? ORDER BY payment_date DESC, id DESC");
