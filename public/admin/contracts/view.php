@@ -78,6 +78,9 @@ if ($contract['contract_type'] === 'hourly') {
             <i class="fas fa-file-contract"></i> <?php echo __('contract_details'); ?>
         </h1>
         <div>
+            <a href="add-machine.php?contract_id=<?php echo (int)$contract_id; ?>" class="btn btn-success btn-sm me-2">
+                <i class="fas fa-plus"></i> Add Machine
+            </a>
             <a href="edit.php?id=<?php echo $contract_id; ?>" class="btn btn-primary">
                 <i class="fas fa-edit"></i> <?php echo __('edit_contract'); ?>
             </a>
@@ -217,6 +220,37 @@ if ($contract['contract_type'] === 'hourly') {
                     </table>
                 </div>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Linked Machines</h6>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($linkMachines)): ?>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead><tr><th>Machine Code</th><th>Name</th><th>Type</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($linkMachines as $m): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($m['machine_code']); ?></td>
+                                            <td><?php echo htmlspecialchars($m['name']); ?></td>
+                                            <td><?php echo htmlspecialchars($m['type']); ?></td>
+                                            <td><a class="btn btn-sm btn-outline-secondary" href="../machines/view.php?id=<?php echo (int)$m['id']; ?>">View</a></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-muted">No additional machines linked.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>

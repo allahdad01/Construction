@@ -31,21 +31,30 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([$contract_id, getCurrentCompanyId()]);
 $contract = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$contract) {
-    header('Location: index.php');
-    exit();
+// Fetch contract machines list
+$contract_machine_ids = [];
+try {
+    $st = $conn->prepare('SELECT machine_id FROM contract_machines WHERE company_id = ? AND contract_id = ?');
+    $st->execute([getCurrentCompanyId(), $contract_id]);
+    $contract_machine_ids = array_map('intval', array_column($st->fetchAll(PDO::FETCH_ASSOC), 'machine_id'));
+} catch (Exception $e) {}
+if (!in_array((int)($contract['machine_id'] ?? 0), $contract_machine_ids, true) && !empty($contract['machine_id'])) {
+    $contract_machine_ids[] = (int)$contract['machine_id'];
 }
 
-// Get employees for this company
-$stmt = $conn->prepare("
-    SELECT id, name, employee_code, position 
-    FROM employees 
-    WHERE company_id = ? AND status = 'active'
-    ORDER BY name
-");
-$stmt->execute([getCurrentCompanyId()]);
-$employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Build allowed employees: active drivers and assistants assigned to any of the contract machines
+$employees = [];
+if (!empty($contract_machine_ids)) {
+    $ph = implode(',', array_fill(0, count($contract_machine_ids), '?'));
+    $params = array_merge([getCurrentCompanyId()], $contract_machine_ids);
+    $sql = "SELECT DISTINCT e.id, e.name, e.employee_code
+            FROM machine_assignments ma
+            JOIN employees e ON e.id IN (ma.driver_employee_id, COALESCE(ma.assistant_employee_id, 0))
+            WHERE ma.company_id = ? AND ma.status='active' AND ma.machine_id IN ($ph) AND e.status='active'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+    $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 $error = '';
 $success = '';
@@ -53,6 +62,7 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $_POST['date'] ?? '';
     $employee_id = (int)($_POST['employee_id'] ?? 0);
+    $selected_machine_id = isset($_POST['machine_id']) ? (int)$_POST['machine_id'] : 0;
     $hours_worked = (float)($_POST['hours_worked'] ?? 0);
     $notes = trim($_POST['notes'] ?? '');
     
@@ -61,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please select a date.';
     } elseif ($employee_id <= 0) {
         $error = 'Please select an employee.';
+    } elseif (!empty($contract_machine_ids) && $selected_machine_id > 0 && !in_array($selected_machine_id, $contract_machine_ids, true)) {
+        $error = 'Invalid machine selection for this contract.';
     } elseif ($hours_worked <= 0) {
         $error = 'Hours worked must be greater than 0.';
     } elseif ($hours_worked > 24) {
@@ -81,11 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INSERT INTO working_hours (company_id, contract_id, machine_id, employee_id, date, hours_worked, notes) 
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ");
-                
                 $stmt->execute([
                     getCurrentCompanyId(),
                     $contract_id,
-                    $contract['machine_id'],
+                    ($selected_machine_id > 0 ? $selected_machine_id : ($contract_machine_ids[0] ?? $contract['machine_id'])),
                     $employee_id,
                     $date,
                     $hours_worked,
@@ -204,21 +215,40 @@ if ($contract['contract_type'] === 'hourly') {
                                            max="<?php echo date('Y-m-d'); ?>" required>
                                 </div>
                             </div>
+                            <?php // Update employee and machine selectors in form ?>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="employee_id" class="form-label">
-                                        <i class="fas fa-user"></i> <?php echo __('employee'); ?> *
-                                    </label>
+                                    <label for="employee_id" class="form-label"><?php echo __('employee'); ?> *</label>
                                     <select class="form-control" id="employee_id" name="employee_id" required>
                                         <option value=""><?php echo __('select_employee'); ?></option>
-                                        <?php foreach ($employees as $employee): ?>
-                                            <option value="<?php echo $employee['id']; ?>" 
-                                                    <?php echo ($_POST['employee_id'] ?? '') == $employee['id'] ? 'selected' : ''; ?>>
-                                                <?php echo htmlspecialchars($employee['name']); ?> 
-                                                (<?php echo htmlspecialchars($employee['employee_code']); ?>) - 
-                                                <?php echo ucfirst($employee['position']); ?>
+                                        <?php foreach ($employees as $emp): ?>
+                                            <option value="<?php echo $emp['id']; ?>" <?php echo (!empty($_POST['employee_id']) && $_POST['employee_id'] == $emp['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars(($emp['employee_code'] ?? '') . ' - ' . ($emp['name'] ?? '')); ?>
                                             </option>
                                         <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="machine_id" class="form-label"><?php echo __('machine'); ?> *</label>
+                                    <select class="form-control" id="machine_id" name="machine_id" <?php echo empty($contract_machine_ids) ? 'disabled' : 'required'; ?>>
+                                        <?php if (empty($contract_machine_ids)): ?>
+                                            <option value="<?php echo (int)$contract['machine_id']; ?>"><?php echo htmlspecialchars($contract['machine_name'] ?? ''); ?></option>
+                                        <?php else: ?>
+                                            <?php
+                                                $ph = implode(',', array_fill(0, count($contract_machine_ids), '?'));
+                                                $params = $contract_machine_ids;
+                                                $st2 = $conn->prepare("SELECT id, machine_code, name FROM machines WHERE id IN ($ph)");
+                                                $st2->execute($params);
+                                                $mlist = $st2->fetchAll(PDO::FETCH_ASSOC);
+                                            ?>
+                                            <?php foreach ($mlist as $m): ?>
+                                                <option value="<?php echo $m['id']; ?>" <?php echo (!empty($_POST['machine_id']) && $_POST['machine_id'] == $m['id']) ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($m['machine_code'] . ' - ' . $m['name']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </select>
                                 </div>
                             </div>
