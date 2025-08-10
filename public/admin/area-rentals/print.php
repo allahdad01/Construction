@@ -34,6 +34,16 @@ if (!$rental) {
 
 $currency = $rental['currency'] ?? 'USD';
 
+// Compute paid amount from payments by currency (and company scope)
+$payCols = [];
+try { $payCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_payments")->fetchAll(PDO::FETCH_ASSOC)); } catch (Exception $e) {}
+$hasCompanyCol = in_array('company_id', $payCols, true);
+$sumSql = "SELECT COALESCE(SUM(amount), 0) FROM area_rental_payments WHERE area_rental_id = ?" . ($hasCompanyCol ? " AND company_id = ?" : "") . " AND COALESCE(currency, ?) = ?";
+$sumStmt = $conn->prepare($sumSql);
+$sumParams = [$rental_id]; if ($hasCompanyCol) { $sumParams[] = $company_id; } $sumParams[] = $currency; $sumParams[] = $currency;
+$sumStmt->execute($sumParams);
+$amount_paid_so_far = (float)$sumStmt->fetchColumn();
+
 // Computations
 $startDt = new DateTime($rental['start_date']);
 $asOfDate = new DateTime();
@@ -41,7 +51,6 @@ $interval = $startDt->diff($asOfDate);
 $days_elapsed = $interval->invert === 1 ? 0 : ($interval->days + 1);
 $daily_rate_effective = (float)($rental['daily_rate'] ?? 0);
 if ($daily_rate_effective <= 0) { $daily_rate_effective = ((float)($rental['monthly_rate'] ?? 0)) / 30.0; }
-$amount_paid_so_far = (float)($rental['amount_paid'] ?? 0);
 $owed_until_date = $daily_rate_effective * max(0, $days_elapsed);
 $outstanding_due = max(0, $owed_until_date - $amount_paid_so_far);
 
