@@ -149,6 +149,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Redirect to view page after 3 seconds (use JS to avoid headers already sent)
         echo "<script>setTimeout(function(){ window.location.href = 'view.php?id=$employee_id'; }, 3000);</script>";
         
+        // Attempt to send credentials email (best effort)
+        require_once '../../../config/mailer.php';
+        $loginEmail = $_POST['email'];
+        $subject = 'Your Account Credentials';
+        $htmlBody = '<p>Hello ' . htmlspecialchars($_POST['name']) . ',</p>'
+                  . '<p>Your account has been created.</p>'
+                  . '<p><strong>Login Email:</strong> ' . htmlspecialchars($loginEmail) . '</p>'
+                  . '<p><em>Please set your password from the profile page or use the reset password option.</em></p>'
+                  . '<p>Regards,<br>Support Team</p>';
+        $mailError = null;
+        sendCompanyEmail($conn, (int)$company_id, $loginEmail, $subject, $htmlBody, null, $mailError);
+        // We do not block on failure; could log $mailError
+        
     } catch (Exception $e) {
         // Rollback transaction on error
         if (!empty($txnStarted) && $conn->inTransaction()) {

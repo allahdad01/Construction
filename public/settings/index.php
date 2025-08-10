@@ -657,9 +657,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                     </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Integrations
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Integrations
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#testSmtpModal">
+                                        <i class="fas fa-paper-plane"></i> Test SMTP
+                                    </button>
+                                </div>
                             </form>
                         </div>
                         
@@ -669,6 +674,28 @@ $timezones = DateTimeZone::listIdentifiers();
         </div>
     </div>
 </div>
+
+<!-- Test SMTP Modal -->
+<div class="modal fade" id="testSmtpModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-paper-plane"></i> Send Test Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Recipient Email</label>
+          <input type="email" class="form-control" id="test_email" placeholder="you@example.com">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="sendTestEmail()">Send</button>
+      </div>
+    </div>
+  </div>
+ </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -682,6 +709,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+async function sendTestEmail() {
+  const email = document.getElementById('test_email').value.trim();
+  if (!email) { alert('Please enter a recipient email'); return; }
+  try {
+    const resp = await fetch('test_smtp.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ to: email }) });
+    const data = await resp.json();
+    alert(data.message || (data.success ? 'Email sent' : 'Failed to send email'));
+    if (data.success) { bootstrap.Modal.getInstance(document.getElementById('testSmtpModal')).hide(); }
+  } catch (e) { alert('Server error'); }
+}
 </script>
 
 <?php require_once '../../includes/footer.php'; ?>
