@@ -94,6 +94,9 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                     </a>
                 <?php endif; ?>
             <?php endif; ?>
+            <a href="print-rental.php?id=<?php echo $rental_id; ?>" target="_blank" class="btn btn-outline-dark">
+                <i class="fas fa-print"></i> Print
+            </a>
             <a href="view.php?id=<?php echo $rental['parking_space_id']; ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Space
             </a>
