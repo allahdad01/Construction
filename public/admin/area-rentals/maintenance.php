@@ -348,10 +348,13 @@ require_once '../../../includes/header.php';
                                 <tbody>
                                     <?php foreach ($maintenance_records as $record): ?>
                                     <tr>
-                                        <td><?php echo date('M j, Y', strtotime($record['maintenance_date'])); ?></td>
+                                        <td><?php 
+                                            $dateRaw = $record['maintenance_date'] ?? ($record['scheduled_date'] ?? ($record['date'] ?? ($record['created_at'] ?? null)));
+                                            echo $dateRaw ? date('M j, Y', strtotime($dateRaw)) : '-';
+                                        ?></td>
                                         <td>
                                             <span class="badge bg-info">
-                                                <?php echo ucfirst($record['maintenance_type']); ?>
+                                                <?php echo ucfirst((string)($record['maintenance_type'] ?? '')); ?>
                                             </span>
                                         </td>
                                         <td>
@@ -368,10 +371,11 @@ require_once '../../../includes/header.php';
                                                 'high' => 'danger',
                                                 'urgent' => 'dark'
                                             ];
-                                            $priority_color = $priority_colors[$record['priority']] ?? 'secondary';
+                                            $priority = strtolower((string)($record['priority'] ?? 'medium'));
+                                            $priority_color = $priority_colors[$priority] ?? 'secondary';
                                             ?>
                                             <span class="badge bg-<?php echo $priority_color; ?>">
-                                                <?php echo ucfirst($record['priority']); ?>
+                                                <?php echo ucfirst($priority); ?>
                                             </span>
                                         </td>
                                         <td>
@@ -382,20 +386,24 @@ require_once '../../../includes/header.php';
                                                 'completed' => 'success',
                                                 'cancelled' => 'secondary'
                                             ];
-                                            $status_color = $status_colors[$record['status']] ?? 'secondary';
+                                            $status = strtolower((string)($record['status'] ?? 'pending'));
+                                            $status_color = $status_colors[$status] ?? 'secondary';
                                             ?>
                                             <span class="badge bg-<?php echo $status_color; ?>">
-                                                <?php echo ucfirst(str_replace('_', ' ', $record['status'])); ?>
+                                                <?php echo ucfirst(str_replace('_', ' ', $status)); ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <?php if ($record['actual_cost']): ?>
+                                            <?php 
+                                            $actual = isset($record['actual_cost']) ? (float)$record['actual_cost'] : null;
+                                            $estimated = isset($record['estimated_cost']) ? (float)$record['estimated_cost'] : null;
+                                            if ($actual !== null && $actual > 0) : ?>
                                                 <strong class="text-success">
-                                                    $<?php echo number_format($record['actual_cost'], 2); ?>
+                                                    $<?php echo number_format($actual, 2); ?>
                                                 </strong>
-                                            <?php elseif ($record['estimated_cost']): ?>
+                                            <?php elseif ($estimated !== null && $estimated > 0) : ?>
                                                 <span class="text-muted">
-                                                    Est: $<?php echo number_format($record['estimated_cost'], 2); ?>
+                                                    Est: $<?php echo number_format($estimated, 2); ?>
                                                 </span>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
