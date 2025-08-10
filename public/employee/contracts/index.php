@@ -65,10 +65,10 @@ if ($employee) {
       <div class="card-header">Worked Contracts</div>
       <div class="card-body table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>Code</th><th>Type</th><th>Status</th><th class="text-end">Hours Worked</th><th class="text-end">Rate</th></tr></thead>
+          <thead><tr><th>Code</th><th>Type</th><th>Status</th><th class="text-end">Hours Worked</th><th class="text-end">Rate</th><th class="text-end">Actions</th></tr></thead>
           <tbody>
             <?php if (empty($items)): ?>
-              <tr><td colspan="5" class="text-muted">No contract work found for the selected period.</td></tr>
+              <tr><td colspan="6" class="text-muted">No contract work found for the selected period.</td></tr>
             <?php else: foreach ($items as $it): ?>
               <tr>
                 <td><?php echo htmlspecialchars($it['contract_code']); ?></td>
@@ -76,6 +76,10 @@ if ($employee) {
                 <td><?php echo htmlspecialchars(ucfirst($it['status'])); ?></td>
                 <td class="text-end"><?php echo number_format((float)$it['hours_worked'], 1); ?></td>
                 <td class="text-end"><?php echo formatCurrencyAmount((float)($it['rate_amount'] ?? 0), $it['currency'] ?? 'USD'); ?></td>
+                <td class="text-end">
+                  <a href="/constract360/construction/public/admin/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Add Hours</a>
+                  <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> Timesheet</a>
+                </td>
               </tr>
             <?php endforeach; endif; ?>
           </tbody>
