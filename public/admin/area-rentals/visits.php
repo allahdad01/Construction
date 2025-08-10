@@ -40,57 +40,124 @@ if (!$rental) {
     exit;
 }
 
+// AJAX: fetch a visit record
+if (isset($_GET['action']) && $_GET['action'] === 'get') {
+    header('Content-Type: application/json');
+    try {
+        $stmt = $conn->prepare("SELECT * FROM area_rental_visits WHERE id = ? AND area_rental_id = ?");
+        $stmt->execute([(int)($_GET['vid'] ?? 0), $rental_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($row ?: []);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// Update/Delete actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    try {
+        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_visits")->fetchAll(PDO::FETCH_ASSOC));
+        if ($_POST['action'] === 'update') {
+            $vid = (int)($_POST['id'] ?? 0);
+            if (!$vid) { throw new Exception('Invalid visit id'); }
+            // Map allowed fields with optional fallbacks
+            $map = [
+                // logical => [possible column names]
+                'visit_type' => ['visit_type','type'],
+                'purpose' => ['purpose'],
+                'visit_date' => ['visit_date','date'],
+                'visitor_name' => ['visitor_name','visitor'],
+                'visitor_contact' => ['visitor_contact','contact','phone'],
+                'duration_minutes' => ['duration_minutes','duration'],
+                'findings' => ['findings'],
+                'recommendations' => ['recommendations'],
+                'notes' => ['notes'],
+            ];
+            $setParts = [];
+            $params = [];
+            foreach ($map as $logical => $cands) {
+                $val = $_POST[$logical] ?? null;
+                if ($val === '' || $val === null) { continue; }
+                foreach ($cands as $col) {
+                    if (in_array($col, $cols, true)) { $setParts[] = "$col = ?"; $params[] = $val; break; }
+                }
+            }
+            if (empty($setParts)) { throw new Exception('Nothing to update'); }
+            $params[] = $vid;
+            $params[] = $rental_id;
+            $sql = 'UPDATE area_rental_visits SET ' . implode(', ', $setParts) . ' WHERE id = ? AND area_rental_id = ?';
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($params);
+            header('Location: visits.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+        if ($_POST['action'] === 'delete') {
+            $vid = (int)($_POST['id'] ?? 0);
+            if (!$vid) { throw new Exception('Invalid visit id'); }
+            $stmt = $conn->prepare('DELETE FROM area_rental_visits WHERE id = ? AND area_rental_id = ?');
+            $stmt->execute([$vid, $rental_id]);
+            header('Location: visits.php?id=' . $rental_id . '&success=1');
+            exit;
+        }
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+
 // Handle form submission for new visit record
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Validate required fields
-        if (empty(trim($_POST['visit_type']))) {
+        if (empty(trim($_POST['visit_type'] ?? ($_POST['type'] ?? '')))) {
             throw new Exception("Visit type is required.");
         }
-
-        if (empty(trim($_POST['purpose']))) {
+        if (empty(trim($_POST['purpose'] ?? ''))) {
             throw new Exception("Purpose is required.");
         }
-
         // Start transaction
         $conn->beginTransaction();
-
-        // Insert visit record
-        $stmt = $conn->prepare("
-            INSERT INTO area_rental_visits (
-                area_rental_id, visit_type, purpose, visit_date, 
-                visitor_name, visitor_contact, duration_minutes, 
-                findings, recommendations, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-
-        $stmt->execute([
-            $rental_id,
-            trim($_POST['visit_type']),
-            trim($_POST['purpose']),
-            $_POST['visit_date'] ?? date('Y-m-d'),
-            trim($_POST['visitor_name'] ?? ''),
-            trim($_POST['visitor_contact'] ?? ''),
-            $_POST['duration_minutes'] ?? null,
-            trim($_POST['findings'] ?? ''),
-            trim($_POST['recommendations'] ?? ''),
-            trim($_POST['notes'] ?? '')
-        ]);
-
-        // Commit transaction
+        // Dynamic insert based on available columns
+        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_visits")->fetchAll(PDO::FETCH_ASSOC));
+        $columns = ['area_rental_id'];
+        $placeholders = ['?'];
+        $params = [$rental_id];
+        // Helper to add if column exists
+        $addCol = function($c, $v) use (&$columns,&$placeholders,&$params,$cols) {
+            if (in_array($c, $cols, true)) { $columns[] = $c; $placeholders[] = '?'; $params[] = $v; }
+        };
+        // visit type
+        if (in_array('visit_type', $cols, true)) { $addCol('visit_type', trim($_POST['visit_type'] ?? $_POST['type'] ?? '')); }
+        elseif (in_array('type', $cols, true)) { $addCol('type', trim($_POST['visit_type'] ?? $_POST['type'] ?? '')); }
+        // purpose
+        $addCol('purpose', trim($_POST['purpose'] ?? ''));
+        // visit date
+        if (in_array('visit_date', $cols, true)) { $addCol('visit_date', $_POST['visit_date'] ?? date('Y-m-d')); }
+        elseif (in_array('date', $cols, true)) { $addCol('date', $_POST['visit_date'] ?? date('Y-m-d')); }
+        // visitor
+        if (in_array('visitor_name', $cols, true)) { $addCol('visitor_name', trim($_POST['visitor_name'] ?? '')); }
+        elseif (in_array('visitor', $cols, true)) { $addCol('visitor', trim($_POST['visitor_name'] ?? '')); }
+        if (in_array('visitor_contact', $cols, true)) { $addCol('visitor_contact', trim($_POST['visitor_contact'] ?? '')); }
+        elseif (in_array('contact', $cols, true)) { $addCol('contact', trim($_POST['visitor_contact'] ?? '')); }
+        // duration
+        if (in_array('duration_minutes', $cols, true)) { $addCol('duration_minutes', $_POST['duration_minutes'] ?? null); }
+        elseif (in_array('duration', $cols, true)) { $addCol('duration', $_POST['duration_minutes'] ?? null); }
+        // findings/recommendations/notes
+        $addCol('findings', trim($_POST['findings'] ?? ''));
+        $addCol('recommendations', trim($_POST['recommendations'] ?? ''));
+        $addCol('notes', trim($_POST['notes'] ?? ''));
+        // created_at if exists
+        $createdLiteral = '';
+        if (in_array('created_at', $cols, true)) { $columns[] = 'created_at'; $createdLiteral = ', NOW()'; }
+        $sql = 'INSERT INTO area_rental_visits (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ($createdLiteral ? $createdLiteral : '') . ')';
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
         $conn->commit();
-
         $success = "Visit record created successfully!";
-        
-        // Redirect to refresh the page
         header("Location: visits.php?id=$rental_id&success=1");
         exit;
-
     } catch (Exception $e) {
-        // Rollback transaction on error
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
-        }
+        if ($conn->inTransaction()) { $conn->rollBack(); }
         $error = $e->getMessage();
     }
 }
@@ -372,12 +439,16 @@ require_once '../../../includes/header.php';
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button type="button" class="btn btn-outline-primary" 
-                                                        onclick="viewVisit(<?php echo $record['id']; ?>)" title="View">
+                                                        onclick="viewVisit(<?php echo (int)$record['id']; ?>)" title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-outline-warning" 
-                                                        onclick="editVisit(<?php echo $record['id']; ?>)" title="Edit">
+                                                        onclick="editVisit(<?php echo (int)$record['id']; ?>)" title="Edit">
                                                     <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="deleteVisit(<?php echo (int)$record['id']; ?>)" title="Delete">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -391,6 +462,86 @@ require_once '../../../includes/header.php';
             </div>
         </div>
     </div>
+</div>
+
+<!-- View Visit Modal -->
+<div class="modal fade" id="viewVisitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visit Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="viewVisitBody"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Visit Modal -->
+<div class="modal fade" id="editVisitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Visit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" id="editVisitForm">
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="id" id="edit_visit_id">
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label">Type</label>
+            <input type="text" class="form-control" name="visit_type" id="edit_visit_type">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Purpose</label>
+            <textarea class="form-control" name="purpose" id="edit_purpose"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Visit Date</label>
+              <input type="date" class="form-control" name="visit_date" id="edit_visit_date">
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Duration (minutes)</label>
+              <input type="number" class="form-control" name="duration_minutes" id="edit_duration_minutes">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Visitor</label>
+              <input type="text" class="form-control" name="visitor_name" id="edit_visitor_name">
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label">Contact</label>
+              <input type="text" class="form-control" name="visitor_contact" id="edit_visitor_contact">
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Findings</label>
+            <textarea class="form-control" name="findings" id="edit_findings"></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Recommendations</label>
+            <textarea class="form-control" name="recommendations" id="edit_recommendations"></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" id="edit_notes"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -453,14 +604,59 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function viewVisit(id) {
-    // TODO: Implement view visit details modal
-    alert('View visit details for ID: ' + id);
+async function viewVisit(id) {
+  try {
+    const res = await fetch(`visits.php?id=<?php echo $rental_id; ?>&action=get&vid=${id}`);
+    const d = await res.json();
+    const html = `
+      <div class="row">
+        <div class="col-md-6"><strong>Type:</strong> ${d.visit_type ?? d.type ?? '-'}</div>
+        <div class="col-md-6"><strong>Date:</strong> ${d.visit_date ?? d.date ?? '-'}</div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6"><strong>Visitor:</strong> ${d.visitor_name ?? d.visitor ?? '-'}</div>
+        <div class="col-md-6"><strong>Contact:</strong> ${d.visitor_contact ?? d.contact ?? '-'}</div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6"><strong>Duration:</strong> ${(d.duration_minutes ?? d.duration ?? '-') }</div>
+      </div>
+      <div class="mt-2"><strong>Purpose:</strong><br>${(d.purpose ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong>Findings:</strong><br>${(d.findings ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong>Recommendations:</strong><br>${(d.recommendations ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong>Notes:</strong><br>${(d.notes ?? '').toString().replace(/</g,'&lt;')}</div>
+    `;
+    document.getElementById('viewVisitBody').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('viewVisitModal'));
+    modal.show();
+  } catch (e) { alert('Failed to load visit details'); }
 }
 
-function editVisit(id) {
-    // TODO: Implement edit visit modal
-    alert('Edit visit for ID: ' + id);
+async function editVisit(id) {
+  try {
+    const res = await fetch(`visits.php?id=<?php echo $rental_id; ?>&action=get&vid=${id}`);
+    const d = await res.json();
+    document.getElementById('edit_visit_id').value = d.id || id;
+    document.getElementById('edit_visit_type').value = d.visit_type || d.type || '';
+    document.getElementById('edit_purpose').value = d.purpose || '';
+    document.getElementById('edit_visit_date').value = d.visit_date || d.date || '';
+    document.getElementById('edit_duration_minutes').value = d.duration_minutes || d.duration || '';
+    document.getElementById('edit_visitor_name').value = d.visitor_name || d.visitor || '';
+    document.getElementById('edit_visitor_contact').value = d.visitor_contact || d.contact || '';
+    document.getElementById('edit_findings').value = d.findings || '';
+    document.getElementById('edit_recommendations').value = d.recommendations || '';
+    document.getElementById('edit_notes').value = d.notes || '';
+    const modal = new bootstrap.Modal(document.getElementById('editVisitModal'));
+    modal.show();
+  } catch (e) { alert('Failed to load visit for edit'); }
+}
+
+async function deleteVisit(id) {
+  if (!confirm('Delete this visit record?')) return;
+  const form = new FormData();
+  form.append('action', 'delete');
+  form.append('id', id);
+  const res = await fetch(`visits.php?id=<?php echo $rental_id; ?>`, { method: 'POST', body: form });
+  if (res.ok) { location.reload(); } else { alert('Failed to delete'); }
 }
 </script>
 
