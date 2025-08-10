@@ -12,7 +12,31 @@ $company = getTenantInfo($conn, $company_id);
 $filename = "contract_{$start_date}_to_{$end_date}";
 sendDownloadHeaders($format, $filename);
 
-$sql = "SELECT ct.contract_code, ct.contract_type, COALESCE(p.name, p.project_name) as project_name, SUM(wh.hours_worked) as total_hours, SUM(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day,8),0)) as earnings, COALESCE(ct.currency,'USD') as currency FROM contracts ct LEFT JOIN projects p ON ct.project_id = p.id LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?";
+// Detect schema differences safely
+$projCols = $conn->query("SHOW COLUMNS FROM projects")->fetchAll(PDO::FETCH_ASSOC);
+$projColNames = array_map(function($r){ return $r['Field']; }, $projCols);
+$hasProjName = in_array('name', $projColNames, true);
+$hasProjProjectName = in_array('project_name', $projColNames, true);
+$projectNameExpr = "'N/A' as project_name";
+if ($hasProjName && $hasProjProjectName) {
+    $projectNameExpr = "COALESCE(p.name, p.project_name) as project_name";
+} elseif ($hasProjName) {
+    $projectNameExpr = "p.name as project_name";
+} elseif ($hasProjProjectName) {
+    $projectNameExpr = "p.project_name as project_name";
+}
+
+$ctCols = $conn->query("SHOW COLUMNS FROM contracts")->fetchAll(PDO::FETCH_ASSOC);
+$ctColNames = array_map(function($r){ return $r['Field']; }, $ctCols);
+$hasRateAmount = in_array('rate_amount', $ctColNames, true);
+$hasWHPD = in_array('working_hours_per_day', $ctColNames, true);
+$hasCurrency = in_array('currency', $ctColNames, true);
+$rateExpr = $hasRateAmount ? 'ct.rate_amount' : '0';
+$whpdExpr = $hasWHPD ? 'COALESCE(ct.working_hours_per_day, 8)' : '8';
+$currencyExpr = $hasCurrency ? "COALESCE(ct.currency,'USD') as currency" : "'USD' as currency";
+$earnExpr = "SUM(wh.hours_worked * ($rateExpr) / NULLIF(($whpdExpr), 0)) as earnings";
+
+$sql = "SELECT ct.contract_code, ct.contract_type, {$projectNameExpr}, SUM(wh.hours_worked) as total_hours, {$earnExpr}, {$currencyExpr} FROM contracts ct LEFT JOIN projects p ON ct.project_id = p.id LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?";
 $params = [$start_date, $end_date];
 if (!$is_super_admin) { $sql .= " WHERE ct.company_id = ?"; $params[] = $company_id; }
 $sql .= " GROUP BY ct.id ORDER BY earnings DESC";
