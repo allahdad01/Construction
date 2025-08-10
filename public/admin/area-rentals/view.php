@@ -49,6 +49,16 @@ if (!$rental) {
 // Calculate some additional metrics
 $currency = $rental['currency'] ?? 'USD';
 
+// Compute total paid from payments table (by rental currency)
+$__payCols = [];
+try { $__payCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_payments")->fetchAll(PDO::FETCH_ASSOC)); } catch (Exception $e) { $__payCols = []; }
+$__hasPayCompany = in_array('company_id', $__payCols, true);
+$sumSql = "SELECT COALESCE(SUM(amount), 0) FROM area_rental_payments WHERE area_rental_id = ?" . ($__hasPayCompany ? " AND company_id = ?" : "") . " AND COALESCE(currency, ?) = ?";
+$sumStmt = $conn->prepare($sumSql);
+$sumParams = [$rental_id]; if ($__hasPayCompany) { $sumParams[] = $company_id; } $sumParams[] = $currency; $sumParams[] = $currency;
+$sumStmt->execute($sumParams);
+$amount_paid_so_far = (float)$sumStmt->fetchColumn();
+
 // Duration computation
 $startDt = new DateTime($rental['start_date']);
 $endDt = $rental['end_date'] ? new DateTime($rental['end_date']) : new DateTime();
@@ -72,7 +82,7 @@ if ($daily_rate_effective <= 0) {
 }
 
 // Owed until as-of date and outstanding due
-$amount_paid_so_far = (float)($rental['amount_paid'] ?? 0);
+// $amount_paid_so_far computed above
 $owed_until_date = $daily_rate_effective * max(0, $days_elapsed);
 $outstanding_due = max(0, $owed_until_date - $amount_paid_so_far);
 
@@ -254,12 +264,14 @@ if ($rental['total_amount']) {
                         <h6 class="text-primary"><?php echo __('total_amount'); ?></h6>
                         <h4 class="text-primary"><?php echo formatCurrencyAmount((float)($rental['total_amount'] ?? 0), $currency); ?></h4>
                     </div>
+                    <?php endif; ?>
 
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('amount_paid'); ?></h6>
-                        <h5 class="text-success"><?php echo formatCurrencyAmount((float)($rental['amount_paid'] ?? 0), $currency); ?></h5>
+                        <h5 class="text-success"><?php echo formatCurrencyAmount((float)$amount_paid_so_far, $currency); ?></h5>
                     </div>
 
+                    <?php if ($rental['total_amount']): ?>
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('remaining_balance'); ?></h6>
                         <h5 class="<?php echo $remaining_balance > 0 ? 'text-warning' : 'text-success'; ?>">
