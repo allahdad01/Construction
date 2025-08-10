@@ -132,6 +132,30 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([getCurrentCompanyId()]);
 $monthly_potential = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Determine date column for payments
+$ppCols = [];
+try {
+    $ppCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM parking_payments")->fetchAll(PDO::FETCH_ASSOC));
+} catch (Exception $e) {}
+$dateCol = in_array('payment_date', $ppCols, true) ? 'payment_date' : (in_array('created_at', $ppCols, true) ? 'created_at' : null);
+
+// Monthly revenue by currency (last 30 days payments)
+$monthly_revenue_by_currency = [];
+if ($dateCol) {
+    $sql = "
+        SELECT COALESCE(pp.currency, 'USD') AS currency, SUM(pp.amount) AS total
+        FROM parking_payments pp
+        JOIN parking_rentals pr ON pp.rental_id = pr.id
+        JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+        WHERE ps.company_id = ? AND pp.$dateCol >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+        GROUP BY COALESCE(pp.currency, 'USD')
+        ORDER BY total DESC
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([getCurrentCompanyId()]);
+    $monthly_revenue_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
 ?>
 
 <div class="container-fluid">
@@ -580,7 +604,17 @@ $monthly_potential = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="col-6">
                             <h6><?php echo __('revenue_overview'); ?></h6>
-                            <p><strong><?php echo __('monthly_revenue'); ?>:</strong> <?php echo formatCurrency($total_revenue); ?></p>
+                            <p><strong><?php echo __('monthly_revenue'); ?>:</strong>
+                                <?php if (!empty($monthly_revenue_by_currency)): ?>
+                                    <?php foreach ($monthly_revenue_by_currency as $idx => $row): ?>
+                                        <div class="<?php echo $idx > 0 ? 'small' : ''; ?>">
+                                            <?php echo formatCurrencyAmount($row['total'], $row['currency']); ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    $0.00
+                                <?php endif; ?>
+                            </p>
                             <p><strong><?php echo __('active_rentals'); ?>:</strong> <?php echo $active_rentals; ?></p>
                         </div>
                     </div>
