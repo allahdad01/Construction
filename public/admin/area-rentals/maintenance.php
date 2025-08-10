@@ -96,11 +96,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get maintenance history
-$stmt = $conn->prepare("
+// Detect available date column for ordering to avoid unknown column errors
+try {
+    $colStmt = $conn->query("SHOW COLUMNS FROM area_rental_maintenance");
+    $cols = array_map(function($r){ return $r['Field']; }, $colStmt->fetchAll(PDO::FETCH_ASSOC));
+} catch (Exception $e) {
+    $cols = [];
+}
+$orderField = 'created_at';
+if (in_array('maintenance_date', $cols, true)) {
+    $orderField = 'maintenance_date';
+} elseif (in_array('scheduled_date', $cols, true)) {
+    $orderField = 'scheduled_date';
+} elseif (in_array('date', $cols, true)) {
+    $orderField = 'date';
+}
+
+$sql = "
     SELECT * FROM area_rental_maintenance 
     WHERE area_rental_id = ? 
-    ORDER BY maintenance_date DESC, created_at DESC
-");
+    ORDER BY {$orderField} DESC, created_at DESC
+";
+$stmt = $conn->prepare($sql);
 $stmt->execute([$rental_id]);
 $maintenance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
