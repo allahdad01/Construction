@@ -46,7 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $employee_code = generateEmployeeCode($company_id);
 
         // Generate random password
-        $password = generateRandomPassword();
+        $minLenSetting = 8;
+        try { $minLenSetting = (int)getCompanySettingLocal($conn, $company_id, 'password_min_length', '8'); } catch (Exception $e) {}
+        $password = generateRandomPassword(max(8, $minLenSetting));
 
         // Ensure salary_currency column exists (DDL outside transaction to avoid implicit commits)
         try {
@@ -153,10 +155,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_once '../../../config/mailer.php';
         $loginEmail = $_POST['email'];
         $subject = 'Your Account Credentials';
+        $loginUrl = '../../login.php';
         $htmlBody = '<p>Hello ' . htmlspecialchars($_POST['name']) . ',</p>'
                   . '<p>Your account has been created.</p>'
-                  . '<p><strong>Login Email:</strong> ' . htmlspecialchars($loginEmail) . '</p>'
-                  . '<p><em>Please set your password from the profile page or use the reset password option.</em></p>'
+                  . '<p><strong>Login Email:</strong> ' . htmlspecialchars($loginEmail) . '<br>'
+                  . '<strong>Temporary Password:</strong> ' . htmlspecialchars($password) . '</p>'
+                  . '<p>You can log in here: <a href="' . $loginUrl . '">' . $loginUrl . '</a></p>'
+                  . '<p><em>For security, please change your password after first login from your profile page.</em></p>'
                   . '<p>Regards,<br>Support Team</p>';
         $mailError = null;
         sendCompanyEmail($conn, (int)$company_id, $loginEmail, $subject, $htmlBody, null, $mailError);
