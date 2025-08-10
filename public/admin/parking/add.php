@@ -80,25 +80,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Create parking space record
-        $stmt = $conn->prepare("
-            INSERT INTO parking_spaces (
-                company_id, space_code, space_name, space_type, vehicle_category,
-                size, monthly_rate, currency, description, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', NOW())
-        ");
-
-        $stmt->execute([
-            $company_id,
-            $space_code,
-            $_POST['space_name'],
-            $_POST['space_type'],
-            $_POST['vehicle_category'] ?? 'general',
-            $_POST['size'] ?? '',
-            $_POST['monthly_rate'],
-            $_POST['currency'] ?? 'USD',
-            $_POST['description'] ?? ''
-        ]);
+        // Create parking space record (column-aware for optional description)
+        $cols = [];
+        try {
+            $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM parking_spaces")->fetchAll(PDO::FETCH_ASSOC));
+        } catch (Exception $e) {
+            $cols = [];
+        }
+        $columns = ['company_id','space_code','space_name','space_type','vehicle_category','size','monthly_rate','currency'];
+        $placeholders = array_fill(0, count($columns), '?');
+        $paramsIns = [$company_id, $space_code, $_POST['space_name'], $_POST['space_type'], $_POST['vehicle_category'] ?? 'general', $_POST['size'] ?? '', $_POST['monthly_rate'], $_POST['currency'] ?? 'USD'];
+        if (in_array('description', $cols, true)) { $columns[] = 'description'; $placeholders[] = '?'; $paramsIns[] = $_POST['description'] ?? ''; }
+        if (in_array('status', $cols, true)) { $columns[] = 'status'; $placeholders[] = '?'; $paramsIns[] = 'available'; }
+        if (in_array('created_at', $cols, true)) { $columns[] = 'created_at'; $placeholders[] = 'NOW()'; }
+        $sqlIns = 'INSERT INTO parking_spaces (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+        $stmt = $conn->prepare($sqlIns);
+        $stmt->execute($paramsIns);
 
         $space_id = $conn->lastInsertId();
 

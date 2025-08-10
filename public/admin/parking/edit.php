@@ -65,32 +65,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Update parking space record
-        $stmt = $conn->prepare("
-            UPDATE parking_spaces SET
-                space_name = ?, space_type = ?, vehicle_category = ?, size = ?,
-                monthly_rate = ?, currency = ?, status = ?, description = ?, updated_at = NOW()
-            WHERE id = ? AND company_id = ?
-        ");
-
-        $stmt->execute([
-            $_POST['space_name'],
-            $_POST['space_type'],
-            $_POST['vehicle_category'] ?? 'general',
-            $_POST['size'] ?? '',
-            $_POST['monthly_rate'],
-            $_POST['currency'] ?? 'USD',
-            $_POST['status'] ?? 'available',
-            $_POST['description'] ?? '',
-            $space_id,
-            $company_id
-        ]);
+        // Update parking space record (column-aware)
+        $cols = [];
+        try {
+            $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM parking_spaces")->fetchAll(PDO::FETCH_ASSOC));
+        } catch (Exception $e) {
+            $cols = [];
+        }
+        $setParts = [];
+        $paramsUpd = [];
+        $addCol = function(string $col, $val) use (&$setParts, &$paramsUpd, $cols) {
+            if (in_array($col, $cols, true)) { $setParts[] = "$col = ?"; $paramsUpd[] = $val; }
+        };
+        $addCol('space_name', $_POST['space_name']);
+        $addCol('space_type', $_POST['space_type']);
+        $addCol('vehicle_category', $_POST['vehicle_category'] ?? 'general');
+        $addCol('size', $_POST['size'] ?? '');
+        $addCol('monthly_rate', $_POST['monthly_rate']);
+        if (in_array('currency', $cols, true)) { $addCol('currency', $_POST['currency'] ?? 'USD'); }
+        $addCol('status', $_POST['status'] ?? 'available');
+        if (in_array('description', $cols, true)) { $addCol('description', $_POST['description'] ?? ''); }
+        if (in_array('updated_at', $cols, true)) { $setParts[] = 'updated_at = NOW()'; }
+        if (empty($setParts)) { throw new Exception('No updatable columns found for parking_spaces.'); }
+        $sqlUpd = 'UPDATE parking_spaces SET ' . implode(', ', $setParts) . ' WHERE id = ? AND company_id = ?';
+        $paramsUpd[] = $space_id; $paramsUpd[] = $company_id;
+        $stmt = $conn->prepare($sqlUpd);
+        $stmt->execute($paramsUpd);
 
         // Commit transaction
         $conn->commit();
-
+        
         $success = "Parking space updated successfully!";
-
+        
         // Use JavaScript redirect instead of header redirect
         echo "<script>setTimeout(function(){ window.location.href = 'view.php?id=$space_id'; }, 2000);</script>";
 
