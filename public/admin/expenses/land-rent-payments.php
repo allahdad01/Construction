@@ -10,7 +10,7 @@ $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 $error=''; $success='';
 
-// Create table if not exists (id, company_id, payment_date, amount, currency, method, reference, notes, created_at)
+// Ensure payments table exists
 try {
   $conn->exec("CREATE TABLE IF NOT EXISTS land_rent_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,6 +26,7 @@ try {
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 } catch (Exception $e) {}
 
+// Handle new payment
 if ($_SERVER['REQUEST_METHOD']==='POST') {
   try {
     $date = $_POST['payment_date'] ?? date('Y-m-d');
@@ -41,98 +42,124 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   } catch (Exception $e) { $error = $e->getMessage(); }
 }
 
+// Fetch payment history
 $stmt=$conn->prepare("SELECT * FROM land_rent_payments WHERE company_id = ? ORDER BY payment_date DESC, id DESC");
 $stmt->execute([$company_id]);
 $payments=$stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Land Rent Payments</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
- body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
- table{width:100%;border-collapse:collapse}
- th,td{border:1px solid #ddd;padding:8px;font-size:13px}
- th{background:#f7f7fb;text-align:left}
- .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
- .btn{display:inline-block;padding:8px 12px;border:1px solid #444;border-radius:4px;text-decoration:none;color:#222}
- .btn-primary{background:#111;color:#fff;border-color:#111}
- .right{text-align:right}
- .alert{padding:10px;border-radius:4px;margin-bottom:10px}
- .alert-success{background:#e7f6ed;color:#17673a}
- .alert-danger{background:#fcebea;color:#9b1c1c}
-</style>
-</head>
-<body>
-<h2><i class="fas fa-credit-card"></i> Land Rent Payments</h2>
-<div style="margin:10px 0"><a href="index.php" class="btn">Back to Expenses</a></div>
-<?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
-<?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
 
-<h3>Add Payment</h3>
-<form method="POST">
-  <div class="grid">
-    <div>
-      <label>Date</label>
-      <input type="date" name="payment_date" value="<?php echo date('Y-m-d'); ?>" style="width:100%">
+// Default currency from company setting
+$defaultCurrency = 'USD';
+try { $defaultCurrency = getCompanySettingLocal($conn, $company_id, 'land_rent_currency', 'USD'); } catch (Exception $e) {}
+
+$page_title = 'Land Rent Payments';
+require_once '../../../includes/header.php';
+?>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0"><i class="fas fa-credit-card me-2"></i>Land Rent Payments</h3>
+    <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Expenses</a>
+  </div>
+
+  <?php if ($error): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <?php echo htmlspecialchars($error); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div>
-      <label>Amount</label>
-      <input type="number" step="0.01" min="0.01" name="amount" style="width:100%">
+  <?php endif; ?>
+  <?php if ($success): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <?php echo htmlspecialchars($success); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div>
-      <label>Currency</label>
-      <select name="currency" style="width:100%">
-        <option value="USD">USD</option>
-        <option value="AFN">AFN</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
+  <?php endif; ?>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h6 class="m-0">Add Payment</h6>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" name="payment_date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Amount</label>
+              <input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Currency</label>
+              <select name="currency" class="form-control">
+                <option value="USD" <?php echo $defaultCurrency==='USD'?'selected':''; ?>>USD</option>
+                <option value="AFN" <?php echo $defaultCurrency==='AFN'?'selected':''; ?>>AFN</option>
+                <option value="EUR" <?php echo $defaultCurrency==='EUR'?'selected':''; ?>>EUR</option>
+                <option value="GBP" <?php echo $defaultCurrency==='GBP'?'selected':''; ?>>GBP</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Method</label>
+              <input type="text" name="method" class="form-control" placeholder="cash, bank, etc">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Reference</label>
+              <input type="text" name="reference" class="form-control" placeholder="Reference number">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Notes</label>
+              <input type="text" name="notes" class="form-control" placeholder="Optional">
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Record Payment</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div>
-      <label>Method</label>
-      <input type="text" name="method" placeholder="cash, bank, etc" style="width:100%">
-    </div>
-    <div>
-      <label>Reference</label>
-      <input type="text" name="reference" placeholder="Reference number" style="width:100%">
-    </div>
-    <div>
-      <label>Notes</label>
-      <input type="text" name="notes" placeholder="Optional" style="width:100%">
+
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h6 class="m-0">Payment History</h6>
+          <div>
+            <button class="btn btn-sm btn-outline-secondary print-btn" data-target="paymentsCard"><i class="fas fa-print"></i></button>
+          </div>
+        </div>
+        <div class="card-body" id="paymentsCard">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover datatable" id="paymentsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th class="text-end">Amount</th>
+                  <th>Currency</th>
+                  <th>Method</th>
+                  <th>Reference</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php if (empty($payments)): ?>
+                  <tr><td colspan="6" class="text-muted">No payments recorded.</td></tr>
+                <?php else: foreach ($payments as $p): ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($p['payment_date']); ?></td>
+                    <td class="text-end"><?php echo formatCurrencyAmount((float)$p['amount'], $p['currency'] ?? 'USD'); ?></td>
+                    <td><?php echo htmlspecialchars($p['currency'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($p['method'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($p['reference'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($p['notes'] ?? ''); ?></td>
+                  </tr>
+                <?php endforeach; endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div style="margin-top:12px"><button type="submit" class="btn btn-primary">Record Payment</button></div>
-</form>
+</div>
 
-<h3 style="margin-top:20px">Payment History</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Amount</th>
-      <th>Currency</th>
-      <th>Method</th>
-      <th>Reference</th>
-      <th>Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php if (empty($payments)): ?>
-    <tr><td colspan="6" class="muted">No payments recorded.</td></tr>
-    <?php else: foreach ($payments as $p): ?>
-    <tr>
-      <td><?php echo htmlspecialchars($p['payment_date']); ?></td>
-      <td class="right"><?php echo formatCurrencyAmount((float)$p['amount'], $p['currency'] ?? 'USD'); ?></td>
-      <td><?php echo htmlspecialchars($p['currency'] ?? ''); ?></td>
-      <td><?php echo htmlspecialchars($p['method'] ?? ''); ?></td>
-      <td><?php echo htmlspecialchars($p['reference'] ?? ''); ?></td>
-      <td><?php echo htmlspecialchars($p['notes'] ?? ''); ?></td>
-    </tr>
-    <?php endforeach; endif; ?>
-  </tbody>
-</table>
-</body>
-</html>
+<?php require_once '../../../includes/footer.php'; ?>
