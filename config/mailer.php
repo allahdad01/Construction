@@ -1,6 +1,6 @@
 <?php
 /**
- * Mail helper: prefers PHPMailer with SMTP using company settings; falls back to PHP mail().
+ * Mail helper: prefers PHPMailer with SMTP using company settings; falls back to PHP mail() ONLY when no SMTP host is configured.
  */
 function sendCompanyEmail(PDO $conn, int $companyId, string $toEmail, string $subject, string $htmlBody, ?string $plainBody = null, ?string &$error = null): bool {
     // Try PHPMailer via Composer autoload
@@ -19,25 +19,27 @@ function sendCompanyEmail(PDO $conn, int $companyId, string $toEmail, string $su
 
     $fromEmail = $settings['company_email'] ?? ($settings['smtp_username'] ?? 'no-reply@example.com');
     $fromName = $settings['company_name'] ?? 'System';
+    $hasSmtp = !empty($settings['smtp_host']);
 
-    if ($usePhpMailer && class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+    if ($hasSmtp) {
+        if (!$usePhpMailer || !class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+            $error = 'PHPMailer not installed. Install dependencies (composer install).';
+            return false;
+        }
         try {
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
             $mail->CharSet = 'UTF-8';
-            // Configure SMTP if host present
-            if (!empty($settings['smtp_host'])) {
-                $mail->isSMTP();
-                $mail->Host = $settings['smtp_host'];
-                $mail->SMTPAuth = !empty($settings['smtp_username']);
-                if ($mail->SMTPAuth) {
-                    $mail->Username = $settings['smtp_username'];
-                    $mail->Password = $settings['smtp_password'] ?? '';
-                }
-                $enc = strtolower($settings['smtp_encryption'] ?? 'tls');
-                if ($enc === 'ssl') { $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS; }
-                elseif ($enc === 'tls') { $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; }
-                $mail->Port = (int)($settings['smtp_port'] ?? 587);
+            $mail->isSMTP();
+            $mail->Host = $settings['smtp_host'];
+            $mail->SMTPAuth = !empty($settings['smtp_username']);
+            if ($mail->SMTPAuth) {
+                $mail->Username = $settings['smtp_username'];
+                $mail->Password = $settings['smtp_password'] ?? '';
             }
+            $enc = strtolower($settings['smtp_encryption'] ?? 'tls');
+            if ($enc === 'ssl') { $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS; }
+            elseif ($enc === 'tls') { $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; }
+            $mail->Port = (int)($settings['smtp_port'] ?? 587);
             $mail->setFrom($fromEmail, $fromName);
             $mail->addAddress($toEmail);
             $mail->isHTML(true);
@@ -48,11 +50,11 @@ function sendCompanyEmail(PDO $conn, int $companyId, string $toEmail, string $su
             return true;
         } catch (Throwable $t) {
             $error = $t->getMessage();
-            // fall through to PHP mail fallback
+            return false;
         }
     }
 
-    // Fallback: PHP mail()
+    // Fallback: PHP mail() (only when no SMTP configured)
     try {
         $boundary = md5(uniqid((string)mt_rand(), true));
         $headers = [];
