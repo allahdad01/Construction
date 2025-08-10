@@ -215,9 +215,9 @@ if (!$payment) {
                             <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
                         </a>
                         
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $payment_id; ?>, '<?php echo htmlspecialchars($payment['payment_code']); ?>')">
+                        <a href="delete.php?id=<?php echo $payment_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('<?php echo __('confirm_delete_salary_payment'); ?> <?php echo htmlspecialchars($payment['payment_code'] ?? ''); ?>? <?php echo __('this_action_cannot_be_undone'); ?>');">
                             <i class="fas fa-trash"></i> <?php echo __('delete_payment'); ?>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -283,12 +283,7 @@ if (!$payment) {
 </style>
 
 <script>
-function confirmDelete(paymentId, paymentCode) {
-    const message = `Are you sure you want to delete payment "${paymentCode}"? This action cannot be undone.`;
-    if (confirm(message)) {
-        window.location.href = `delete.php?id=${paymentId}`;
-    }
-}
+// Inline confirm is used on anchor; no JS needed here
 </script>
 
 <?php require_once '../../../includes/footer.php'; ?>

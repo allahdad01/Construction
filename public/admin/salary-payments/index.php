@@ -429,12 +429,12 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $payment['id']; ?>, '<?php echo htmlspecialchars($payment['name']); ?>')"
-                                                title="Delete">
+                                        <a href="delete.php?id=<?php echo $payment['id']; ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('<?php echo __('confirm_delete_salary_payment'); ?> <?php echo htmlspecialchars($payment['name']); ?>? <?php echo __('this_action_cannot_be_undone'); ?>');"
+                                           title="Delete">
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
