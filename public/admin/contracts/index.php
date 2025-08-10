@@ -187,6 +187,51 @@ if ($dateCol) {
     $stmt->execute([getCurrentCompanyId()]);
     $monthly_paid_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 }
+
+// Build 12-month labels and payments-by-currency series for chart (completed payments)
+$chart_labels = [];
+for ($i = 11; $i >= 0; $i--) {
+    $chart_labels[] = date('Y-m', strtotime("-{$i} months"));
+}
+$payments_series = [];
+try {
+    if ($dateCol) {
+        $stmt = $conn->prepare("SELECT DATE_FORMAT($dateCol, '%Y-%m') AS ym, COALESCE(currency,'USD') AS currency, SUM(amount) AS total
+                                 FROM contract_payments
+                                 WHERE company_id = ? AND status = 'completed' AND $dateCol >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
+                                 GROUP BY ym, COALESCE(currency,'USD')");
+        $stmt->execute([getCurrentCompanyId()]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $cur = $r['currency'];
+            $ym = $r['ym'];
+            $payments_series[$cur][$ym] = (float)$r['total'];
+        }
+    }
+} catch (Exception $e) {}
+
+// Normalize series for each currency across labels
+$chart_datasets = [];
+$palette = [
+    'USD' => ['rgba(75, 192, 192, 1)','rgba(75, 192, 192, 0.2)'],
+    'AFN' => ['rgba(255, 159, 64, 1)','rgba(255, 159, 64, 0.2)'],
+    'EUR' => ['rgba(54, 162, 235, 1)','rgba(54, 162, 235, 0.2)'],
+    'GBP' => ['rgba(153, 102, 255, 1)','rgba(153, 102, 255, 0.2)'],
+];
+foreach ($payments_series as $cur => $map) {
+    $data = [];
+    foreach ($chart_labels as $ym) { $data[] = (float)($map[$ym] ?? 0); }
+    $colors = $palette[$cur] ?? ['rgba(99, 132, 255, 1)','rgba(99, 132, 255, 0.2)'];
+    $chart_datasets[] = [
+        'label' => $cur,
+        'data' => $data,
+        'borderColor' => $colors[0],
+        'backgroundColor' => $colors[1],
+        'tension' => 0.1,
+    ];
+}
+
+$chartLabelsJson = json_encode($chart_labels);
+$chartDatasetsJson = json_encode($chart_datasets);
 ?>
 
 <div class="container-fluid">
@@ -518,23 +563,19 @@ const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 const revenueChart = new Chart(revenueCtx, {
     type: 'line',
     data: {
-        labels: <?php echo json_encode(array_column($monthly_data, 'month')); ?>,
-        datasets: [{
-            label: 'Revenue',
-            data: <?php echo json_encode(array_column($monthly_data, 'revenue')); ?>,
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.1
-        }]
+        labels: <?php echo $chartLabelsJson; ?>,
+        datasets: <?php echo $chartDatasetsJson; ?>
     },
     options: {
         responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        stacked: false,
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
                     callback: function(value) {
-                        return '$' + value.toLocaleString();
+                        return value.toLocaleString();
                     }
                 }
             }
@@ -543,10 +584,13 @@ const revenueChart = new Chart(revenueCtx, {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return 'Revenue: $' + context.parsed.y.toLocaleString();
+                        const cur = context.dataset.label || '';
+                        const val = context.parsed.y || 0;
+                        return `${cur}: ${val.toLocaleString()}`;
                     }
                 }
-            }
+            },
+            legend: { position: 'bottom' }
         }
     }
 });
