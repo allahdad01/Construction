@@ -701,25 +701,31 @@ date_default_timezone_set($company_timezone);
             <?php elseif ($is_employee): ?>
                 <!-- Employee Menu -->
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="../attendance/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
                         <i class="fas fa-clock"></i>
                         <span>Attendance</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="../salary/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
                         <i class="fas fa-money-bill"></i>
                         <span>Salary</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="../leave/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
                         <i class="fas fa-calendar-times"></i>
                         <span>Leave</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Contracts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
                         <i class="fas fa-user"></i>
                         <span>Profile</span>
                     </a>
