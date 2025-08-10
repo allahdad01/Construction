@@ -11,6 +11,16 @@ $conn = $db->getConnection();
 $current_user = getCurrentUser();
 $company_id = getCurrentCompanyId();
 
+// Compute role-aware back URL
+$back_url = '/constract360/construction/public/dashboard/';
+if (isSuperAdmin()) {
+    $back_url = '/constract360/construction/public/super-admin/';
+} elseif (isCompanyAdmin()) {
+    $back_url = '/constract360/construction/public/admin/dashboard/';
+} elseif (isEmployee()) {
+    $back_url = '/constract360/construction/public/employee/dashboard/';
+}
+
 $error = '';
 $success = '';
 
@@ -175,7 +185,7 @@ if ($current_user['role'] === 'super_admin') {
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-user"></i> <?php echo __('my_profile'); ?>
         </h1>
-        <a href="../dashboard/" class="btn btn-secondary">
+        <a href="<?php echo $back_url; ?>" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> <?php echo __('back_to_dashboard'); ?>
         </a>
     </div>
