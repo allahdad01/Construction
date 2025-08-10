@@ -379,18 +379,26 @@ if ($user['employee_code']) {
 </style>
 
 <script>
-function toggleUserStatus(userId, status) {
-    if (confirm(`Are you sure you want to ${status === 'active' ? 'activate' : 'deactivate'} this user?`)) {
-        // You would implement AJAX call here to update status
-        alert('Feature to be implemented: Toggle user status');
-    }
+async function toggleUserStatus(userId, status) {
+  if (!confirm(`Are you sure you want to ${status === 'active' ? 'activate' : 'deactivate'} this user?`)) return;
+  try {
+    const resp = await fetch('toggle_status.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId), status }) });
+    const data = await resp.json();
+    if (data.success) { alert(data.message); location.reload(); } else { alert(data.message || 'Failed'); }
+  } catch (e) { alert('Server error'); }
 }
 
-function resetPassword(userId) {
-    if (confirm('Are you sure you want to reset this user\'s password?')) {
-        // You would implement AJAX call here to reset password
-        alert('Feature to be implemented: Reset password');
+async function resetPassword(userId) {
+  if (!confirm('Are you sure you want to reset this user\'s password?')) return;
+  try {
+    const resp = await fetch('reset_password.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId) }) });
+    const data = await resp.json();
+    if (data.success) {
+      alert(`Password reset. Temporary password: ${data.temporary_password}`);
+    } else {
+      alert(data.message || 'Failed to reset password');
     }
+  } catch (e) { alert('Server error'); }
 }
 
 // Inline confirm used on anchor; no JS delete handler needed
