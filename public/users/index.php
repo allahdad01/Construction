@@ -409,13 +409,12 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <?php if ($user['id'] != getCurrentUser()['id']): ?>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger delete-user-btn" 
-                                                data-user-id="<?php echo $user['id']; ?>"
-                                                data-user-name="<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>"
-                                                title="Delete">
+                                        <a href="delete.php?id=<?php echo $user['id']; ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to delete user <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name'], ENT_QUOTES, 'UTF-8'); ?>? This action cannot be undone.');"
+                                           title="Delete">
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -462,33 +461,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Simple table initialization without DataTables to avoid conflicts
-    console.log('Page loaded successfully');
-    
-    // Ensure all delete buttons are working
-    const deleteButtons = document.querySelectorAll('.delete-user-btn');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const userId = this.dataset.userId;
-            const userName = this.dataset.userName;
-            console.log(`Delete button clicked for user: ${userName} (ID: ${userId})`);
-            confirmDelete(userId, userName);
-        });
-    });
-    
-    console.log(`Found ${deleteButtons.length} delete buttons`);
+    console.log('Users page loaded');
 });
-
-// Confirm delete function
-function confirmDelete(userId, userName) {
-    const message = `Are you sure you want to delete user "${userName}"? This action cannot be undone.`;
-    if (confirm(message)) {
-        window.location.href = `index.php?delete=${userId}`;
-    }
-}
-
+// Inline confirm used on anchor; no JS delete handler needed
 // Export functions
 function exportToCSV() {
     const table = document.getElementById('usersTable');

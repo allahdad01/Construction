@@ -315,9 +315,9 @@ if ($user['employee_code']) {
                         </button>
                         
                         <?php if ($user['id'] != getCurrentUser()['id']): ?>
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(<?php echo $user_id; ?>, '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>')">
+                        <a href="delete.php?id=<?php echo $user_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete user <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name'], ENT_QUOTES, 'UTF-8'); ?>? This action cannot be undone.');">
                             <i class="fas fa-trash"></i> <?php echo __('delete_user'); ?>
-                        </button>
+                        </a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -393,12 +393,7 @@ function resetPassword(userId) {
     }
 }
 
-function confirmDelete(userId, userName) {
-    const message = `Are you sure you want to delete user "${userName}"? This action cannot be undone.`;
-    if (confirm(message)) {
-        window.location.href = `index.php?delete=${userId}`;
-    }
-}
+// Inline confirm used on anchor; no JS delete handler needed
 </script>
 
 <?php require_once '../../includes/footer.php'; ?>
