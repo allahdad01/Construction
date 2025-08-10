@@ -47,8 +47,6 @@ if (!$rental) {
 }
 
 // Calculate some additional metrics
-$days_rented = 0;
-$remaining_balance = 0;
 $currency = $rental['currency'] ?? 'USD';
 
 // Duration computation
@@ -61,6 +59,21 @@ if ($diff->m) { $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'month' : 'months'
 if ($diff->d || empty($parts)) { $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'day' : 'days'); }
 $duration_text = implode(', ', $parts);
 $range_text = date('M j, Y', strtotime($rental['start_date'])) . ' to ' . ($rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'present');
+
+// Days elapsed (inclusive)
+$asOfDate = $rental['end_date'] ? new DateTime($rental['end_date']) : new DateTime();
+$days_elapsed = $startDt->diff($asOfDate)->days + 1;
+
+// Effective daily rate (fallback to monthly/30)
+$daily_rate_effective = (float)($rental['daily_rate'] ?? 0);
+if ($daily_rate_effective <= 0) {
+    $daily_rate_effective = ((float)($rental['monthly_rate'] ?? 0)) / 30.0;
+}
+
+// Owed until as-of date and outstanding due
+$amount_paid_so_far = (float)($rental['amount_paid'] ?? 0);
+$owed_until_date = $daily_rate_effective * max(0, $days_elapsed);
+$outstanding_due = max(0, $owed_until_date - $amount_paid_so_far);
 
 if ($rental['end_date']) {
     $start = new DateTime($rental['start_date']);
@@ -201,8 +214,19 @@ if ($rental['total_amount']) {
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <h6 class="text-primary"><?php echo __('days_rented'); ?></h6>
-                        <h5 class="text-dark"><?php echo $days_rented; ?> <?php echo __('days'); ?></h5>
+                        <h6 class="text-primary">Days Elapsed</h6>
+                        <h5 class="text-dark"><?php echo (int)$days_elapsed; ?> days</h5>
+                        <div class="small text-muted"><?php echo htmlspecialchars($range_text); ?></div>
+                    </div>
+
+                    <div class="mb-1">
+                        <h6 class="text-primary">Owed Until <?php echo $asOfDate->format('M j, Y'); ?></h6>
+                        <h5 class="text-danger"><?php echo formatCurrencyAmount($owed_until_date, $currency); ?></h5>
+                        <div class="small text-muted">Paid: <?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></div>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-primary">Outstanding Due (as of <?php echo $asOfDate->format('M j, Y'); ?>)</h6>
+                        <h5 class="<?php echo $outstanding_due > 0 ? 'text-warning' : 'text-success'; ?>"><?php echo formatCurrencyAmount($outstanding_due, $currency); ?></h5>
                     </div>
                 </div>
             </div>
