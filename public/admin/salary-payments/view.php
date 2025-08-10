@@ -286,7 +286,7 @@ if (!$payment) {
 function confirmDelete(paymentId, paymentCode) {
     const message = `Are you sure you want to delete payment "${paymentCode}"? This action cannot be undone.`;
     if (confirm(message)) {
-        window.location.href = `index.php?delete=${paymentId}`;
+        window.location.href = `delete.php?id=${paymentId}`;
     }
 }
 </script>

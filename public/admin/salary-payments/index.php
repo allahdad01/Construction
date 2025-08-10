@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Confirm delete function
 function confirmDelete(paymentId, employeeName) {
     if (confirm(`<?php echo __('confirm_delete_salary_payment'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
-        window.location.href = `index.php?delete=${paymentId}`;
+        window.location.href = `delete.php?id=${paymentId}`;
     }
 }
 
