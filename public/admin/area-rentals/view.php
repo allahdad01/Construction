@@ -49,6 +49,7 @@ if (!$rental) {
 // Calculate some additional metrics
 $days_rented = 0;
 $remaining_balance = 0;
+$currency = $rental['currency'] ?? 'USD';
 
 if ($rental['end_date']) {
     $start = new DateTime($rental['start_date']);
@@ -157,29 +158,29 @@ if ($rental['total_amount']) {
                 <div class="card-body">
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('monthly_rate'); ?></h6>
-                        <h4 class="text-success">$<?php echo number_format($rental['monthly_rate'], 2); ?></h4>
+                        <h4 class="text-success"><?php echo formatCurrencyAmount((float)($rental['monthly_rate'] ?? 0), $currency); ?></h4>
                     </div>
                     
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('daily_rate'); ?></h6>
-                        <h5 class="text-info">$<?php echo number_format($rental['daily_rate'], 2); ?></h5>
+                        <h5 class="text-info"><?php echo formatCurrencyAmount((float)($rental['daily_rate'] ?? 0), $currency); ?></h5>
                     </div>
 
                     <?php if ($rental['total_amount']): ?>
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('total_amount'); ?></h6>
-                        <h4 class="text-primary">$<?php echo number_format($rental['total_amount'], 2); ?></h4>
+                        <h4 class="text-primary"><?php echo formatCurrencyAmount((float)($rental['total_amount'] ?? 0), $currency); ?></h4>
                     </div>
 
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('amount_paid'); ?></h6>
-                        <h5 class="text-success">$<?php echo number_format($rental['amount_paid'] ?? 0, 2); ?></h5>
+                        <h5 class="text-success"><?php echo formatCurrencyAmount((float)($rental['amount_paid'] ?? 0), $currency); ?></h5>
                     </div>
 
                     <div class="mb-3">
                         <h6 class="text-primary"><?php echo __('remaining_balance'); ?></h6>
                         <h5 class="<?php echo $remaining_balance > 0 ? 'text-warning' : 'text-success'; ?>">
-                            $<?php echo number_format($remaining_balance, 2); ?>
+                            <?php echo formatCurrencyAmount((float)$remaining_balance, $currency); ?>
                         </h5>
                     </div>
                     <?php endif; ?>
