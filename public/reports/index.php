@@ -696,12 +696,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Working Hours Chart
     const hoursCtx = document.getElementById('hoursChart').getContext('2d');
+    const workedHours = <?php echo (float)($stats['total_hours'] ?? 0); ?>;
+    const contractedHours = <?php echo (float)($stats['total_contract_hours'] ?? 0); ?>;
+    const remainingHours = Math.max(0, contractedHours - workedHours);
     const hoursChart = new Chart(hoursCtx, {
         type: 'doughnut',
         data: {
             labels: ['<?php echo __('worked'); ?>', '<?php echo __('remaining'); ?>'],
             datasets: [{
-                data: [<?php echo $stats['total_hours'] ?? 0; ?>, 100],
+                data: [workedHours, remainingHours],
                 backgroundColor: ['#4e73df', '#858796'],
                 hoverBackgroundColor: ['#2e59d9', '#858796'],
                 hoverBorderColor: "rgba(234, 236, 244, 1)",
@@ -718,6 +721,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 yPadding: 15,
                 displayColors: false,
                 caretPadding: 10,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        const val = data.datasets[0].data[tooltipItem.index] || 0;
+                        return (tooltipItem.index === 0 ? '<?php echo __('worked'); ?>: ' : '<?php echo __('remaining'); ?>: ') + number_format(val, 1) + ' hrs';
+                    }
+                }
             },
             legend: {
                 display: false
