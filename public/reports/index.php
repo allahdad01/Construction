@@ -305,7 +305,6 @@ body.modal-open { padding-right: 0 !important; }
 function exportReport(report_type, format) {
     const start_date = document.getElementById('start_date').value || '<?php echo date('Y-m-01'); ?>';
     const end_date = document.getElementById('end_date').value || '<?php echo date('Y-m-d'); ?>';
-    
     const url = `/constract360/construction/public/reports/export.php?type=${report_type}&format=${format}&start_date=${start_date}&end_date=${end_date}`;
     window.open(url, '_blank');
 }
@@ -317,13 +316,13 @@ function exportReport(report_type, format) {
             <i class="fas fa-chart-bar"></i> <?php echo __('reports_analytics'); ?>
         </h1>
         <div class="d-flex">
-            <button class="btn btn-success mr-2" onclick="exportReport('overview', 'pdf')">
+            <button class="btn btn-success mr-2" onclick="exportReport('<?php echo $report_type; ?>', 'pdf')">
                 <i class="fas fa-file-pdf"></i> <?php echo __('export_pdf'); ?>
             </button>
-            <button class="btn btn-info mr-2" onclick="exportReport('overview', 'excel')">
+            <button class="btn btn-info mr-2" onclick="exportReport('<?php echo $report_type; ?>', 'excel')">
                 <i class="fas fa-file-excel"></i> <?php echo __('export_excel'); ?>
             </button>
-            <button class="btn btn-secondary" onclick="exportReport('overview', 'csv')">
+            <button class="btn btn-secondary" onclick="exportReport('<?php echo $report_type; ?>', 'csv')">
                 <i class="fas fa-file-csv"></i> <?php echo __('export_csv'); ?>
             </button>
         </div>
