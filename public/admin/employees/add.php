@@ -145,10 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $success = "Employee added successfully! Employee Code: $employee_code<br>Login credentials sent to: " . htmlspecialchars($_POST['email']);
-
-        // Redirect to view page after 3 seconds
-        header("refresh:3;url=view.php?id=$employee_id");
-
+        
+        // Redirect to view page after 3 seconds (use JS to avoid headers already sent)
+        echo "<script>setTimeout(function(){ window.location.href = 'view.php?id=$employee_id'; }, 3000);</script>";
+        
     } catch (Exception $e) {
         // Rollback transaction on error
         if (!empty($txnStarted) && $conn->inTransaction()) {
