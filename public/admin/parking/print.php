@@ -44,14 +44,22 @@ $total_by_currency = [];
 if (!empty($rentals)) {
     $rental_ids = array_column($rentals, 'id');
     $ph = implode(',', array_fill(0, count($rental_ids), '?'));
+    // Resolve column aliases based on existing schema
+    $hasPaymentDate = in_array('payment_date', $payCols, true);
+    $methodCol = in_array('method', $payCols, true) ? 'method' : (in_array('payment_method', $payCols, true) ? 'payment_method' : null);
+    $referenceCol = in_array('reference', $payCols, true) ? 'reference' : (in_array('reference_number', $payCols, true) ? 'reference_number' : null);
+    $statusCol = in_array('status', $payCols, true) ? 'status' : (in_array('payment_status', $payCols, true) ? 'payment_status' : null);
+    $notesCol = in_array('notes', $payCols, true) ? 'notes' : null;
+
     $sql = "SELECT id, rental_id, amount";
-    $sql .= in_array('payment_date', $payCols, true) ? ", payment_date" : ", NULL as payment_date";
-    $sql .= in_array('method', $payCols, true) ? ", method" : ", NULL as method";
-    $sql .= in_array('reference', $payCols, true) ? ", reference" : ", NULL as reference";
-    $sql .= in_array('status', $payCols, true) ? ", status" : ", NULL as status";
+    $sql .= $hasPaymentDate ? ", payment_date" : ", NULL as payment_date";
+    $sql .= $methodCol ? ", $methodCol as method" : ", NULL as method";
+    $sql .= $referenceCol ? ", $referenceCol as reference" : ", NULL as reference";
+    $sql .= $statusCol ? ", $statusCol as status" : ", NULL as status";
+    $sql .= $notesCol ? ", $notesCol as notes" : ", NULL as notes";
     $sql .= $hasCurrency ? ", COALESCE(currency,'USD') as currency" : ", ? as currency";
     $sql .= " FROM parking_payments WHERE rental_id IN ($ph) AND company_id = ? ORDER BY ";
-    $sql .= in_array('payment_date', $payCols, true) ? "payment_date DESC" : "id DESC";
+    $sql .= $hasPaymentDate ? "payment_date DESC" : "id DESC";
     $stmt = $conn->prepare($sql);
     $params = $rental_ids; if (!$hasCurrency) { $params[] = $currency; } $params[] = $company_id;
     $stmt->execute($params);
@@ -231,6 +239,7 @@ foreach ($rentals as $r) {
             <th>Reference</th>
             <th>Method</th>
             <th>Status</th>
+            <th>Notes</th>
             <th class="right">Amount</th>
             <th>Currency</th>
           </tr>
@@ -242,6 +251,7 @@ foreach ($rentals as $r) {
               <td><?php echo htmlspecialchars($p['reference'] ?? '-'); ?></td>
               <td><?php echo htmlspecialchars($p['method'] ?? '-'); ?></td>
               <td><?php echo htmlspecialchars($p['status'] ?? '-'); ?></td>
+              <td><?php echo htmlspecialchars($p['notes'] ?? '-'); ?></td>
               <td class="right"><?php echo formatCurrencyAmount((float)($p['amount'] ?? 0), $p['currency'] ?? 'USD'); ?></td>
               <td><?php echo htmlspecialchars($p['currency'] ?? 'USD'); ?></td>
             </tr>
