@@ -236,11 +236,15 @@ $chartDatasetsJson = json_encode($chart_datasets);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><?php echo __('contract_management'); ?></h1>
-        <a href="add.php" class="btn btn-primary btn-sm">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-file-contract"></i> <?php echo __('contracts'); ?>
+        </h1>
+        <a href="add.php" class="btn btn-primary">
             <i class="fas fa-plus"></i> <?php echo __('add_contract'); ?>
         </a>
     </div>
+    <?php if (!empty($_GET['msg'])): ?><div class="alert alert-success"><?php echo htmlspecialchars($_GET['msg']); ?></div><?php endif; ?>
+    <?php if (!empty($_GET['error'])): ?><div class="alert alert-danger"><?php echo htmlspecialchars($_GET['error']); ?></div><?php endif; ?>
 
     <!-- Statistics Cards -->
     <div class="row">
