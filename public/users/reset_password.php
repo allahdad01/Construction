@@ -36,7 +36,8 @@ try {
     // Hash password
     $hash = password_hash($newPassword, PASSWORD_DEFAULT);
 
-    $upd = $conn->prepare('UPDATE users SET password = ?, updated_at = NOW() WHERE id = ? AND company_id = ?');
+    // Use correct column name
+    $upd = $conn->prepare('UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ? AND company_id = ?');
     $upd->execute([$hash, $userId, $company_id]);
 
     echo json_encode(['success'=>true,'message'=>'Password reset successfully']);
