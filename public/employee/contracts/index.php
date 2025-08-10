@@ -77,8 +77,8 @@ if ($employee) {
                 <td class="text-end"><?php echo number_format((float)$it['hours_worked'], 1); ?></td>
                 <td class="text-end"><?php echo formatCurrencyAmount((float)($it['rate_amount'] ?? 0), $it['currency'] ?? 'USD'); ?></td>
                 <td class="text-end">
-                  <a href="/constract360/construction/public/admin/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Add Hours</a>
-                  <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> Timesheet</a>
+                  <a href="/constract360/construction/public/employee/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Add Hours</a>
+                  <a href="/constract360/construction/public/employee/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> Timesheet</a>
                 </td>
               </tr>
             <?php endforeach; endif; ?>
