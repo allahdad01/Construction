@@ -142,7 +142,7 @@ function checkSessionTimeout() {
     if (isset($_SESSION['last_activity'])) {
         if ((time() - $_SESSION['last_activity']) > $timeout) {
             session_destroy();
-            header('Location: /constract360/construction/login.php');
+            header('Location: /constract360/construction/public/login.php');
             exit;
         }
     }
@@ -156,7 +156,7 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: login.php');
+        header('Location: /constract360/construction/public/login.php');
         exit();
     }
     checkSessionTimeout();
