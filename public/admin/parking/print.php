@@ -132,6 +132,7 @@ foreach ($rentals as $r) {
   .btn { display:inline-block; padding:8px 12px; border:1px solid #444; border-radius:4px; text-decoration:none; color:#222; }
   .btn-primary { background:#111; color:#fff; border-color:#111; }
   .wrap { white-space: normal; word-break: break-word; }
+  .wrap-any { white-space: normal; overflow-wrap: anywhere; word-break: break-word; hyphens: auto; }
   .nowrap { white-space: nowrap; }
   .table-narrow th, .table-narrow td { padding: 6px; font-size: 11px; }
   .w-10 { width: 10%; }
@@ -215,15 +216,15 @@ foreach ($rentals as $r) {
         <tbody>
           <?php foreach ($perRental as $row): ?>
             <tr>
-              <td class="xsmall nowrap"><?php echo htmlspecialchars($row['rental_code']); ?></td>
-              <td class="xsmall wrap"><?php echo htmlspecialchars($row['client_name']); ?></td>
-              <td class="xsmall wrap"><?php echo htmlspecialchars($row['client_contact']); ?></td>
-              <td class="xsmall wrap"><?php echo htmlspecialchars(trim(($row['vehicle_type'] ?? '-') . ' ' . ($row['vehicle_registration'] ?? ''))); ?></td>
-              <td class="xsmall nowrap">
+              <td class="xsmall wrap-any"><?php echo htmlspecialchars($row['rental_code']); ?></td>
+              <td class="xsmall wrap-any"><?php echo htmlspecialchars($row['client_name']); ?></td>
+              <td class="xsmall wrap-any"><?php echo htmlspecialchars($row['client_contact']); ?></td>
+              <td class="xsmall wrap-any"><?php echo htmlspecialchars(trim(($row['vehicle_type'] ?? '-') . ' ' . ($row['vehicle_registration'] ?? ''))); ?></td>
+              <td class="xsmall wrap-any">
                 <?php echo $row['start_date'] ? date('M j, Y', strtotime($row['start_date'])) : '-'; ?>
                 <?php echo $row['end_date'] ? ' — ' . date('M j, Y', strtotime($row['end_date'])) : ' — Ongoing'; ?>
               </td>
-              <td class="right xsmall"><?php echo (int)$row['days']; ?></td>
+              <td class="right xsmall nowrap"><?php echo (int)$row['days']; ?></td>
               <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['monthly_rate'], $row['currency']); ?></td>
               <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['expected'], $row['currency']); ?></td>
               <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['paid'], $row['currency']); ?></td>
