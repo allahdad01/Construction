@@ -116,7 +116,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <i class="fas fa-clock"></i> <?php echo __('employee_attendance'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary">
-            <i class="fas fa-plus"></i> <?php echo __('add_attendance'); ?>
+            <i class="fas fa-plus"></i> Add Leave
         </a>
     </div>
 

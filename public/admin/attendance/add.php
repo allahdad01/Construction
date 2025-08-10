@@ -23,67 +23,39 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['employee_id', 'date', 'check_in_time'];
+        $required_fields = ['employee_id', 'start_date', 'end_date', 'leave_type'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
             }
         }
-
-        // Validate date
-        $date = $_POST['date'];
-        $today = date('Y-m-d');
-        if ($date > $today) {
-            throw new Exception("Attendance date cannot be in the future.");
+        // Validate dates
+        $start_date = $_POST['start_date'];
+        $end_date = $_POST['end_date'];
+        if ($start_date > $end_date) {
+            throw new Exception("End date must be after start date.");
         }
 
-        // Check if attendance already exists for this employee on this date
-        $stmt = $conn->prepare("SELECT id FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND date = ?");
-        $stmt->execute([$company_id, $_POST['employee_id'], $date]);
-        if ($stmt->fetch()) {
-            throw new Exception("Attendance record already exists for this employee on this date.");
-        }
+        $employee_id = (int)$_POST['employee_id'];
+        $leave_type = trim($_POST['leave_type']);
+        $notes = trim($_POST['notes'] ?? '');
 
         // Start transaction
         $conn->beginTransaction();
-
-        // Create attendance record
-        $stmt = $conn->prepare("
-            INSERT INTO employee_attendance (
-                company_id, employee_id, date, check_in_time, check_out_time,
-                working_hours, status, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-
-        $check_out_time = $_POST['check_out_time'] ?? null;
-        $working_hours = null;
-        
-        // Calculate working hours if both check-in and check-out times are provided
-        if ($check_out_time) {
-            $check_in = strtotime($_POST['check_in_time']);
-            $check_out = strtotime($check_out_time);
-            $working_hours = round(($check_out - $check_in) / 3600, 2);
+        // Insert leave records for each day in range (all days business days for drivers covered in employee page; here we mark all days)
+        $insert = $conn->prepare("INSERT INTO employee_attendance (company_id, employee_id, date, status, leave_type, notes, created_at) SELECT ?, ?, ?, 'leave', ?, ?, NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM employee_attendance ea WHERE ea.company_id = ? AND ea.employee_id = ? AND ea.date = ?)");
+        $cur = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        while ($cur <= $end) {
+            $d = $cur->format('Y-m-d');
+            $insert->execute([$company_id, $employee_id, $d, $leave_type, $notes, $company_id, $employee_id, $d]);
+            $cur->add(new DateInterval('P1D'));
         }
-
-        $status = $check_out_time ? 'completed' : 'present';
-
-        $stmt->execute([
-            $company_id,
-            $_POST['employee_id'],
-            $date,
-            $_POST['check_in_time'],
-            $check_out_time,
-            $working_hours,
-            $status,
-            $_POST['notes'] ?? ''
-        ]);
-
-        $attendance_id = $conn->lastInsertId();
 
         // Commit transaction
         $conn->commit();
 
-        $success = "Attendance record added successfully!";
+        $success = "Leave days added successfully!";
 
         // Use JavaScript redirect instead of header redirect
         echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
@@ -100,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-clock"></i> <?php echo __('add_attendance'); ?>
+            <i class="fas fa-calendar-times"></i> Add Leave
         </h1>
         <a href="index.php" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> <?php echo __('back_to_attendance'); ?>
@@ -115,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
-    <!-- Add Attendance Form -->
+    <!-- Add Leave Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('attendance_details'); ?></h6>
+            <h6 class="m-0 font-weight-bold text-primary">Leave Details</h6>
         </div>
         <div class="card-body">
             <form method="POST">
@@ -138,9 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="date" class="form-label"><?php echo __('date'); ?> *</label>
-                            <input type="date" class="form-control" id="date" name="date" 
-                                   value="<?php echo htmlspecialchars($_POST['date'] ?? date('Y-m-d')); ?>" required>
+                            <label for="leave_type" class="form-label">Leave Type *</label>
+                            <select class="form-control" id="leave_type" name="leave_type" required>
+                                <option value="">Select Leave Type</option>
+                                <option value="sick" <?php echo (($_POST['leave_type'] ?? '')==='sick')?'selected':''; ?>>Sick</option>
+                                <option value="vacation" <?php echo (($_POST['leave_type'] ?? '')==='vacation')?'selected':''; ?>>Vacation</option>
+                                <option value="personal" <?php echo (($_POST['leave_type'] ?? '')==='personal')?'selected':''; ?>>Personal</option>
+                                <option value="emergency" <?php echo (($_POST['leave_type'] ?? '')==='emergency')?'selected':''; ?>>Emergency</option>
+                                <option value="unpaid" <?php echo (($_POST['leave_type'] ?? '')==='unpaid')?'selected':''; ?>>Unpaid</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -148,28 +126,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="check_in_time" class="form-label"><?php echo __('check_in_time'); ?> *</label>
-                            <input type="time" class="form-control" id="check_in_time" name="check_in_time" 
-                                   value="<?php echo htmlspecialchars($_POST['check_in_time'] ?? ''); ?>" required>
+                            <label for="start_date" class="form-label">Start Date *</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo htmlspecialchars($_POST['start_date'] ?? date('Y-m-01')); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="check_out_time" class="form-label"><?php echo __('check_out_time'); ?></label>
-                            <input type="time" class="form-control" id="check_out_time" name="check_out_time" 
-                                   value="<?php echo htmlspecialchars($_POST['check_out_time'] ?? ''); ?>">
+                            <label for="end_date" class="form-label">End Date *</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo htmlspecialchars($_POST['end_date'] ?? date('Y-m-d')); ?>" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
+                    <label for="notes" class="form-label">Reason</label>
                     <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> <?php echo __('add_attendance'); ?>
+                        <i class="fas fa-save"></i> Add Leave
                     </button>
                 </div>
             </form>
