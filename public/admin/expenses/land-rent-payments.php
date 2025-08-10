@@ -47,12 +47,14 @@ $stmt=$conn->prepare("SELECT * FROM land_rent_payments WHERE company_id = ? ORDE
 $stmt->execute([$company_id]);
 $payments=$stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Default currency from company setting
-$defaultCurrency = 'USD';
-try { $defaultCurrency = getCompanySettingLocal($conn, $company_id, 'land_rent_currency', 'USD'); } catch (Exception $e) {}
-
 $page_title = 'Land Rent Payments';
 require_once '../../../includes/header.php';
+
+// Default currency from company setting (available after header include)
+$defaultCurrency = 'USD';
+if (function_exists('getCompanySettingLocal')) {
+    try { $defaultCurrency = getCompanySettingLocal($conn, $company_id, 'land_rent_currency', 'USD'); } catch (Exception $e) {}
+}
 ?>
 
 <div class="container-fluid">
