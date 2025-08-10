@@ -119,27 +119,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Insert maintenance record
-        $stmt = $conn->prepare("
-            INSERT INTO area_rental_maintenance (
-                area_rental_id, maintenance_type, description, priority, 
-                status, estimated_cost, actual_cost, maintenance_date, 
-                completed_date, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-
-        $stmt->execute([
-            $rental_id,
-            trim($_POST['maintenance_type']),
-            trim($_POST['description']),
-            $_POST['priority'] ?? 'medium',
-            $_POST['status'] ?? 'pending',
-            $_POST['estimated_cost'] ?? null,
-            $_POST['actual_cost'] ?? null,
-            $_POST['maintenance_date'] ?? date('Y-m-d'),
-            $_POST['completed_date'] ?? null,
-            trim($_POST['notes'] ?? '')
-        ]);
+        // Dynamic insert based on available columns
+        $cols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_maintenance")->fetchAll(PDO::FETCH_ASSOC));
+        $columns = ['area_rental_id'];
+        $placeholders = ['?'];
+        $params = [$rental_id];
+        $addCol = function($c, $v) use (&$columns,&$placeholders,&$params,$cols) {
+            if (in_array($c, $cols, true)) { $columns[] = $c; $placeholders[] = '?'; $params[] = $v; }
+        };
+        $addCol('maintenance_type', trim($_POST['maintenance_type']));
+        $addCol('description', trim($_POST['description']));
+        $addCol('priority', $_POST['priority'] ?? 'medium');
+        $addCol('status', $_POST['status'] ?? 'pending');
+        $addCol('estimated_cost', $_POST['estimated_cost'] === '' ? null : ($_POST['estimated_cost'] ?? null));
+        $addCol('actual_cost', $_POST['actual_cost'] === '' ? null : ($_POST['actual_cost'] ?? null));
+        // date columns (try maintenance_date, then date)
+        if (in_array('maintenance_date', $cols, true)) { $addCol('maintenance_date', $_POST['maintenance_date'] ?? date('Y-m-d')); }
+        elseif (in_array('date', $cols, true)) { $addCol('date', $_POST['maintenance_date'] ?? date('Y-m-d')); }
+        $addCol('completed_date', $_POST['completed_date'] === '' ? null : ($_POST['completed_date'] ?? null));
+        $addCol('notes', trim($_POST['notes'] ?? ''));
+        $createdLiteral = '';
+        if (in_array('created_at', $cols, true)) { $columns[] = 'created_at'; $createdLiteral = ', NOW()'; }
+        $sql = 'INSERT INTO area_rental_maintenance (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ($createdLiteral ? $createdLiteral : '') . ')';
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
 
         // Commit transaction
         $conn->commit();
