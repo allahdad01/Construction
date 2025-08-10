@@ -55,13 +55,23 @@ $land = [
 ];
 
 // Calculate statement
-$days_elapsed = 0; $months_elapsed = 0; $owed = 0.0; $remaining = 0.0; $total_paid = $land['advance_paid'] + $land['extra_paid']; $daily_rate = 0.0;
+$days_elapsed = 0; $months_elapsed = 0; $owed = 0.0; $remaining = 0.0; $total_paid = 0.0; $daily_rate = 0.0;
 try {
+    // Paid from payments table
+    try {
+        $stmtPaid = $conn->prepare("SELECT COALESCE(SUM(amount),0) FROM land_rent_payments WHERE company_id = ?");
+        $stmtPaid->execute([$company_id]);
+        $total_paid = (float)$stmtPaid->fetchColumn();
+    } catch (Exception $e) {
+        // Fallback to settings-based
+        $total_paid = (float)$land['advance_paid'] + (float)$land['extra_paid'];
+    }
     $start = new DateTime($land['start_date']);
     $today = new DateTime(date('Y-m-d'));
     if ($today >= $start) {
-        $days_elapsed = (int)$start->diff($today)->days;
-        $months_elapsed = (int)$start->diff($today)->m + ($start->diff($today)->y * 12);
+        $diff = $start->diff($today);
+        $days_elapsed = (int)$diff->days;
+        $months_elapsed = (int)$diff->m + ($diff->y * 12);
         $daily_rate = ($land['type'] === 'yearly') ? ((float)$land['amount'] / 365.0) : ((float)$land['amount'] / 30.0);
         $owed = $daily_rate * $days_elapsed;
         $remaining = max(0.0, $owed - $total_paid);
@@ -380,6 +390,7 @@ $expense_categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-home"></i> Company Land Rent</h6>
             <div>
+                <a href="land-rent-payments.php" class="btn btn-sm btn-success"><i class="fas fa-credit-card"></i> Pay</a>
                 <a href="land-rent-print.php" class="btn btn-sm btn-outline-dark" target="_blank"><i class="fas fa-print"></i> Print Statement</a>
             </div>
         </div>
