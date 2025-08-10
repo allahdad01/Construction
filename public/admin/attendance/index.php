@@ -11,34 +11,7 @@ $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 
-// Auto-mark present for today's business day if no record exists
-try {
-    $today = date('Y-m-d');
-    $dayOfWeek = date('w');
-    // Only Monday-Friday (1-5)
-    if (in_array($dayOfWeek, ['1','2','3','4','5'])) {
-        // Get active employees hired on or before today
-        $stmt = $conn->prepare("SELECT id FROM employees WHERE company_id = ? AND status = 'active' AND (hire_date IS NULL OR hire_date <= ?)");
-        $stmt->execute([$company_id, $today]);
-        $activeEmployees = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        if (!empty($activeEmployees)) {
-            $insertStmt = $conn->prepare(
-                "INSERT INTO employee_attendance (company_id, employee_id, date, status, created_at) 
-                 SELECT ?, ?, ?, 'present', NOW() 
-                 FROM DUAL 
-                 WHERE NOT EXISTS (
-                     SELECT 1 FROM employee_attendance ea 
-                     WHERE ea.company_id = ? AND ea.employee_id = ? AND ea.date = ?
-                 )"
-            );
-            foreach ($activeEmployees as $employeeId) {
-                $insertStmt->execute([$company_id, $employeeId, $today, $company_id, $employeeId, $today]);
-            }
-        }
-    }
-} catch (Exception $e) {
-    // Silently ignore auto-mark errors to not block page load
-}
+// Attendance display policy: only leave days are shown. Presence is assumed for other days.
 
 $error = '';
 $success = '';
@@ -67,8 +40,8 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
-// Build query with filters
-$where_conditions = ["ea.company_id = ?"];
+// Build query with filters (only leave status)
+$where_conditions = ["ea.company_id = ?", "ea.status = 'leave'"];
 $params = [$company_id];
 
 if (!empty($search)) {
@@ -82,10 +55,7 @@ if (!empty($employee_filter)) {
     $params[] = $employee_filter;
 }
 
-if (!empty($status_filter)) {
-    $where_conditions[] = "ea.status = ?";
-    $params[] = $status_filter;
-}
+// Status filter is enforced to 'leave' by default; ignore external status filters
 
 if (!empty($date_filter)) {
     $where_conditions[] = "DATE(ea.date) = ?";
@@ -119,16 +89,16 @@ $params[] = $offset;
 $stmt->execute($params);
 $attendance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get statistics
+// Get statistics (only leave records)
 $stats_stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_records,
-        COUNT(CASE WHEN status = 'present' THEN 1 END) as present_count,
-        COUNT(CASE WHEN status = 'absent' THEN 1 END) as absent_count,
-        COUNT(CASE WHEN status = 'late' THEN 1 END) as late_count,
-        COUNT(CASE WHEN status = 'leave' THEN 1 END) as leave_count
+        0 as present_count,
+        0 as absent_count,
+        0 as late_count,
+        COUNT(*) as leave_count
     FROM employee_attendance
-    WHERE company_id = ?
+    WHERE company_id = ? AND status = 'leave'
 ");
 $stats_stmt->execute([$company_id]);
 $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
@@ -263,15 +233,9 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                            value="<?php echo htmlspecialchars($date_filter); ?>">
                 </div>
                 <div class="col-md-2">
-                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
-                    <select class="form-control" id="status" name="status">
-                        <option value=""><?php echo __('all_status'); ?></option>
-                        <option value="present" <?php echo $status_filter === 'present' ? 'selected' : ''; ?>><?php echo __('present'); ?></option>
-                        <option value="absent" <?php echo $status_filter === 'absent' ? 'selected' : ''; ?>><?php echo __('absent'); ?></option>
-                        <option value="late" <?php echo $status_filter === 'late' ? 'selected' : ''; ?>><?php echo __('late'); ?></option>
-                        <option value="leave" <?php echo $status_filter === 'leave' ? 'selected' : ''; ?>><?php echo __('leave'); ?></option>
-                    </select>
-                </div>
+                    <label class="form-label"><?php echo __('status'); ?></label>
+                    <input type="text" class="form-control" value="Leave" disabled>
+                    </div>
                 <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <div class="d-flex">
@@ -290,7 +254,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Attendance Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('attendance_records'); ?></h6>
+                                <h6 class="m-0 font-weight-bold text-primary"><?php echo __('attendance_records'); ?> (Leave Only)</h6>
             <div class="dropdown no-arrow">
                 <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
