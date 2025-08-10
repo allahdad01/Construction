@@ -51,6 +51,17 @@ $days_rented = 0;
 $remaining_balance = 0;
 $currency = $rental['currency'] ?? 'USD';
 
+// Duration computation
+$startDt = new DateTime($rental['start_date']);
+$endDt = $rental['end_date'] ? new DateTime($rental['end_date']) : new DateTime();
+$diff = $startDt->diff($endDt);
+$parts = [];
+if ($diff->y) { $parts[] = $diff->y . ' ' . ($diff->y === 1 ? 'year' : 'years'); }
+if ($diff->m) { $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'month' : 'months'); }
+if ($diff->d || empty($parts)) { $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'day' : 'days'); }
+$duration_text = implode(', ', $parts);
+$range_text = date('M j, Y', strtotime($rental['start_date'])) . ' to ' . ($rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'present');
+
 if ($rental['end_date']) {
     $start = new DateTime($rental['start_date']);
     $end = new DateTime($rental['end_date']);
@@ -75,6 +86,9 @@ if ($rental['total_amount']) {
         <div>
             <a href="edit.php?id=<?php echo $rental_id; ?>" class="btn btn-primary">
                 <i class="fas fa-edit"></i> <?php echo __('edit_area_rental'); ?>
+            </a>
+            <a href="#" class="btn btn-outline-dark no-print" onclick="window.print(); return false;">
+                <i class="fas fa-print"></i> <?php echo __('print'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_area_rentals'); ?>
@@ -111,6 +125,7 @@ if ($rental['total_amount']) {
                             <?php else: ?>
                             <p><strong><?php echo __('end_date'); ?>:</strong> <span class="text-muted"><?php echo __('ongoing'); ?></span></p>
                             <?php endif; ?>
+                            <p><strong><?php echo __('duration'); ?>:</strong> <?php echo htmlspecialchars($range_text . ' — ' . $duration_text); ?></p>
                         </div>
                         <div class="col-md-6">
                             <p><strong><?php echo __('area_name'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
@@ -290,6 +305,12 @@ if ($rental['total_amount']) {
     margin: 0;
     color: #6c757d;
     font-size: 0.9em;
+}
+
+/* Print styles */
+@media print {
+  .no-print, .btn, .btn-group, .navbar, .topbar, .sidebar, .card .card-header { display: none !important; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 
