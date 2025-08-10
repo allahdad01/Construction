@@ -42,6 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Column might already exist, ignore error
         }
 
+        // Ensure optional description column exists (important for UX)
+        try {
+            $conn->exec("ALTER TABLE parking_spaces ADD COLUMN description TEXT AFTER currency");
+        } catch (Exception $e) {
+            // Column might already exist, ignore error
+        }
+
         // Validate required fields
         $required_fields = ['space_name', 'space_type', 'monthly_rate'];
         foreach ($required_fields as $field) {
