@@ -49,7 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = generateRandomPassword();
 
         // Start transaction
-        $conn->beginTransaction();
+        $txnStarted = false;
+        if (!$conn->inTransaction()) {
+            $conn->beginTransaction();
+            $txnStarted = true;
+        }
 
         // Ensure salary_currency column exists
         try {
@@ -136,7 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Commit transaction
-        $conn->commit();
+        if (!empty($txnStarted) && $conn->inTransaction()) {
+            $conn->commit();
+        }
 
         $success = "Employee added successfully! Employee Code: $employee_code<br>Login credentials sent to: " . htmlspecialchars($_POST['email']);
 
@@ -145,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         // Rollback transaction on error
-        if ($conn->inTransaction()) {
+        if (!empty($txnStarted) && $conn->inTransaction()) {
             $conn->rollBack();
         }
         $error = $e->getMessage();
