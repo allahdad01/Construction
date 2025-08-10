@@ -151,11 +151,12 @@ $rented_areas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                     <small class="text-muted">Size: <?php echo htmlspecialchars($area['size'] ?? 'Not specified'); ?></small>
                                 </td>
                                 <td>
-                                    <strong>Daily Rate:</strong> <?php echo formatCurrency($area['daily_rate'] ?? 0); ?><br>
+                                    <?php $cur = $area['currency'] ?? 'USD'; ?>
+                                    <strong>Daily Rate:</strong> <?php echo formatCurrencyAmount((float)($area['daily_rate'] ?? 0), $cur); ?><br>
                                     <small class="text-muted">Auto-calculated from monthly rate</small>
                                 </td>
                                 <td>
-                                    <strong><?php echo formatCurrency($area['monthly_rate'] ?? 0); ?></strong><br>
+                                    <strong><?php echo formatCurrencyAmount((float)($area['monthly_rate'] ?? 0), $cur); ?></strong><br>
                                     <small class="text-muted">per month</small>
                                 </td>
                                 <td>
