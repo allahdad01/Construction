@@ -91,6 +91,60 @@ if ($rental['total_amount']) {
 }
 ?>
 
+<!-- Print-friendly summary (only prints this) -->
+<div class="print-sheet d-none">
+  <h3 style="margin:0 0 10px 0;">Area Rental Summary</h3>
+  <div style="font-size:12px; color:#555; margin-bottom:8px;">
+    Printed: <?php echo date('Y-m-d H:i'); ?>
+  </div>
+  <table style="width:100%; border-collapse:collapse; font-size:12px;">
+    <tbody>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%">Rental Code</th>
+        <td style="border:1px solid #ccc; padding:6px; width:28%"><?php echo htmlspecialchars($rental['rental_code']); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%">Client</th>
+        <td style="border:1px solid #ccc; padding:6px; width:28%"><?php echo htmlspecialchars($rental['client_name']); ?></td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Area</th>
+        <td style="border:1px solid #ccc; padding:6px;"><?php echo htmlspecialchars($rental['area_name'] . ' (' . $rental['area_code'] . ')'); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Type / Size</th>
+        <td style="border:1px solid #ccc; padding:6px;"><?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?><?php echo !empty($rental['size']) ? (' • ' . htmlspecialchars($rental['size'])) : ''; ?></td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Start Date</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo date('M j, Y', strtotime($rental['start_date'])); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">End Date</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo $rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Range</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo htmlspecialchars($range_text); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Days Elapsed</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo (int)$days_elapsed; ?> days</td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Monthly Rate</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)($rental['monthly_rate'] ?? 0), $currency); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Daily Rate</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)$daily_rate_effective, $currency); ?></td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Total Amount</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)($rental['total_amount'] ?? 0), $currency); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Amount Paid</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></td>
+      </tr>
+      <tr>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Owed Until <?php echo $asOfDate->format('M j, Y'); ?></th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($owed_until_date, $currency); ?></td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Outstanding Due</th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($outstanding_due, $currency); ?></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -336,6 +390,13 @@ if ($rental['total_amount']) {
 @media print {
   .no-print, .btn, .btn-group, .navbar, .topbar, .sidebar, .card .card-header { display: none !important; }
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Print optimization: print only the summary table */
+@media print {
+  body * { visibility: hidden; }
+  .print-sheet, .print-sheet * { visibility: visible; }
+  .print-sheet { position: absolute; left: 0; top: 0; width: 100%; }
 }
 </style>
 
