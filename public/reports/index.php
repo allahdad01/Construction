@@ -744,13 +744,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Export functions
-function exportReport(format) {
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('export', 'true');
-    urlParams.set('format', format);
-    window.location.href = window.location.pathname + '?' + urlParams.toString();
-}
 
 // Number formatting helper
 function number_format(number, decimals, dec_point, thousands_sep) {
