@@ -58,22 +58,15 @@ try {
     } else {
         // Company-specific overview data
         $stmt = $conn->prepare("
-            SELECT 
-                COUNT(DISTINCT e.id) as total_employees,
-                COUNT(DISTINCT m.id) as total_machines,
-                COUNT(DISTINCT ct.id) as total_contracts,
-                SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
-                SUM(COALESCE(exp.amount, 0)) as total_expenses,
-                SUM(COALESCE(sp.amount_paid, 0)) as total_salary_payments
-            FROM employees e
-            LEFT JOIN machines m ON e.company_id = m.company_id AND m.is_active = 1
-            LEFT JOIN contracts ct ON e.company_id = ct.company_id AND ct.status = 'active'
-            LEFT JOIN working_hours wh ON e.id = wh.employee_id AND wh.date BETWEEN ? AND ?
-            LEFT JOIN expenses exp ON e.company_id = exp.company_id AND exp.expense_date BETWEEN ? AND ?
-            LEFT JOIN salary_payments sp ON e.company_id = sp.company_id AND sp.payment_date BETWEEN ? AND ?
-            WHERE e.company_id = ? AND e.is_active = 1
+            SELECT
+                (SELECT COUNT(*) FROM employees WHERE company_id = ? AND is_active = 1) as total_employees,
+                (SELECT COUNT(*) FROM machines WHERE company_id = ? AND is_active = 1) as total_machines,
+                (SELECT COUNT(*) FROM contracts WHERE company_id = ? AND status = 'active') as total_contracts,
+                (SELECT COALESCE(SUM(hours_worked), 0) FROM working_hours WHERE company_id = ? AND date BETWEEN ? AND ?) as total_hours,
+                (SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE company_id = ? AND expense_date BETWEEN ? AND ?) as total_expenses,
+                (SELECT COALESCE(SUM(amount_paid), 0) FROM salary_payments WHERE company_id = ? AND payment_date BETWEEN ? AND ?) as total_salary_payments
         ");
-        $stmt->execute([$start_date, $end_date, $start_date, $end_date, $start_date, $end_date, $company_id]);
+        $stmt->execute([$company_id, $company_id, $company_id, $company_id, $start_date, $end_date, $company_id, $start_date, $end_date, $company_id, $start_date, $end_date]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($result) {
             $overview_data = array_merge($overview_data, $result);
@@ -312,8 +305,13 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
-                                    <h4 class="text-info mb-1"><?php echo number_format($overview_data['total_hours'], 1); ?> hrs</h4>
-                                    <div class="small text-muted"><?php echo number_format($overview_data['total_contract_hours'] ?? 0, 1); ?> hrs contracted</div>
+                                    <?php 
+                                    $worked = (float)($overview_data['total_hours'] ?? 0);
+                                    $contracted = (float)($overview_data['total_contract_hours'] ?? 0);
+                                    $remaining = max(0, $contracted - $worked);
+                                    ?>
+                                    <h4 class="text-info mb-1"><?php echo number_format($worked, 1); ?> hrs</h4>
+                                    <div class="small text-muted"><?php echo number_format($contracted, 1); ?> hrs contracted • <?php echo number_format($remaining, 1); ?> hrs remaining</div>
                                     <p class="text-muted mb-0">Total Hours</p>
                                 </div>
                             </div>
