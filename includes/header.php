@@ -568,7 +568,15 @@ date_default_timezone_set($company_timezone);
         
         <ul class="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/' : '/constract360/construction/public/dashboard/'; ?>">
+                <?php
+                $dashboardUrl = '/constract360/construction/public/dashboard/';
+                if ($is_super_admin) {
+                    $dashboardUrl = '/constract360/construction/public/super-admin/';
+                } elseif ($is_company_admin) {
+                    $dashboardUrl = '/constract360/construction/public/admin/dashboard/';
+                }
+                ?>
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
                     <i class="fas fa-tachometer-alt"></i>
                     <span><?php echo __('dashboard'); ?></span>
                 </a>
