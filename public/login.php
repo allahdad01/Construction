@@ -9,6 +9,8 @@ if (isset($_SESSION['user_id'])) {
         header('Location: super-admin/');
     } elseif ($role === 'company_admin') {
         header('Location: admin/dashboard/');
+    } elseif ($role === 'driver' || $role === 'driver_assistant') {
+        header('Location: employee/dashboard/');
     } else {
         header('Location: dashboard/');
     }
@@ -55,6 +57,8 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
                 header('Location: super-admin/');
             } elseif ($user['role'] === 'company_admin') {
                 header('Location: admin/dashboard/');
+            } elseif ($user['role'] === 'driver' || $user['role'] === 'driver_assistant') {
+                header('Location: employee/dashboard/');
             } else {
                 header('Location: dashboard/');
             }
@@ -130,6 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         header('Location: super-admin/');
                     } elseif ($user['role'] === 'company_admin') {
                         header('Location: admin/dashboard/');
+                    } elseif ($user['role'] === 'driver' || $user['role'] === 'driver_assistant') {
+                        header('Location: employee/dashboard/');
                     } else {
                         header('Location: dashboard/');
                     }
