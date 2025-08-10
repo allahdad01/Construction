@@ -155,6 +155,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// After processing leave, ensure attendance is filled as present for every day from hire date to today (except leave days)
+try {
+    $hireDateRaw = $employee['hire_date'] ?? null;
+    $startDate = $hireDateRaw ? new DateTime($hireDateRaw) : null;
+    $todayDate = new DateTime();
+    if ($startDate && $startDate <= $todayDate) {
+        // Cap range to avoid extreme loops (e.g., 10 years)
+        $maxDays = 3650; // ~10 years
+        $rangeDays = $startDate->diff($todayDate)->days;
+        if ($rangeDays > $maxDays) {
+            $startDate = (new DateTime())->sub(new DateInterval('P' . $maxDays . 'D'));
+        }
+
+        // Load existing attendance in range
+        $stmt = $conn->prepare("SELECT date, status FROM employee_attendance WHERE employee_id = ? AND company_id = ? AND date BETWEEN ? AND ?");
+        $stmt->execute([$employee_id, $company_id, $startDate->format('Y-m-d'), $todayDate->format('Y-m-d')]);
+        $existingByDate = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $existingByDate[$row['date']] = $row['status'];
+        }
+
+        // Prepare insert
+        $ins = $conn->prepare("INSERT INTO employee_attendance (company_id, employee_id, date, status, created_at) VALUES (?, ?, ?, 'present', NOW())");
+
+        $cursor = clone $startDate;
+        while ($cursor <= $todayDate) {
+            $d = $cursor->format('Y-m-d');
+            if (!isset($existingByDate[$d])) {
+                $ins->execute([$company_id, $employee_id, $d]);
+            }
+            $cursor->add(new DateInterval('P1D'));
+        }
+    }
+} catch (Exception $e) {
+    // Do not block the page if autofill fails
+}
+
 // Get employee statistics from working_hours (projects they've worked on)
 $stmt = $conn->prepare("
     SELECT 
