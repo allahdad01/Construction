@@ -392,12 +392,12 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger" 
-                                                onclick="confirmDelete(<?php echo $record['id']; ?>, '<?php echo htmlspecialchars($record['name']); ?>')"
-                                                title="Delete">
+                                        <a href="delete.php?id=<?php echo $record['id']; ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('<?php echo __('confirm_delete_attendance_record'); ?> <?php echo htmlspecialchars($record['name']); ?>? <?php echo __('this_action_cannot_be_undone'); ?>');"
+                                           title="Delete">
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -470,12 +470,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Confirm delete function
-function confirmDelete(attendanceId, employeeName) {
-    if (confirm(`<?php echo __('confirm_delete_attendance_record'); ?> "${employeeName}"? <?php echo __('this_action_cannot_be_undone'); ?>`)) {
-        window.location.href = `index.php?delete=${attendanceId}`;
-    }
-}
+// Inline confirm is used on anchor; no JS delete handler needed
+// Confirm delete function is intentionally removed to avoid interception
+// function confirmDelete(...) {}
 
 // Export functions
 function exportToCSV() {
