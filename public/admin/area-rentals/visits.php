@@ -253,7 +253,7 @@ require_once '../../../includes/header.php';
                             <div class="text-center mb-3">
                                 <h6 class="text-info">Inspections</h6>
                                 <h4 class="text-info">
-                                    <?php echo count(array_filter($visit_records, function($r) { return $r['visit_type'] === 'inspection'; })); ?>
+                                    <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'inspection'; })); ?>
                                 </h4>
                             </div>
                         </div>
@@ -261,7 +261,7 @@ require_once '../../../includes/header.php';
                             <div class="text-center mb-3">
                                 <h6 class="text-warning">Maintenance</h6>
                                 <h4 class="text-warning">
-                                    <?php echo count(array_filter($visit_records, function($r) { return $r['visit_type'] === 'maintenance'; })); ?>
+                                    <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'maintenance'; })); ?>
                                 </h4>
                             </div>
                         </div>
@@ -269,7 +269,7 @@ require_once '../../../includes/header.php';
                             <div class="text-center mb-3">
                                 <h6 class="text-success">Client Visits</h6>
                                 <h4 class="text-success">
-                                    <?php echo count(array_filter($visit_records, function($r) { return $r['visit_type'] === 'client_visit'; })); ?>
+                                    <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'client_visit'; })); ?>
                                 </h4>
                             </div>
                         </div>
@@ -337,10 +337,11 @@ require_once '../../../includes/header.php';
                                                 'emergency' => '🚨',
                                                 'other' => '📋'
                                             ];
-                                            $icon = $type_icons[$record['visit_type']] ?? '📋';
+                                            $type = $record['visit_type'] ?? ($record['type'] ?? 'other');
+                                            $icon = $type_icons[$type] ?? '📋';
                                             ?>
                                             <span class="badge bg-info">
-                                                <?php echo $icon; ?> <?php echo ucfirst(str_replace('_', ' ', $record['visit_type'])); ?>
+                                                <?php echo $icon; ?> <?php echo ucfirst(str_replace('_', ' ', (string)$type)); ?>
                                             </span>
                                         </td>
                                         <td>
