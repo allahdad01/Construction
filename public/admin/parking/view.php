@@ -87,6 +87,9 @@ if (!empty($rentals)) {
             <a href="edit.php?id=<?php echo $space_id; ?>" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Edit
             </a>
+            <a href="print.php?id=<?php echo $space_id; ?>" target="_blank" class="btn btn-outline-dark">
+                <i class="fas fa-print"></i> Print
+            </a>
             <a href="index.php" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
