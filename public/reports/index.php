@@ -305,7 +305,16 @@ body.modal-open { padding-right: 0 !important; }
 function exportReport(report_type, format) {
     const start_date = document.getElementById('start_date').value || '<?php echo date('Y-m-01'); ?>';
     const end_date = document.getElementById('end_date').value || '<?php echo date('Y-m-d'); ?>';
-    const url = `/constract360/construction/public/reports/export.php?type=${report_type}&format=${format}&start_date=${start_date}&end_date=${end_date}`;
+    const base = '/constract360/construction/public/reports/exports/';
+    let file = 'overview_export.php';
+    switch (report_type) {
+        case 'financial': file = 'financial_export.php'; break;
+        case 'employee': file = 'employee_export.php'; break;
+        case 'contract': file = 'contract_export.php'; break;
+        case 'machine': file = 'machine_export.php'; break;
+        default: file = 'overview_export.php';
+    }
+    const url = `${base}${file}?format=${format}&start_date=${start_date}&end_date=${end_date}`;
     window.open(url, '_blank');
 }
 </script>
