@@ -12,7 +12,41 @@ $company = getTenantInfo($conn, $company_id);
 $filename = "machine_{$start_date}_to_{$end_date}";
 sendDownloadHeaders($format, $filename);
 
-$sql = "SELECT m.machine_code, COALESCE(m.name, m.machine_name) as name, m.type, SUM(wh.hours_worked) as total_hours, SUM(wh.hours_worked * ct.rate_amount / NULLIF(COALESCE(ct.working_hours_per_day,8),0)) as earnings, COALESCE(ct.currency,'USD') as currency FROM machines m LEFT JOIN contracts ct ON m.id = ct.machine_id LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?";
+// Detect machines table columns
+$mCols = $conn->query("SHOW COLUMNS FROM machines")->fetchAll(PDO::FETCH_ASSOC);
+$mColNames = array_map(function($r){ return $r['Field']; }, $mCols);
+$hasName = in_array('name', $mColNames, true);
+$hasMachineName = in_array('machine_name', $mColNames, true);
+$nameExpr = "'N/A' as name";
+if ($hasName && $hasMachineName) {
+    $nameExpr = "COALESCE(m.name, m.machine_name) as name";
+} elseif ($hasName) {
+    $nameExpr = "m.name as name";
+} elseif ($hasMachineName) {
+    $nameExpr = "m.machine_name as name";
+}
+
+$codeExpr = "'N/A' as machine_code";
+if (in_array('machine_code', $mColNames, true)) { $codeExpr = 'm.machine_code as machine_code'; }
+elseif (in_array('code', $mColNames, true)) { $codeExpr = 'm.code as machine_code'; }
+elseif (in_array('serial_number', $mColNames, true)) { $codeExpr = 'm.serial_number as machine_code'; }
+
+$typeExpr = "'N/A' as type";
+if (in_array('type', $mColNames, true)) { $typeExpr = 'm.type as type'; }
+elseif (in_array('machine_type', $mColNames, true)) { $typeExpr = 'm.machine_type as type'; }
+
+// Detect contracts fields for earnings
+$ctCols = $conn->query("SHOW COLUMNS FROM contracts")->fetchAll(PDO::FETCH_ASSOC);
+$ctColNames = array_map(function($r){ return $r['Field']; }, $ctCols);
+$hasRateAmount = in_array('rate_amount', $ctColNames, true);
+$hasWHPD = in_array('working_hours_per_day', $ctColNames, true);
+$hasCurrency = in_array('currency', $ctColNames, true);
+$rateExpr = $hasRateAmount ? 'ct.rate_amount' : '0';
+$whpdExpr = $hasWHPD ? 'COALESCE(ct.working_hours_per_day, 8)' : '8';
+$currencyExpr = $hasCurrency ? "COALESCE(ct.currency,'USD') as currency" : "'USD' as currency";
+$earnExpr = "SUM(wh.hours_worked * ($rateExpr) / NULLIF(($whpdExpr), 0)) as earnings";
+
+$sql = "SELECT {$codeExpr}, {$nameExpr}, {$typeExpr}, SUM(wh.hours_worked) as total_hours, {$earnExpr}, {$currencyExpr} FROM machines m LEFT JOIN contracts ct ON m.id = ct.machine_id LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?";
 $params = [$start_date, $end_date];
 if (!$is_super_admin) { $sql .= " WHERE m.company_id = ?"; $params[] = $company_id; }
 $sql .= " GROUP BY m.id ORDER BY total_hours DESC";
