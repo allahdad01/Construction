@@ -208,8 +208,8 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
             $insights[] = "Average of " . number_format($avg_employees, 1) . " employees per company";
         }
         
-        if ($overview_data['total_hours'] > 0) {
-            $avg_hours_per_employee = $overview_data['total_hours'] / $overview_data['total_employees'];
+        if (($overview_data['total_employees'] ?? 0) > 0 && ($overview_data['total_hours'] ?? 0) > 0) {
+            $avg_hours_per_employee = $overview_data['total_hours'] / max($overview_data['total_employees'], 1);
             $insights[] = "Average of " . number_format($avg_hours_per_employee, 1) . " hours per employee";
         }
         
@@ -225,18 +225,18 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
         
     } else {
         // Company-specific insights
-        if ($overview_data['total_employees'] > 0) {
-            $avg_hours_per_employee = $overview_data['total_hours'] / $overview_data['total_employees'];
+        if (($overview_data['total_employees'] ?? 0) > 0 && ($overview_data['total_hours'] ?? 0) > 0) {
+            $avg_hours_per_employee = $overview_data['total_hours'] / max($overview_data['total_employees'], 1);
             $insights[] = "Average of " . number_format($avg_hours_per_employee, 1) . " hours per employee";
         }
         
-        if ($overview_data['total_earnings'] > 0 && $overview_data['total_expenses'] > 0) {
+        if (($overview_data['total_earnings'] ?? 0) > 0 && ($overview_data['total_expenses'] ?? 0) > 0) {
             $profit_margin = (($overview_data['total_earnings'] - $overview_data['total_expenses']) / $overview_data['total_earnings']) * 100;
             $insights[] = "Profit margin: " . number_format($profit_margin, 1) . "%";
         }
         
-        if ($overview_data['total_earnings'] > 0) {
-            $earnings_per_hour = $overview_data['total_earnings'] / $overview_data['total_hours'];
+        if (($overview_data['total_earnings'] ?? 0) > 0 && ($overview_data['total_hours'] ?? 0) > 0) {
+            $earnings_per_hour = $overview_data['total_earnings'] / max($overview_data['total_hours'], 1);
             $insights[] = "Earnings per hour: " . formatCurrency($earnings_per_hour);
         }
     }
