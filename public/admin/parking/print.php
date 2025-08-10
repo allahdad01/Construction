@@ -120,16 +120,28 @@ foreach ($rentals as $r) {
   .card { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 16px; }
   .card-header { background: #f5f6fa; border-bottom: 1px solid #e5e7eb; padding: 10px 14px; font-weight: 600; }
   .card-body { padding: 12px 14px; }
-  table { width: 100%; border-collapse: collapse; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   th { background: #f8f9fb; }
   .right { text-align: right; }
   .small { font-size: 12px; }
+  .xsmall { font-size: 11px; }
   .stacked > div { line-height: 1.2; }
   .stacked > div.small { font-size: 12px; opacity: 0.85; }
   .actions { margin-bottom: 12px; }
   .btn { display:inline-block; padding:8px 12px; border:1px solid #444; border-radius:4px; text-decoration:none; color:#222; }
   .btn-primary { background:#111; color:#fff; border-color:#111; }
+  .wrap { white-space: normal; word-break: break-word; }
+  .nowrap { white-space: nowrap; }
+  .table-narrow th, .table-narrow td { padding: 6px; font-size: 11px; }
+  .w-10 { width: 10%; }
+  .w-12 { width: 12%; }
+  .w-14 { width: 14%; }
+  .w-15 { width: 15%; }
+  .w-16 { width: 16%; }
+  .w-18 { width: 18%; }
+  .w-20 { width: 20%; }
+  .w-22 { width: 22%; }
   @media print { .actions { display: none; } body { margin: 12mm; } }
 </style>
 </head>
@@ -157,7 +169,7 @@ foreach ($rentals as $r) {
       <div><strong>Capacity:</strong> <?php echo isset($space['capacity']) ? (int)$space['capacity'] : '-'; ?></div>
       <div><strong>Created:</strong> <?php echo !empty($space['created_at']) ? date('M j, Y', strtotime($space['created_at'])) : '-'; ?></div>
       <?php if (!empty($space['description'])): ?>
-      <div style="grid-column: 1 / span 2;"><strong>Description:</strong><br><span class="small"><?php echo nl2br(htmlspecialchars($space['description'])); ?></span></div>
+      <div style="grid-column: 1 / span 2;"><strong>Description:</strong><br><span class="small wrap"><?php echo nl2br(htmlspecialchars($space['description'])); ?></span></div>
       <?php endif; ?>
     </div>
   </div>
@@ -184,39 +196,39 @@ foreach ($rentals as $r) {
     <?php if (empty($perRental)): ?>
       <div class="small muted">No rentals found for this space.</div>
     <?php else: ?>
-      <table>
+      <table class="table-narrow rentals-table">
         <thead>
           <tr>
-            <th>Rental Code</th>
-            <th>Client</th>
-            <th>Contact</th>
-            <th>Vehicle</th>
-            <th>Period</th>
-            <th class="right">Days</th>
-            <th class="right">Rate (mo)</th>
-            <th class="right">Expected</th>
-            <th class="right">Paid</th>
-            <th class="right">Due</th>
-            <th>Status</th>
+            <th class="w-12">Rental Code</th>
+            <th class="w-14">Client</th>
+            <th class="w-14">Contact</th>
+            <th class="w-14">Vehicle</th>
+            <th class="w-18">Period</th>
+            <th class="w-10 right">Days</th>
+            <th class="w-14 right">Rate (mo)</th>
+            <th class="w-14 right">Expected</th>
+            <th class="w-14 right">Paid</th>
+            <th class="w-14 right">Due</th>
+            <th class="w-10">Status</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($perRental as $row): ?>
             <tr>
-              <td><?php echo htmlspecialchars($row['rental_code']); ?></td>
-              <td><?php echo htmlspecialchars($row['client_name']); ?></td>
-              <td><?php echo htmlspecialchars($row['client_contact']); ?></td>
-              <td><?php echo htmlspecialchars(trim(($row['vehicle_type'] ?? '-') . ' ' . ($row['vehicle_registration'] ?? ''))); ?></td>
-              <td>
+              <td class="xsmall nowrap"><?php echo htmlspecialchars($row['rental_code']); ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars($row['client_name']); ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars($row['client_contact']); ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars(trim(($row['vehicle_type'] ?? '-') . ' ' . ($row['vehicle_registration'] ?? ''))); ?></td>
+              <td class="xsmall nowrap">
                 <?php echo $row['start_date'] ? date('M j, Y', strtotime($row['start_date'])) : '-'; ?>
                 <?php echo $row['end_date'] ? ' — ' . date('M j, Y', strtotime($row['end_date'])) : ' — Ongoing'; ?>
               </td>
-              <td class="right"><?php echo (int)$row['days']; ?></td>
-              <td class="right"><?php echo formatCurrencyAmount($row['monthly_rate'], $row['currency']); ?></td>
-              <td class="right"><?php echo formatCurrencyAmount($row['expected'], $row['currency']); ?></td>
-              <td class="right"><?php echo formatCurrencyAmount($row['paid'], $row['currency']); ?></td>
-              <td class="right"><?php echo formatCurrencyAmount($row['due'], $row['currency']); ?></td>
-              <td><?php echo ucfirst(htmlspecialchars($row['status'])); ?></td>
+              <td class="right xsmall"><?php echo (int)$row['days']; ?></td>
+              <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['monthly_rate'], $row['currency']); ?></td>
+              <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['expected'], $row['currency']); ?></td>
+              <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['paid'], $row['currency']); ?></td>
+              <td class="right xsmall nowrap"><?php echo formatCurrencyAmount($row['due'], $row['currency']); ?></td>
+              <td class="xsmall nowrap"><?php echo ucfirst(htmlspecialchars($row['status'])); ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -232,28 +244,28 @@ foreach ($rentals as $r) {
     <?php if (empty($payments)): ?>
       <div class="small muted">No payments found.</div>
     <?php else: ?>
-      <table>
+      <table class="table-narrow">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Reference</th>
-            <th>Method</th>
-            <th>Status</th>
-            <th>Notes</th>
-            <th class="right">Amount</th>
-            <th>Currency</th>
+            <th class="w-14">Date</th>
+            <th class="w-18">Reference</th>
+            <th class="w-16">Method</th>
+            <th class="w-12">Status</th>
+            <th class="w-20">Notes</th>
+            <th class="w-10 right">Amount</th>
+            <th class="w-10">Currency</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($payments as $p): ?>
             <tr>
-              <td><?php echo $p['payment_date'] ? date('M j, Y', strtotime($p['payment_date'])) : '-'; ?></td>
-              <td><?php echo htmlspecialchars($p['reference'] ?? '-'); ?></td>
-              <td><?php echo htmlspecialchars($p['method'] ?? '-'); ?></td>
-              <td><?php echo htmlspecialchars($p['status'] ?? '-'); ?></td>
-              <td><?php echo htmlspecialchars($p['notes'] ?? '-'); ?></td>
-              <td class="right"><?php echo formatCurrencyAmount((float)($p['amount'] ?? 0), $p['currency'] ?? 'USD'); ?></td>
-              <td><?php echo htmlspecialchars($p['currency'] ?? 'USD'); ?></td>
+              <td class="xsmall nowrap"><?php echo $p['payment_date'] ? date('M j, Y', strtotime($p['payment_date'])) : '-'; ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars($p['reference'] ?? '-'); ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars($p['method'] ?? '-'); ?></td>
+              <td class="xsmall nowrap"><?php echo htmlspecialchars($p['status'] ?? '-'); ?></td>
+              <td class="xsmall wrap"><?php echo htmlspecialchars($p['notes'] ?? '-'); ?></td>
+              <td class="xsmall right nowrap"><?php echo formatCurrencyAmount((float)($p['amount'] ?? 0), $p['currency'] ?? 'USD'); ?></td>
+              <td class="xsmall nowrap"><?php echo htmlspecialchars($p['currency'] ?? 'USD'); ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
