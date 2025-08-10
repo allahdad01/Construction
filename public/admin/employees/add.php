@@ -180,18 +180,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function generateEmployeeCode($company_id) {
     global $conn;
 
-    // Get company prefix
-    $stmt = $conn->prepare("SELECT company_code FROM companies WHERE id = ?");
+    // Get company prefix (uppercased company_code + 'EMP')
+    $stmt = $conn->prepare("SELECT UPPER(company_code) AS cc FROM companies WHERE id = ?");
     $stmt->execute([$company_id]);
-    $company_code = $stmt->fetch(PDO::FETCH_ASSOC)['company_code'];
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $company_code = $row ? $row['cc'] : 'CMP';
+    $prefix = $company_code . 'EMP';
+    $prefixLen = strlen($prefix);
 
-    // Get next employee number
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM employees WHERE company_id = ?");
-    $stmt->execute([$company_id]);
-    $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    // Find current max numeric suffix for this company prefix
+    $stmt = $conn->prepare(
+        "SELECT MAX(CAST(SUBSTRING(employee_code, ? + 1) AS UNSIGNED)) AS max_suffix
+         FROM employees 
+         WHERE company_id = ? AND employee_code LIKE CONCAT(?, '%')"
+    );
+    $stmt->execute([$prefixLen, $company_id, $prefix]);
+    $maxSuffix = (int)($stmt->fetch(PDO::FETCH_ASSOC)['max_suffix'] ?? 0);
 
-    $next_number = $count + 1;
-    return strtoupper($company_code) . 'EMP' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
+    // Propose next code and ensure uniqueness by incrementing if needed
+    $next = max(1, $maxSuffix + 1);
+    $code = $prefix . str_pad((string)$next, 3, '0', STR_PAD_LEFT);
+
+    $exists = $conn->prepare("SELECT 1 FROM employees WHERE company_id = ? AND employee_code = ? LIMIT 1");
+    while (true) {
+        $exists->execute([$company_id, $code]);
+        if (!$exists->fetchColumn()) { break; }
+        $next++;
+        $code = $prefix . str_pad((string)$next, 3, '0', STR_PAD_LEFT);
+    }
+
+    return $code;
 }
 
 // Helper function to generate random password
