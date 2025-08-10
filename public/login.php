@@ -4,7 +4,14 @@ require_once '../config/database.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard/');
+    $role = $_SESSION['user_role'] ?? '';
+    if ($role === 'super_admin') {
+        header('Location: super-admin/');
+    } elseif ($role === 'company_admin') {
+        header('Location: admin/dashboard/');
+    } else {
+        header('Location: dashboard/');
+    }
     exit;
 }
 
@@ -46,6 +53,8 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             // Redirect based on role
             if ($user['role'] === 'super_admin') {
                 header('Location: super-admin/');
+            } elseif ($user['role'] === 'company_admin') {
+                header('Location: admin/dashboard/');
             } else {
                 header('Location: dashboard/');
             }
@@ -119,6 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Redirect based on role
                     if ($user['role'] === 'super_admin') {
                         header('Location: super-admin/');
+                    } elseif ($user['role'] === 'company_admin') {
+                        header('Location: admin/dashboard/');
                     } else {
                         header('Location: dashboard/');
                     }
