@@ -12,7 +12,13 @@ $company = getTenantInfo($conn, $company_id);
 $filename = "employee_{$start_date}_to_{$end_date}";
 sendDownloadHeaders($format, $filename);
 
-$sql = "SELECT e.employee_code, e.name, e.position, COALESCE(SUM(wh.hours_worked),0) as total_hours, e.monthly_salary, COALESCE(e.salary_currency, 'AFN') as salary_currency FROM employees e LEFT JOIN working_hours wh ON e.id = wh.employee_id AND wh.date BETWEEN ? AND ? WHERE e.company_id = ? AND e.is_active = 1 GROUP BY e.id ORDER BY total_hours DESC";
+// Detect optional columns on employees
+$colsStmt = $conn->query("SHOW COLUMNS FROM employees");
+$cols = array_map(function($r){ return $r['Field']; }, $colsStmt->fetchAll(PDO::FETCH_ASSOC));
+$hasSalaryCurrency = in_array('salary_currency', $cols, true);
+$salaryCurrencyExpr = $hasSalaryCurrency ? "COALESCE(e.salary_currency, 'AFN') as salary_currency" : "'AFN' as salary_currency";
+
+$sql = "SELECT e.employee_code, e.name, e.position, COALESCE(SUM(wh.hours_worked),0) as total_hours, e.monthly_salary, {$salaryCurrencyExpr} FROM employees e LEFT JOIN working_hours wh ON e.id = wh.employee_id AND wh.date BETWEEN ? AND ? WHERE e.company_id = ? AND e.is_active = 1 GROUP BY e.id ORDER BY total_hours DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute([$start_date, $end_date, $company_id]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
