@@ -5,7 +5,6 @@ require_once '../../../config/database.php';
 // Check if user is authenticated and has appropriate role
 requireAuth();
 requireAnyRole(['company_admin', 'super_admin']);
-require_once '../../../includes/header.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -13,6 +12,7 @@ $company_id = getCurrentCompanyId();
 
 $error = '';
 $success = '';
+$redirect_after_save = '';
 
 // Get employee ID from URL
 $employee_id = (int)($_GET['id'] ?? 0);
@@ -104,9 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->commit();
 
         $success = "Employee updated successfully!";
-
-        // Redirect to view page after 2 seconds
-        header("refresh:2;url=view.php?id=$employee_id");
+        $redirect_after_save = "view.php?id=$employee_id";
 
     } catch (Exception $e) {
         // Rollback transaction on error
@@ -114,6 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $e->getMessage();
     }
 }
+
+require_once '../../../includes/header.php';
 ?>
 
 <div class="container-fluid">
@@ -144,6 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fas fa-check-circle me-2"></i>
             <?php echo htmlspecialchars($success); ?>
         </div>
+        <?php if (!empty($redirect_after_save)): ?>
+            <script>setTimeout(function(){ window.location.href = '<?php echo $redirect_after_save; ?>'; }, 1500);</script>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- Edit Employee Form -->
