@@ -155,7 +155,7 @@ if ($rental['total_amount']) {
             <a href="edit.php?id=<?php echo $rental_id; ?>" class="btn btn-primary">
                 <i class="fas fa-edit"></i> <?php echo __('edit_area_rental'); ?>
             </a>
-            <a href="#" class="btn btn-outline-dark no-print" onclick="window.print(); return false;">
+            <a href="print.php?id=<?php echo $rental_id; ?>" target="_blank" class="btn btn-outline-dark no-print">
                 <i class="fas fa-print"></i> <?php echo __('print'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary">
