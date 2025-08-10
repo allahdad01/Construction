@@ -24,7 +24,19 @@ $land = [
   'advance_paid' => (float)cs($conn,$company_id,'land_rent_advance_paid','0'),
   'extra_paid' => (float)cs($conn,$company_id,'land_rent_extra_paid','0'),
 ];
-$days=0;$months=0;$owed=0.0;$remain=0.0;$paid=$land['advance_paid']+$land['extra_paid'];$daily=0.0;
+
+// Compute paid from land_rent_payments (fallback to settings if unavailable)
+$paid = 0.0;
+try {
+  $stmtPaid = $conn->prepare("SELECT COALESCE(SUM(amount),0) FROM land_rent_payments WHERE company_id = ?");
+  $stmtPaid->execute([$company_id]);
+  $paid = (float)$stmtPaid->fetchColumn();
+  if ($paid <= 0) { $paid = (float)$land['advance_paid'] + (float)$land['extra_paid']; }
+} catch (Exception $e) {
+  $paid = (float)$land['advance_paid'] + (float)$land['extra_paid'];
+}
+
+$days=0;$months=0;$owed=0.0;$remain=0.0;$daily=0.0;
 try{ $st=new DateTime($land['start_date']); $td=new DateTime(date('Y-m-d')); if($td>=$st){ $di=$st->diff($td); $days=(int)$di->days; $months = (int)$di->m + ($di->y*12); $daily = ($land['type']==='yearly')?($land['amount']/365.0):($land['amount']/30.0); $owed=$daily*$days; $remain=max(0.0,$owed-$paid);} }catch(Exception $e){}
 ?>
 <!doctype html>
