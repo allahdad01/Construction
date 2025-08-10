@@ -16,13 +16,54 @@ function getDbConnection() {
 
 function getTenantInfo(PDO $conn, $company_id) {
     if (!$company_id) { return null; }
-    $stmt = $conn->prepare("SELECT company_name, company_code, address, phone, email FROM companies WHERE id = ?");
+    // Detect available columns to avoid unknown column errors
+    $stmtCols = $conn->query("SHOW COLUMNS FROM companies");
+    $existingCols = array_map(function($r){ return $r['Field']; }, $stmtCols->fetchAll(PDO::FETCH_ASSOC));
+
+    $wanted = [
+        'company_name' => 'company_name',
+        'company_code' => 'company_code',
+        'address' => 'address',
+        'phone' => 'phone',
+        'email' => 'email',
+    ];
+    $selectParts = [];
+    foreach ($wanted as $alias => $col) {
+        if (in_array($col, $existingCols, true)) {
+            $selectParts[] = "$col as $alias";
+        } else {
+            $selectParts[] = "NULL as $alias";
+        }
+    }
+    // Fallback if company_name does not exist
+    if (!in_array('company_name', $existingCols, true)) {
+        // Try generic name column
+        if (in_array('name', $existingCols, true)) {
+            // Replace the NULL as company_name with name as company_name
+            foreach ($selectParts as $i => $part) {
+                if ($part === 'NULL as company_name') { $selectParts[$i] = 'name as company_name'; break; }
+            }
+        }
+    }
+
+    $sql = 'SELECT ' . implode(', ', $selectParts) . ' FROM companies WHERE id = ?';
+    $stmt = $conn->prepare($sql);
     $stmt->execute([$company_id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+    // Ensure keys exist
+    $defaults = [
+        'company_name' => null,
+        'company_code' => null,
+        'address' => null,
+        'phone' => null,
+        'email' => null,
+    ];
+    return array_merge($defaults, $row);
 }
 
 function exportHeaderHtml($company, $report_title, $start_date, $end_date) {
-    $tenant = $company ? htmlspecialchars($company['company_name']) : 'All Tenants';
+    $tenant = $company && !empty($company['company_name']) ? htmlspecialchars($company['company_name']) : 'All Tenants';
     $code = $company && !empty($company['company_code']) ? ' | ' . htmlspecialchars($company['company_code']) : '';
     $addr = $company && !empty($company['address']) ? '<div><small>' . htmlspecialchars($company['address']) . '</small></div>' : '';
     $phone = $company && !empty($company['phone']) ? '<small>Phone: ' . htmlspecialchars($company['phone']) . '</small>' : '';
@@ -56,7 +97,8 @@ function sendDownloadHeaders($format, $filename_base) {
 function csvReportPreamble($out, $report_title, $company) {
     fputcsv($out, [$report_title]);
     if ($company) {
-        fputcsv($out, ['Tenant', $company['company_name'] . (empty($company['company_code']) ? '' : (' (' . $company['company_code'] . ')'))]);
+        $label = ($company['company_name'] ?? '') . (empty($company['company_code']) ? '' : (' (' . $company['company_code'] . ')'));
+        fputcsv($out, ['Tenant', trim($label) !== '' ? $label : 'N/A']);
         if (!empty($company['address'])) fputcsv($out, ['Address', $company['address']]);
         $contact = trim(($company['phone'] ?? '') . (empty($company['email']) ? '' : (' | ' . $company['email'])));
         if ($contact !== '') fputcsv($out, ['Contact', $contact]);
