@@ -48,6 +48,13 @@ foreach ($monthly_revenue_by_currency as $revenue) {
         $monthly_revenue_afn = $revenue['total'];
     }
 }
+// Backward-compat: avoid undefined var and prepare multi-currency labels
+$monthly_revenue = 0;
+$monthly_revenue_labels = [];
+foreach ($monthly_revenue_by_currency as $r) {
+    $cur = $r['currency'] ?: 'USD';
+    $monthly_revenue_labels[] = formatCurrencyAmount((float)$r['total'], $cur);
+}
 
 // Get recent companies
 $stmt = $conn->prepare("
@@ -346,7 +353,15 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <li><strong><?php echo __('total_users'); ?>:</strong> <?php echo $total_users; ?></li>
                                 <li><strong><?php echo __('active_companies'); ?>:</strong> <?php echo $active_companies; ?></li>
                                 <li><strong><?php echo __('trial_companies'); ?>:</strong> <?php echo $trial_companies; ?></li>
-                                <li><strong><?php echo __('monthly_revenue'); ?>:</strong> <?php echo formatCurrency($monthly_revenue); ?></li>
+                                <li><strong><?php echo __('monthly_revenue'); ?>:</strong>
+<?php if (!empty($monthly_revenue_labels)): ?>
+  <?php foreach ($monthly_revenue_labels as $i => $lbl): ?>
+    <span class="<?php echo $i>0?'ms-2 small':''; ?>"><?php echo $lbl; ?></span>
+  <?php endforeach; ?>
+<?php else: ?>
+  <span class="text-muted small"><?php echo __('no_payments_found') ?? 'No payments'; ?></span>
+<?php endif; ?>
+</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
