@@ -227,10 +227,10 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php foreach ($recent_companies as $company): ?>
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong><?php echo htmlspecialchars($company['company_name']); ?></strong>
+                                        <strong><?php echo htmlspecialchars($company['company_name'] ?? ''); ?></strong>
                                         <br>
                                         <small class="text-muted">
-                                            <?php echo htmlspecialchars($company['contact_email']); ?>
+                                            <?php echo htmlspecialchars($company['contact_email'] ?? ''); ?>
                                         </small>
                                     </div>
                                     <div class="text-right">
@@ -269,10 +269,10 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php foreach ($recent_payments as $payment): ?>
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong><?php echo htmlspecialchars($payment['company_name']); ?></strong>
+                                        <strong><?php echo htmlspecialchars($payment['company_name'] ?? ''); ?></strong>
                                         <br>
                                         <small class="text-muted">
-                                            <?php echo htmlspecialchars($payment['payment_code']); ?>
+                                            <?php echo htmlspecialchars($payment['payment_code'] ?? ''); ?>
                                         </small>
                                     </div>
                                     <div class="text-right">
