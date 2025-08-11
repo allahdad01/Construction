@@ -76,11 +76,11 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-upload"></i> Import Translations
+            <i class="fas fa-upload"></i> <?php echo __('import_translations'); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Languages
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
             </a>
         </div>
     </div>
@@ -97,14 +97,14 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Import Translations</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('import_translations'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="language_id" class="form-label">Select Language *</label>
+                            <label for="language_id" class="form-label"><?php echo __('select_language'); ?> *</label>
                             <select class="form-control" id="language_id" name="language_id" required>
-                                <option value="">Choose a language...</option>
+                                <option value=""><?php echo __('choose_a_language'); ?>...</option>
                                 <?php foreach ($languages as $lang): ?>
                                     <option value="<?php echo $lang['id']; ?>">
                                         <?php echo htmlspecialchars($lang['language_name']); ?> (<?php echo htmlspecialchars($lang['language_name_native']); ?>)
@@ -114,11 +114,11 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
 
                         <div class="mb-3">
-                            <label for="import_file" class="form-label">CSV File *</label>
+                            <label for="import_file" class="form-label"><?php echo __('csv_file'); ?> *</label>
                             <input type="file" class="form-control" id="import_file" name="import_file" 
                                    accept=".csv" required>
                             <small class="form-text text-muted">
-                                Upload a CSV file with columns: Translation Key, Translation Value
+                                <?php echo __('upload_a_csv_file_with_columns'); ?>: <?php echo __('translation_key'); ?>, <?php echo __('translation_value'); ?>
                             </small>
                         </div>
 
@@ -126,13 +126,13 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="overwrite" name="overwrite">
                                 <label class="form-check-label" for="overwrite">
-                                    Overwrite existing translations
+                                    <?php echo __('overwrite_existing_translations'); ?>
                                 </label>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload"></i> Import Translations
+                            <i class="fas fa-upload"></i> <?php echo __('import_translations'); ?>
                         </button>
                     </form>
                 </div>
@@ -142,12 +142,12 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Instructions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('instructions'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <h6>CSV Format:</h6>
+                    <h6><?php echo __('csv_format'); ?>:</h6>
                     <p class="text-muted">
-                        Your CSV file should have the following format:
+                        <?php echo __('your_csv_file_should_have_the_following_format'); ?>:
                     </p>
                     <pre class="bg-light p-2 rounded">
 translation_key,translation_value
@@ -156,9 +156,9 @@ employees,Employees
 settings,Settings
                     </pre>
                     
-                    <h6 class="mt-3">Download Template:</h6>
+                    <h6 class="mt-3"><?php echo __('download_template'); ?>:</h6>
                     <a href="export-template.php" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-download"></i> Download CSV Template
+                        <i class="fas fa-download"></i> <?php echo __('download_csv_template'); ?>
                     </a>
                 </div>
             </div>

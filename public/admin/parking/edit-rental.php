@@ -123,11 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-edit"></i> Edit Parking Rental
+            <i class="fas fa-edit"></i> <?php echo __('edit_parking_rental'); ?>
         </h1>
         <div>
             <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rental
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rental'); ?>
             </a>
         </div>
     </div>
@@ -145,27 +145,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Edit Rental Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_rental_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="client_name" class="form-label">Client Name *</label>
+                                    <label for="client_name" class="form-label"><?php echo __('client_name'); ?> *</label>
                                     <input type="text" class="form-control" id="client_name" name="client_name" 
                                            value="<?php echo htmlspecialchars($rental['client_name']); ?>" 
                                            style="text-transform: none;" autocomplete="off" spellcheck="false" required>
-                                    <small class="form-text text-muted">You can use spaces in client names.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_client_names'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="client_contact" class="form-label">Client Contact</label>
+                                    <label for="client_contact" class="form-label"><?php echo __('client_contact'); ?></label>
                                     <input type="text" class="form-control" id="client_contact" name="client_contact" 
                                            value="<?php echo htmlspecialchars($rental['client_contact'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in contact information.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_contact_information'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -173,20 +173,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="vehicle_type" class="form-label">Vehicle Type</label>
+                                    <label for="vehicle_type" class="form-label"><?php echo __('vehicle_type'); ?></label>
                                     <input type="text" class="form-control" id="vehicle_type" name="vehicle_type" 
                                            value="<?php echo htmlspecialchars($rental['vehicle_type'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in vehicle types.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_vehicle_types'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="vehicle_registration" class="form-label">Vehicle Registration</label>
+                                    <label for="vehicle_registration" class="form-label"><?php echo __('vehicle_registration'); ?></label>
                                     <input type="text" class="form-control" id="vehicle_registration" name="vehicle_registration" 
                                            value="<?php echo htmlspecialchars($rental['vehicle_registration'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in registration numbers.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_registration_numbers'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -194,17 +194,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="start_date" class="form-label">Start Date *</label>
+                                    <label for="start_date" class="form-label"><?php echo __('start_date'); ?> *</label>
                                     <input type="date" class="form-control" id="start_date" name="start_date" 
                                            value="<?php echo $rental['start_date']; ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="end_date" class="form-label">End Date</label>
+                                    <label for="end_date" class="form-label"><?php echo __('end_date'); ?></label>
                                     <input type="date" class="form-control" id="end_date" name="end_date" 
                                            value="<?php echo $rental['end_date'] ?? ''; ?>">
-                                    <small class="text-muted">Leave empty for ongoing rental</small>
+                                    <small class="text-muted"><?php echo __('leave_empty_for_ongoing_rental'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="monthly_rate" class="form-label">Monthly Rate *</label>
+                                    <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <?php 
@@ -227,25 +227,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Currency</label>
+                                    <label class="form-label"><?php echo __('currency'); ?></label>
                                     <input type="text" class="form-control" value="<?php echo strtoupper($rental['currency'] ?? 'USD'); ?>" readonly>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
+                            <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($rental['notes'] ?? ''); ?></textarea>
-                            <small class="form-text text-muted">You can use spaces in notes and descriptions.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_notes_and_descriptions'); ?></small>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Rental
+                                <i class="fas fa-save"></i> <?php echo __('update_rental'); ?>
                             </button>
                         </div>
                     </form>
@@ -256,19 +256,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Rental Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('rental_summary'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <p><strong>Rental Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                    <p><strong>Status:</strong> 
+                    <p><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                    <p><strong><?php echo __('status'); ?>:</strong> 
                         <span class="badge bg-<?php echo $rental['status'] == 'active' ? 'success' : 'secondary'; ?>">
                             <?php echo ucfirst(htmlspecialchars($rental['status'])); ?>
                         </span>
                     </p>
-                    <p><strong>Parking Space:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
-                    <p><strong>Created:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
+                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
+                    <p><strong><?php echo __('created'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
                     <?php if (!empty($rental['total_amount'])): ?>
-                        <p><strong>Total Amount:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>
+                        <p><strong><?php echo __('total_amount'); ?>:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>

@@ -347,7 +347,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="currency_id" class="form-label">Default Currency</label>
+                                            <label for="currency_id" class="form-label"><?php echo __('default_currency'); ?></label>
                                             <select class="form-control" id="currency_id" name="currency_id">
                                                 <?php foreach ($currencies as $currency): ?>
                                                 <option value="<?php echo $currency['id']; ?>" 
@@ -360,7 +360,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="date_format_id" class="form-label">Date Format</label>
+                                            <label for="date_format_id" class="form-label"><?php echo __('date_format'); ?></label>
                                             <select class="form-control" id="date_format_id" name="date_format_id">
                                                 <?php foreach ($date_formats as $format): ?>
                                                 <option value="<?php echo $format['id']; ?>" 
@@ -373,7 +373,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="default_language_id" class="form-label">Default Language</label>
+                                            <label for="default_language_id" class="form-label"><?php echo __('default_language'); ?></label>
                                             <select class="form-control" id="default_language_id" name="default_language_id">
                                                 <?php foreach ($languages as $language): ?>
                                                 <option value="<?php echo $language['id']; ?>" 
@@ -389,7 +389,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="timezone" class="form-label">Timezone</label>
+                                            <label for="timezone" class="form-label"><?php echo __('timezone'); ?></label>
                                             <select class="form-control" id="timezone" name="timezone">
                                                 <?php foreach ($timezones as $timezone): ?>
                                                 <option value="<?php echo $timezone; ?>" 
@@ -402,14 +402,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="working_hours_start" class="form-label">Working Hours Start</label>
+                                            <label for="working_hours_start" class="form-label"><?php echo __('working_hours_start'); ?></label>
                                             <input type="time" class="form-control" id="working_hours_start" name="working_hours_start" 
                                                    value="<?php echo htmlspecialchars($current_settings['working_hours_start']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="working_hours_end" class="form-label">Working Hours End</label>
+                                            <label for="working_hours_end" class="form-label"><?php echo __('working_hours_end'); ?></label>
                                             <input type="time" class="form-control" id="working_hours_end" name="working_hours_end" 
                                                    value="<?php echo htmlspecialchars($current_settings['working_hours_end']); ?>">
                                         </div>
@@ -417,17 +417,17 @@ $timezones = DateTimeZone::listIdentifiers();
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Weekend Days</label>
+                                    <label class="form-label"><?php echo __('weekend_days'); ?></label>
                                     <div class="row">
                                         <?php
                                         $days = [
-                                            'monday' => 'Monday',
-                                            'tuesday' => 'Tuesday',
-                                            'wednesday' => 'Wednesday',
-                                            'thursday' => 'Thursday',
-                                            'friday' => 'Friday',
-                                            'saturday' => 'Saturday',
-                                            'sunday' => 'Sunday'
+                                            'monday' => __('monday'),
+                                            'tuesday' => __('tuesday'),
+                                            'wednesday' => __('wednesday'),
+                                            'thursday' => __('thursday'),
+                                            'friday' => __('friday'),
+                                            'saturday' => __('saturday'),
+                                            'sunday' => __('sunday')
                                         ];
                                         foreach ($days as $day_key => $day_name):
                                         ?>
@@ -446,7 +446,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Preferences
+                                    <i class="fas fa-save"></i> <?php echo __('update_preferences'); ?>
                                 </button>
                             </form>
                         </div>
@@ -461,7 +461,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" 
                                                <?php echo $current_settings['email_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="email_notifications">
-                                            Enable Email Notifications
+                                            <?php echo __('enable_email_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -471,7 +471,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" 
                                                <?php echo $current_settings['sms_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="sms_notifications">
-                                            Enable SMS Notifications
+                                            <?php echo __('enable_sms_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -481,7 +481,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" 
                                                <?php echo $current_settings['push_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="push_notifications">
-                                            Enable Push Notifications
+                                            <?php echo __('enable_push_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -491,7 +491,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="notification_sound" name="notification_sound" 
                                                <?php echo $current_settings['notification_sound'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="notification_sound">
-                                            Enable Notification Sounds
+                                            <?php echo __('enable_notification_sounds'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -501,22 +501,22 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="auto_reminders" name="auto_reminders" 
                                                <?php echo $current_settings['auto_reminders'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="auto_reminders">
-                                            Enable Auto Reminders
+                                            <?php echo __('enable_auto_reminders'); ?>
                                         </label>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="reminder_frequency" class="form-label">Reminder Frequency</label>
+                                    <label for="reminder_frequency" class="form-label"><?php echo __('reminder_frequency'); ?></label>
                                     <select class="form-control" id="reminder_frequency" name="reminder_frequency">
-                                        <option value="daily" <?php echo $current_settings['reminder_frequency'] === 'daily' ? 'selected' : ''; ?>>Daily</option>
-                                        <option value="weekly" <?php echo $current_settings['reminder_frequency'] === 'weekly' ? 'selected' : ''; ?>>Weekly</option>
-                                        <option value="monthly" <?php echo $current_settings['reminder_frequency'] === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+                                        <option value="daily" <?php echo $current_settings['reminder_frequency'] === 'daily' ? 'selected' : ''; ?>><?php echo __('daily'); ?></option>
+                                        <option value="weekly" <?php echo $current_settings['reminder_frequency'] === 'weekly' ? 'selected' : ''; ?>><?php echo __('weekly'); ?></option>
+                                        <option value="monthly" <?php echo $current_settings['reminder_frequency'] === 'monthly' ? 'selected' : ''; ?>><?php echo __('monthly'); ?></option>
                                     </select>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Notifications
+                                    <i class="fas fa-save"></i> <?php echo __('update_notifications'); ?>
                                 </button>
                             </form>
                         </div>
@@ -529,14 +529,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="session_timeout" class="form-label">Session Timeout (minutes)</label>
+                                            <label for="session_timeout" class="form-label"><?php echo __('session_timeout'); ?> (<?php echo __('minutes'); ?>)</label>
                                             <input type="number" class="form-control" id="session_timeout" name="session_timeout" 
                                                    value="<?php echo htmlspecialchars($current_settings['session_timeout']); ?>" min="5" max="1440">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="max_login_attempts" class="form-label">Max Login Attempts</label>
+                                            <label for="max_login_attempts" class="form-label"><?php echo __('max_login_attempts'); ?></label>
                                             <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" 
                                                    value="<?php echo htmlspecialchars($current_settings['max_login_attempts']); ?>" min="3" max="10">
                                         </div>
@@ -546,18 +546,18 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="password_min_length" class="form-label">Minimum Password Length</label>
+                                            <label for="password_min_length" class="form-label"><?php echo __('minimum_password_length'); ?></label>
                                             <input type="number" class="form-control" id="password_min_length" name="password_min_length" 
                                                    value="<?php echo htmlspecialchars($current_settings['password_min_length']); ?>" min="6" max="20">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="ip_whitelist" class="form-label">IP Whitelist</label>
+                                            <label for="ip_whitelist" class="form-label"><?php echo __('ip_whitelist'); ?></label>
                                             <input type="text" class="form-control" id="ip_whitelist" name="ip_whitelist" 
                                                    value="<?php echo htmlspecialchars($current_settings['ip_whitelist']); ?>" 
                                                    placeholder="192.168.1.1, 10.0.0.0/24">
-                                            <small class="text-muted">Comma-separated IP addresses or ranges</small>
+                                            <small class="text-muted"><?php echo __('comma_separated_ip_addresses_or_ranges'); ?></small>
                                         </div>
                                     </div>
                                 </div>
@@ -567,7 +567,7 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="require_strong_password" name="require_strong_password" 
                                                <?php echo $current_settings['require_strong_password'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="require_strong_password">
-                                            Require Strong Passwords
+                                            <?php echo __('require_strong_passwords'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -577,13 +577,13 @@ $timezones = DateTimeZone::listIdentifiers();
                                         <input class="form-check-input" type="checkbox" id="enable_two_factor" name="enable_two_factor" 
                                                <?php echo $current_settings['enable_two_factor'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="enable_two_factor">
-                                            Enable Two-Factor Authentication
+                                            <?php echo __('enable_two_factor_authentication'); ?>
                                         </label>
                                     </div>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Security
+                                    <i class="fas fa-save"></i> <?php echo __('update_security'); ?>
                                 </button>
                             </form>
                         </div>
@@ -593,19 +593,19 @@ $timezones = DateTimeZone::listIdentifiers();
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_integrations">
                                 
-                                <h6 class="mb-3">SMTP Configuration</h6>
+                                <h6 class="mb-3"><?php echo __('smtp_configuration'); ?></h6>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_host" class="form-label">SMTP Host</label>
+                                            <label for="smtp_host" class="form-label"><?php echo __('smtp_host'); ?></label>
                                             <input type="text" class="form-control" id="smtp_host" name="smtp_host" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_host']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_port" class="form-label">SMTP Port</label>
+                                            <label for="smtp_port" class="form-label"><?php echo __('smtp_port'); ?></label>
                                             <input type="number" class="form-control" id="smtp_port" name="smtp_port" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_port']); ?>">
                                         </div>
@@ -615,14 +615,14 @@ $timezones = DateTimeZone::listIdentifiers();
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_username" class="form-label">SMTP Username</label>
+                                            <label for="smtp_username" class="form-label"><?php echo __('smtp_username'); ?></label>
                                             <input type="text" class="form-control" id="smtp_username" name="smtp_username" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_username']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_password" class="form-label">SMTP Password</label>
+                                            <label for="smtp_password" class="form-label"><?php echo __('smtp_password'); ?></label>
                                             <input type="password" class="form-control" id="smtp_password" name="smtp_password" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_password']); ?>">
                                         </div>
@@ -630,27 +630,27 @@ $timezones = DateTimeZone::listIdentifiers();
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="smtp_encryption" class="form-label">SMTP Encryption</label>
+                                    <label for="smtp_encryption" class="form-label"><?php echo __('smtp_encryption'); ?></label>
                                     <select class="form-control" id="smtp_encryption" name="smtp_encryption">
-                                        <option value="tls" <?php echo $current_settings['smtp_encryption'] === 'tls' ? 'selected' : ''; ?>>TLS</option>
-                                        <option value="ssl" <?php echo $current_settings['smtp_encryption'] === 'ssl' ? 'selected' : ''; ?>>SSL</option>
-                                        <option value="none" <?php echo $current_settings['smtp_encryption'] === 'none' ? 'selected' : ''; ?>>None</option>
+                                        <option value="tls" <?php echo $current_settings['smtp_encryption'] === 'tls' ? 'selected' : ''; ?>><?php echo __('tls'); ?></option>
+                                        <option value="ssl" <?php echo $current_settings['smtp_encryption'] === 'ssl' ? 'selected' : ''; ?>><?php echo __('ssl'); ?></option>
+                                        <option value="none" <?php echo $current_settings['smtp_encryption'] === 'none' ? 'selected' : ''; ?>><?php echo __('none'); ?></option>
                                     </select>
                                 </div>
                                 
-                                <h6 class="mb-3 mt-4">API Configuration</h6>
+                                <h6 class="mb-3 mt-4"><?php echo __('api_configuration'); ?></h6>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="api_key" class="form-label">API Key</label>
+                                            <label for="api_key" class="form-label"><?php echo __('api_key'); ?></label>
                                             <input type="text" class="form-control" id="api_key" name="api_key" 
                                                    value="<?php echo htmlspecialchars($current_settings['api_key']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="webhook_url" class="form-label">Webhook URL</label>
+                                            <label for="webhook_url" class="form-label"><?php echo __('webhook_url'); ?></label>
                                             <input type="url" class="form-control" id="webhook_url" name="webhook_url" 
                                                    value="<?php echo htmlspecialchars($current_settings['webhook_url']); ?>">
                                         </div>
@@ -659,10 +659,10 @@ $timezones = DateTimeZone::listIdentifiers();
                                 
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Update Integrations
+                                        <i class="fas fa-save"></i> <?php echo __('update_integrations'); ?>
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#testSmtpModal">
-                                        <i class="fas fa-paper-plane"></i> Test SMTP
+                                        <i class="fas fa-paper-plane"></i> <?php echo __('test_smtp'); ?>
                                     </button>
                                 </div>
                             </form>
@@ -680,18 +680,18 @@ $timezones = DateTimeZone::listIdentifiers();
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-paper-plane"></i> Send Test Email</h5>
+        <h5 class="modal-title"><i class="fas fa-paper-plane"></i> <?php echo __('send_test_email'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Recipient Email</label>
+          <label class="form-label"><?php echo __('recipient_email'); ?></label>
           <input type="email" class="form-control" id="test_email" placeholder="you@example.com">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="sendTestEmail()">Send</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('cancel'); ?></button>
+        <button type="button" class="btn btn-primary" onclick="sendTestEmail()"><?php echo __('send'); ?></button>
       </div>
     </div>
   </div>
@@ -712,13 +712,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function sendTestEmail() {
   const email = document.getElementById('test_email').value.trim();
-  if (!email) { alert('Please enter a recipient email'); return; }
+  if (!email) { alert('<?php echo __('please_enter_a_recipient_email'); ?>'); return; }
   try {
     const resp = await fetch('test_smtp.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ to: email }) });
     const data = await resp.json();
-    alert(data.message || (data.success ? 'Email sent' : 'Failed to send email'));
+    alert(data.message || (data.success ? '<?php echo __('email_sent'); ?>' : '<?php echo __('failed_to_send_email'); ?>'));
     if (data.success) { bootstrap.Modal.getInstance(document.getElementById('testSmtpModal')).hide(); }
-  } catch (e) { alert('Server error'); }
+  } catch (e) { alert('<?php echo __('server_error'); ?>'); }
 }
 </script>
 

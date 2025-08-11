@@ -89,14 +89,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-edit"></i> Edit Payment
+            <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
         </h1>
         <div>
             <a href="payment-view.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Payment
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_payment'); ?>
             </a>
             <a href="payments.php?company_id=<?php echo $company_id; ?>" class="btn btn-info btn-sm">
-                <i class="fas fa-list"></i> Back to Payments
+                <i class="fas fa-list"></i> <?php echo __('back_to_payments'); ?>
             </a>
         </div>
     </div>
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Edit Payment Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_payment_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($errors)): ?>
@@ -122,17 +122,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="amount" class="form-label">Amount *</label>
+                                    <label for="amount" class="form-label"><?php echo __('amount'); ?> *</label>
                                     <input type="number" step="0.01" class="form-control" id="amount" name="amount" 
                                            value="<?php echo htmlspecialchars($payment['amount']); ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="currency" class="form-label">Currency *</label>
+                                    <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                                     <select class="form-control" id="currency" name="currency" required>
-                                        <option value="USD" <?php echo $payment['currency'] === 'USD' ? 'selected' : ''; ?>>USD</option>
-                                        <option value="AFN" <?php echo $payment['currency'] === 'AFN' ? 'selected' : ''; ?>>AFN</option>
+                                        <option value="USD" <?php echo $payment['currency'] === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                        <option value="AFN" <?php echo $payment['currency'] === 'AFN' ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -141,23 +141,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_method" class="form-label">Payment Method</label>
+                                    <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
                                     <select class="form-control" id="payment_method" name="payment_method">
-                                        <option value="credit_card" <?php echo $payment['payment_method'] === 'credit_card' ? 'selected' : ''; ?>>Credit Card</option>
-                                        <option value="bank_transfer" <?php echo $payment['payment_method'] === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
-                                        <option value="paypal" <?php echo $payment['payment_method'] === 'paypal' ? 'selected' : ''; ?>>PayPal</option>
-                                        <option value="cash" <?php echo $payment['payment_method'] === 'cash' ? 'selected' : ''; ?>>Cash</option>
+                                        <option value="credit_card" <?php echo $payment['payment_method'] === 'credit_card' ? 'selected' : ''; ?>><?php echo __('credit_card'); ?></option>
+                                        <option value="bank_transfer" <?php echo $payment['payment_method'] === 'bank_transfer' ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
+                                        <option value="paypal" <?php echo $payment['payment_method'] === 'paypal' ? 'selected' : ''; ?>><?php echo __('paypal'); ?></option>
+                                        <option value="cash" <?php echo $payment['payment_method'] === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_status" class="form-label">Status</label>
+                                    <label for="payment_status" class="form-label"><?php echo __('status'); ?></label>
                                     <select class="form-control" id="payment_status" name="payment_status">
-                                        <option value="pending" <?php echo $payment['payment_status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="completed" <?php echo $payment['payment_status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                        <option value="failed" <?php echo $payment['payment_status'] === 'failed' ? 'selected' : ''; ?>>Failed</option>
-                                        <option value="cancelled" <?php echo $payment['payment_status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                        <option value="pending" <?php echo $payment['payment_status'] === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                                        <option value="completed" <?php echo $payment['payment_status'] === 'completed' ? 'selected' : ''; ?>><?php echo __('completed'); ?></option>
+                                        <option value="failed" <?php echo $payment['payment_status'] === 'failed' ? 'selected' : ''; ?>><?php echo __('failed'); ?></option>
+                                        <option value="cancelled" <?php echo $payment['payment_status'] === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -166,14 +166,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_date" class="form-label">Payment Date *</label>
+                                    <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
                                     <input type="date" class="form-control" id="payment_date" name="payment_date" 
                                            value="<?php echo htmlspecialchars($payment['payment_date']); ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="transaction_id" class="form-label">Transaction ID</label>
+                                    <label for="transaction_id" class="form-label"><?php echo __('transaction_id'); ?></label>
                                     <input type="text" class="form-control" id="transaction_id" name="transaction_id" 
                                            value="<?php echo htmlspecialchars($payment['transaction_id'] ?? ''); ?>">
                                 </div>
@@ -183,18 +183,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="subscription_plan" class="form-label">Subscription Plan</label>
+                                    <label for="subscription_plan" class="form-label"><?php echo __('subscription_plan'); ?></label>
                                     <select class="form-control" id="subscription_plan" name="subscription_plan">
-                                        <option value="">Select Plan</option>
-                                        <option value="basic" <?php echo ($payment['subscription_plan'] ?? '') === 'basic' ? 'selected' : ''; ?>>Basic</option>
-                                        <option value="professional" <?php echo ($payment['subscription_plan'] ?? '') === 'professional' ? 'selected' : ''; ?>>Professional</option>
-                                        <option value="enterprise" <?php echo ($payment['subscription_plan'] ?? '') === 'enterprise' ? 'selected' : ''; ?>>Enterprise</option>
+                                        <option value=""><?php echo __('select_plan'); ?></option>
+                                        <option value="basic" <?php echo ($payment['subscription_plan'] ?? '') === 'basic' ? 'selected' : ''; ?>><?php echo __('basic'); ?></option>
+                                        <option value="professional" <?php echo ($payment['subscription_plan'] ?? '') === 'professional' ? 'selected' : ''; ?>><?php echo __('professional'); ?></option>
+                                        <option value="enterprise" <?php echo ($payment['subscription_plan'] ?? '') === 'enterprise' ? 'selected' : ''; ?>><?php echo __('enterprise'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="billing_period_start" class="form-label">Billing Period Start</label>
+                                    <label for="billing_period_start" class="form-label"><?php echo __('billing_period_start'); ?></label>
                                     <input type="date" class="form-control" id="billing_period_start" name="billing_period_start" 
                                            value="<?php echo htmlspecialchars($payment['billing_period_start'] ?? ''); ?>">
                                 </div>
@@ -204,35 +204,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="billing_period_end" class="form-label">Billing Period End</label>
+                                        <label for="billing_period_end" class="form-label"><?php echo __('billing_period_end'); ?></label>
                                     <input type="date" class="form-control" id="billing_period_end" name="billing_period_end" 
                                            value="<?php echo htmlspecialchars($payment['billing_period_end'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Payment Code</label>
+                                    <label class="form-label"><?php echo __('payment_code'); ?></label>
                                     <input type="text" class="form-control" value="<?php echo htmlspecialchars($payment['payment_code']); ?>" readonly>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
+                            <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
                             <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($payment['notes'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Company</label>
+                            <label class="form-label"><?php echo __('company'); ?></label>
                             <input type="text" class="form-control" value="<?php echo htmlspecialchars($company['company_name']); ?>" readonly>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <a href="payment-view.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Payment
+                                <i class="fas fa-save"></i> <?php echo __('update_payment'); ?>
                             </button>
                         </div>
                     </form>
@@ -244,20 +244,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Payment Info -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Payment Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <strong>Payment ID:</strong> <?php echo $payment_id; ?>
+                        <strong><?php echo __('payment_id'); ?>:</strong> <?php echo $payment_id; ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Company:</strong> <?php echo htmlspecialchars($company['company_name']); ?>
+                        <strong><?php echo __('company'); ?>:</strong> <?php echo htmlspecialchars($company['company_name']); ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Created:</strong> <?php echo formatDate($payment['created_at']); ?>
+                        <strong><?php echo __('created'); ?>:</strong> <?php echo formatDate($payment['created_at']); ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Last Updated:</strong> <?php echo formatDate($payment['updated_at']); ?>
+                        <strong><?php echo __('last_updated'); ?>:</strong> <?php echo formatDate($payment['updated_at']); ?>
                     </div>
                 </div>
             </div>
@@ -265,25 +265,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="payment-view.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-info">
-                            <i class="fas fa-eye"></i> View Payment
+                            <i class="fas fa-eye"></i> <?php echo __('view_payment'); ?>
                         </a>
                         <?php if ($payment['payment_status'] === 'pending'): ?>
                             <a href="payment-approve.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-success"
                                onclick="return confirm('Are you sure you want to approve this payment?')">
-                                <i class="fas fa-check"></i> Approve Payment
+                                <i class="fas fa-check"></i> <?php echo __('approve_payment'); ?>
                             </a>
                         <?php endif; ?>
                         <a href="payment-delete.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-danger"
                            onclick="return confirm('Are you sure you want to delete this payment?')">
-                            <i class="fas fa-trash"></i> Delete Payment
+                            <i class="fas fa-trash"></i> <?php echo __('delete_payment'); ?>
                         </a>
                         <a href="payments.php?company_id=<?php echo $company_id; ?>" class="btn btn-secondary">
-                            <i class="fas fa-list"></i> Back to Payments
+                            <i class="fas fa-list"></i> <?php echo __('back_to_payments'); ?>
                         </a>
                     </div>
                 </div>

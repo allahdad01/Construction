@@ -123,14 +123,14 @@ function generateAreaCode($company_id) {
                             <label for="area_type" class="form-label"><?php echo __('area_type'); ?> *</label>
                             <select class="form-control" id="area_type" name="area_type" required>
                                 <option value=""><?php echo __('select_area_type'); ?></option>
-                                <option value="warehouse" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'warehouse') ? 'selected' : ''; ?>>Warehouse</option>
-                                <option value="office" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'office') ? 'selected' : ''; ?>>Office Space</option>
-                                <option value="retail" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'retail') ? 'selected' : ''; ?>>Retail Space</option>
-                                <option value="storage" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'storage') ? 'selected' : ''; ?>>Storage Unit</option>
-                                <option value="workshop" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'workshop') ? 'selected' : ''; ?>>Workshop</option>
-                                <option value="yard" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'yard') ? 'selected' : ''; ?>>Yard/Outdoor</option>
-                                <option value="conference" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'conference') ? 'selected' : ''; ?>>Conference Room</option>
-                                <option value="other" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value="warehouse" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'warehouse') ? 'selected' : ''; ?>><?php echo __('warehouse'); ?></option>
+                                <option value="office" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'office') ? 'selected' : ''; ?>><?php echo __('office_space'); ?></option>
+                                <option value="retail" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'retail') ? 'selected' : ''; ?>><?php echo __('retail_space'); ?></option>
+                                <option value="storage" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'storage') ? 'selected' : ''; ?>><?php echo __('storage_unit'); ?></option>
+                                <option value="workshop" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'workshop') ? 'selected' : ''; ?>><?php echo __('workshop'); ?></option>
+                                <option value="yard" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'yard') ? 'selected' : ''; ?>><?php echo __('yard_outdoor'); ?></option>
+                                <option value="conference" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'conference') ? 'selected' : ''; ?>><?php echo __('conference_room'); ?></option>
+                                <option value="other" <?php echo (isset($_POST['area_type']) && $_POST['area_type'] == 'other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                             </select>
                         </div>
                     </div>

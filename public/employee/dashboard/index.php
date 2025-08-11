@@ -11,7 +11,7 @@ $conn = $db->getConnection();
 $user = getCurrentUser();
 $company_id = getCurrentCompanyId();
 
-$page_title = 'Employee Dashboard';
+$page_title = __('employee_dashboard');
 
 // Resolve employee and pay settings
 $emp = null; $cols = [];
@@ -66,35 +66,35 @@ $remaining = max(0.0, $expectedPay - $paidThisMonth);
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <h1 class="h3 mb-4">Welcome, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h1>
+      <h1 class="h3 mb-4"><?php echo __('welcome'); ?>, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h1>
     </div>
   </div>
 
   <div class="row g-4 mb-3">
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header"><strong>Worked Days (This Month)</strong></div>
+        <div class="card-header"><strong><?php echo __('worked_days'); ?> (<?php echo __('this_month'); ?>)</strong></div>
         <div class="card-body">
           <div class="h4 mb-0"><?php echo number_format($workedDays); ?></div>
-          <div class="text-muted small"><?php echo number_format($daysInRange); ?> days in period • <?php echo number_format($leaveDays); ?> leave</div>
+          <div class="text-muted small"><?php echo number_format($daysInRange); ?> <?php echo __('days_in_period'); ?> • <?php echo number_format($leaveDays); ?> <?php echo __('leave'); ?></div>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header"><strong>Paid (This Month)</strong></div>
+        <div class="card-header"><strong><?php echo __('paid'); ?> (<?php echo __('this_month'); ?>)</strong></div>
         <div class="card-body">
           <div class="h4 mb-0"><?php echo formatCurrencyAmount($paidThisMonth, $currency); ?></div>
-          <div class="text-muted small">Currency: <?php echo htmlspecialchars($currency); ?></div>
+          <div class="text-muted small"><?php echo __('currency'); ?>: <?php echo htmlspecialchars($currency); ?></div>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header"><strong>Remaining (This Month)</strong></div>
+        <div class="card-header"><strong><?php echo __('remaining'); ?> (<?php echo __('this_month'); ?>)</strong></div>
         <div class="card-body">
           <div class="h4 mb-0"><?php echo formatCurrencyAmount($remaining, $currency); ?></div>
-          <div class="text-muted small">Expected: <?php echo formatCurrencyAmount($expectedPay, $currency); ?></div>
+          <div class="text-muted small"><?php echo __('expected'); ?>: <?php echo formatCurrencyAmount($expectedPay, $currency); ?></div>
         </div>
       </div>
     </div>
@@ -103,19 +103,19 @@ $remaining = max(0.0, $expectedPay - $paidThisMonth);
   <div class="row g-4">
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header"><strong>Quick Actions</strong></div>
+        <div class="card-header"><strong><?php echo __('quick_actions'); ?></strong></div>
         <div class="card-body">
-          <a href="/constract360/construction/public/employee/attendance/" class="btn btn-primary w-100 mb-2"><i class="fas fa-clock"></i> View Attendance</a>
-          <a href="/constract360/construction/public/employee/salary/" class="btn btn-success w-100 mb-2"><i class="fas fa-money-bill-wave"></i> View Salary</a>
-          <a href="/constract360/construction/public/employee/contracts/" class="btn btn-info w-100"><i class="fas fa-file-contract"></i> Assigned Contracts</a>
+          <a href="/constract360/construction/public/employee/attendance/" class="btn btn-primary w-100 mb-2"><i class="fas fa-clock"></i> <?php echo __('view_attendance'); ?></a>
+          <a href="/constract360/construction/public/employee/salary/" class="btn btn-success w-100 mb-2"><i class="fas fa-money-bill-wave"></i> <?php echo __('view_salary'); ?></a>
+          <a href="/constract360/construction/public/employee/contracts/" class="btn btn-info w-100"><i class="fas fa-file-contract"></i> <?php echo __('assigned_contracts'); ?></a>
         </div>
       </div>
     </div>
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header"><strong>Recent Activity</strong></div>
+        <div class="card-header"><strong><?php echo __('recent_activity'); ?></strong></div>
         <div class="card-body">
-          <p class="text-muted mb-0">Your recent work and payments will appear here.</p>
+          <p class="text-muted mb-0"><?php echo __('your_recent_work_and_payments_will_appear_here'); ?></p>
         </div>
       </div>
     </div>

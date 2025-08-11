@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-calendar-times"></i> Add Leave
+            <i class="fas fa-calendar-times"></i> <?php echo __('add_leave'); ?>
         </h1>
         <a href="index.php" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> <?php echo __('back_to_attendance'); ?>
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Add Leave Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Leave Details</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('leave_details'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST">
@@ -110,14 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="leave_type" class="form-label">Leave Type *</label>
+                            <label for="leave_type" class="form-label"><?php echo __('leave_type'); ?> *</label>
                             <select class="form-control" id="leave_type" name="leave_type" required>
-                                <option value="">Select Leave Type</option>
-                                <option value="sick" <?php echo (($_POST['leave_type'] ?? '')==='sick')?'selected':''; ?>>Sick</option>
-                                <option value="vacation" <?php echo (($_POST['leave_type'] ?? '')==='vacation')?'selected':''; ?>>Vacation</option>
-                                <option value="personal" <?php echo (($_POST['leave_type'] ?? '')==='personal')?'selected':''; ?>>Personal</option>
-                                <option value="emergency" <?php echo (($_POST['leave_type'] ?? '')==='emergency')?'selected':''; ?>>Emergency</option>
-                                <option value="unpaid" <?php echo (($_POST['leave_type'] ?? '')==='unpaid')?'selected':''; ?>>Unpaid</option>
+                                <option value=""><?php echo __('select_leave_type'); ?></option>
+                                <option value="sick" <?php echo (($_POST['leave_type'] ?? '')==='sick')?'selected':''; ?>><?php echo __('sick'); ?></option>
+                                <option value="vacation" <?php echo (($_POST['leave_type'] ?? '')==='vacation')?'selected':''; ?>><?php echo __('vacation'); ?></option>
+                                <option value="personal" <?php echo (($_POST['leave_type'] ?? '')==='personal')?'selected':''; ?>><?php echo __('personal'); ?></option>
+                                <option value="emergency" <?php echo (($_POST['leave_type'] ?? '')==='emergency')?'selected':''; ?>><?php echo __('emergency'); ?></option>
+                                <option value="unpaid" <?php echo (($_POST['leave_type'] ?? '')==='unpaid')?'selected':''; ?>><?php echo __('unpaid'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -126,26 +126,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="start_date" class="form-label">Start Date *</label>
+                            <label for="start_date" class="form-label"><?php echo __('start_date'); ?> *</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo htmlspecialchars($_POST['start_date'] ?? date('Y-m-01')); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="end_date" class="form-label">End Date *</label>
+                            <label for="end_date" class="form-label"><?php echo __('end_date'); ?> *</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo htmlspecialchars($_POST['end_date'] ?? date('Y-m-d')); ?>" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">Reason</label>
+                    <label for="notes" class="form-label"><?php echo __('reason'); ?></label>
                     <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Add Leave
+                        <i class="fas fa-save"></i> <?php echo __('add_leave'); ?>
                     </button>
                 </div>
             </form>

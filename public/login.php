@@ -293,15 +293,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="icon-large">
                         <i class="fas fa-hard-hat"></i>
                     </div>
-                    <h2 class="mb-4">Construction Management System</h2>
-                    <p class="mb-4">Streamline your construction operations with our comprehensive management platform.</p>
+                    <h2 class="mb-4"><?php echo __('construction_management_system'); ?></h2>
+                    <p class="mb-4"><?php echo __('streamline_your_construction_operations_with_our_comprehensive_management_platform'); ?></p>
                     
                     <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> Employee & Machine Management</li>
-                        <li><i class="fas fa-check"></i> Contract & Project Tracking</li>
-                        <li><i class="fas fa-check"></i> Financial Reporting</li>
-                        <li><i class="fas fa-check"></i> Real-time Analytics</li>
-                        <li><i class="fas fa-check"></i> Multi-tenant Architecture</li>
+                        <li><i class="fas fa-check"></i> <?php echo __('employee_machine_management'); ?></li>
+                        <li><i class="fas fa-check"></i> <?php echo __('contract_project_tracking'); ?></li>
+                        <li><i class="fas fa-check"></i> <?php echo __('financial_reporting'); ?></li>
+                        <li><i class="fas fa-check"></i> <?php echo __('real_time_analytics'); ?></li>
+                        <li><i class="fas fa-check"></i> <?php echo __('multi_tenant_architecture'); ?></li>
                     </ul>
                 </div>
             </div>
@@ -310,8 +310,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-7">
                 <div class="login-form">
                     <div class="text-center mb-4">
-                        <h3 class="text-dark mb-2">Welcome Back!</h3>
-                        <p class="text-muted">Sign in to your account to continue</p>
+                        <h3 class="text-dark mb-2"><?php echo __('welcome_back'); ?></h3>
+                        <p class="text-muted"><?php echo __('sign_in_to_your_account_to_continue'); ?></p>
                     </div>
 
                     <?php if ($error): ?>
@@ -323,25 +323,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <form method="POST" id="loginForm">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
+                            <label for="email" class="form-label"><?php echo __('email_address'); ?></label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-envelope"></i>
                                 </span>
                                 <input type="email" class="form-control" id="email" name="email" 
                                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" 
-                                       placeholder="Enter your email" required>
+                                       placeholder="<?php echo __('enter_your_email'); ?>" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label"><?php echo __('password'); ?></label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-lock"></i>
                                 </span>
                                 <input type="password" class="form-control" id="password" name="password" 
-                                       placeholder="Enter your password" required>
+                                       placeholder="<?php echo __('enter_your_password'); ?>" required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -351,31 +351,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
                             <label class="form-check-label" for="remember_me">
-                                Remember me
+                                <?php echo __('remember_me'); ?>
                             </label>
                         </div>
 
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-sign-in-alt me-2"></i>
-                                Sign In
+                                <?php echo __('sign_in'); ?>
                             </button>
                         </div>
                     </form>
 
                     <div class="text-center mt-4">
                         <p class="text-muted">
-                            <a href="#" class="text-decoration-none">Forgot your password?</a>
+                            <a href="#" class="text-decoration-none"><?php echo __('forgot_your_password'); ?></a>
                         </p>
                         <p class="text-muted">
-                            Don't have an account? 
-                            <a href="#" class="text-decoration-none">Contact your administrator</a>
+                            <?php echo __('dont_have_an_account'); ?> 
+                            <a href="#" class="text-decoration-none"><?php echo __('contact_your_administrator'); ?></a>
                         </p>
                     </div>
 
                     <div class="text-center mt-4">
                         <small class="text-muted">
-                            &copy; 2024 Construction Management System. All rights reserved.
+                            &copy; 2024 <?php echo __('construction_management_system'); ?>. <?php echo __('all_rights_reserved'); ?>
                         </small>
                     </div>
                 </div>
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!email || !password) {
                     e.preventDefault();
-                    alert('Please fill in all required fields.');
+                    alert('<?php echo __('please_fill_in_all_required_fields'); ?>');
                 }
             });
 

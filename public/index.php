@@ -778,19 +778,19 @@ $current_settings = [
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#home">Home</a>
+                        <a class="nav-link" href="#home"><?php echo __('home'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#features">Features</a>
+                        <a class="nav-link" href="#features"><?php echo __('features'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#pricing">Pricing</a>
+                        <a class="nav-link" href="#pricing"><?php echo __('pricing'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#testimonials">Testimonials</a>
+                        <a class="nav-link" href="#testimonials"><?php echo __('testimonials'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
+                        <a class="nav-link" href="#contact"><?php echo __('contact'); ?></a>
                     </li>
                 </ul>
                 
@@ -1111,8 +1111,8 @@ $current_settings = [
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">What Our Clients Say</h2>
-                    <p class="lead text-muted">Real feedback from construction professionals</p>
+                    <h2 class="display-4 fw-bold mb-4"><?php echo __('what_our_clients_say'); ?></h2>
+                    <p class="lead text-muted"><?php echo __('real_feedback_from_construction_professionals'); ?></p>
                 </div>
             </div>
             
@@ -1177,7 +1177,7 @@ $current_settings = [
             <?php if (isset($_GET['contact']) && $_GET['contact'] === 'success'): ?>
                 <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
-                    Thank you for your message! We'll get back to you soon.
+                    <?php echo __('thank_you_for_your_message'); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php elseif (isset($_GET['contact']) && $_GET['contact'] === 'error'): ?>
@@ -1190,8 +1190,8 @@ $current_settings = [
             
             <div class="row text-center mb-5">
                 <div class="col-12" data-aos="fade-up">
-                    <h2 class="display-4 fw-bold mb-4">Get In Touch</h2>
-                    <p class="lead text-muted">Ready to transform your construction business? Contact us today!</p>
+                    <h2 class="display-4 fw-bold mb-4"><?php echo __('get_in_touch'); ?></h2>
+                    <p class="lead text-muted"><?php echo __('ready_to_transform_your_construction_business'); ?> <?php echo __('contact_us_today'); ?></p>
                 </div>
             </div>
             
@@ -1199,14 +1199,14 @@ $current_settings = [
                 <!-- Contact Information -->
                 <div class="col-lg-4" data-aos="fade-right">
                     <div class="contact-info">
-                        <h4 class="mb-4">Contact Information</h4>
+                        <h4 class="mb-4"><?php echo __('contact_information'); ?></h4>
                         
                         <div class="contact-item mb-3">
                             <div class="contact-icon">
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
                             <div class="contact-details">
-                                <h6>Address</h6>
+                                <h6><?php echo __('address'); ?></h6>
                                 <p><?php echo htmlspecialchars($current_settings['contact_address'] ?? '123 Construction Street, Building City, BC 12345'); ?></p>
                             </div>
                         </div>
@@ -1216,7 +1216,7 @@ $current_settings = [
                                 <i class="fas fa-phone"></i>
                             </div>
                             <div class="contact-details">
-                                <h6>Phone</h6>
+                                <h6><?php echo __('phone'); ?></h6>
                                 <p><?php echo htmlspecialchars($current_settings['contact_phone'] ?? '+1 (555) 123-4567'); ?></p>
                             </div>
                         </div>
@@ -1226,7 +1226,7 @@ $current_settings = [
                                 <i class="fas fa-envelope"></i>
                             </div>
                             <div class="contact-details">
-                                <h6>Email</h6>
+                                <h6><?php echo __('email'); ?></h6>
                                 <p><?php echo htmlspecialchars($current_settings['contact_email'] ?? 'info@constructionsaas.com'); ?></p>
                             </div>
                         </div>
@@ -1236,14 +1236,14 @@ $current_settings = [
                                 <i class="fas fa-globe"></i>
                             </div>
                             <div class="contact-details">
-                                <h6>Website</h6>
+                                <h6><?php echo __('website'); ?></h6>
                                 <p><?php echo htmlspecialchars($current_settings['contact_website'] ?? 'www.constructionsaas.com'); ?></p>
                             </div>
                         </div>
                         
                         <!-- Social Media Links -->
                         <div class="social-links">
-                            <h6 class="mb-3">Follow Us</h6>
+                            <h6 class="mb-3"><?php echo __('follow_us'); ?></h6>
                             <div class="d-flex gap-3">
                                 <?php if (!empty($current_settings['contact_facebook'])): ?>
                                 <a href="<?php echo htmlspecialchars($current_settings['contact_facebook']); ?>" class="social-link" target="_blank">
@@ -1276,18 +1276,18 @@ $current_settings = [
                 <!-- Contact Form -->
                 <div class="col-lg-8" data-aos="fade-left">
                     <div class="contact-form">
-                        <h4 class="mb-4">Send us a Message</h4>
+                        <h4 class="mb-4"><?php echo __('send_us_a_message'); ?></h4>
                         <form id="contactForm" method="POST" action="../api/contact-submit.php">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="name" class="form-label">Full Name *</label>
+                                        <label for="name" class="form-label"><?php echo __('full_name'); ?> *</label>
                                         <input type="text" class="form-control" id="name" name="name" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email Address *</label>
+                                        <label for="email" class="form-label"><?php echo __('email_address'); ?> *</label>
                                         <input type="email" class="form-control" id="email" name="email" required>
                                     </div>
                                 </div>
@@ -1296,37 +1296,37 @@ $current_settings = [
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <label for="phone" class="form-label"><?php echo __('phone_number'); ?></label>
                                         <input type="tel" class="form-control" id="phone" name="phone">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="company" class="form-label">Company Name</label>
+                                        <label for="company" class="form-label"><?php echo __('company_name'); ?></label>
                                         <input type="text" class="form-control" id="company" name="company">
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="subject" class="form-label">Subject *</label>
+                                <label for="subject" class="form-label"><?php echo __('subject'); ?> *</label>
                                 <select class="form-control" id="subject" name="subject" required>
-                                    <option value="">Select a subject</option>
-                                    <option value="general">General Inquiry</option>
-                                    <option value="pricing">Pricing Information</option>
-                                    <option value="demo">Request Demo</option>
-                                    <option value="support">Technical Support</option>
-                                    <option value="partnership">Partnership</option>
+                                    <option value=""><?php echo __('select_a_subject'); ?></option>
+                                    <option value="general"><?php echo __('general_inquiry'); ?></option>
+                                    <option value="pricing"><?php echo __('pricing_information'); ?></option>
+                                    <option value="demo"><?php echo __('request_demo'); ?></option>
+                                    <option value="support"><?php echo __('technical_support'); ?></option>
+                                    <option value="partnership"><?php echo __('partnership'); ?></option>
                                 </select>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="message" class="form-label">Message *</label>
+                                <label for="message" class="form-label"><?php echo __('message'); ?> *</label>
                                 <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
                             </div>
                             
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                                <i class="fas fa-paper-plane me-2"></i><?php echo __('send_message'); ?>
                             </button>
                         </form>
                     </div>
@@ -1340,8 +1340,8 @@ $current_settings = [
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3">Construction SaaS Platform</h5>
-                    <p class="text-muted">Advanced construction management solution for modern construction companies.</p>
+                    <h5 class="mb-3"><?php echo __('construction_saas_platform'); ?></h5>
+                    <p class="text-muted"><?php echo __('advanced_construction_management_solution_for_modern_construction_companies'); ?></p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
@@ -1351,42 +1351,42 @@ $current_settings = [
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Features</h6>
+                    <h6 class="mb-3"><?php echo __('features'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Employee Management</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Machine Management</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Contract Management</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Financial Analytics</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('employee_management'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('machine_management'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('contract_management'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('financial_analytics'); ?></a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Company</h6>
+                    <h6 class="mb-3"><?php echo __('company'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">About Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Support</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('about_us'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('careers'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('contact'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('support'); ?></a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Resources</h6>
+                    <h6 class="mb-3"><?php echo __('resources'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Documentation</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">API Reference</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Help Center</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('documentation'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('api_reference'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('blog'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('help_center'); ?></a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="mb-3">Legal</h6>
+                    <h6 class="mb-3"><?php echo __('legal'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Privacy Policy</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Terms of Service</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Cookie Policy</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">GDPR</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('privacy_policy'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('terms_of_service'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('cookie_policy'); ?></a></li>
+                        <li><a href="#" class="text-muted text-decoration-none"><?php echo __('gdpr'); ?></a></li>
                     </ul>
                 </div>
             </div>
@@ -1395,10 +1395,10 @@ $current_settings = [
             
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0 text-muted">&copy; 2024 Construction SaaS Platform. All rights reserved.</p>
+                    <p class="mb-0 text-muted">&copy; 2024 <?php echo __('construction_saas_platform'); ?>. <?php echo __('all_rights_reserved'); ?></p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">Made with <i class="fas fa-heart text-danger"></i> for construction professionals</p>
+                    <p class="mb-0 text-muted"><?php echo __('made_with'); ?> <i class="fas fa-heart text-danger"></i> <?php echo __('for_construction_professionals'); ?></p>
                 </div>
             </div>
         </div>

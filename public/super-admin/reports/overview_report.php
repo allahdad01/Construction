@@ -33,15 +33,15 @@ try {
 } catch (Exception $e) {}
 ?>
 <div class="card shadow mb-4">
-  <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Overview</h6></div>
+  <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary"><?php echo __('overview'); ?></h6></div>
   <div class="card-body">
     <div class="row">
-      <div class="col-md-3 mb-3"><div class="card border-left-primary h-100"><div class="card-body"><div class="text-xs text-primary text-uppercase mb-1">Companies</div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['companies']; ?></div></div></div></div>
-      <div class="col-md-3 mb-3"><div class="card border-left-success h-100"><div class="card-body"><div class="text-xs text-success text-uppercase mb-1">Active</div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['active_companies']; ?></div></div></div></div>
-      <div class="col-md-3 mb-3"><div class="card border-left-warning h-100"><div class="card-body"><div class="text-xs text-warning text-uppercase mb-1">Trial</div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['trial_companies']; ?></div></div></div></div>
-      <div class="col-md-3 mb-3"><div class="card border-left-info h-100"><div class="card-body"><div class="text-xs text-info text-uppercase mb-1">Users</div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['users']; ?></div></div></div></div>
+      <div class="col-md-3 mb-3"><div class="card border-left-primary h-100"><div class="card-body"><div class="text-xs text-primary text-uppercase mb-1"><?php echo __('companies'); ?></div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['companies']; ?></div></div></div></div>
+      <div class="col-md-3 mb-3"><div class="card border-left-success h-100"><div class="card-body"><div class="text-xs text-success text-uppercase mb-1"><?php echo __('active'); ?></div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['active_companies']; ?></div></div></div></div>
+      <div class="col-md-3 mb-3"><div class="card border-left-warning h-100"><div class="card-body"><div class="text-xs text-warning text-uppercase mb-1"><?php echo __('trial'); ?></div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['trial_companies']; ?></div></div></div></div>
+      <div class="col-md-3 mb-3"><div class="card border-left-info h-100"><div class="card-body"><div class="text-xs text-info text-uppercase mb-1"><?php echo __('users'); ?></div><div class="h5 mb-0 fw-bold text-gray-800"><?php echo $overview['users']; ?></div></div></div></div>
     </div>
-    <h6 class="mt-3">Monthly Revenue</h6>
+    <h6 class="mt-3"><?php echo __('monthly_revenue'); ?></h6>
     <?php if (!empty($overview['monthly_revenue'])): ?>
       <div>
         <?php foreach ($overview['monthly_revenue'] as $i=>$r): ?>
@@ -49,7 +49,7 @@ try {
         <?php endforeach; ?>
       </div>
     <?php else: ?>
-      <div class="text-muted small">No payments in selected range</div>
+      <div class="text-muted small"><?php echo __('no_payments_in_selected_range'); ?></div>
     <?php endif; ?>
   </div>
 </div>

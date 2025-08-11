@@ -70,10 +70,10 @@ require_once '../../../includes/header.php';
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Delete Contract Payment</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('delete_contract_payment'); ?></h1>
         <div>
             <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Timesheet
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?>
             </a>
         </div>
     </div>
@@ -81,26 +81,26 @@ require_once '../../../includes/header.php';
     <!-- Payment Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-danger">Payment to be Deleted</h6>
+            <h6 class="m-0 font-weight-bold text-danger"><?php echo __('payment_to_be_deleted'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract:</strong></td>
+                            <td><strong><?php echo __('contract'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['contract_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Project:</strong></td>
+                            <td><strong><?php echo __('project'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['project_name'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Payment Code:</strong></td>
+                            <td><strong><?php echo __('payment_code'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['payment_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Payment Date:</strong></td>
+                            <td><strong><?php echo __('payment_date'); ?>:</strong></td>
                             <td><?php echo date('M j, Y', strtotime($payment['payment_date'])); ?></td>
                         </tr>
                     </table>
@@ -108,11 +108,11 @@ require_once '../../../includes/header.php';
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Amount:</strong></td>
+                            <td><strong><?php echo __('amount'); ?>:</strong></td>
                             <td><strong class="text-danger"><?php echo formatCurrencyAmount($payment['amount'], $contract_currency); ?></strong></td>
                         </tr>
                         <tr>
-                            <td><strong>Payment Method:</strong></td>
+                            <td><strong><?php echo __('payment_method'); ?>:</strong></td>
                             <td>
                                 <span class="badge <?php echo $payment['payment_method'] === 'credit_card' ? 'bg-primary' : 'bg-success'; ?>">
                                     <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'])); ?>
@@ -120,11 +120,11 @@ require_once '../../../includes/header.php';
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Reference:</strong></td>
+                            <td><strong><?php echo __('reference'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['reference_number'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Status:</strong></td>
+                            <td><strong><?php echo __('status'); ?>:</strong></td>
                             <td>
                                 <span class="badge <?php echo $payment['status'] === 'completed' ? 'bg-success' : 'bg-warning'; ?>">
                                     <?php echo ucfirst($payment['status']); ?>
@@ -137,7 +137,7 @@ require_once '../../../includes/header.php';
             
             <?php if (!empty($payment['notes'])): ?>
             <div class="mt-3">
-                <strong>Notes:</strong>
+                <strong><?php echo __('notes'); ?>:</strong>
                 <p class="mt-2 p-3 bg-light border rounded"><?php echo nl2br(htmlspecialchars($payment['notes'])); ?></p>
             </div>
             <?php endif; ?>
@@ -148,7 +148,7 @@ require_once '../../../includes/header.php';
     <div class="card shadow border-danger">
         <div class="card-header py-3 bg-danger text-white">
             <h6 class="m-0 font-weight-bold">
-                <i class="fas fa-exclamation-triangle"></i> Confirm Payment Deletion
+                <i class="fas fa-exclamation-triangle"></i> <?php echo __('confirm_payment_deletion'); ?>
             </h6>
         </div>
         <div class="card-body">
@@ -159,15 +159,15 @@ require_once '../../../includes/header.php';
             <?php endif; ?>
 
             <div class="alert alert-warning" role="alert">
-                <h5><i class="fas fa-exclamation-triangle"></i> Warning!</h5>
-                <p><strong>This action cannot be undone.</strong> Deleting this payment will:</p>
+                <h5><i class="fas fa-exclamation-triangle"></i> <?php echo __('warning'); ?>!</h5>
+                <p><strong><?php echo __('this_action_cannot_be_undone'); ?>.</strong> <?php echo __('deleting_this_payment_will'); ?>:</p>
                 <ul>
-                    <li>Permanently remove the payment record from the database</li>
-                    <li>Update contract financial calculations and totals</li>
-                    <li>Affect payment history and reporting</li>
-                    <li>Impact the remaining balance calculations</li>
+                    <li><?php echo __('permanently_remove_the_payment_record_from_the_database'); ?></li>
+                    <li><?php echo __('update_contract_financial_calculations_and_totals'); ?></li>
+                    <li><?php echo __('affect_payment_history_and_reporting'); ?></li>
+                    <li><?php echo __('impact_the_remaining_balance_calculations'); ?></li>
                 </ul>
-                <p class="mb-0"><strong>Are you absolutely sure you want to delete this payment?</strong></p>
+                <p class="mb-0"><strong><?php echo __('are_you_absolutely_sure_you_want_to_delete_this_payment'); ?>?</strong></p>
             </div>
 
             <form method="POST">
@@ -175,26 +175,26 @@ require_once '../../../includes/header.php';
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="confirm_delete" name="confirm_delete" value="yes" required>
                         <label class="form-check-label" for="confirm_delete">
-                            <strong>Yes, I understand the consequences and want to delete this payment</strong>
+                            <strong><?php echo __('yes_i_understand_the_consequences_and_want_to_delete_this_payment'); ?></strong>
                         </label>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="confirm_text" class="form-label">
-                        <strong>Type "DELETE" to confirm:</strong>
+                        <strong><?php echo __('type_delete_to_confirm'); ?>:</strong>
                     </label>
                     <input type="text" class="form-control" id="confirm_text" name="confirm_text" 
-                           placeholder="Type DELETE to confirm" required>
-                    <small class="form-text text-muted">This field is case-sensitive. You must type exactly "DELETE".</small>
+                           placeholder="<?php echo __('type_delete_to_confirm'); ?>" required>
+                    <small class="form-text text-muted"><?php echo __('this_field_is_case_sensitive_you_must_type_exactly_delete'); ?></small>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                        <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                     </a>
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete Payment
+                        <i class="fas fa-trash"></i> <?php echo __('delete_payment'); ?>
                     </button>
                 </div>
             </form>
@@ -233,11 +233,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (confirmText.value !== 'DELETE') {
             e.preventDefault();
-            alert('Please type "DELETE" exactly to confirm the deletion.');
+            alert('<?php echo __('please_type_delete_exactly_to_confirm_the_deletion'); ?>.');
             return false;
         }
         
-        if (!confirm('This will permanently delete the payment. Are you absolutely sure?')) {
+        if (!confirm('<?php echo __('this_will_permanently_delete_the_payment_are_you_absolutely_sure'); ?>')) {
             e.preventDefault();
             return false;
         }

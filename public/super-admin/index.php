@@ -354,14 +354,14 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <li><strong><?php echo __('active_companies'); ?>:</strong> <?php echo $active_companies; ?></li>
                                 <li><strong><?php echo __('trial_companies'); ?>:</strong> <?php echo $trial_companies; ?></li>
                                 <li><strong><?php echo __('monthly_revenue'); ?>:</strong>
-<?php if (!empty($monthly_revenue_labels)): ?>
-  <?php foreach ($monthly_revenue_labels as $i => $lbl): ?>
-    <span class="<?php echo $i>0?'ms-2 small':''; ?>"><?php echo $lbl; ?></span>
-  <?php endforeach; ?>
-<?php else: ?>
-  <span class="text-muted small"><?php echo __('no_payments_found') ?? 'No payments'; ?></span>
-<?php endif; ?>
-</li>
+                                <?php if (!empty($monthly_revenue_labels)): ?>
+                                <?php foreach ($monthly_revenue_labels as $i => $lbl): ?>
+                                    <span class="<?php echo $i>0?'ms-2 small':''; ?>"><?php echo $lbl; ?></span>
+                                <?php endforeach; ?>
+                                <?php else: ?>
+                                <span class="text-muted small"><?php echo __('no_payments_found') ?? 'No payments'; ?></span>
+                                <?php endif; ?>
+                                </li>
                             </ul>
                         </div>
                         <div class="col-md-6">

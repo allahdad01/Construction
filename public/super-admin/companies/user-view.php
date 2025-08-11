@@ -52,14 +52,14 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user"></i> User Details
+            <i class="fas fa-user"></i> <?php echo __('user_details'); ?>
         </h1>
         <div>
             <a href="users.php?company_id=<?php echo $company_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Users
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_users'); ?>
             </a>
             <a href="user-edit.php?id=<?php echo $user_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit"></i> Edit User
+                <i class="fas fa-edit"></i> <?php echo __('edit_user'); ?>
             </a>
         </div>
     </div>
@@ -69,33 +69,33 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- User Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">User Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('user_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Full Name</label>
+                                <label class="form-label fw-bold"><?php echo __('full_name'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Email</label>
+                                <label class="form-label fw-bold"><?php echo __('email'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($user['email']); ?></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Username</label>
+                                <label class="form-label fw-bold"><?php echo __('username'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($user['username'] ?? 'N/A'); ?></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Phone</label>
+                                <label class="form-label fw-bold"><?php echo __('phone'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($user['phone'] ?? 'N/A'); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Role</label>
+                                <label class="form-label fw-bold"><?php echo __('role'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge <?php 
                                         echo $user['role'] === 'company_admin' ? 'bg-danger' : 
@@ -106,7 +106,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Status</label>
+                                <label class="form-label fw-bold"><?php echo __('status'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge <?php 
                                         echo $user['status'] === 'active' ? 'bg-success' : 
@@ -117,13 +117,13 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Company</label>
+                                <label class="form-label fw-bold"><?php echo __('company'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($company['company_name']); ?></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Last Login</label>
+                                <label class="form-label fw-bold"><?php echo __('last_login'); ?></label>
                                 <p class="form-control-plaintext">
-                                    <?php echo $user['last_login'] ? formatDateTime($user['last_login']) : 'Never'; ?>
+                                    <?php echo $user['last_login'] ? formatDateTime($user['last_login']) : __('never'); ?>
                                 </p>
                             </div>
                         </div>
@@ -132,13 +132,13 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Created At</label>
+                                    <label class="form-label fw-bold"><?php echo __('created_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($user['created_at']); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Updated At</label>
+                                <label class="form-label fw-bold"><?php echo __('updated_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($user['updated_at']); ?></p>
                             </div>
                         </div>
@@ -149,11 +149,11 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- User Activity -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_activity'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($activities)): ?>
-                        <p class="text-muted">No recent activity found.</p>
+                        <p class="text-muted"><?php echo __('no_recent_activity_found'); ?></p>
                     <?php else: ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($activities as $activity): ?>
@@ -175,26 +175,26 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="user-edit.php?id=<?php echo $user_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit User
+                            <i class="fas fa-edit"></i> <?php echo __('edit_user'); ?>
                         </a>
                         <?php if ($user['status'] === 'active'): ?>
                             <a href="user-suspend.php?id=<?php echo $user_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-danger"
                                onclick="return confirm('Are you sure you want to suspend this user?')">
-                                <i class="fas fa-pause"></i> Suspend User
+                                <i class="fas fa-pause"></i> <?php echo __('suspend_user'); ?>
                             </a>
                         <?php else: ?>
                             <a href="user-activate.php?id=<?php echo $user_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-success"
                                onclick="return confirm('Are you sure you want to activate this user?')">
-                                <i class="fas fa-play"></i> Activate User
+                                <i class="fas fa-play"></i> <?php echo __('activate_user'); ?>
                             </a>
                         <?php endif; ?>
                         <a href="users.php?company_id=<?php echo $company_id; ?>" class="btn btn-secondary">
-                            <i class="fas fa-list"></i> Back to Users
+                            <i class="fas fa-list"></i> <?php echo __('back_to_users'); ?>
                         </a>
                     </div>
                 </div>
@@ -203,21 +203,21 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- User Statistics -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">User Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('user_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6">
                             <div class="border-end">
-                                <h4 class="text-primary"><?php echo $user['role'] === 'company_admin' ? 'Admin' : 'User'; ?></h4>
-                                <small class="text-muted">Role</small>
+                                <h4 class="text-primary"><?php echo $user['role'] === 'company_admin' ? __('admin') : __('user'); ?></h4>
+                                <small class="text-muted"><?php echo __('role'); ?></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <h4 class="<?php echo $user['status'] === 'active' ? 'text-success' : 'text-danger'; ?>">
                                 <?php echo ucfirst($user['status']); ?>
                             </h4>
-                            <small class="text-muted">Status</small>
+                            <small class="text-muted"><?php echo __('status'); ?></small>
                         </div>
                     </div>
                 </div>

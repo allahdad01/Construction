@@ -163,9 +163,9 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Machine Management</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('machine_management'); ?></h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add Machine
+            <i class="fas fa-plus"></i> <?php echo __('add_machine'); ?>
         </a>
     </div>
 
@@ -479,7 +479,7 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                             <i class="fas fa-tools"></i> <?php echo __('maintenance_schedule'); ?>
                         </a>
                         <a href="reports/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-chart-bar"></i> Machine Reports
+                            <i class="fas fa-chart-bar"></i> <?php echo __('machine_reports'); ?>
                         </a>
                     </div>
                 </div>
@@ -489,7 +489,7 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">

@@ -119,14 +119,14 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Financial Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('financial_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
-                                    <td><strong>Total Revenue</strong></td>
+                                    <td><strong><?php echo __('total_revenue'); ?></strong></td>
                                     <td class="text-success">
                                         <?php 
                                         if ($is_super_admin) {
@@ -153,7 +153,7 @@ try {
                                 </tr>
                                 <?php if (!$is_super_admin): ?>
                                 <tr>
-                                    <td><strong>Total Expenses</strong></td>
+                                    <td><strong><?php echo __('total_expenses'); ?></strong></td>
                                     <td class="text-danger">
                                         <?php 
                                         $totals = [];
@@ -173,7 +173,7 @@ try {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Salary Payments</strong></td>
+                                    <td><strong><?php echo __('salary_payments'); ?></strong></td>
                                     <td class="text-warning">
                                         <?php 
                                         $totals = [];
@@ -193,7 +193,7 @@ try {
                                     </td>
                                 </tr>
                                 <tr class="table-info">
-                                    <td><strong>Net Profit</strong></td>
+                                    <td><strong><?php echo __('net_profit'); ?></strong></td>
                                     <td class="text-primary">
                                         <?php 
                                         // Compute net profit per currency (revenue - expenses - salary)
@@ -237,19 +237,19 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Revenue Breakdown</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('revenue_breakdown'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if ($is_super_admin): ?>
                         <!-- Subscription Revenue -->
-                        <h6>Subscription Revenue</h6>
+                        <h6><?php echo __('subscription_revenue'); ?></h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Plan</th>
-                                        <th>Subscribers</th>
-                                        <th>Revenue</th>
+                                        <th><?php echo __('plan'); ?></th>
+                                        <th><?php echo __('subscribers'); ?></th>
+                                        <th><?php echo __('revenue'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -265,14 +265,14 @@ try {
                         </div>
                     <?php else: ?>
                         <!-- Contract Revenue -->
-                        <h6>Contract Revenue</h6>
+                        <h6><?php echo __('contract_revenue'); ?></h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Contract Type</th>
-                                        <th>Active Contracts</th>
-                                        <th>Revenue</th>
+                                        <th><?php echo __('contract_type'); ?></th>
+                                        <th><?php echo __('active_contracts'); ?></th>
+                                        <th><?php echo __('revenue'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -308,7 +308,7 @@ try {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Revenue Trend</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('revenue_trend'); ?></h6>
                 </div>
                 <div class="card-body">
                     <canvas id="financialTrendChart" height="100"></canvas>
@@ -320,7 +320,7 @@ try {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Expense Breakdown</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('expense_breakdown'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!$is_super_admin): ?>
@@ -347,7 +347,7 @@ try {
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">System-wide expense data not available</p>
+                        <p class="text-muted"><?php echo __('system_wide_expense_data_not_available'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -359,18 +359,18 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_transactions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Type</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
+                                    <th><?php echo __('date'); ?></th>
+                                    <th><?php echo __('description'); ?></th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('amount'); ?></th>
+                                    <th><?php echo __('status'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -226,15 +226,15 @@ foreach ($companies as &$company) {
                                     <td>
                                         <div class="row">
                                             <div class="col-4">
-                                                <small class="text-muted">Users</small><br>
+                                                <small class="text-muted"><?php echo __('users'); ?></small><br>
                                                 <strong><?php echo $company['user_count']; ?></strong>
                                             </div>
                                             <div class="col-4">
-                                                <small class="text-muted">Employees</small><br>
+                                                <small class="text-muted"><?php echo __('employees'); ?></small><br>
                                                 <strong><?php echo $company['employee_count']; ?></strong>
                                             </div>
                                             <div class="col-4">
-                                                <small class="text-muted">Machines</small><br>
+                                                <small class="text-muted"><?php echo __('machines'); ?></small><br>
                                                 <strong><?php echo $company['machine_count']; ?></strong>
                                             </div>
                                         </div>
@@ -249,7 +249,7 @@ foreach ($companies as &$company) {
                                         </span>
                                         <?php if ($company['subscription_status'] === 'trial' && $company['trial_ends_at']): ?>
                                             <br><small class="text-muted">
-                                                Trial ends: <?php echo formatDate($company['trial_ends_at']); ?>
+                                                <?php echo __('trial_ends'); ?>: <?php echo formatDate($company['trial_ends_at']); ?>
                                             </small>
                                         <?php endif; ?>
                                     </td>
@@ -300,7 +300,7 @@ foreach ($companies as &$company) {
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&plan=<?php echo urlencode($plan_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -316,7 +316,7 @@ foreach ($companies as &$company) {
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&plan=<?php echo urlencode($plan_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -433,7 +433,7 @@ foreach ($companies as &$company) {
                                 } elseif ($total_revenue_afn > 0) {
                                     echo formatCurrencyAmount($total_revenue_afn, 'AFN');
                                 } else {
-                                    echo 'No revenue';
+                                    echo __('no_revenue');
                                 }
                                 ?>
                             </div>

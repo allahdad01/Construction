@@ -98,10 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Contract Payment</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('edit_contract_payment'); ?></h1>
         <div>
             <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Timesheet
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?>
             </a>
         </div>
     </div>
@@ -109,22 +109,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Contract Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Payment Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_information'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract:</strong></td>
+                            <td><strong><?php echo __('contract'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['contract_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Project:</strong></td>
+                            <td><strong><?php echo __('project'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['project_name'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Payment Code:</strong></td>
+                            <td><strong><?php echo __('payment_code'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($payment['payment_code']); ?></td>
                         </tr>
                     </table>
@@ -132,17 +132,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Currency:</strong></td>
+                            <td><strong><?php echo __('currency'); ?>:</strong></td>
                             <td>
                                 <span class="badge bg-info"><?php echo getCurrencyDisplay($contract_currency); ?></span>
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Created:</strong></td>
+                            <td><strong><?php echo __('created'); ?>:</strong></td>
                             <td><?php echo date('M j, Y \a\t g:i A', strtotime($payment['created_at'])); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Last Updated:</strong></td>
+                            <td><strong><?php echo __('last_updated'); ?>:</strong></td>
                             <td><?php echo date('M j, Y \a\t g:i A', strtotime($payment['updated_at'])); ?></td>
                         </tr>
                     </table>
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Edit Payment Form -->
     <div class="card shadow">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Payment Details</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_payment_details'); ?></h6>
         </div>
         <div class="card-body">
             <?php if ($error): ?>
@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="payment_date" class="form-label">Payment Date <span class="text-danger">*</span></label>
+                            <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="payment_date" name="payment_date" 
                                    value="<?php echo htmlspecialchars($payment['payment_date']); ?>" required>
                         </div>
@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="amount" class="form-label">
-                                Amount (<?php echo getCurrencySymbol($contract_currency); ?>) <span class="text-danger">*</span>
+                                <?php echo __('amount'); ?> (<?php echo getCurrencySymbol($contract_currency); ?>) <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text"><?php echo getCurrencySymbol($contract_currency); ?></span>
@@ -195,22 +195,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="payment_method" class="form-label">Payment Method <span class="text-danger">*</span></label>
+                            <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?> <span class="text-danger">*</span></label>
                             <select class="form-select" id="payment_method" name="payment_method" required>
-                                <option value="">Select Payment Method</option>
-                                <option value="cash" <?php echo $payment['payment_method'] === 'cash' ? 'selected' : ''; ?>>Cash</option>
-                                <option value="bank_transfer" <?php echo $payment['payment_method'] === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
-                                <option value="credit_card" <?php echo $payment['payment_method'] === 'credit_card' ? 'selected' : ''; ?>>Credit Card</option>
-                                <option value="debit_card" <?php echo $payment['payment_method'] === 'debit_card' ? 'selected' : ''; ?>>Debit Card</option>
-                                <option value="check" <?php echo $payment['payment_method'] === 'check' ? 'selected' : ''; ?>>Check</option>
-                                <option value="mobile_payment" <?php echo $payment['payment_method'] === 'mobile_payment' ? 'selected' : ''; ?>>Mobile Payment</option>
-                                <option value="online_payment" <?php echo $payment['payment_method'] === 'online_payment' ? 'selected' : ''; ?>>Online Payment</option>
+                                <option value=""><?php echo __('select_payment_method'); ?></option>
+                                <option value="cash" <?php echo $payment['payment_method'] === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
+                                <option value="bank_transfer" <?php echo $payment['payment_method'] === 'bank_transfer' ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
+                                <option value="credit_card" <?php echo $payment['payment_method'] === 'credit_card' ? 'selected' : ''; ?>><?php echo __('credit_card'); ?></option>
+                                <option value="debit_card" <?php echo $payment['payment_method'] === 'debit_card' ? 'selected' : ''; ?>><?php echo __('debit_card'); ?></option>
+                                <option value="check" <?php echo $payment['payment_method'] === 'check' ? 'selected' : ''; ?>><?php echo __('check'); ?></option>
+                                <option value="mobile_payment" <?php echo $payment['payment_method'] === 'mobile_payment' ? 'selected' : ''; ?>><?php echo __('mobile_payment'); ?></option>
+                                <option value="online_payment" <?php echo $payment['payment_method'] === 'online_payment' ? 'selected' : ''; ?>><?php echo __('online_payment'); ?></option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <label for="reference_number" class="form-label"><?php echo __('reference_number'); ?></label>
                             <input type="text" class="form-control" id="reference_number" name="reference_number" 
                                    value="<?php echo htmlspecialchars($payment['reference_number'] ?? ''); ?>"
                                    placeholder="Transaction ID, Check number, etc.">
@@ -221,29 +221,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                            <label for="status" class="form-label"><?php echo __('status'); ?> <span class="text-danger">*</span></label>
                             <select class="form-select" id="status" name="status" required>
-                                <option value="pending" <?php echo $payment['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                <option value="completed" <?php echo $payment['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                <option value="failed" <?php echo $payment['status'] === 'failed' ? 'selected' : ''; ?>>Failed</option>
-                                <option value="cancelled" <?php echo $payment['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                <option value="pending" <?php echo $payment['status'] === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                                <option value="completed" <?php echo $payment['status'] === 'completed' ? 'selected' : ''; ?>><?php echo __('completed'); ?></option>
+                                <option value="failed" <?php echo $payment['status'] === 'failed' ? 'selected' : ''; ?>><?php echo __('failed'); ?></option>
+                                <option value="cancelled" <?php echo $payment['status'] === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">Notes</label>
+                    <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
                     <textarea class="form-control" id="notes" name="notes" rows="3" 
                               placeholder="Additional notes about this payment"><?php echo htmlspecialchars($payment['notes'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                        <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Update Payment
+                        <i class="fas fa-save"></i> <?php echo __('update_payment'); ?>
                     </button>
                 </div>
             </form>

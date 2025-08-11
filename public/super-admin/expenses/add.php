@@ -94,10 +94,10 @@ function generateExpenseCode() {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-plus"></i> Add Expense
+            <i class="fas fa-plus"></i> <?php echo __('add_expense'); ?>
         </h1>
         <a href="index.php" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Expenses
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_expenses'); ?>
         </a>
     </div>
 
@@ -119,16 +119,16 @@ function generateExpenseCode() {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Expense Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('expense_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="expenseForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="expense_type" class="form-label">Expense Type *</label>
+                                    <label for="expense_type" class="form-label"><?php echo __('expense_type'); ?> *</label>
                                     <select class="form-control" id="expense_type" name="expense_type" required>
-                                        <option value="">Select Type</option>
+                                        <option value=""><?php echo __('select_type'); ?></option>
                                         <option value="office_supplies" <?php echo ($_POST['expense_type'] ?? '') === 'office_supplies' ? 'selected' : ''; ?>>Office Supplies</option>
                                         <option value="utilities" <?php echo ($_POST['expense_type'] ?? '') === 'utilities' ? 'selected' : ''; ?>>Utilities</option>
                                         <option value="rent" <?php echo ($_POST['expense_type'] ?? '') === 'rent' ? 'selected' : ''; ?>>Rent</option>
@@ -142,7 +142,7 @@ function generateExpenseCode() {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="amount" class="form-label">Amount *</label>
+                                    <label for="amount" class="form-label"><?php echo __('amount'); ?> *</label>
                                     <input type="number" class="form-control" id="amount" name="amount" 
                                            value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>" 
                                            step="0.01" min="0.01" required>
@@ -153,9 +153,9 @@ function generateExpenseCode() {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="currency" class="form-label">Currency *</label>
+                                    <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                                     <select class="form-control" id="currency" name="currency" required>
-                                        <option value="">Select Currency</option>
+                                        <option value=""><?php echo __('select_currency'); ?></option>
                                         <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
                                         <option value="AFN" <?php echo ($_POST['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
                                         <option value="EUR" <?php echo ($_POST['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
@@ -165,7 +165,7 @@ function generateExpenseCode() {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="expense_date" class="form-label">Expense Date *</label>
+                                    <label for="expense_date" class="form-label"><?php echo __('expense_date'); ?> *</label>
                                     <input type="date" class="form-control" id="expense_date" name="expense_date" 
                                            value="<?php echo htmlspecialchars($_POST['expense_date'] ?? date('Y-m-d')); ?>" 
                                            required>
@@ -174,7 +174,7 @@ function generateExpenseCode() {
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
+                            <label for="description" class="form-label"><?php echo __('description'); ?> *</label>
                             <input type="text" class="form-control" id="description" name="description" 
                                    value="<?php echo htmlspecialchars($_POST['description'] ?? ''); ?>" 
                                    placeholder="Brief description of the expense" required>
@@ -183,9 +183,9 @@ function generateExpenseCode() {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_method" class="form-label">Payment Method *</label>
+                                    <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?> *</label>
                                     <select class="form-control" id="payment_method" name="payment_method" required>
-                                        <option value="">Select Method</option>
+                                        <option value=""><?php echo __('select_method'); ?></option>
                                         <option value="cash" <?php echo ($_POST['payment_method'] ?? '') === 'cash' ? 'selected' : ''; ?>>Cash</option>
                                         <option value="credit_card" <?php echo ($_POST['payment_method'] ?? '') === 'credit_card' ? 'selected' : ''; ?>>Credit Card</option>
                                         <option value="bank_transfer" <?php echo ($_POST['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
@@ -198,14 +198,14 @@ function generateExpenseCode() {
                         </div>
 
                         <div class="mb-3">
-                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <label for="reference_number" class="form-label"><?php echo __('reference_number'); ?></label>
                             <input type="text" class="form-control" id="reference_number" name="reference_number" 
                                    value="<?php echo htmlspecialchars($_POST['reference_number'] ?? ''); ?>" 
                                    placeholder="Receipt or invoice number">
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
+                            <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
                                       placeholder="Additional notes about this expense"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
                         </div>
@@ -214,7 +214,7 @@ function generateExpenseCode() {
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Expense
+                                <i class="fas fa-save"></i> <?php echo __('add_expense'); ?>
                             </button>
                         </div>
                     </form>
@@ -226,40 +226,40 @@ function generateExpenseCode() {
             <!-- Information Card -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Expense Types</h6>
+                        <h6 class="font-weight-bold"><?php echo __('expense_types'); ?></h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-paperclip me-2"></i>Office Supplies</li>
-                            <li><i class="fas fa-bolt me-2"></i>Utilities</li>
-                            <li><i class="fas fa-home me-2"></i>Rent</li>
-                            <li><i class="fas fa-tools me-2"></i>Maintenance</li>
-                            <li><i class="fas fa-bullhorn me-2"></i>Marketing</li>
-                            <li><i class="fas fa-laptop me-2"></i>Software</li>
-                            <li><i class="fas fa-plane me-2"></i>Travel</li>
-                            <li><i class="fas fa-ellipsis-h me-2"></i>Other</li>
+                            <li><i class="fas fa-paperclip me-2"></i><?php echo __('office_supplies'); ?></li>
+                            <li><i class="fas fa-bolt me-2"></i><?php echo __('utilities'); ?></li>
+                            <li><i class="fas fa-home me-2"></i><?php echo __('rent'); ?></li>
+                            <li><i class="fas fa-tools me-2"></i><?php echo __('maintenance'); ?></li>
+                            <li><i class="fas fa-bullhorn me-2"></i><?php echo __('marketing'); ?></li>
+                            <li><i class="fas fa-laptop me-2"></i><?php echo __('software'); ?></li>
+                            <li><i class="fas fa-plane me-2"></i><?php echo __('travel'); ?></li>
+                            <li><i class="fas fa-ellipsis-h me-2"></i><?php echo __('other'); ?></li>
                         </ul>
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Payment Methods</h6>
+                        <h6 class="font-weight-bold"><?php echo __('payment_methods'); ?></h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-money-bill me-2"></i>Cash</li>
-                            <li><i class="fas fa-credit-card me-2"></i>Credit Card</li>
-                            <li><i class="fas fa-university me-2"></i>Bank Transfer</li>
-                            <li><i class="fas fa-file-invoice me-2"></i>Check</li>
-                            <li><i class="fab fa-paypal me-2"></i>PayPal</li>
+                            <li><i class="fas fa-money-bill me-2"></i><?php echo __('cash'); ?></li>
+                            <li><i class="fas fa-credit-card me-2"></i><?php echo __('credit_card'); ?></li>
+                            <li><i class="fas fa-university me-2"></i><?php echo __('bank_transfer'); ?></li>
+                            <li><i class="fas fa-file-invoice me-2"></i><?php echo __('check'); ?></li>
+                            <li><i class="fab fa-paypal me-2"></i><?php echo __('paypal'); ?></li>
                         </ul>
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Tips</h6>
+                        <h6 class="font-weight-bold"><?php echo __('tips'); ?></h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-info-circle me-2"></i>Keep receipts for all expenses</li>
-                            <li><i class="fas fa-info-circle me-2"></i>Use descriptive names</li>
-                            <li><i class="fas fa-info-circle me-2"></i>Record expenses promptly</li>
+                            <li><i class="fas fa-info-circle me-2"></i><?php echo __('keep_receipts_for_all_expenses'); ?></li>
+                            <li><i class="fas fa-info-circle me-2"></i><?php echo __('use_descriptive_names'); ?></li>
+                            <li><i class="fas fa-info-circle me-2"></i><?php echo __('record_expenses_promptly'); ?></li>
                         </ul>
                     </div>
                 </div>
@@ -279,13 +279,13 @@ document.getElementById('expenseForm').addEventListener('submit', function(e) {
     
     if (!expenseType || !description || !amount || !expenseDate || !paymentMethod) {
         e.preventDefault();
-        alert('Please fill in all required fields.');
+        alert('<?php echo __('please_fill_in_all_required_fields'); ?>');
         return false;
     }
     
     if (amount <= 0) {
         e.preventDefault();
-        alert('Amount must be greater than zero.');
+        alert('<?php echo __('amount_must_be_greater_than_zero'); ?>');
         return false;
     }
 });

@@ -108,10 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Working Hours</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('edit_working_hours'); ?></h1>
         <div>
             <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Timesheet
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?>
             </a>
         </div>
     </div>
@@ -119,22 +119,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Working Hours Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Working Hours Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('working_hours_information'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract:</strong></td>
+                            <td><strong><?php echo __('contract'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['contract_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Project:</strong></td>
+                            <td><strong><?php echo __('project'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['project_name'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Current Employee:</strong></td>
+                            <td><strong><?php echo __('current_employee'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['employee_name'] ?? 'N/A'); ?></td>
                         </tr>
                     </table>
@@ -142,15 +142,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Employee Code:</strong></td>
+                            <td><strong><?php echo __('employee_code'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['employee_code'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Created:</strong></td>
+                            <td><strong><?php echo __('created'); ?>:</strong></td>
                             <td><?php echo date('M j, Y \a\t g:i A', strtotime($working_hours['created_at'])); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Last Updated:</strong></td>
+                            <td><strong><?php echo __('last_updated'); ?>:</strong></td>
                             <td><?php echo date('M j, Y \a\t g:i A', strtotime($working_hours['updated_at'])); ?></td>
                         </tr>
                     </table>
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Edit Working Hours Form -->
     <div class="card shadow">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Working Hours Details</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_working_hours_details'); ?></h6>
         </div>
         <div class="card-body">
             <?php if ($error): ?>
@@ -181,16 +181,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
+                            <label for="date" class="form-label"><?php echo __('date'); ?> <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="date" name="date" 
                                    value="<?php echo htmlspecialchars($working_hours['date']); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="employee_id" class="form-label">Employee <span class="text-danger">*</span></label>
+                            <label for="employee_id" class="form-label"><?php echo __('employee'); ?> <span class="text-danger">*</span></label>
                             <select class="form-select" id="employee_id" name="employee_id" required>
-                                <option value="">Select Employee</option>
+                                <option value=""><?php echo __('select_employee'); ?></option>
                                 <?php foreach ($employees as $employee): ?>
                                     <option value="<?php echo $employee['id']; ?>" 
                                             <?php echo $employee['id'] == $working_hours['employee_id'] ? 'selected' : ''; ?>>
@@ -205,27 +205,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="hours_worked" class="form-label">Hours Worked <span class="text-danger">*</span></label>
+                            <label for="hours_worked" class="form-label"><?php echo __('hours_worked'); ?> <span class="text-danger">*</span></label>
                             <input type="number" step="0.1" min="0.1" max="24" class="form-control" 
                                    id="hours_worked" name="hours_worked" 
                                    value="<?php echo htmlspecialchars($working_hours['hours_worked']); ?>" required>
-                            <small class="form-text text-muted">Enter hours in decimal format (e.g., 8.5 for 8 hours 30 minutes)</small>
+                            <small class="form-text text-muted"><?php echo __('enter_hours_in_decimal_format_e_g_8_5_for_8_hours_30_minutes'); ?></small>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">Notes</label>
+                    <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
                     <textarea class="form-control" id="notes" name="notes" rows="3" 
-                              placeholder="Additional notes about this work entry"><?php echo htmlspecialchars($working_hours['notes'] ?? ''); ?></textarea>
+                              placeholder="<?php echo __('additional_notes_about_this_work_entry'); ?>"><?php echo htmlspecialchars($working_hours['notes'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                        <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Update Working Hours
+                        <i class="fas fa-save"></i> <?php echo __('update_working_hours'); ?>
                     </button>
                 </div>
             </form>

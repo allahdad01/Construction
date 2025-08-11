@@ -103,52 +103,52 @@ if ($rental['total_amount']) {
 
 <!-- Print-friendly summary (only prints this) -->
 <div class="print-sheet d-none">
-  <h3 style="margin:0 0 10px 0;">Area Rental Summary</h3>
+  <h3 style="margin:0 0 10px 0;"><?php echo __('area_rental_summary'); ?></h3>
   <div style="font-size:12px; color:#555; margin-bottom:8px;">
-    Printed: <?php echo date('Y-m-d H:i'); ?>
+    <?php echo __('printed'); ?>: <?php echo date('Y-m-d H:i'); ?>
   </div>
   <table style="width:100%; border-collapse:collapse; font-size:12px;">
     <tbody>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%">Rental Code</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%"><?php echo __('rental_code'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; width:28%"><?php echo htmlspecialchars($rental['rental_code']); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%">Client</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%"><?php echo __('client'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; width:28%"><?php echo htmlspecialchars($rental['client_name']); ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Area</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('area'); ?></th>
         <td style="border:1px solid #ccc; padding:6px;"><?php echo htmlspecialchars($rental['area_name'] . ' (' . $rental['area_code'] . ')'); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Type / Size</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('type_size'); ?></th>
         <td style="border:1px solid #ccc; padding:6px;"><?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?><?php echo !empty($rental['size']) ? (' • ' . htmlspecialchars($rental['size'])) : ''; ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Start Date</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('start_date'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo date('M j, Y', strtotime($rental['start_date'])); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">End Date</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('end_date'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo $rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Range</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('range'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo htmlspecialchars($range_text); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Days Elapsed</th>
-        <td style="border:1px solid #ccc; padding:6px; "><?php echo (int)$days_elapsed; ?> days</td>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('days_elapsed'); ?></th>
+        <td style="border:1px solid #ccc; padding:6px; "><?php echo (int)$days_elapsed; ?> <?php echo __('days'); ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Monthly Rate</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('monthly_rate'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)($rental['monthly_rate'] ?? 0), $currency); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Daily Rate</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('daily_rate'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)$daily_rate_effective, $currency); ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Total Amount</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('total_amount'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount((float)($rental['total_amount'] ?? 0), $currency); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Amount Paid</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('amount_paid'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></td>
       </tr>
       <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Owed Until <?php echo $asOfDate->format('M j, Y'); ?></th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('owed_until'); ?> <?php echo $asOfDate->format('M j, Y'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($owed_until_date, $currency); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;">Outstanding Due</th>
+        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('outstanding_due'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo formatCurrencyAmount($outstanding_due, $currency); ?></td>
       </tr>
     </tbody>
@@ -281,18 +281,18 @@ if ($rental['total_amount']) {
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <h6 class="text-primary">Days Elapsed</h6>
-                        <h5 class="text-dark"><?php echo (int)$days_elapsed; ?> days</h5>
+                        <h6 class="text-primary"><?php echo __('days_elapsed'); ?></h6>
+                        <h5 class="text-dark"><?php echo (int)$days_elapsed; ?> <?php echo __('days'); ?></h5>
                         <div class="small text-muted"><?php echo htmlspecialchars($range_text); ?></div>
                     </div>
 
                     <div class="mb-1">
-                        <h6 class="text-primary">Owed Until <?php echo $asOfDate->format('M j, Y'); ?></h6>
+                        <h6 class="text-primary"><?php echo __('owed_until'); ?> <?php echo $asOfDate->format('M j, Y'); ?></h6>
                         <h5 class="text-danger"><?php echo formatCurrencyAmount($owed_until_date, $currency); ?></h5>
-                        <div class="small text-muted">Paid: <?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></div>
+                        <div class="small text-muted"><?php echo __('paid'); ?>: <?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></div>
                     </div>
                     <div class="mb-3">
-                        <h6 class="text-primary">Outstanding Due (as of <?php echo $asOfDate->format('M j, Y'); ?>)</h6>
+                        <h6 class="text-primary"><?php echo __('outstanding_due'); ?> (<?php echo __('as_of'); ?> <?php echo $asOfDate->format('M j, Y'); ?>)</h6>
                         <h5 class="<?php echo $outstanding_due > 0 ? 'text-warning' : 'text-success'; ?>"><?php echo formatCurrencyAmount($outstanding_due, $currency); ?></h5>
                     </div>
                 </div>

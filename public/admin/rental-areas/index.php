@@ -152,19 +152,19 @@ $rented_areas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                                 </td>
                                 <td>
                                     <?php $cur = $area['currency'] ?? 'USD'; ?>
-                                    <strong>Daily Rate:</strong> <?php echo formatCurrencyAmount((float)($area['daily_rate'] ?? 0), $cur); ?><br>
-                                    <small class="text-muted">Auto-calculated from monthly rate</small>
+                                    <strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrencyAmount((float)($area['daily_rate'] ?? 0), $cur); ?><br>
+                                    <small class="text-muted"><?php echo __('auto_calculated_from_monthly_rate'); ?></small>
                                 </td>
                                 <td>
                                     <strong><?php echo formatCurrencyAmount((float)($area['monthly_rate'] ?? 0), $cur); ?></strong><br>
-                                    <small class="text-muted">per month</small>
+                                    <small class="text-muted"><?php echo __('per_month'); ?></small>
                                 </td>
                                 <td>
                                     <span class="badge bg-<?php echo $area['status'] === 'available' ? 'success' : ($area['status'] === 'in_use' ? 'warning' : 'secondary'); ?>">
                                         <?php echo ucfirst($area['status']); ?>
                                     </span>
                                     <?php if ($area['active_rentals'] > 0): ?>
-                                        <br><small class="text-info"><?php echo $area['active_rentals']; ?> active rental(s)</small>
+                                        <br><small class="text-info"><?php echo $area['active_rentals']; ?> <?php echo __('active_rental_s'); ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -200,7 +200,7 @@ $rented_areas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 <script>
 function confirmDelete(areaId, areaName) {
-    const message = `Are you sure you want to delete rental area "${areaName}"? This action cannot be undone.`;
+    const message = `<?php echo __('are_you_sure_you_want_to_delete_rental_area'); ?> "${areaName}"? <?php echo __('this_action_cannot_be_undone'); ?>.`;
     if (confirm(message)) {
         window.location.href = `index.php?delete=${areaId}`;
     }

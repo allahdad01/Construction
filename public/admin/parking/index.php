@@ -161,10 +161,10 @@ if ($dateCol) {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-parking"></i> Parking Management
+            <i class="fas fa-parking"></i> <?php echo __('parking_management'); ?>
         </h1>
         <a href="add.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Add Parking Space
+            <i class="fas fa-plus"></i> <?php echo __('add_parking_space'); ?>
         </a>
     </div>
 
@@ -176,7 +176,7 @@ if ($dateCol) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Parking Spaces</div>
+                                <?php echo __('total_parking_spaces'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -193,7 +193,7 @@ if ($dateCol) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Available Spaces</div>
+                                <?php echo __('available_spaces'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $available_spaces; ?></div>
                         </div>
                         <div class="col-auto">
@@ -210,7 +210,7 @@ if ($dateCol) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Active Rentals</div>
+                                <?php echo __('active_rentals'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_rentals; ?></div>
                         </div>
                         <div class="col-auto">
@@ -227,7 +227,7 @@ if ($dateCol) {
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Revenue</div>
+                                <?php echo __('total_revenue'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php if (count($currency_revenues) > 1): ?>
                                     <?php foreach ($currency_revenues as $index => $currency_revenue): ?>
@@ -258,7 +258,7 @@ if ($dateCol) {
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-chart-line"></i> Actual Revenue (All Time)
+                        <i class="fas fa-chart-line"></i> <?php echo __('actual_revenue'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -272,7 +272,7 @@ if ($dateCol) {
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-muted mb-0">No revenue recorded yet.</p>
+                        <p class="text-muted mb-0"><?php echo __('no_revenue_recorded_yet'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -281,7 +281,7 @@ if ($dateCol) {
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-calendar"></i> Monthly Potential (Active Rentals)
+                        <i class="fas fa-calendar"></i> <?php echo __('monthly_potential'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -295,7 +295,7 @@ if ($dateCol) {
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-muted mb-0">No active rentals.</p>
+                        <p class="text-muted mb-0"><?php echo __('no_active_rentals'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -308,19 +308,19 @@ if ($dateCol) {
         <div class="col-md-8">
             <div class="btn-group" role="group">
                 <a href="index.php" class="btn btn-outline-primary <?php echo empty($status_filter) ? 'active' : ''; ?>">
-                    <i class="fas fa-list"></i> All Spaces
+                    <i class="fas fa-list"></i> <?php echo __('all_spaces'); ?>
                 </a>
                 <a href="index.php?status=available" class="btn btn-outline-success <?php echo $status_filter === 'available' ? 'active' : ''; ?>">
-                    <i class="fas fa-check-circle"></i> Available
+                    <i class="fas fa-check-circle"></i> <?php echo __('available'); ?>
                 </a>
                 <a href="index.php?status=occupied" class="btn btn-outline-warning <?php echo $status_filter === 'occupied' ? 'active' : ''; ?>">
-                    <i class="fas fa-car"></i> Occupied
+                    <i class="fas fa-car"></i> <?php echo __('occupied'); ?>
                 </a>
             </div>
         </div>
         <div class="col-md-4 text-end">
             <a href="add.php" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Space
+                <i class="fas fa-plus"></i> <?php echo __('add_new_space'); ?>
             </a>
         </div>
     </div>
@@ -329,56 +329,56 @@ if ($dateCol) {
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-search"></i> Search & Filter
+                <i class="fas fa-search"></i> <?php echo __('search_filter'); ?>
             </h6>
             <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchForm">
-                <i class="fas fa-filter"></i> Toggle Filters
+                <i class="fas fa-filter"></i> <?php echo __('toggle_filters'); ?>
             </button>
         </div>
         <div class="card-body collapse show" id="searchForm">
             <form method="GET" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Search</label>
+                    <label class="form-label"><?php echo __('search'); ?></label>
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by space name, code, or description" 
+                           placeholder="<?php echo __('search_by_space_name_code_or_description'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Category</label>
+                    <label class="form-label"><?php echo __('category'); ?></label>
                     <select class="form-control" name="category">
-                        <option value="">All Categories</option>
-                        <option value="machines" <?php echo $category_filter === 'machines' ? 'selected' : ''; ?>>🏗️ Construction Machines</option>
-                        <option value="cars" <?php echo $category_filter === 'cars' ? 'selected' : ''; ?>>🚗 Cars</option>
-                        <option value="trucks" <?php echo $category_filter === 'trucks' ? 'selected' : ''; ?>>🚛 Trucks</option>
-                        <option value="vans" <?php echo $category_filter === 'vans' ? 'selected' : ''; ?>>🚐 Vans</option>
-                        <option value="motorcycles" <?php echo $category_filter === 'motorcycles' ? 'selected' : ''; ?>>🏍️ Motorcycles</option>
-                        <option value="trailers" <?php echo $category_filter === 'trailers' ? 'selected' : ''; ?>>🚛 Trailers</option>
-                        <option value="general" <?php echo $category_filter === 'general' ? 'selected' : ''; ?>>🅿️ General</option>
+                        <option value=""><?php echo __('all_categories'); ?></option>
+                        <option value="machines" <?php echo $category_filter === 'machines' ? 'selected' : ''; ?>>🏗️ <?php echo __('construction_machines'); ?></option>
+                        <option value="cars" <?php echo $category_filter === 'cars' ? 'selected' : ''; ?>>🚗 <?php echo __('cars'); ?></option>
+                        <option value="trucks" <?php echo $category_filter === 'trucks' ? 'selected' : ''; ?>>🚛 <?php echo __('trucks'); ?></option>
+                        <option value="vans" <?php echo $category_filter === 'vans' ? 'selected' : ''; ?>>🚐 <?php echo __('vans'); ?></option>
+                        <option value="motorcycles" <?php echo $category_filter === 'motorcycles' ? 'selected' : ''; ?>>🏍️ <?php echo __('motorcycles'); ?></option>
+                        <option value="trailers" <?php echo $category_filter === 'trailers' ? 'selected' : ''; ?>>🚛 <?php echo __('trailers'); ?></option>
+                        <option value="general" <?php echo $category_filter === 'general' ? 'selected' : ''; ?>>🅿️ <?php echo __('general'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Type</label>
+                    <label class="form-label"><?php echo __('type'); ?></label>
                     <select class="form-control" name="type">
-                        <option value="">All Types</option>
-                        <option value="covered" <?php echo $type_filter === 'covered' ? 'selected' : ''; ?>>🏠 Covered</option>
-                        <option value="uncovered" <?php echo $type_filter === 'uncovered' ? 'selected' : ''; ?>>🌤️ Uncovered</option>
-                        <option value="indoor" <?php echo $type_filter === 'indoor' ? 'selected' : ''; ?>>🏢 Indoor</option>
-                        <option value="outdoor" <?php echo $type_filter === 'outdoor' ? 'selected' : ''; ?>>🌳 Outdoor</option>
+                        <option value=""><?php echo __('all_types'); ?></option>
+                        <option value="covered" <?php echo $type_filter === 'covered' ? 'selected' : ''; ?>>🏠 <?php echo __('covered'); ?></option>
+                        <option value="uncovered" <?php echo $type_filter === 'uncovered' ? 'selected' : ''; ?>>🌤️ <?php echo __('uncovered'); ?></option>
+                        <option value="indoor" <?php echo $type_filter === 'indoor' ? 'selected' : ''; ?>>🏢 <?php echo __('indoor'); ?></option>
+                        <option value="outdoor" <?php echo $type_filter === 'outdoor' ? 'selected' : ''; ?>>🌳 <?php echo __('outdoor'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Status</label>
+                    <label class="form-label"><?php echo __('status'); ?></label>
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>✅ Available</option>
-                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>🚗 Occupied</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="available" <?php echo $status_filter === 'available' ? 'selected' : ''; ?>>✅ <?php echo __('available'); ?></option>
+                        <option value="occupied" <?php echo $status_filter === 'occupied' ? 'selected' : ''; ?>>🚗 <?php echo __('occupied'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Search
+                            <i class="fas fa-search"></i> <?php echo __('search'); ?>
                         </button>
                     </div>
                 </div>
@@ -386,10 +386,10 @@ if ($dateCol) {
             <?php if (!empty($search) || !empty($category_filter) || !empty($type_filter) || !empty($status_filter)): ?>
             <div class="mt-3">
                 <a href="index.php" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-times"></i> Clear All Filters
+                    <i class="fas fa-times"></i> <?php echo __('clear_all_filters'); ?>
                 </a>
                 <small class="text-muted ms-2">
-                    Showing <?php echo count($parking_spaces); ?> of <?php echo $total_records; ?> spaces
+                    <?php echo __('showing'); ?> <?php echo count($parking_spaces); ?> <?php echo __('of'); ?> <?php echo $total_records; ?> <?php echo __('spaces'); ?>
                 </small>
             </div>
             <?php endif; ?>
@@ -415,13 +415,13 @@ if ($dateCol) {
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Space Code</th>
-                                <th>Space Name</th>
-                                <th>Vehicle Category / Type</th>
-                                <th>Size & Rate</th>
-                                <th>Status</th>
-                                <th>Active Rentals</th>
-                                <th>Actions</th>
+                                <th><?php echo __('space_code'); ?></th>
+                                <th><?php echo __('space_name'); ?></th>
+                                <th><?php echo __('vehicle_category_type'); ?></th>
+                                <th><?php echo __('size_rate'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('active_rentals'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -449,13 +449,13 @@ if ($dateCol) {
                                             ?>">
                                                 <?php 
                                                 $category_display = [
-                                                    'machines' => '🏗️ Machines',
-                                                    'cars' => '🚗 Cars', 
-                                                    'trucks' => '🚛 Trucks',
-                                                    'vans' => '🚐 Vans',
-                                                    'motorcycles' => '🏍️ Motorcycles',
-                                                    'trailers' => '🚛 Trailers',
-                                                    'general' => '🅿️ General'
+                                                    'machines' => '🏗️ ' . __('machines'),
+                                                    'cars' => '🚗 ' . __('cars'), 
+                                                    'trucks' => '🚛 ' . __('trucks'),
+                                                    'vans' => '🚐 ' . __('vans'),
+                                                    'motorcycles' => '🏍️ ' . __('motorcycles'),
+                                                    'trailers' => '🚛 ' . __('trailers'),
+                                                    'general' => '🅿️ ' . __('general')
                                                 ];
                                                 echo $category_display[$category] ?? ucfirst($category); 
                                                 ?>
@@ -474,9 +474,9 @@ if ($dateCol) {
                                                 echo $symbol . number_format($space['monthly_rate'], 2); 
                                                 ?>
                                             </strong>
-                                            <br><small class="text-muted">per month</small>
+                                            <br><small class="text-muted"><?php echo __('per_month'); ?></small>
                                             <?php if (isset($space['capacity']) && $space['capacity'] > 1): ?>
-                                                <br><small class="text-info"><?php echo $space['capacity']; ?> vehicles</small>
+                                                <br><small class="text-info"><?php echo $space['capacity']; ?> <?php echo __('vehicles'); ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -490,7 +490,7 @@ if ($dateCol) {
                                     <td>
                                         <div class="text-center">
                                             <span class="badge <?php echo $space['active_rentals'] > 0 ? 'bg-success' : 'bg-secondary'; ?>">
-                                                <?php echo $space['active_rentals']; ?> active
+                                                <?php echo $space['active_rentals']; ?> <?php echo __('active'); ?>
                                             </span>
                                         </div>
                                     </td>
@@ -536,7 +536,7 @@ if ($dateCol) {
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -552,7 +552,7 @@ if ($dateCol) {
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&category=<?php echo urlencode($category_filter); ?>&type=<?php echo urlencode($type_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>

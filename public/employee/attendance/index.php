@@ -39,45 +39,45 @@ function generateDateRange($start, $end) {
 ?>
 <div class="container-fluid">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="mb-0">My Attendance</h3>
+    <h3 class="mb-0"><?php echo __('my_attendance'); ?></h3>
   </div>
 
   <?php if (!$employee): ?>
-    <div class="alert alert-warning">No employee record linked to your user account.</div>
+    <div class="alert alert-warning"><?php echo __('no_employee_record_linked_to_your_user_account'); ?></div>
   <?php else: ?>
     <div class="card mb-3">
-      <div class="card-header">Filter</div>
+      <div class="card-header"><?php echo __('filter'); ?></div>
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-4">
-            <label class="form-label">Start</label>
+            <label class="form-label"><?php echo __('start'); ?></label>
             <input type="date" class="form-control" name="start" value="<?php echo htmlspecialchars($start); ?>">
           </div>
           <div class="col-md-4">
-            <label class="form-label">End</label>
+            <label class="form-label"><?php echo __('end'); ?></label>
             <input type="date" class="form-control" name="end" value="<?php echo htmlspecialchars($end); ?>">
           </div>
           <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100"><i class="fas fa-filter"></i> Apply</button>
+            <button class="btn btn-primary w-100"><i class="fas fa-filter"></i> <?php echo __('apply'); ?></button>
           </div>
         </form>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header">Attendance (<?php echo htmlspecialchars($employee['name']); ?>)</div>
+      <div class="card-header"><?php echo __('attendance'); ?> (<?php echo htmlspecialchars($employee['name']); ?>)</div>
       <div class="card-body table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>Date</th><th>Status</th><th>Details</th></tr></thead>
+          <thead><tr><th><?php echo __('date'); ?></th><th><?php echo __('status'); ?></th><th><?php echo __('details'); ?></th></tr></thead>
           <tbody>
             <?php foreach (generateDateRange($start, $end) as $d): $rec = $recordsByDate[$d] ?? null; $status = $rec['status'] ?? 'present'; ?>
               <tr>
                 <td><?php echo htmlspecialchars($d); ?></td>
                 <td>
                   <?php if ($status === 'leave'): ?>
-                    <span class="badge bg-warning text-dark">Leave</span>
+                    <span class="badge bg-warning text-dark"><?php echo __('leave'); ?></span>
                   <?php else: ?>
-                    <span class="badge bg-success">Present</span>
+                    <span class="badge bg-success"><?php echo __('present'); ?></span>
                   <?php endif; ?>
                 </td>
                 <td>

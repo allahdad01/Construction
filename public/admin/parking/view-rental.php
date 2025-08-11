@@ -116,24 +116,24 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Rental Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('rental_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Rental Code:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($rental['rental_code']); ?></span></p>
-                            <p><strong>Client Name:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                            <p><strong><?php echo __('rental_code'); ?>:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($rental['rental_code']); ?></span></p>
+                            <p><strong><?php echo __('client_name'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
                             <?php if (!empty($rental['client_contact'])): ?>
-                                <p><strong>Client Contact:</strong> <?php echo htmlspecialchars($rental['client_contact']); ?></p>
+                                <p><strong><?php echo __('client_contact'); ?>:</strong> <?php echo htmlspecialchars($rental['client_contact']); ?></p>
                             <?php endif; ?>
-                            <p><strong>Status:</strong> 
+                            <p><strong><?php echo __('status'); ?>:</strong> 
                                 <span class="badge bg-<?php echo $rental['status'] == 'active' ? 'success' : 'secondary'; ?>">
                                     <?php echo ucfirst(htmlspecialchars($rental['status'])); ?>
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
+                            <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
                             <?php 
                             // Calculate current days and amounts for ongoing rentals
                             $current_date = new DateTime();
@@ -157,10 +157,10 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                                 echo '<p><strong>Current Amount:</strong> ' . formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD') . '</p>';
                             }
                             ?>
-                            <p><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
-                            <p><strong>Daily Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'] / 30, $rental['currency'] ?? 'USD'); ?></p>
+                            <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                            <p><strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'] / 30, $rental['currency'] ?? 'USD'); ?></p>
                             <?php if (!empty($rental['total_amount'])): ?>
-                                <p><strong>Total Amount:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>
+                                <p><strong><?php echo __('total_amount'); ?>:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -169,16 +169,16 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-12">
                             <hr>
-                            <p><strong>Vehicle Information:</strong></p>
+                            <p><strong><?php echo __('vehicle_information'); ?>:</strong></p>
                             <div class="row">
                                 <?php if (!empty($rental['vehicle_type'])): ?>
                                     <div class="col-md-6">
-                                        <p><strong>Vehicle Type:</strong> <?php echo htmlspecialchars($rental['vehicle_type']); ?></p>
+                                        <p><strong><?php echo __('vehicle_type'); ?>:</strong> <?php echo htmlspecialchars($rental['vehicle_type']); ?></p>
                                     </div>
                                 <?php endif; ?>
                                 <?php if (!empty($rental['vehicle_registration'])): ?>
                                     <div class="col-md-6">
-                                        <p><strong>Registration:</strong> <?php echo htmlspecialchars($rental['vehicle_registration']); ?></p>
+                                        <p><strong><?php echo __('registration'); ?>:</strong> <?php echo htmlspecialchars($rental['vehicle_registration']); ?></p>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -190,7 +190,7 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-12">
                             <hr>
-                            <p><strong>Notes:</strong></p>
+                            <p><strong><?php echo __('notes'); ?>:</strong></p>
                             <p class="text-muted"><?php echo nl2br(htmlspecialchars($rental['notes'])); ?></p>
                         </div>
                     </div>
@@ -202,10 +202,10 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Parking Space</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <p><strong>Space Code:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
+                    <p><strong>Sp   ace Code:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
                     <p><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
                     <p><strong>Category:</strong> 
                         <?php 

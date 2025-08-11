@@ -147,15 +147,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label for="category" class="form-label"><?php echo __('category'); ?> *</label>
                             <select class="form-control" id="category" name="category" required>
-                                <option value="">Select category...</option>
-                                <option value="fuel" <?php echo ($expense['category'] == 'fuel') ? 'selected' : ''; ?>>Fuel</option>
-                                <option value="maintenance" <?php echo ($expense['category'] == 'maintenance') ? 'selected' : ''; ?>>Maintenance</option>
-                                <option value="materials" <?php echo ($expense['category'] == 'materials') ? 'selected' : ''; ?>>Materials</option>
-                                <option value="equipment" <?php echo ($expense['category'] == 'equipment') ? 'selected' : ''; ?>>Equipment</option>
-                                <option value="office" <?php echo ($expense['category'] == 'office') ? 'selected' : ''; ?>>Office Supplies</option>
-                                <option value="utilities" <?php echo ($expense['category'] == 'utilities') ? 'selected' : ''; ?>>Utilities</option>
-                                <option value="travel" <?php echo ($expense['category'] == 'travel') ? 'selected' : ''; ?>>Travel</option>
-                                <option value="other" <?php echo ($expense['category'] == 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value=""><?php echo __('select_category'); ?>...</option>
+                                <option value="fuel" <?php echo ($expense['category'] == 'fuel') ? 'selected' : ''; ?>><?php echo __('fuel'); ?></option>
+                                <option value="maintenance" <?php echo ($expense['category'] == 'maintenance') ? 'selected' : ''; ?>><?php echo __('maintenance'); ?></option>
+                                <option value="materials" <?php echo ($expense['category'] == 'materials') ? 'selected' : ''; ?>><?php echo __('materials'); ?></option>
+                                <option value="equipment" <?php echo ($expense['category'] == 'equipment') ? 'selected' : ''; ?>><?php echo __('equipment'); ?></option>
+                                <option value="office" <?php echo ($expense['category'] == 'office') ? 'selected' : ''; ?>><?php echo __('office_supplies'); ?></option>
+                                <option value="utilities" <?php echo ($expense['category'] == 'utilities') ? 'selected' : ''; ?>><?php echo __('utilities'); ?></option>
+                                <option value="travel" <?php echo ($expense['category'] == 'travel') ? 'selected' : ''; ?>><?php echo __('travel'); ?></option>
+                                <option value="other" <?php echo ($expense['category'] == 'other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -180,10 +180,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo ($expense['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                <option value="AFN" <?php echo ($expense['currency'] == 'AFN') ? 'selected' : ''; ?>>AFN</option>
-                                <option value="EUR" <?php echo ($expense['currency'] == 'EUR') ? 'selected' : ''; ?>>EUR</option>
-                                <option value="GBP" <?php echo ($expense['currency'] == 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                                <option value="USD" <?php echo ($expense['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                <option value="AFN" <?php echo ($expense['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                                <option value="EUR" <?php echo ($expense['currency'] == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?></option>
+                                <option value="GBP" <?php echo ($expense['currency'] == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?></option>
                             </select>
                         </div>
                     </div>

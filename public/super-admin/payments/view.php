@@ -37,14 +37,14 @@ if (!$payment) {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-eye"></i> View Payment
+            <i class="fas fa-eye"></i> <?php echo __('view_payment'); ?>
         </h1>
         <div class="d-flex">
             <a href="edit.php?id=<?php echo $payment_id; ?>" class="btn btn-warning me-2">
-                <i class="fas fa-edit"></i> Edit Payment
+                <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Payments
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_payments'); ?>
             </a>
         </div>
     </div>
@@ -53,19 +53,19 @@ if (!$payment) {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Payment Details</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_details'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Code</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_code'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($payment['payment_code']); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Company</label>
+                                <label class="form-label fw-bold"><?php echo __('company'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo htmlspecialchars($payment['company_name']); ?>
                                     <span class="badge bg-info ms-2"><?php echo htmlspecialchars($payment['company_code']); ?></span>
@@ -77,7 +77,7 @@ if (!$payment) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Amount</label>
+                                <label class="form-label fw-bold"><?php echo __('amount'); ?></label>
                                 <p class="form-control-plaintext">
                                     <strong class="text-success"><?php echo formatCurrency($payment['amount']); ?></strong>
                                 </p>
@@ -85,7 +85,7 @@ if (!$payment) {
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Currency</label>
+                                <label class="form-label fw-bold"><?php echo __('currency'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge bg-secondary"><?php echo htmlspecialchars($payment['currency']); ?></span>
                                 </p>
@@ -96,7 +96,7 @@ if (!$payment) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Method</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_method'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge bg-info">
                                         <?php echo ucwords(str_replace('_', ' ', $payment['payment_method'])); ?>
@@ -106,7 +106,7 @@ if (!$payment) {
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Status</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_status'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge <?php 
                                         echo $payment['payment_status'] === 'completed' ? 'bg-success' : 
@@ -123,13 +123,13 @@ if (!$payment) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Date</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_date'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDate($payment['payment_date']); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Transaction ID</label>
+                                <label class="form-label fw-bold"><?php echo __('transaction_id'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo $payment['transaction_id'] ? htmlspecialchars($payment['transaction_id']) : 'N/A'; ?>
                                 </p>
@@ -141,7 +141,7 @@ if (!$payment) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Billing Period Start</label>
+                                <label class="form-label fw-bold"><?php echo __('billing_period_start'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo $payment['billing_period_start'] ? formatDate($payment['billing_period_start']) : 'N/A'; ?>
                                 </p>
@@ -149,7 +149,7 @@ if (!$payment) {
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Billing Period End</label>
+                                <label class="form-label fw-bold"><?php echo __('billing_period_end'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo $payment['billing_period_end'] ? formatDate($payment['billing_period_end']) : 'N/A'; ?>
                                 </p>
@@ -160,7 +160,7 @@ if (!$payment) {
 
                     <?php if ($payment['subscription_plan']): ?>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Subscription Plan</label>
+                        <label class="form-label fw-bold"><?php echo __('subscription_plan'); ?></label>
                         <p class="form-control-plaintext">
                             <span class="badge bg-primary"><?php echo ucfirst($payment['subscription_plan']); ?></span>
                         </p>
@@ -169,7 +169,7 @@ if (!$payment) {
 
                     <?php if ($payment['notes']): ?>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Notes</label>
+                        <label class="form-label fw-bold"><?php echo __('notes'); ?></label>
                         <p class="form-control-plaintext"><?php echo nl2br(htmlspecialchars($payment['notes'])); ?></p>
                     </div>
                     <?php endif; ?>
@@ -177,13 +177,13 @@ if (!$payment) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Created At</label>
+                                <label class="form-label fw-bold"><?php echo __('created_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($payment['created_at']); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Updated At</label>
+                                <label class="form-label fw-bold"><?php echo __('updated_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($payment['updated_at']); ?></p>
                             </div>
                         </div>
@@ -196,21 +196,21 @@ if (!$payment) {
             <!-- Company Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <strong>Company:</strong> <?php echo htmlspecialchars($payment['company_name']); ?>
+                        <strong><?php echo __('company'); ?>:</strong> <?php echo htmlspecialchars($payment['company_name']); ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Code:</strong> <?php echo htmlspecialchars($payment['company_code']); ?>
+                        <strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($payment['company_code']); ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Payment Amount:</strong> 
+                        <strong><?php echo __('payment_amount'); ?>:</strong> 
                         <span class="text-success fw-bold"><?php echo formatCurrency($payment['amount']); ?></span>
                     </div>
                     <div class="mb-3">
-                        <strong>Currency:</strong> 
+                        <strong><?php echo __('currency'); ?>:</strong> 
                         <span class="badge bg-secondary"><?php echo htmlspecialchars($payment['currency']); ?></span>
                     </div>
                 </div>
@@ -219,21 +219,21 @@ if (!$payment) {
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="edit.php?id=<?php echo $payment_id; ?>" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit Payment
+                            <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
                         </a>
                         <?php if ($payment['payment_status'] === 'pending'): ?>
                         <a href="approve.php?id=<?php echo $payment_id; ?>" class="btn btn-success"
                            onclick="return confirm('Are you sure you want to approve this payment?')">
-                            <i class="fas fa-check"></i> Approve Payment
+                            <i class="fas fa-check"></i> <?php echo __('approve_payment'); ?>
                         </a>
                         <?php endif; ?>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-list"></i> Back to List
+                            <i class="fas fa-list"></i> <?php echo __('back_to_list'); ?>
                         </a>
                     </div>
                 </div>

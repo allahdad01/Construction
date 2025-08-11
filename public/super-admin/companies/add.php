@@ -119,10 +119,10 @@ function generateCompanyCode() {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-plus"></i> Add New Company
+            <i class="fas fa-plus"></i> <?php echo __('add_new_company'); ?>
         </h1>
         <a href="index.php" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Companies
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
         </a>
     </div>
 
@@ -144,14 +144,14 @@ function generateCompanyCode() {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="companyForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="company_name" class="form-label">Company Name *</label>
+                                    <label for="company_name" class="form-label"><?php echo __('company_name'); ?> *</label>
                                     <input type="text" class="form-control" id="company_name" name="company_name" 
                                            value="<?php echo htmlspecialchars($_POST['company_name'] ?? ''); ?>" 
                                            required>
@@ -159,7 +159,7 @@ function generateCompanyCode() {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="contact_email" class="form-label">Contact Email *</label>
+                                    <label for="contact_email" class="form-label"><?php echo __('contact_email'); ?> *</label>
                                     <input type="email" class="form-control" id="contact_email" name="contact_email" 
                                            value="<?php echo htmlspecialchars($_POST['contact_email'] ?? ''); ?>" 
                                            required>
@@ -170,14 +170,14 @@ function generateCompanyCode() {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="contact_person" class="form-label">Contact Person</label>
+                                    <label for="contact_person" class="form-label"><?php echo __('contact_person'); ?></label>
                                     <input type="text" class="form-control" id="contact_person" name="contact_person" 
                                            value="<?php echo htmlspecialchars($_POST['contact_person'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="contact_phone" class="form-label">Contact Phone</label>
+                                    <label for="contact_phone" class="form-label"><?php echo __('contact_phone'); ?></label>
                                     <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
                                            value="<?php echo htmlspecialchars($_POST['contact_phone'] ?? ''); ?>">
                                 </div>
@@ -185,28 +185,28 @@ function generateCompanyCode() {
                         </div>
 
                         <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
+                            <label for="address" class="form-label"><?php echo __('address'); ?></label>
                             <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="city" class="form-label">City</label>
+                                    <label for="city" class="form-label"><?php echo __('city'); ?></label>
                                     <input type="text" class="form-control" id="city" name="city" 
                                            value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="state" class="form-label">State/Province</label>
+                                    <label for="state" class="form-label"><?php echo __('state'); ?></label>
                                     <input type="text" class="form-control" id="state" name="state" 
                                            value="<?php echo htmlspecialchars($_POST['state'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="country" class="form-label">Country</label>
+                                    <label for="country" class="form-label"><?php echo __('country'); ?></label>
                                     <input type="text" class="form-control" id="country" name="country" 
                                            value="<?php echo htmlspecialchars($_POST['country'] ?? ''); ?>">
                                 </div>
@@ -215,14 +215,14 @@ function generateCompanyCode() {
 
                         <hr>
 
-                        <h6 class="font-weight-bold text-primary mb-3">Subscription Settings</h6>
+                        <h6 class="font-weight-bold text-primary mb-3"><?php echo __('subscription_settings'); ?></h6>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="subscription_plan" class="form-label">Subscription Plan *</label>
+                                        <label for="subscription_plan" class="form-label"><?php echo __('subscription_plan'); ?> *</label>
                                     <select class="form-control" id="subscription_plan" name="subscription_plan" required>
-                                        <option value="">Select Plan</option>
+                                        <option value=""><?php echo __('select_plan'); ?></option>
                                         <option value="basic" <?php echo ($_POST['subscription_plan'] ?? '') === 'basic' ? 'selected' : ''; ?>>Basic</option>
                                         <option value="professional" <?php echo ($_POST['subscription_plan'] ?? '') === 'professional' ? 'selected' : ''; ?>>Professional</option>
                                         <option value="enterprise" <?php echo ($_POST['subscription_plan'] ?? '') === 'enterprise' ? 'selected' : ''; ?>>Enterprise</option>
@@ -231,7 +231,7 @@ function generateCompanyCode() {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="max_employees" class="form-label">Max Employees</label>
+                                    <label for="max_employees" class="form-label"><?php echo __('max_employees'); ?></label>
                                     <input type="number" class="form-control" id="max_employees" name="max_employees" 
                                            value="<?php echo htmlspecialchars($_POST['max_employees'] ?? '25'); ?>" 
                                            min="1" max="1000">
@@ -242,7 +242,7 @@ function generateCompanyCode() {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="max_machines" class="form-label">Max Machines</label>
+                                    <label for="max_machines" class="form-label"><?php echo __('max_machines'); ?></label>
                                     <input type="number" class="form-control" id="max_machines" name="max_machines" 
                                            value="<?php echo htmlspecialchars($_POST['max_machines'] ?? '50'); ?>" 
                                            min="1" max="1000">
@@ -250,7 +250,7 @@ function generateCompanyCode() {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="max_projects" class="form-label">Max Projects</label>
+                                    <label for="max_projects" class="form-label"><?php echo __('max_projects'); ?></label>
                                     <input type="number" class="form-control" id="max_projects" name="max_projects" 
                                            value="<?php echo htmlspecialchars($_POST['max_projects'] ?? '25'); ?>" 
                                            min="1" max="1000">
@@ -262,7 +262,7 @@ function generateCompanyCode() {
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Company
+                                <i class="fas fa-save"></i> <?php echo __('add_company'); ?>
                             </button>
                         </div>
                     </form>
@@ -274,30 +274,30 @@ function generateCompanyCode() {
             <!-- Information Card -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Subscription Plans</h6>
+                        <h6 class="font-weight-bold"><?php echo __('subscription_plans'); ?></h6>
                         <ul class="list-unstyled">
-                            <li><strong>Basic:</strong> Up to 10 employees, 25 machines</li>
-                            <li><strong>Professional:</strong> Up to 50 employees, 100 machines</li>
-                            <li><strong>Enterprise:</strong> Unlimited employees and machines</li>
+                            <li><strong><?php echo __('basic'); ?>:</strong> <?php echo __('up_to_10_employees_25_machines'); ?></li>
+                            <li><strong><?php echo __('professional'); ?>:</strong> <?php echo __('up_to_50_employees_100_machines'); ?></li>
+                            <li><strong><?php echo __('enterprise'); ?>:</strong> <?php echo __('unlimited_employees_and_machines'); ?></li>
                         </ul>
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Trial Period</h6>
-                        <p class="text-muted">All new companies get a 30-day free trial period.</p>
+                        <h6 class="font-weight-bold"><?php echo __('trial_period'); ?></h6>
+                        <p class="text-muted"><?php echo __('all_new_companies_get_a_30_day_free_trial_period'); ?></p>
                     </div>
                     
                     <div class="mb-3">
-                        <h6 class="font-weight-bold">Default Settings</h6>
+                        <h6 class="font-weight-bold"><?php echo __('default_settings'); ?></h6>
                         <ul class="list-unstyled">
-                            <li>Currency: USD</li>
-                            <li>Date Format: MM/DD/YYYY</li>
-                            <li>Language: English</li>
-                            <li>Timezone: UTC</li>
+                            <li><?php echo __('currency'); ?>: USD</li>
+                            <li><?php echo __('date_format'); ?>: MM/DD/YYYY</li>
+                            <li><?php echo __('language'); ?>: English</li>
+                            <li><?php echo __('timezone'); ?>: UTC</li>
                         </ul>
                     </div>
                 </div>
@@ -315,7 +315,7 @@ document.getElementById('companyForm').addEventListener('submit', function(e) {
     
     if (!companyName || !contactEmail || !subscriptionPlan) {
         e.preventDefault();
-        alert('Please fill in all required fields.');
+        alert('<?php echo __('please_fill_in_all_required_fields'); ?>');
         return false;
     }
     
@@ -323,7 +323,7 @@ document.getElementById('companyForm').addEventListener('submit', function(e) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(contactEmail)) {
         e.preventDefault();
-        alert('Please enter a valid email address.');
+        alert('<?php echo __('please_enter_a_valid_email_address'); ?>');
         return false;
     }
 });

@@ -44,31 +44,31 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">My Timesheet</h1>
+    <h1 class="h3 mb-0 text-gray-800"><?php echo __('my_timesheet'); ?></h1>
     <div>
       <?php if (!$isAssistant): ?>
-      <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Hours</a>
+      <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <?php echo __('add_hours'); ?></a>
       <?php endif; ?>
-      <a href="/constract360/construction/public/employee/contracts/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Contracts</a>
+      <a href="/constract360/construction/public/employee/contracts/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back_to_contracts'); ?></a>
     </div>
   </div>
 
   <div class="card shadow mb-4">
-    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Contract Information</h6></div>
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_information'); ?></h6></div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
           <table class="table table-borderless">
-            <tr><td><strong>Contract:</strong></td><td><?php echo htmlspecialchars($contract['contract_code'] ?? ('#'.$contract_id)); ?></td></tr>
-            <tr><td><strong>Project:</strong></td><td><?php echo htmlspecialchars($contract['project_name'] ?? ''); ?></td></tr>
-            <tr><td><strong>Machine:</strong></td><td><?php echo htmlspecialchars($contract['machine_name'] ?? ''); ?></td></tr>
+            <tr><td><strong><?php echo __('contract'); ?>:</strong></td><td><?php echo htmlspecialchars($contract['contract_code'] ?? ('#'.$contract_id)); ?></td></tr>
+            <tr><td><strong><?php echo __('project'); ?>:</strong></td><td><?php echo htmlspecialchars($contract['project_name'] ?? ''); ?></td></tr>
+            <tr><td><strong><?php echo __('machine'); ?>:</strong></td><td><?php echo htmlspecialchars($contract['machine_name'] ?? ''); ?></td></tr>
           </table>
         </div>
         <div class="col-md-6">
           <table class="table table-borderless">
-            <tr><td><strong>Type:</strong></td><td><?php echo ucfirst($contract['contract_type']); ?></td></tr>
-            <tr><td><strong>Rate:</strong></td><td><?php echo formatCurrencyAmount((float)$contract['rate_amount'], $contract_currency); ?></td></tr>
-            <tr><td><strong>Rate/Hour:</strong></td><td><strong><?php echo formatCurrencyAmount($rate_per_hour, $contract_currency); ?></strong></td></tr>
+            <tr><td><strong><?php echo __('type'); ?>:</strong></td><td><?php echo ucfirst($contract['contract_type']); ?></td></tr>
+            <tr><td><strong><?php echo __('rate'); ?>:</strong></td><td><?php echo formatCurrencyAmount((float)$contract['rate_amount'], $contract_currency); ?></td></tr>
+            <tr><td><strong><?php echo __('rate_per_hour'); ?>:</strong></td><td><strong><?php echo formatCurrencyAmount($rate_per_hour, $contract_currency); ?></strong></td></tr>
           </table>
         </div>
       </div>
@@ -76,25 +76,25 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
   </div>
 
   <div class="card shadow mb-4">
-    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Daily Timesheet</h6></div>
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary"><?php echo __('daily_timesheet'); ?></h6></div>
     <div class="card-body">
       <?php if (empty($working_hours)): ?>
         <div class="text-center py-4">
           <i class="fas fa-clock fa-3x text-gray-300 mb-3"></i>
-          <p class="text-gray-500">No working hours recorded yet.</p>
+          <p class="text-gray-500"><?php echo __('no_working_hours_recorded_yet'); ?></p>
           <?php if (!$isAssistant): ?>
-          <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary"><i class="fas fa-plus"></i> Add First Entry</a>
+          <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary"><i class="fas fa-plus"></i> <?php echo __('add_first_entry'); ?></a>
           <?php endif; ?>
         </div>
       <?php else: ?>
         <div class="table-responsive">
           <table class="table table-bordered">
-            <thead><tr><th>Date</th><th>Hours Worked</th><th>Rate</th><th>Daily Amount</th><th>Notes</th></tr></thead>
+            <thead><tr><th><?php echo __('date'); ?></th><th><?php echo __('hours_worked'); ?></th><th><?php echo __('rate'); ?></th><th><?php echo __('daily_amount'); ?></th><th><?php echo __('notes'); ?></th></tr></thead>
             <tbody>
               <?php foreach ($working_hours as $wh): $daily_amount = (float)$wh['hours_worked'] * $rate_per_hour; ?>
                 <tr>
                   <td><?php echo date('M j, Y', strtotime($wh['date'])); ?><br><small class="text-muted"><?php echo date('l', strtotime($wh['date'])); ?></small></td>
-                  <td class="text-center"><strong><?php echo number_format((float)$wh['hours_worked'],1); ?></strong> hours</td>
+                  <td class="text-center"><strong><?php echo number_format((float)$wh['hours_worked'],1); ?></strong> <?php echo __('hours'); ?></td>
                   <td><?php echo formatCurrencyAmount($rate_per_hour, $contract_currency); ?>/hr</td>
                   <td><strong class="text-success"><?php echo formatCurrencyAmount($daily_amount, $contract_currency); ?></strong></td>
                   <td><small class="text-muted"><?php echo htmlspecialchars($wh['notes'] ?? ''); ?></small></td>
@@ -102,7 +102,7 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
               <?php endforeach; ?>
             </tbody>
             <tfoot>
-              <tr class="table-info"><td><strong>Total</strong></td><td class="text-center"><strong><?php echo number_format($total_hours,1); ?> hours</strong></td><td></td><td><strong><?php echo formatCurrencyAmount($total_amount, $contract_currency); ?></strong></td><td></td></tr>
+              <tr class="table-info"><td><strong><?php echo __('total'); ?></strong></td><td class="text-center"><strong><?php echo number_format($total_hours,1); ?> <?php echo __('hours'); ?></strong></td><td></td><td><strong><?php echo formatCurrencyAmount($total_amount, $contract_currency); ?></strong></td><td></td></tr>
             </tfoot>
           </table>
         </div>

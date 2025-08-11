@@ -85,11 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-edit"></i> Edit Language
+            <i class="fas fa-edit"></i> <?php echo __('edit_language'); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Languages
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
             </a>
         </div>
     </div>
@@ -104,27 +104,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Language Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_language_information'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="language_code" class="form-label">Language Code *</label>
+                            <label for="language_code" class="form-label"><?php echo __('language_code'); ?> *</label>
                             <input type="text" class="form-control" id="language_code" name="language_code" 
                                    value="<?php echo htmlspecialchars($language['language_code']); ?>" required>
-                            <small class="form-text text-muted">e.g., en, es, fr, ar</small>
+                            <small class="form-text text-muted"><?php echo __('iso_language_code'); ?> (e.g., en, es, fr, ar)</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="language_name" class="form-label">Language Name (English) *</label>
+                            <label for="language_name" class="form-label"><?php echo __('language_name'); ?> (English) *</label>
                             <input type="text" class="form-control" id="language_name" name="language_name" 
                                    value="<?php echo htmlspecialchars($language['language_name']); ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="language_name_native" class="form-label">Language Name (Native) *</label>
+                            <label for="language_name_native" class="form-label"><?php echo __('language_name'); ?> (Native) *</label>
                             <input type="text" class="form-control" id="language_name_native" name="language_name_native" 
                                    value="<?php echo htmlspecialchars($language['language_name_native']); ?>" required>
                         </div>
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="direction" class="form-label">Text Direction</label>
+                            <label for="direction" class="form-label"><?php echo __('text_direction'); ?></label>
                             <select class="form-control" id="direction" name="direction">
                                 <option value="ltr" <?php echo $language['direction'] === 'ltr' ? 'selected' : ''; ?>>Left to Right (LTR)</option>
                                 <option value="rtl" <?php echo $language['direction'] === 'rtl' ? 'selected' : ''; ?>>Right to Left (RTL)</option>
@@ -144,16 +144,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
                                        <?php echo $language['is_active'] ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="is_active">
-                                    Language is active
+                                    <?php echo __('language_is_active'); ?>
                                 </label>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="alert alert-info">
-                                <strong>Language ID:</strong> <?php echo $language['id']; ?><br>
-                                <strong>Created:</strong> <?php echo formatDate($language['created_at']); ?><br>
-                                <strong>Updated:</strong> <?php echo formatDate($language['updated_at']); ?>
+                                <strong><?php echo __('language_id'); ?>:</strong> <?php echo $language['id']; ?><br>
+                                <strong><?php echo __('created'); ?>:</strong> <?php echo formatDate($language['created_at']); ?><br>
+                                <strong><?php echo __('updated'); ?>:</strong> <?php echo formatDate($language['updated_at']); ?>
                             </div>
                         </div>
                     </div>
@@ -162,10 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row mt-4">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Update Language
+                            <i class="fas fa-save"></i> <?php echo __('update_language'); ?>
                         </button>
                         <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                         </a>
                     </div>
                 </div>

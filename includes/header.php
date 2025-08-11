@@ -558,33 +558,33 @@ date_default_timezone_set($company_timezone);
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/companies/">
                         <i class="fas fa-building"></i>
-                        <span>Companies</span>
+                        <span><?php echo __('companies'); ?></span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
                         <i class="fas fa-language"></i>
-                        <span>Languages</span>
+                        <span><?php echo __('languages'); ?></span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
                         <i class="fas fa-receipt"></i>
-                        <span>Expenses</span>
+                        <span><?php echo __('expenses'); ?></span>
                     </a>
                 </li>
                                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
                             <i class="fas fa-money-bill-wave"></i>
-                            <span>Payments</span>
+                            <span><?php echo __('payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
                             <i class="fas fa-tags"></i>
-                            <span>Pricing Plans</span>
+                            <span><?php echo __('pricing_plans'); ?></span>
                         </a>
                     </li>
                 <li class="nav-item">
@@ -596,7 +596,7 @@ date_default_timezone_set($company_timezone);
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/settings/">
                         <i class="fas fa-cogs"></i>
-                        <span>Platform Settings</span>
+                        <span><?php echo __('platform_settings'); ?></span>
                     </a>
                 </li>
                 
@@ -674,31 +674,31 @@ date_default_timezone_set($company_timezone);
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
                         <i class="fas fa-clock"></i>
-                        <span>Attendance</span>
+                        <span><?php echo __('attendance'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
                         <i class="fas fa-money-bill"></i>
-                        <span>Salary</span>
+                        <span><?php echo __('salary'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
                         <i class="fas fa-calendar-times"></i>
-                        <span>Leave</span>
+                        <span><?php echo __('leave'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
                         <i class="fas fa-file-contract"></i>
-                        <span>Contracts</span>
+                        <span><?php echo __('contracts'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
                         <i class="fas fa-user"></i>
-                        <span>Profile</span>
+                        <span><?php echo __('profile'); ?></span>
                     </a>
                 </li>
                 
@@ -707,19 +707,19 @@ date_default_timezone_set($company_timezone);
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
                         <i class="fas fa-list"></i>
-                        <span>My Rentals</span>
+                        <span><?php echo __('rentals'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
                         <i class="fas fa-money-bill"></i>
-                        <span>Payments</span>
+                        <span><?php echo __('payments'); ?></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
                         <i class="fas fa-user"></i>
-                        <span>Profile</span>
+                        <span><?php echo __('profile'); ?></span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -728,7 +728,7 @@ date_default_timezone_set($company_timezone);
             <li class="nav-item">
                 <a class="nav-link" href="/constract360/construction/public/logout.php">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
+                    <span><?php echo __('logout'); ?></span>
                 </a>
             </li>
         </ul>
@@ -755,11 +755,11 @@ date_default_timezone_set($company_timezone);
                                 <span class="badge bg-danger rounded-pill" id="notificationBadge">0</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
-                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
                                 <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
-                                    <small class="text-muted">Mark all as read</small>
+                                    <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
                                 </a></li>
                             </ul>
                         </div>
@@ -852,7 +852,7 @@ date_default_timezone_set($company_timezone);
             
             if (notifications.length === 0) {
                 const noNotifications = document.createElement('li');
-                noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted">No notifications</small></div>';
+                noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
                 list.appendChild(noNotifications);
             } else {
                 notifications.forEach(notification => {
@@ -945,7 +945,7 @@ date_default_timezone_set($company_timezone);
                     toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
                     toast.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>
-                        All notifications marked as read
+                        <?php echo __('all_notifications_marked_as_read'); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
                     document.body.appendChild(toast);
@@ -977,7 +977,7 @@ date_default_timezone_set($company_timezone);
             loadingToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
             loadingToast.innerHTML = `
                 <i class="fas fa-spinner fa-spin me-2"></i>
-                Changing language...
+                <?php echo __('changing_language'); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             document.body.appendChild(loadingToast);
@@ -1036,7 +1036,7 @@ date_default_timezone_set($company_timezone);
                 errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
                 errorToast.innerHTML = `
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    Failed to change language. Please try again.
+                    <?php echo __('failed_to_change_language'); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
                 document.body.appendChild(errorToast);

@@ -144,16 +144,16 @@ require_once '../../../includes/header.php';
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-stop-circle"></i> End Area Rental
+                <i class="fas fa-stop-circle"></i> <?php echo __('end_area_rental'); ?>
             </h1>
-            <p class="text-muted mb-0">End rental for <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+            <p class="text-muted mb-0"><?php echo __('end_rental_for'); ?> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
         </div>
         <div class="btn-group" role="group">
             <a href="view.php?id=<?php echo $rental_id; ?>" class="btn btn-outline-primary">
-                <i class="fas fa-eye"></i> View Details
+                <i class="fas fa-eye"></i> <?php echo __('view_details'); ?>
             </a>
             <a href="index.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rentals
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rentals'); ?>
             </a>
         </div>
     </div>
@@ -172,26 +172,26 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-danger">
-                        <i class="fas fa-exclamation-triangle"></i> End Rental
+                        <i class="fas fa-exclamation-triangle"></i> <?php echo __('end_rental'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action will end the rental and make the area available for new rentals.
+                        <strong><?php echo __('warning'); ?>:</strong> <?php echo __('this_action_will_end_the_rental_and_make_the_area_available_for_new_rentals'); ?>
                     </div>
 
                     <form method="POST" id="endRentalForm">
                         <div class="mb-3">
-                            <label for="end_date" class="form-label">End Date *</label>
+                            <label for="end_date" class="form-label"><?php echo __('end_date'); ?> *</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" 
                                    value="<?php echo date('Y-m-d'); ?>" required>
-                            <small class="form-text text-muted">The date when the rental will end.</small>
+                            <small class="form-text text-muted"><?php echo __('the_date_when_the_rental_will_end'); ?></small>
                         </div>
 
                         <?php if ($remaining_amount > 0): ?>
                         <div class="mb-3">
-                            <label for="final_payment_amount" class="form-label">Final Payment Amount</label>
+                            <label for="final_payment_amount" class="form-label"><?php echo __('final_payment_amount'); ?></label>
                             <div class="input-group">
                                 <span class="input-group-text" id="currency-symbol">
                                     <?php echo $rental['currency'] === 'USD' ? '$' : ($rental['currency'] === 'AFN' ? '؋' : $rental['currency']); ?>
@@ -201,45 +201,45 @@ require_once '../../../includes/header.php';
                                        value="<?php echo $remaining_amount; ?>" placeholder="0.00">
                             </div>
                             <small class="form-text text-muted">
-                                Remaining balance: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
+                                <?php echo __('remaining_balance'); ?>: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
                             </small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="final_payment_method" class="form-label">Payment Method</label>
+                            <label for="final_payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
                             <select class="form-control" id="final_payment_method" name="final_payment_method">
-                                <option value="cash">💵 Cash</option>
-                                <option value="bank_transfer">🏦 Bank Transfer</option>
-                                <option value="check">📄 Check</option>
-                                <option value="credit_card">💳 Credit Card</option>
-                                <option value="mobile_payment">📱 Mobile Payment</option>
-                                <option value="other" selected>📋 Other</option>
+                                <option value="cash">💵 <?php echo __('cash'); ?></option>
+                                <option value="bank_transfer">🏦 <?php echo __('bank_transfer'); ?></option>
+                                <option value="check">📄 <?php echo __('check'); ?></option>
+                                <option value="credit_card">💳 <?php echo __('credit_card'); ?></option>
+                                <option value="mobile_payment">📱 <?php echo __('mobile_payment'); ?></option>
+                                <option value="other" selected>📋 <?php echo __('other'); ?></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="final_payment_reference" class="form-label">Payment Reference</label>
+                            <label for="final_payment_reference" class="form-label"><?php echo __('payment_reference'); ?></label>
                             <input type="text" class="form-control" id="final_payment_reference" name="final_payment_reference" 
-                                   placeholder="Transaction ID, check number, etc."
+                                   placeholder="<?php echo __('transaction_id_check_number_etc'); ?>"
                                    style="text-transform: none;" autocomplete="off" spellcheck="false">
-                            <small class="form-text text-muted">You can use spaces in reference numbers.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_reference_numbers'); ?></small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="final_payment_notes" class="form-label">Payment Notes</label>
+                            <label for="final_payment_notes" class="form-label"><?php echo __('payment_notes'); ?></label>
                             <textarea class="form-control" id="final_payment_notes" name="final_payment_notes" rows="2" 
-                                      placeholder="Notes about the final payment..."
+                                      placeholder="<?php echo __('notes_about_the_final_payment'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                            <small class="form-text text-muted">You can use spaces in payment notes.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_payment_notes'); ?></small>
                         </div>
                         <?php endif; ?>
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-stop-circle"></i> End Rental
+                                <i class="fas fa-stop-circle"></i> <?php echo __('end_rental'); ?>
                             </button>
                             <a href="view.php?id=<?php echo $rental_id; ?>" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                         </div>
                     </form>
@@ -252,28 +252,28 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle"></i> Rental Summary
+                        <i class="fas fa-info-circle"></i> <?php echo __('rental_summary'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Rental Information</h6>
-                            <p><strong>Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                            <p><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                            <p><strong>Area:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
-                            <p><strong>Type:</strong> <?php echo ucfirst($rental['rental_type']); ?></p>
+                            <h6 class="text-secondary"><?php echo __('rental_information'); ?></h6>
+                            <p><strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                            <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                            <p><strong><?php echo __('area'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
+                            <p><strong><?php echo __('type'); ?>:</strong> <?php echo ucfirst($rental['rental_type']); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Financial Summary</h6>
-                            <p><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
-                            <p><strong>Total Paid:</strong> <?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></p>
-                            <p><strong>Remaining:</strong> 
+                            <h6 class="text-secondary"><?php echo __('financial_summary'); ?></h6>
+                            <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                            <p><strong><?php echo __('total_paid'); ?>:</strong> <?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></p>
+                            <p><strong><?php echo __('remaining'); ?>:</strong> 
                                 <span class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>">
                                     <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
                                 </span>
                             </p>
-                            <p><strong>Payments:</strong> <?php echo $rental['payment_count']; ?> records</p>
+                            <p><strong><?php echo __('payments'); ?>:</strong> <?php echo $rental['payment_count']; ?> <?php echo __('records'); ?></p>
                         </div>
                     </div>
 
@@ -281,34 +281,34 @@ require_once '../../../includes/header.php';
 
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Rental Period</h6>
-                            <p><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
-                            <p><strong>Current Status:</strong> 
+                            <h6 class="text-secondary"><?php echo __('rental_period'); ?></h6>
+                            <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
+                            <p><strong><?php echo __('current_status'); ?>:</strong> 
                                 <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : 'warning'; ?>">
                                     <?php echo ucfirst($rental['status']); ?>
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Area Details</h6>
-                            <p><strong>Area Code:</strong> <?php echo htmlspecialchars($rental['area_code']); ?></p>
-                            <p><strong>Area Type:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
-                            <p><strong>Currency:</strong> <?php echo $rental['currency'] ?? 'USD'; ?></p>
+                            <h6 class="text-secondary"><?php echo __('area_details'); ?></h6>
+                            <p><strong><?php echo __('area_code'); ?>:</strong> <?php echo htmlspecialchars($rental['area_code']); ?></p>
+                            <p><strong><?php echo __('area_type'); ?>:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
+                            <p><strong><?php echo __('currency'); ?>:</strong> <?php echo $rental['currency'] ?? 'USD'; ?></p>
                         </div>
                     </div>
 
                     <?php if ($remaining_amount > 0): ?>
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Outstanding Balance:</strong> 
+                        <strong><?php echo __('outstanding_balance'); ?>:</strong> 
                         <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
                         <br>
-                        <small>You can record a final payment when ending the rental.</small>
+                        <small><?php echo __('you_can_record_a_final_payment_when_ending_the_rental'); ?></small>
                     </div>
                     <?php else: ?>
                     <div class="alert alert-success mt-3">
                         <i class="fas fa-check-circle"></i>
-                        <strong>Fully Paid:</strong> No outstanding balance.
+                        <strong><?php echo __('fully_paid'); ?>:</strong> <?php echo __('no_outstanding_balance'); ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -318,7 +318,7 @@ require_once '../../../includes/header.php';
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history"></i> Payment History
+                        <i class="fas fa-history"></i> <?php echo __('payment_history'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -335,15 +335,15 @@ require_once '../../../includes/header.php';
                     ?>
                     
                     <?php if (empty($recent_payments)): ?>
-                        <p class="text-muted">No payment records found.</p>
+                        <p class="text-muted"><?php echo __('no_payment_records_found'); ?></p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Amount</th>
-                                        <th>Method</th>
+                                        <th><?php echo __('date'); ?></th>
+                                        <th><?php echo __('amount'); ?></th>
+                                        <th><?php echo __('method'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Confirm before ending rental
     document.getElementById('endRentalForm').addEventListener('submit', function(e) {
-        const confirmed = confirm('Are you sure you want to end this rental? This action cannot be undone.');
+        const confirmed = confirm('<?php echo __('are_you_sure_you_want_to_end_this_rental'); ?>');
         if (!confirmed) {
             e.preventDefault();
         }

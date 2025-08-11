@@ -227,10 +227,10 @@ function generateRandomPassword($length = 8) {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user-plus"></i> Add Employee
+            <i class="fas fa-user-plus"></i> <?php echo __('add_employee'); ?>
         </h1>
         <a href="index.php" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Employees
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_employees'); ?>
         </a>
     </div>
 
@@ -253,14 +253,14 @@ function generateRandomPassword($length = 8) {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="employeeForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Full Name *</label>
+                                    <label for="name" class="form-label"><?php echo __('full_name'); ?> *</label>
                                     <input type="text" class="form-control" id="name" name="name"
                                            value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
                                            required>
@@ -268,7 +268,7 @@ function generateRandomPassword($length = 8) {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email Address *</label>
+                                    <label for="email" class="form-label"><?php echo __('email_address'); ?> *</label>
                                     <input type="email" class="form-control" id="email" name="email"
                                            value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                            required>
@@ -279,21 +279,21 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <label for="phone" class="form-label"><?php echo __('phone_number'); ?></label>
                                     <input type="tel" class="form-control" id="phone" name="phone"
                                            value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="position" class="form-label">Position *</label>
+                                    <label for="position" class="form-label"><?php echo __('position'); ?> *</label>
                                     <select class="form-control" id="position" name="position" required>
-                                        <option value="">Select Position</option>
-                                        <option value="driver" <?php echo ($_POST['position'] ?? '') === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                                        <option value="driver_assistant" <?php echo ($_POST['position'] ?? '') === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
-                                        <option value="operator" <?php echo ($_POST['position'] ?? '') === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
-                                        <option value="supervisor" <?php echo ($_POST['position'] ?? '') === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
-                                        <option value="technician" <?php echo ($_POST['position'] ?? '') === 'technician' ? 'selected' : ''; ?>>Technician</option>
+                                        <option value=""><?php echo __('select_position'); ?></option>
+                                        <option value="driver" <?php echo ($_POST['position'] ?? '') === 'driver' ? 'selected' : ''; ?>><?php echo __('driver'); ?></option>
+                                        <option value="driver_assistant" <?php echo ($_POST['position'] ?? '') === 'driver_assistant' ? 'selected' : ''; ?>><?php echo __('driver_assistant'); ?></option>
+                                        <option value="operator" <?php echo ($_POST['position'] ?? '') === 'operator' ? 'selected' : ''; ?>><?php echo __('machine_operator'); ?></option>
+                                        <option value="supervisor" <?php echo ($_POST['position'] ?? '') === 'supervisor' ? 'selected' : ''; ?>><?php echo __('supervisor'); ?></option>
+                                        <option value="technician" <?php echo ($_POST['position'] ?? '') === 'technician' ? 'selected' : ''; ?>><?php echo __('technician'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -302,24 +302,24 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="monthly_salary" class="form-label">Monthly Salary *</label>
+                                    <label for="monthly_salary" class="form-label"><?php echo __('monthly_salary'); ?> *</label>
                                     <div class="input-group">
                                         <select class="form-select" id="salary_currency" name="salary_currency" style="max-width: 140px;">
-                                            <option value="AFN" <?php echo (($_POST['salary_currency'] ?? 'AFN') === 'AFN') ? 'selected' : ''; ?>>AFN</option>
-                                            <option value="USD" <?php echo (($_POST['salary_currency'] ?? '') === 'USD') ? 'selected' : ''; ?>>USD</option>
-                                            <option value="EUR" <?php echo (($_POST['salary_currency'] ?? '') === 'EUR') ? 'selected' : ''; ?>>EUR</option>
-                                            <option value="GBP" <?php echo (($_POST['salary_currency'] ?? '') === 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                                            <option value="AFN" <?php echo (($_POST['salary_currency'] ?? 'AFN') === 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                                            <option value="USD" <?php echo (($_POST['salary_currency'] ?? '') === 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                            <option value="EUR" <?php echo (($_POST['salary_currency'] ?? '') === 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?></option>
+                                            <option value="GBP" <?php echo (($_POST['salary_currency'] ?? '') === 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?></option>
                                         </select>
                                         <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
                                                value="<?php echo htmlspecialchars($_POST['monthly_salary'] ?? ''); ?>"
                                                step="0.01" min="0" required>
                                     </div>
-                                    <div class="form-text">Daily rate will be calculated automatically (Monthly Salary ÷ 30)</div>
+                                    <div class="form-text"><?php echo __('daily_rate_will_be_calculated_automatically'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="hire_date" class="form-label">Hire Date</label>
+                                    <label for="hire_date" class="form-label"><?php echo __('hire_date'); ?></label>
                                     <input type="date" class="form-control" id="hire_date" name="hire_date"
                                            value="<?php echo htmlspecialchars($_POST['hire_date'] ?? date('Y-m-d')); ?>">
                                 </div>
@@ -329,14 +329,14 @@ function generateRandomPassword($length = 8) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Employee Code</label>
+                                    <label class="form-label"><?php echo __('employee_code'); ?></label>
                                     <input type="text" class="form-control" id="employee_code_preview" readonly>
-                                    <div class="form-text">Will be automatically generated</div>
+                                    <div class="form-text"><?php echo __('will_be_automatically_generated'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Daily Rate</label>
+                                    <label class="form-label"><?php echo __('daily_rate'); ?></label>
                                     <input type="text" class="form-control" id="daily_rate_display" readonly>
                                 </div>
                             </div>
@@ -346,10 +346,10 @@ function generateRandomPassword($length = 8) {
 
                         <div class="d-flex justify-content-between">
                             <a href="index.php" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Employee
+                                <i class="fas fa-save"></i> <?php echo __('add_employee'); ?>
                             </button>
                         </div>
                     </form>
@@ -361,27 +361,27 @@ function generateRandomPassword($length = 8) {
             <!-- Information Card -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6><i class="fas fa-info-circle text-info"></i> Employee Code</h6>
-                        <p class="text-muted">A unique employee code will be automatically generated.</p>
+                        <h6><i class="fas fa-info-circle text-info"></i> <?php echo __('employee_code'); ?></h6>
+                        <p class="text-muted"><?php echo __('a_unique_employee_code_will_be_automatically_generated'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-calculator text-success"></i> Salary Calculation</h6>
-                        <p class="text-muted">Daily rate is calculated as: Monthly Salary ÷ 30 days</p>
+                        <h6><i class="fas fa-calculator text-success"></i> <?php echo __('salary_calculation'); ?></h6>
+                        <p class="text-muted"><?php echo __('daily_rate_is_calculated_as'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-user-tag text-primary"></i> User Account</h6>
-                        <p class="text-muted">A user account will be created automatically with login credentials.</p>
+                        <h6><i class="fas fa-user-tag text-primary"></i> <?php echo __('user_account'); ?></h6>
+                        <p class="text-muted"><?php echo __('a_user_account_will_be_created_automatically_with_login_credentials'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-envelope text-warning"></i> Email Notification</h6>
-                        <p class="text-muted">Login credentials will be sent to the employee's email address.</p>
+                        <h6><i class="fas fa-envelope text-warning"></i> <?php echo __('email_notification'); ?></h6>
+                        <p class="text-muted"><?php echo __('login_credentials_will_be_sent_to_the_employee_s_email_address'); ?></p>
                     </div>
                 </div>
             </div>
@@ -389,32 +389,32 @@ function generateRandomPassword($length = 8) {
             <!-- Position Guide -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Position Guide</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('position_guide'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="text-primary">Driver</h6>
-                        <p class="text-muted small">Primary machine operator responsible for driving and operating vehicles.</p>
+                        <h6 class="text-primary"><?php echo __('driver'); ?></h6>
+                        <p class="text-muted small"><?php echo __('primary_machine_operator_responsible_for_driving_and_operating_vehicles'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6 class="text-info">Driver Assistant</h6>
-                        <p class="text-muted small">Supports driver operations and assists with machine maintenance.</p>
+                        <h6 class="text-info"><?php echo __('driver_assistant'); ?></h6>
+                        <p class="text-muted small"><?php echo __('supports_driver_operations_and_assists_with_machine_maintenance'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6 class="text-success">Machine Operator</h6>
-                        <p class="text-muted small">Specialized operator for specific types of machinery.</p>
+                        <h6 class="text-success"><?php echo __('machine_operator'); ?></h6>
+                        <p class="text-muted small"><?php echo __('specialized_operator_for_specific_types_of_machinery'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6 class="text-warning">Supervisor</h6>
-                        <p class="text-muted small">Oversees operations and manages team activities.</p>
+                        <h6 class="text-warning"><?php echo __('supervisor'); ?></h6>
+                        <p class="text-muted small"><?php echo __('oversees_operations_and_manages_team_activities'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6 class="text-danger">Technician</h6>
-                        <p class="text-muted small">Maintains and repairs machinery and equipment.</p>
+                        <h6 class="text-danger"><?php echo __('technician'); ?></h6>
+                        <p class="text-muted small"><?php echo __('maintains_and_repairs_machinery_and_equipment'); ?></p>
                     </div>
                 </div>
             </div>
@@ -422,21 +422,21 @@ function generateRandomPassword($length = 8) {
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         <a href="index.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-list me-2"></i>View All Employees
+                            <i class="fas fa-list me-2"></i> <?php echo __('view_all_employees'); ?>
                         </a>
                         <a href="../machines/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-truck me-2"></i>Manage Machines
+                            <i class="fas fa-truck me-2"></i> <?php echo __('manage_machines'); ?>
                         </a>
                         <a href="../contracts/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-file-contract me-2"></i>Manage Contracts
+                            <i class="fas fa-file-contract me-2"></i> <?php echo __('manage_contracts'); ?>
                         </a>
                         <a href="../attendance/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-clock me-2"></i>Track Attendance
+                            <i class="fas fa-clock me-2"></i> <?php echo __('track_attendance'); ?>
                         </a>
                     </div>
                 </div>
@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDailyRate() {
         const salary = parseFloat(monthlySalaryInput.value) || 0;
         const dailyRate = salary / 30;
-        dailyRateDisplay.value = dailyRate.toFixed(2) + ' per day';
+        dailyRateDisplay.value = dailyRate.toFixed(2) + ' <?php echo __('per_day'); ?>';
     }
 
     nameInput.addEventListener('input', updateEmployeeCodePreview);

@@ -51,7 +51,7 @@ try {
 <html>
 <head>
 <meta charset="utf-8">
-<title>Land Rent Statement</title>
+<title><?php echo __('land_rent_statement'); ?></title>
 <style>
  body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
  h2{margin:0 0 10px 0}
@@ -69,42 +69,42 @@ try {
 </head>
 <body>
 <div class="actions">
-  <a href="javascript:window.print()" class="btn btn-primary">Print</a>
-  <a href="index.php" class="btn">Back</a>
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="index.php" class="btn"><?php echo __('back'); ?></a>
 </div>
-<h2>Land Rent Statement</h2>
-<div class="muted">Generated: <?php echo date('Y-m-d H:i'); ?></div>
+<h2><?php echo __('land_rent_statement'); ?></h2>
+<div class="muted"><?php echo __('generated'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
 
 <table class="mt-2">
-  <tr><th style="width:30%">Status</th><td><?php echo $land['enabled']? 'Rented' : 'Not Rented'; ?></td></tr>
-  <tr><th>Type</th><td><?php echo ucfirst($land['type']); ?></td></tr>
-  <tr><th>Amount</th><td><?php echo formatCurrencyAmount((float)$land['amount'], $land['currency']); ?> per <?php echo $land['type']==='yearly'?'year':'month'; ?></td></tr>
-  <tr><th>Start Date</th><td><?php echo htmlspecialchars($land['start_date']); ?></td></tr>
+  <tr><th style="width:30%">Status</th><td><?php echo $land['enabled']? __('rented') : __('not_rented'); ?></td></tr>
+  <tr><th><?php echo __('type'); ?></th><td><?php echo ucfirst($land['type']); ?></td></tr>
+  <tr><th><?php echo __('amount'); ?></th><td><?php echo formatCurrencyAmount((float)$land['amount'], $land['currency']); ?> <?php echo $land['type']==='yearly'?'year':'month'; ?></td></tr>
+  <tr><th><?php echo __('start_date'); ?></th><td><?php echo htmlspecialchars($land['start_date']); ?></td></tr>
 </table>
 
-<h3>Summary</h3>
+<h3><?php echo __('summary'); ?></h3>
 <table>
-  <tr><th>Duration</th><td><?php echo number_format($days); ?> days (<?php echo number_format($months); ?> months)</td></tr>
-  <tr><th>Owed Until Today</th><td><?php echo formatCurrencyAmount($owed, $land['currency']); ?></td></tr>
-  <tr><th>Paid To Date</th><td><?php echo formatCurrencyAmount($paid, $land['currency']); ?></td></tr>
-  <tr><th>Remaining</th><td><?php echo formatCurrencyAmount($remain, $land['currency']); ?></td></tr>
+  <tr><th><?php echo __('duration'); ?></th><td><?php echo number_format($days); ?> <?php echo __('days'); ?> (<?php echo number_format($months); ?> <?php echo __('months'); ?>)</td></tr>
+  <tr><th><?php echo __('owed_until_today'); ?></th><td><?php echo formatCurrencyAmount($owed, $land['currency']); ?></td></tr>
+  <tr><th><?php echo __('paid_to_date'); ?></th><td><?php echo formatCurrencyAmount($paid, $land['currency']); ?></td></tr>
+  <tr><th><?php echo __('remaining'); ?></th><td><?php echo formatCurrencyAmount($remain, $land['currency']); ?></td></tr>
 </table>
 
-<h3>Payments</h3>
+<h3><?php echo __('payments'); ?></h3>
 <table>
   <thead>
     <tr>
-      <th style="width:15%">Date</th>
-      <th style="width:20%" class="right">Amount</th>
-      <th style="width:10%">Currency</th>
-      <th style="width:15%">Method</th>
-      <th style="width:20%">Reference</th>
-      <th>Notes</th>
+      <th style="width:15%"><?php echo __('date'); ?></th>
+      <th style="width:20%" class="right"><?php echo __('amount'); ?></th>
+      <th style="width:10%"><?php echo __('currency'); ?></th>
+      <th style="width:15%"><?php echo __('method'); ?></th>
+      <th style="width:20%"><?php echo __('reference'); ?></th>
+      <th><?php echo __('notes'); ?></th>
     </tr>
   </thead>
   <tbody>
     <?php if (empty($payments)): ?>
-      <tr><td colspan="6" class="muted">No payments recorded.</td></tr>
+      <tr><td colspan="6" class="muted"><?php echo __('no_payments_recorded'); ?></td></tr>
     <?php else: foreach ($payments as $p): ?>
       <tr>
         <td><?php echo htmlspecialchars($p['payment_date']); ?></td>

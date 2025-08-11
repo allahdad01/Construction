@@ -205,7 +205,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('afn_received'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_received_afn, 2); ?> AFN</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_received_afn, 2); ?> <?php echo __('afn'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -237,7 +237,7 @@ $monthly_payments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1"><?php echo __('pending_afn'); ?></div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_pending_afn, 2); ?> AFN</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($total_pending_afn, 2); ?> <?php echo __('afn'); ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>

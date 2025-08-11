@@ -331,26 +331,26 @@ if ($user['employee_code']) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-key"></i> Reset Password</h5>
+        <h5 class="modal-title"><i class="fas fa-key"></i> <?php echo __('reset_password'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="resetPasswordForm">
           <input type="hidden" id="reset_user_id" value="">
           <div class="mb-3">
-            <label class="form-label">New Password</label>
+            <label class="form-label"><?php echo __('new_password'); ?></label>
             <input type="password" class="form-control" id="new_password" minlength="8" required>
-            <small class="text-muted">Minimum 8 characters</small>
+            <small class="text-muted"><?php echo __('minimum_8_characters'); ?></small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Confirm Password</label>
+            <label class="form-label"><?php echo __('confirm_password'); ?></label>
             <input type="password" class="form-control" id="confirm_password" minlength="8" required>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="submitResetPassword()">Reset</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('cancel'); ?></button>
+        <button type="button" class="btn btn-primary" onclick="submitResetPassword()"><?php echo __('reset'); ?></button>
       </div>
     </div>
   </div>
@@ -410,7 +410,7 @@ if ($user['employee_code']) {
 
 <script>
 async function toggleUserStatus(userId, status) {
-  if (!confirm(`Are you sure you want to ${status === 'active' ? 'activate' : 'deactivate'} this user?`)) return;
+  if (!confirm(`<?php echo __('are_you_sure_you_want_to'); ?> ${status === 'active' ? '<?php echo __('activate'); ?>' : '<?php echo __('deactivate'); ?>'} <?php echo __('this_user'); ?>?`)) return;
   try {
     const resp = await fetch('toggle_status.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId), status }) });
     const data = await resp.json();
@@ -419,7 +419,7 @@ async function toggleUserStatus(userId, status) {
 }
 
 async function resetPassword(userId) {
-  if (!confirm('Are you sure you want to reset this user\'s password?')) return;
+  if (!confirm('<?php echo __('are_you_sure_you_want_to_reset_this_user_s_password'); ?>')) return;
   try {
     const resp = await fetch('reset_password.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId) }) });
     const data = await resp.json();
@@ -443,19 +443,19 @@ function openResetModal(userId, userName) {
    const userId = document.getElementById('reset_user_id').value;
    const pw = document.getElementById('new_password').value;
    const pw2 = document.getElementById('confirm_password').value;
-   if (pw.length < 8) { alert('Password must be at least 8 characters long.'); return; }
-   if (pw !== pw2) { alert('Passwords do not match.'); return; }
+   if (pw.length < 8) { alert('<?php echo __('password_must_be_at_least_8_characters_long'); ?>'); return; }
+   if (pw !== pw2) { alert('<?php echo __('passwords_do_not_match'); ?>'); return; }
    try {
      const resp = await fetch('reset_password.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ user_id: String(userId), new_password: pw }) });
      const data = await resp.json();
      if (data.success) {
-       alert('Password reset successfully');
+       alert('<?php echo __('password_reset_successfully'); ?>');
        bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
      } else {
-       alert(data.message || 'Failed to reset password');
+       alert(data.message || '<?php echo __('failed_to_reset_password'); ?>');
      }
    } catch (e) {
-     alert('Server error');
+     alert('<?php echo __('server_error'); ?>');
    }
  }
 

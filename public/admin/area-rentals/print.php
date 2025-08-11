@@ -85,7 +85,7 @@ foreach ($payments as $p) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rental Summary - <?php echo htmlspecialchars($rental['rental_code']); ?></title>
+<title><?php echo __('rental_summary'); ?> - <?php echo htmlspecialchars($rental['rental_code']); ?></title>
 <style>
   body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 24px; }
   h1, h2, h3, h4 { margin: 0 0 10px 0; }
@@ -112,52 +112,52 @@ foreach ($payments as $p) {
 </head>
 <body>
 <div class="actions">
-  <a href="javascript:window.print()" class="btn btn-primary">Print</a>
-  <a href="view.php?id=<?php echo $rental_id; ?>" class="btn">Back</a>
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="view.php?id=<?php echo $rental_id; ?>" class="btn"><?php echo __('back'); ?></a>
 </div>
 
-<h2>Area Rental Summary</h2>
-<div class="muted small">Printed: <?php echo date('Y-m-d H:i'); ?></div>
+<h2><?php echo __('area_rental_summary'); ?></h2>
+<div class="muted small"><?php echo __('printed'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
 
 <div class="card">
-  <div class="card-header">Rental Information</div>
+  <div class="card-header"><?php echo __('rental_information'); ?></div>
   <div class="card-body">
     <div class="grid">
-      <div><strong>Rental Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></div>
-      <div><strong>Status:</strong> <?php echo ucfirst(htmlspecialchars($rental['status'])); ?></div>
-      <div><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></div>
-      <div><strong>Contact:</strong> <?php echo htmlspecialchars($rental['client_contact'] ?? '-'); ?></div>
-      <div><strong>Area:</strong> <?php echo htmlspecialchars($rental['area_name'] . ' (' . $rental['area_code'] . ')'); ?></div>
-      <div><strong>Type/Size:</strong> <?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?><?php echo !empty($rental['size']) ? (' • ' . htmlspecialchars($rental['size'])) : ''; ?></div>
-      <div><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></div>
-      <div><strong>End Date:</strong> <?php echo $rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></div>
-      <div><strong>Range:</strong> <?php echo htmlspecialchars($range_text); ?></div>
-      <div><strong>Days Elapsed:</strong> <?php echo (int)$days_elapsed; ?> days</div>
+      <div><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></div>
+      <div><strong><?php echo __('status'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($rental['status'])); ?></div>
+      <div><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></div>
+      <div><strong><?php echo __('contact'); ?>:</strong> <?php echo htmlspecialchars($rental['client_contact'] ?? '-'); ?></div>
+      <div><strong><?php echo __('area'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name'] . ' (' . $rental['area_code'] . ')'); ?></div>
+      <div><strong><?php echo __('type_size'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?><?php echo !empty($rental['size']) ? (' • ' . htmlspecialchars($rental['size'])) : ''; ?></div>
+      <div><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></div>
+      <div><strong><?php echo __('end_date'); ?>:</strong> <?php echo $rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></div>
+      <div><strong><?php echo __('range'); ?>:</strong> <?php echo htmlspecialchars($range_text); ?></div>
+      <div><strong><?php echo __('days_elapsed'); ?>:</strong> <?php echo (int)$days_elapsed; ?> <?php echo __('days'); ?></div>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Financials</div>
+  <div class="card-header"><?php echo __('financials'); ?></div>
   <div class="card-body">
     <table>
       <tbody>
         <tr>
-          <th>Monthly Rate</th>
+          <th><?php echo __('monthly_rate'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount((float)($rental['monthly_rate'] ?? 0), $currency); ?></td>
-          <th>Daily Rate (effective)</th>
+          <th><?php echo __('daily_rate_effective'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount((float)$daily_rate_effective, $currency); ?></td>
         </tr>
         <tr>
-          <th>Total Amount</th>
+          <th><?php echo __('total_amount'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount((float)($rental['total_amount'] ?? 0), $currency); ?></td>
-          <th>Amount Paid</th>
+          <th><?php echo __('amount_paid'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount($amount_paid_so_far, $currency); ?></td>
         </tr>
         <tr>
-          <th>Owed Until <?php echo $asOfDate->format('M j, Y'); ?></th>
+          <th><?php echo __('owed_until'); ?> <?php echo $asOfDate->format('M j, Y'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount($owed_until_date, $currency); ?></td>
-          <th>Outstanding Due</th>
+          <th><?php echo __('outstanding_due'); ?></th>
           <td class="right"><?php echo formatCurrencyAmount($outstanding_due, $currency); ?></td>
         </tr>
       </tbody>
@@ -166,20 +166,20 @@ foreach ($payments as $p) {
 </div>
 
 <div class="card">
-  <div class="card-header">Payments</div>
+  <div class="card-header"><?php echo __('payments'); ?></div>
   <div class="card-body">
     <?php if (empty($payments)): ?>
-      <div class="small muted">No payments found.</div>
+      <div class="small muted"><?php echo __('no_payments_found'); ?></div>
     <?php else: ?>
       <table>
         <thead>
           <tr>
-            <th style="width: 18%">Date</th>
-            <th style="width: 20%">Reference</th>
-            <th style="width: 18%">Method</th>
-            <th style="width: 14%">Status</th>
-            <th class="right" style="width: 15%">Amount</th>
-            <th style="width: 15%">Currency</th>
+            <th style="width: 18%"><?php echo __('date'); ?></th>
+            <th style="width: 20%"><?php echo __('reference'); ?></th>
+            <th style="width: 18%"><?php echo __('method'); ?></th>
+            <th style="width: 14%"><?php echo __('status'); ?></th>
+            <th class="right" style="width: 15%"><?php echo __('amount'); ?></th>
+            <th style="width: 15%"><?php echo __('currency'); ?></th>
           </tr>
         </thead>
         <tbody>
@@ -196,7 +196,7 @@ foreach ($payments as $p) {
         </tbody>
       </table>
       <div class="stacked" style="margin-top:8px;">
-        <div class="small muted">Totals:</div>
+        <div class="small muted"><?php echo __('totals'); ?>:</div>
         <?php foreach ($total_by_currency as $cur => $sum): ?>
           <div><?php echo formatCurrencyAmount($sum, $cur); ?></div>
         <?php endforeach; ?>

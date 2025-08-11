@@ -67,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notes = trim($_POST['notes'] ?? '');
     $selected_machine_id = isset($_POST['machine_id']) ? (int)$_POST['machine_id'] : 0;
 
-    if (!$date) { $error = 'Please select a date.'; }
-    elseif ($hours_worked <= 0) { $error = 'Hours worked must be greater than 0.'; }
-    elseif ($hours_worked > 24) { $error = 'Hours worked cannot exceed 24 hours per day.'; }
-    elseif ($selected_machine_id > 0 && !in_array($selected_machine_id, $assigned_machine_ids, true)) { $error = 'Invalid machine selection.'; }
+    if (!$date) { $error = __('please_select_a_date'); }
+    elseif ($hours_worked <= 0) { $error = __('hours_worked_must_be_greater_than_0'); }
+    elseif ($hours_worked > 24) { $error = __('hours_worked_cannot_exceed_24_hours_per_day'); }
+    elseif ($selected_machine_id > 0 && !in_array($selected_machine_id, $assigned_machine_ids, true)) { $error = __('invalid_machine_selection'); }
     else {
         // Ensure unique per day
         $chk = $conn->prepare('SELECT id FROM working_hours WHERE company_id=? AND contract_id=? AND employee_id=? AND date=?');
@@ -89,19 +89,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Add Work Hours</h1>
-    <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Timesheet</a>
+    <h1 class="h3 mb-0 text-gray-800"><?php echo __('add_work_hours'); ?></h1>
+    <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?></a>
   </div>
 
   <div class="card shadow mb-4">
-    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Contract Information</h6></div>
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_information'); ?></h6></div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
           <table class="table table-borderless">
-            <tr><td><strong>Contract:</strong></td><td><?php echo htmlspecialchars($contract['contract_code'] ?? ('#'.$contract_id)); ?></td></tr>
-            <tr><td><strong>Project:</strong></td><td><?php echo htmlspecialchars($contract['project_name'] ?? ''); ?></td></tr>
-            <tr><td><strong>Machine(s):</strong></td><td>
+            <tr><td><strong><?php echo __('contract'); ?>:</strong></td><td><?php echo htmlspecialchars($contract['contract_code'] ?? ('#'.$contract_id)); ?></td></tr>
+            <tr><td><strong><?php echo __('project'); ?>:</strong></td><td><?php echo htmlspecialchars($contract['project_name'] ?? ''); ?></td></tr>
+            <tr><td><strong><?php echo __('machine'); ?>(s):</strong></td><td>
               <?php
                 // Display assigned machines for this driver on this contract
                 $ph = implode(',', array_fill(0, count($assigned_machine_ids), '?'));
@@ -116,9 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="col-md-6">
           <table class="table table-borderless">
-            <tr><td><strong>Type:</strong></td><td><?php echo ucfirst($contract['contract_type']); ?></td></tr>
-            <tr><td><strong>Rate:</strong></td><td><?php echo formatCurrencyAmount((float)$contract['rate_amount'], $contract_currency); ?></td></tr>
-            <tr><td><strong>Rate/Hour:</strong></td><td><strong><?php echo formatCurrencyAmount($rate_per_hour, $contract_currency); ?></strong></td></tr>
+            <tr><td><strong><?php echo __('type'); ?>:</strong></td><td><?php echo ucfirst($contract['contract_type']); ?></td></tr>
+            <tr><td><strong><?php echo __('rate'); ?>:</strong></td><td><?php echo formatCurrencyAmount((float)$contract['rate_amount'], $contract_currency); ?></td></tr>
+            <tr><td><strong><?php echo __('rate_per_hour'); ?>:</strong></td><td><strong><?php echo formatCurrencyAmount($rate_per_hour, $contract_currency); ?></strong></td></tr>
           </table>
         </div>
       </div>
@@ -129,28 +129,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($success): ?><div class="alert alert-success"><i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success); ?></div><?php endif; ?>
 
   <div class="card shadow">
-    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Add Work Hours</h6></div>
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary"><?php echo __('add_work_hours'); ?></h6></div>
     <div class="card-body">
       <form method="POST">
         <div class="row">
           <div class="col-md-4">
-            <label class="form-label">Date *</label>
+            <label class="form-label"><?php echo __('date'); ?> *</label>
             <input type="date" class="form-control" name="date" value="<?php echo htmlspecialchars($_POST['date'] ?? date('Y-m-d')); ?>" required>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Hours Worked *</label>
+            <label class="form-label"><?php echo __('hours_worked'); ?> *</label>
             <input type="number" class="form-control" name="hours_worked" step="0.5" min="0.5" max="24" value="<?php echo htmlspecialchars($_POST['hours_worked'] ?? ''); ?>" required>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Daily Amount</label>
+            <label class="form-label"><?php echo __('daily_amount'); ?></label>
             <input type="text" class="form-control" id="daily_amount" readonly>
-            <small class="text-muted">Calculated automatically</small>
+            <small class="text-muted"><?php echo __('calculated_automatically'); ?></small>
           </div>
         </div>
         <?php if (count($assigned_machine_ids) > 1): ?>
         <div class="row mt-3">
           <div class="col-md-6">
-            <label class="form-label">Machine *</label>
+            <label class="form-label"><?php echo __('machine'); ?> *</label>
             <select class="form-control" name="machine_id" required>
               <?php
                 $st3 = $conn->prepare("SELECT id, machine_code, name FROM machines WHERE id IN (".implode(',', array_fill(0, count($assigned_machine_ids), '?')).")");
@@ -164,12 +164,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <?php endif; ?>
         <div class="mb-3 mt-3">
-          <label class="form-label">Notes</label>
+          <label class="form-label"><?php echo __('notes'); ?></label>
           <textarea class="form-control" name="notes" rows="2" placeholder="Optional notes..."><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
         </div>
         <div class="d-flex justify-content-end gap-2">
-          <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Hours</button>
+          <a href="timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary"><i class="fas fa-times"></i> <?php echo __('cancel'); ?></a>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <?php echo __('add_hours'); ?></button>
         </div>
       </form>
     </div>

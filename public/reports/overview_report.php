@@ -251,7 +251,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Key Metrics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('key_metrics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -260,25 +260,25 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
                                     <h3 class="text-primary"><?php echo number_format($overview_data['total_companies']); ?></h3>
-                                    <p class="text-muted mb-0">Total Companies</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_companies'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
                                     <h3 class="text-success"><?php echo number_format($overview_data['total_employees']); ?></h3>
-                                    <p class="text-muted mb-0">Total Employees</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_employees'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
                                     <h3 class="text-info"><?php echo number_format($overview_data['total_machines']); ?></h3>
-                                    <p class="text-muted mb-0">Total Machines</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_machines'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
                                     <h3 class="text-warning"><?php echo number_format($overview_data['total_hours'], 1); ?></h3>
-                                    <p class="text-muted mb-0">Total Hours</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_hours'); ?></p>
                                 </div>
                             </div>
                         <?php else: ?>
@@ -286,7 +286,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             <div class="col-md-3 text-center mb-3">
                                 <div class="border rounded p-3">
                                     <h3 class="text-primary"><?php echo number_format($overview_data['total_employees']); ?></h3>
-                                    <p class="text-muted mb-0">Total Employees</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_employees'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
@@ -300,7 +300,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                             <h3 class="text-success">$0.00</h3>
                                         <?php endif; ?>
                                     </div>
-                                    <p class="text-muted mb-0">Total Earnings</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_earnings'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
@@ -310,9 +310,9 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                     $contracted = (float)($overview_data['total_contract_hours'] ?? 0);
                                     $remaining = max(0, $contracted - $worked);
                                     ?>
-                                    <h4 class="text-info mb-1"><?php echo number_format($worked, 1); ?> hrs</h4>
-                                    <div class="small text-muted"><?php echo number_format($contracted, 1); ?> hrs contracted • <?php echo number_format($remaining, 1); ?> hrs remaining</div>
-                                    <p class="text-muted mb-0">Total Hours</p>
+                                    <h4 class="text-info mb-1"><?php echo number_format($worked, 1); ?> <?php echo __('hours'); ?></h4>
+                                    <div class="small text-muted"><?php echo number_format($contracted, 1); ?> <?php echo __('hours_contracted'); ?> • <?php echo number_format($remaining, 1); ?> <?php echo __('hours_remaining'); ?></div>
+                                    <p class="text-muted mb-0"><?php echo __('total_hours'); ?></p>
                                 </div>
                             </div>
                             <div class="col-md-3 text-center mb-3">
@@ -326,7 +326,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                             <h3 class="text-warning">$0.00</h3>
                                         <?php endif; ?>
                                     </div>
-                                    <p class="text-muted mb-0">Total Expenses</p>
+                                    <p class="text-muted mb-0"><?php echo __('total_expenses'); ?></p>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -342,7 +342,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Key Insights</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('key_insights'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($insights)): ?>
@@ -355,7 +355,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                             <?php endforeach; ?>
                         </ul>
                     <?php else: ?>
-                        <p class="text-muted">No insights available for this period.</p>
+                        <p class="text-muted"><?php echo __('no_insights_available_for_this_period'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -366,7 +366,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <?php echo $is_super_admin ? 'Company Growth Trend' : 'Earnings Trend'; ?>
+                        <?php echo $is_super_admin ? __('company_growth_trend') : __('earnings_trend'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -381,56 +381,56 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Performance Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('performance_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <?php if ($is_super_admin): ?>
                             <!-- System Performance -->
                             <div class="col-md-6">
-                                <h6>System Performance</h6>
+                                <h6><?php echo __('system_performance'); ?></h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <tbody>
                                             <tr>
-                                                <td>Active Companies</td>
+                                                <td><?php echo __('active_companies'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_companies']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Total Revenue</td>
+                                                <td><?php echo __('total_revenue'); ?></td>
                                                 <td><?php echo formatCurrency($overview_data['total_revenue']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Active Contracts</td>
+                                                <td><?php echo __('active_contracts'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_contracts']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Total Working Hours</td>
-                                                <td><?php echo number_format($overview_data['total_hours'], 1); ?> hrs</td>
+                                                <td><?php echo __('total_working_hours'); ?></td>
+                                                <td><?php echo number_format($overview_data['total_hours'], 1); ?> <?php echo __('hours'); ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6>Efficiency Metrics</h6>
+                                <h6><?php echo __('efficiency_metrics'); ?></h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <tbody>
                                             <tr>
-                                                <td>Avg Employees per Company</td>
+                                                <td><?php echo __('avg_employees_per_company'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_employees'] / max($overview_data['total_companies'], 1), 1); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Avg Machines per Company</td>
+                                                <td><?php echo __('avg_machines_per_company'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_machines'] / max($overview_data['total_companies'], 1), 1); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Avg Hours per Employee</td>
-                                                <td><?php echo number_format($overview_data['total_hours'] / max($overview_data['total_employees'], 1), 1); ?> hrs</td>
+                                                <td><?php echo __('avg_hours_per_employee'); ?></td>
+                                                <td><?php echo number_format($overview_data['total_hours'] / max($overview_data['total_employees'], 1), 1); ?> <?php echo __('hours'); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Revenue per Company</td>
+                                                <td><?php echo __('revenue_per_company'); ?></td>
                                                 <td><?php echo formatCurrency($overview_data['total_revenue'] / max($overview_data['total_companies'], 1)); ?></td>
                                             </tr>
                                         </tbody>
@@ -440,12 +440,12 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                         <?php else: ?>
                             <!-- Company Performance -->
                             <div class="col-md-6">
-                                <h6>Financial Performance</h6>
+                                <h6><?php echo __('financial_performance'); ?></h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <tbody>
                                             <tr>
-                                                <td>Total Earnings</td>
+                                                <td><?php echo __('total_earnings'); ?></td>
                                                 <td class="text-success">
                                                     <?php if (!empty($overview_data['total_earnings_by_currency'])): ?>
                                                         <?php $idx = 0; foreach ($overview_data['total_earnings_by_currency'] as $cur => $amt): ?>
@@ -457,7 +457,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Total Expenses</td>
+                                                <td><?php echo __('total_expenses'); ?></td>
                                                 <td class="text-danger">
                                                     <?php if (!empty($overview_data['total_expenses_by_currency'])): ?>
                                                         <?php $idx = 0; foreach ($overview_data['total_expenses_by_currency'] as $cur => $amt): ?>
@@ -469,7 +469,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Salary Payments</td>
+                                                <td><?php echo __('salary_payments'); ?></td>
                                                 <td class="text-warning">
                                                     <?php if (!empty($overview_data['total_salary_by_currency'])): ?>
                                                         <?php $idx = 0; foreach ($overview_data['total_salary_by_currency'] as $cur => $amt): ?>
@@ -481,7 +481,7 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                                 </td>
                                             </tr>
                                             <tr class="table-info">
-                                                <td><strong>Net Profit</strong></td>
+                                                <td><strong><?php echo __('net_profit'); ?></strong></td>
                                                 <td class="text-primary">
                                                     <?php 
                                                     $allCurrencies = array_unique(array_merge(
@@ -508,33 +508,33 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6>Operational Performance</h6>
+                                <h6><?php echo __('operational_performance'); ?></h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <tbody>
                                             <tr>
-                                                <td>Total Employees</td>
+                                                <td><?php echo __('total_employees'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_employees']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Total Machines</td>
+                                                <td><?php echo __('total_machines'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_machines']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Active Contracts</td>
+                                                <td><?php echo __('active_contracts'); ?></td>
                                                 <td><?php echo number_format($overview_data['total_contracts']); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Total Working Hours</td>
+                                                <td><?php echo __('total_working_hours'); ?></td>
                                                 <td>
                                                     <?php 
                                                     $worked = (float)($overview_data['total_hours'] ?? 0);
                                                     $contracted = (float)($overview_data['total_contract_hours'] ?? 0);
                                                     $remaining = max(0, $contracted - $worked);
-                                                    echo number_format($worked, 1) . ' hrs (Worked)';
+                                                    echo number_format($worked, 1) . ' ' . __('hours') . ' (' . __('worked') . ')';
                                                     ?>
                                                     <div class="small text-muted">
-                                                        <?php echo number_format($contracted, 1); ?> hrs contracted • <?php echo number_format($remaining, 1); ?> hrs remaining
+                                                        <?php echo number_format($contracted, 1); ?> <?php echo __('hours_contracted'); ?> • <?php echo number_format($remaining, 1); ?> <?php echo __('hours_remaining'); ?>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -554,32 +554,32 @@ function generateInsights($conn, $overview_data, $trend_data, $is_super_admin, $
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 text-center mb-3">
                             <a href="../employees/" class="btn btn-primary btn-block">
                                 <i class="fas fa-users"></i><br>
-                                Manage Employees
+                                <?php echo __('manage_employees'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <a href="../contracts/" class="btn btn-success btn-block">
                                 <i class="fas fa-file-contract"></i><br>
-                                View Contracts
+                                <?php echo __('view_contracts'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <a href="../machines/" class="btn btn-info btn-block">
                                 <i class="fas fa-truck"></i><br>
-                                Manage Machines
+                                <?php echo __('manage_machines'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <a href="../expenses/" class="btn btn-warning btn-block">
                                 <i class="fas fa-receipt"></i><br>
-                                Track Expenses
+                                <?php echo __('track_expenses'); ?>
                             </a>
                         </div>
                     </div>
@@ -598,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?php echo json_encode(array_column($trend_data, 'date')); ?>,
             datasets: [{
-                label: '<?php echo $is_super_admin ? 'New Companies' : 'Earnings'; ?>',
+                label: '<?php echo $is_super_admin ? __('new_companies') : __('earnings'); ?>',
                 data: <?php echo json_encode(array_column($trend_data, $is_super_admin ? 'new_companies' : 'earnings')); ?>,
                 borderColor: 'rgb(78, 115, 223)',
                 backgroundColor: 'rgba(78, 115, 223, 0.1)',
@@ -627,9 +627,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 callbacks: {
                     label: function(tooltipItem, chart) {
                         <?php if ($is_super_admin): ?>
-                        return 'New Companies: ' + tooltipItem.yLabel;
+                        return '<?php echo __('new_companies'); ?>: ' + tooltipItem.yLabel;
                         <?php else: ?>
-                        return 'Earnings: $' + number_format(tooltipItem.yLabel);
+                        return '<?php echo __('earnings'); ?>: $' + number_format(tooltipItem.yLabel);
                         <?php endif; ?>
                     }
                 }

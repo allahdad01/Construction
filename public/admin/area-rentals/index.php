@@ -202,16 +202,16 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-map-marked-alt"></i> Area Rentals Management
+                <i class="fas fa-map-marked-alt"></i> <?php echo __('area_rentals_management'); ?>
             </h1>
-            <p class="text-muted mb-0">Manage land rentals for commercial, residential, and industrial use</p>
+            <p class="text-muted mb-0"><?php echo __('manage_land_rentals_for_commercial_residential_and_industrial_use'); ?></p>
         </div>
         <div class="btn-group" role="group">
             <a href="add.php" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add New Rental
+                <i class="fas fa-plus"></i> <?php echo __('add_new_rental'); ?>
             </a>
             <a href="../rental-areas/" class="btn btn-primary">
-                <i class="fas fa-map"></i> Manage Areas
+                <i class="fas fa-map"></i> <?php echo __('manage_areas'); ?>
             </a>
         </div>
     </div>
@@ -232,7 +232,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Rentals
+                                <?php echo __('total_rentals'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['total_rentals']; ?></div>
                         </div>
@@ -250,7 +250,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Active Rentals
+                                <?php echo __('active_rentals'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $stats['active_rentals']; ?></div>
                         </div>
@@ -268,7 +268,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Monthly Revenue
+                                <?php echo __('monthly_revenue'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php if (!empty($stats_by_currency)): ?>
@@ -280,7 +280,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <small class="text-muted"><?php echo $stat['currency']; ?></small>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <span class="text-muted">No revenue data</span>
+                                    <span class="text-muted"><?php echo __('no_revenue_data'); ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -298,7 +298,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Avg Monthly Rate
+                                <?php echo __('avg_monthly_rate'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php if (!empty($stats_by_currency)): ?>
@@ -310,7 +310,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <small class="text-muted"><?php echo $stat['currency']; ?></small>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <span class="text-muted">No rate data</span>
+                                    <span class="text-muted"><?php echo __('no_rate_data'); ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -330,7 +330,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-chart-line"></i> Actual Revenue (All Time)
+                        <i class="fas fa-chart-line"></i> <?php echo __('actual_revenue_all_time'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -349,7 +349,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-chart-pie"></i> Area Type Distribution
+                        <i class="fas fa-chart-pie"></i> <?php echo __('area_type_distribution'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -372,7 +372,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <?php foreach ($stats as $stat): ?>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="text-muted">
-                                            <?php echo $stat['count']; ?> rental(s)
+                                            <?php echo $stat['count']; ?> <?php echo __('rental_s'); ?>
                                         </span>
                                         <span class="badge bg-<?php echo $stat['currency'] === 'USD' ? 'success' : ($stat['currency'] === 'AFN' ? 'warning' : 'info'); ?>">
                                             <?php echo formatCurrencyAmount($stat['total_revenue'], $stat['currency']); ?>
@@ -382,7 +382,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-muted mb-0">No active rentals by area type.</p>
+                        <p class="text-muted mb-0"><?php echo __('no_active_rentals_by_area_type'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -395,22 +395,22 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-8">
             <div class="btn-group" role="group">
                 <a href="?status=" class="btn btn-outline-primary <?php echo empty($status_filter) ? 'active' : ''; ?>">
-                    All Rentals
+                    <?php echo __('all_rentals'); ?>
                 </a>
                 <a href="?status=active" class="btn btn-outline-success <?php echo $status_filter === 'active' ? 'active' : ''; ?>">
-                    Active
+                    <?php echo __('active'); ?>
                 </a>
                 <a href="?status=pending" class="btn btn-outline-warning <?php echo $status_filter === 'pending' ? 'active' : ''; ?>">
-                    Pending
+                    <?php echo __('pending'); ?>
                 </a>
                 <a href="?status=ended" class="btn btn-outline-secondary <?php echo $status_filter === 'ended' ? 'active' : ''; ?>">
-                    Ended
+                    <?php echo __('ended'); ?>
                 </a>
             </div>
         </div>
         <div class="col-md-4 text-end">
             <a href="add.php" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add New Rental
+                <i class="fas fa-plus"></i> <?php echo __('add_new_rental'); ?>
             </a>
         </div>
     </div>
@@ -419,57 +419,57 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-search"></i> Search & Filter
+                <i class="fas fa-search"></i> <?php echo __('search_filter'); ?>
             </h6>
             <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchFilters">
-                <i class="fas fa-filter"></i> Toggle Filters
+                <i class="fas fa-filter"></i> <?php echo __('toggle_filters'); ?>
             </button>
         </div>
         <div class="collapse show" id="searchFilters">
             <div class="card-body">
                 <form method="GET" class="row g-3">
                     <div class="col-md-4">
-                        <label for="search" class="form-label">Search</label>
+                        <label for="search" class="form-label"><?php echo __('search'); ?></label>
                         <input type="text" class="form-control" id="search" name="search" 
                                value="<?php echo htmlspecialchars($search); ?>" 
-                               placeholder="Search by rental code, client name, area name...">
+                               placeholder="<?php echo __('search_by_rental_code_client_name_area_name'); ?>">
                     </div>
                     <div class="col-md-2">
-                        <label for="status" class="form-label">Status</label>
+                        <label for="status" class="form-label"><?php echo __('status'); ?></label>
                         <select class="form-control" id="status" name="status">
-                            <option value="">All Status</option>
-                            <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                            <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                            <option value="ended" <?php echo $status_filter === 'ended' ? 'selected' : ''; ?>>Ended</option>
+                            <option value=""><?php echo __('all_status'); ?></option>
+                            <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                            <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                            <option value="ended" <?php echo $status_filter === 'ended' ? 'selected' : ''; ?>><?php echo __('ended'); ?></option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="type" class="form-label">Rental Type</label>
+                        <label for="type" class="form-label"><?php echo __('rental_type'); ?></label>
                         <select class="form-control" id="type" name="type">
-                            <option value="">All Types</option>
-                            <option value="commercial" <?php echo $type_filter === 'commercial' ? 'selected' : ''; ?>>Commercial</option>
-                            <option value="residential" <?php echo $type_filter === 'residential' ? 'selected' : ''; ?>>Residential</option>
-                            <option value="industrial" <?php echo $type_filter === 'industrial' ? 'selected' : ''; ?>>Industrial</option>
-                            <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>>Container</option>
-                            <option value="event" <?php echo $type_filter === 'event' ? 'selected' : ''; ?>>Event</option>
+                            <option value=""><?php echo __('all_types'); ?></option>
+                            <option value="commercial" <?php echo $type_filter === 'commercial' ? 'selected' : ''; ?>><?php echo __('commercial'); ?></option>
+                            <option value="residential" <?php echo $type_filter === 'residential' ? 'selected' : ''; ?>><?php echo __('residential'); ?></option>
+                            <option value="industrial" <?php echo $type_filter === 'industrial' ? 'selected' : ''; ?>><?php echo __('industrial'); ?></option>
+                            <option value="container" <?php echo $type_filter === 'container' ? 'selected' : ''; ?>><?php echo __('container'); ?></option>
+                            <option value="event" <?php echo $type_filter === 'event' ? 'selected' : ''; ?>><?php echo __('event'); ?></option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="area_type" class="form-label">Area Type</label>
+                        <label for="area_type" class="form-label"><?php echo __('area_type'); ?></label>
                         <select class="form-control" id="area_type" name="area_type">
-                            <option value="">All Areas</option>
-                            <option value="commercial" <?php echo $area_type_filter === 'commercial' ? 'selected' : ''; ?>>Commercial</option>
-                            <option value="industrial" <?php echo $area_type_filter === 'industrial' ? 'selected' : ''; ?>>Industrial</option>
-                            <option value="residential" <?php echo $area_type_filter === 'residential' ? 'selected' : ''; ?>>Residential</option>
-                            <option value="container" <?php echo $area_type_filter === 'container' ? 'selected' : ''; ?>>Container</option>
-                            <option value="event" <?php echo $area_type_filter === 'event' ? 'selected' : ''; ?>>Event</option>
+                            <option value=""><?php echo __('all_areas'); ?></option>
+                            <option value="commercial" <?php echo $area_type_filter === 'commercial' ? 'selected' : ''; ?>><?php echo __('commercial'); ?></option>
+                            <option value="industrial" <?php echo $area_type_filter === 'industrial' ? 'selected' : ''; ?>><?php echo __('industrial'); ?></option>
+                            <option value="residential" <?php echo $area_type_filter === 'residential' ? 'selected' : ''; ?>><?php echo __('residential'); ?></option>
+                            <option value="container" <?php echo $area_type_filter === 'container' ? 'selected' : ''; ?>><?php echo __('container'); ?></option>
+                            <option value="event" <?php echo $area_type_filter === 'event' ? 'selected' : ''; ?>><?php echo __('event'); ?></option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Search
+                                <i class="fas fa-search"></i> <?php echo __('search'); ?>
                             </button>
                         </div>
                     </div>
@@ -477,9 +477,9 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (!empty($search) || !empty($status_filter) || !empty($type_filter) || !empty($area_type_filter)): ?>
                     <div class="mt-3">
                         <a href="index.php" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-times"></i> Clear All Filters
+                            <i class="fas fa-times"></i> <?php echo __('clear_all_filters'); ?>
                         </a>
-                        <span class="text-muted ms-2">Showing <?php echo count($area_rentals); ?> of <?php echo $total_records; ?> rentals</span>
+                        <span class="text-muted ms-2"><?php echo __('showing'); ?> <?php echo count($area_rentals); ?> <?php echo __('of'); ?> <?php echo $total_records; ?> <?php echo __('rentals'); ?></span>
                     </div>
                 <?php endif; ?>
             </div>
@@ -490,17 +490,17 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-list"></i> Area Rentals (<?php echo $total_records; ?> total)
+                <i class="fas fa-list"></i> <?php echo __('area_rentals'); ?> (<?php echo $total_records; ?> <?php echo __('total'); ?>)
             </h6>
         </div>
         <div class="card-body">
             <?php if (empty($area_rentals)): ?>
                 <div class="text-center py-5">
                     <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Area Rentals Found</h5>
-                    <p class="text-muted">Get started by adding your first area rental.</p>
+                    <h5 class="text-muted"><?php echo __('no_area_rentals_found'); ?></h5>
+                    <p class="text-muted"><?php echo __('get_started_by_adding_your_first_area_rental'); ?></p>
                     <a href="add.php" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Rental
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_rental'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -508,11 +508,11 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <table class="table table-bordered" id="areaRentalsTable">
                         <thead>
                             <tr>
-                                <th>Rental Details</th>
-                                <th>Area Information</th>
-                                <th>Financial</th>
-                                <th>Status & Dates</th>
-                                <th>Actions</th>
+                                <th><?php echo __('rental_details'); ?></th>
+                                <th><?php echo __('area_information'); ?></th>
+                                <th><?php echo __('financial'); ?></th>
+                                <th><?php echo __('status_dates'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -564,15 +564,15 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <strong class="text-success">
                                                 <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?>
                                             </strong>
-                                            <small class="text-muted">Monthly Rate</small>
+                                            <small class="text-muted"><?php echo __('monthly_rate'); ?></small>
                                             <?php if ($rental['total_paid'] > 0): ?>
                                                 <div class="mt-1">
                                                     <small class="text-success">
-                                                        Paid: <?php echo formatCurrencyAmount($rental['total_paid'], $rental['currency'] ?? 'USD'); ?>
+                                                        <?php echo __('paid'); ?>: <?php echo formatCurrencyAmount($rental['total_paid'], $rental['currency'] ?? 'USD'); ?>
                                                     </small>
                                                     <br>
                                                     <small class="text-muted">
-                                                        <?php echo $rental['payment_count']; ?> payments
+                                                        <?php echo $rental['payment_count']; ?> <?php echo __('payments'); ?>
                                                     </small>
                                                 </div>
                                             <?php endif; ?>
@@ -584,18 +584,18 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <?php echo ucfirst($rental['status']); ?>
                                             </span>
                                             <small class="text-muted">
-                                                Start: <?php echo date('M j, Y', strtotime($rental['start_date'])); ?>
+                                                <?php echo __('start'); ?>: <?php echo date('M j, Y', strtotime($rental['start_date'])); ?>
                                             </small>
                                             <?php if (!empty($rental['end_date'])): ?>
                                                 <small class="text-muted">
-                                                    End: <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
+                                                    <?php echo __('end'); ?>: <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>
                                                 </small>
                                             <?php else: ?>
-                                                <small class="text-info">Ongoing</small>
+                                                <small class="text-info"><?php echo __('ongoing'); ?></small>
                                             <?php endif; ?>
                                             <?php if ($rental['maintenance_count'] > 0): ?>
                                                 <small class="text-warning">
-                                                    <i class="fas fa-tools"></i> <?php echo $rental['maintenance_count']; ?> maintenance
+                                                    <i class="fas fa-tools"></i> <?php echo $rental['maintenance_count']; ?> <?php echo __('maintenance'); ?>
                                                 </small>
                                             <?php endif; ?>
                                         </div>
@@ -640,7 +640,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>&area_type=<?php echo urlencode($area_type_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -656,7 +656,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&type=<?php echo urlencode($type_filter); ?>&area_type=<?php echo urlencode($area_type_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -675,11 +675,11 @@ $(document).ready(function() {
         "pageLength": 15,
         "responsive": true,
         "language": {
-            "search": "Search rentals:",
-            "lengthMenu": "Show _MENU_ rentals per page",
-            "info": "Showing _START_ to _END_ of _TOTAL_ rentals",
-            "infoEmpty": "Showing 0 to 0 of 0 rentals",
-            "infoFiltered": "(filtered from _MAX_ total rentals)"
+            "search": "<?php echo __('search_rentals'); ?>:",
+            "lengthMenu": "<?php echo __('show_rentals_per_page'); ?>",
+            "info": "<?php echo __('showing_start_to_end_of_total_rentals'); ?>",
+            "infoEmpty": "<?php echo __('showing_0_to_0_of_0_rentals'); ?>",
+            "infoFiltered": "(<?php echo __('filtered_from_total_rentals'); ?>)"
         }
     });
 });

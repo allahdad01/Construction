@@ -158,10 +158,10 @@ function generateParkingRentalCode($company_id) {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-plus-circle"></i> Add Parking Rental
+            <i class="fas fa-plus-circle"></i> <?php echo __('add_parking_rental'); ?>
         </h1>
         <a href="<?php echo $space_id ? "view.php?id=$space_id" : 'index.php'; ?>" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
+            <i class="fas fa-arrow-left"></i> <?php echo __('back'); ?>
         </a>
     </div>
 
@@ -176,14 +176,14 @@ function generateParkingRentalCode($company_id) {
     <!-- Add Parking Rental Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Parking Rental Details</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_rental_details'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="parking_space_id" class="form-label">Parking Space *</label>
+                            <label for="parking_space_id" class="form-label"><?php echo __('parking_space'); ?> *</label>
                             <?php if ($space_id): ?>
                                 <input type="hidden" name="parking_space_id" value="<?php echo $space_id; ?>">
                                 <input type="text" class="form-control" readonly 
@@ -191,13 +191,13 @@ function generateParkingRentalCode($company_id) {
                                 <small class="text-muted">
                                     <?php 
                                     $category_display = [
-                                        'machines' => '🏗️ Machines',
-                                        'cars' => '🚗 Cars', 
-                                        'trucks' => '🚛 Trucks',
-                                        'vans' => '🚐 Vans',
-                                        'motorcycles' => '🏍️ Motorcycles',
-                                        'trailers' => '🚛 Trailers',
-                                        'general' => '🅿️ General'
+                                        'machines' => '🏗️ ' . __('machines'),
+                                        'cars' => '🚗 ' . __('cars'), 
+                                        'trucks' => '🚛 ' . __('trucks'),
+                                        'vans' => '🚐 ' . __('vans'),
+                                        'motorcycles' => '🏍️ ' . __('motorcycles'),
+                                        'trailers' => '🚛 ' . __('trailers'),
+                                        'general' => '🅿️ ' . __('general')
                                     ];
                                     $category = $parking_space['vehicle_category'] ?? 'general';
                                     echo $category_display[$category] ?? ucfirst($category);
@@ -207,7 +207,7 @@ function generateParkingRentalCode($company_id) {
                                 </small>
                             <?php else: ?>
                                 <select class="form-control" id="parking_space_id" name="parking_space_id" required>
-                                    <option value="">Select Parking Space</option>
+                                    <option value=""><?php echo __('select_parking_space'); ?></option>
                                     <?php foreach ($available_spaces as $space): ?>
                                         <option value="<?php echo $space['id']; ?>" 
                                                 data-rate="<?php echo $space['monthly_rate']; ?>"
@@ -222,7 +222,7 @@ function generateParkingRentalCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="client_name" class="form-label">Client Name *</label>
+                            <label for="client_name" class="form-label"><?php echo __('client_name'); ?> *</label>
                             <input type="text" class="form-control" id="client_name" name="client_name" 
                                    value="<?php echo htmlspecialchars($_POST['client_name'] ?? ''); ?>" 
                                    style="text-transform: none;" autocomplete="off" spellcheck="false" required>
@@ -234,7 +234,7 @@ function generateParkingRentalCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="client_contact" class="form-label">Client Contact</label>
+                            <label for="client_contact" class="form-label"><?php echo __('client_contact'); ?></label>
                             <input type="text" class="form-control" id="client_contact" name="client_contact" 
                                    value="<?php echo htmlspecialchars($_POST['client_contact'] ?? ''); ?>"
                                    placeholder="Phone, Email, or Address"
@@ -244,19 +244,19 @@ function generateParkingRentalCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="vehicle_type" class="form-label">Vehicle Type</label>
+                            <label for="vehicle_type" class="form-label"><?php echo __('vehicle_type'); ?></label>
                             <select class="form-control" id="vehicle_type" name="vehicle_type">
-                                <option value="">Select Vehicle Type</option>
-                                <option value="Excavator" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Excavator') ? 'selected' : ''; ?>>Excavator</option>
-                                <option value="Bulldozer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Bulldozer') ? 'selected' : ''; ?>>Bulldozer</option>
-                                <option value="Crane" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Crane') ? 'selected' : ''; ?>>Crane</option>
-                                <option value="Dump Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Dump Truck') ? 'selected' : ''; ?>>Dump Truck</option>
-                                <option value="Pickup Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Pickup Truck') ? 'selected' : ''; ?>>Pickup Truck</option>
-                                <option value="Van" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Van') ? 'selected' : ''; ?>>Van</option>
-                                <option value="Car" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Car') ? 'selected' : ''; ?>>Car</option>
-                                <option value="Motorcycle" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Motorcycle') ? 'selected' : ''; ?>>Motorcycle</option>
-                                <option value="Trailer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Trailer') ? 'selected' : ''; ?>>Trailer</option>
-                                <option value="Other" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                                <option value=""><?php echo __('select_vehicle_type'); ?></option>
+                                <option value="Excavator" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Excavator') ? 'selected' : ''; ?>><?php echo __('excavator'); ?></option>
+                                <option value="Bulldozer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Bulldozer') ? 'selected' : ''; ?>><?php echo __('bulldozer'); ?></option>
+                                <option value="Crane" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Crane') ? 'selected' : ''; ?>><?php echo __('crane'); ?></option>
+                                <option value="Dump Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Dump Truck') ? 'selected' : ''; ?>><?php echo __('dump_truck'); ?></option>
+                                <option value="Pickup Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Pickup Truck') ? 'selected' : ''; ?>><?php echo __('pickup_truck'); ?></option>
+                                <option value="Van" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Van') ? 'selected' : ''; ?>><?php echo __('van'); ?></option>
+                                <option value="Car" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Car') ? 'selected' : ''; ?>><?php echo __('car'); ?></option>
+                                <option value="Motorcycle" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Motorcycle') ? 'selected' : ''; ?>><?php echo __('motorcycle'); ?></option>
+                                <option value="Trailer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Trailer') ? 'selected' : ''; ?>><?php echo __('trailer'); ?></option>
+                                <option value="Other" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -265,7 +265,7 @@ function generateParkingRentalCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="vehicle_registration" class="form-label">Vehicle Registration/License Plate</label>
+                            <label for="vehicle_registration" class="form-label"><?php echo __('vehicle_registration'); ?>/<?php echo __('license_plate'); ?></label>
                             <input type="text" class="form-control" id="vehicle_registration" name="vehicle_registration" 
                                    value="<?php echo htmlspecialchars($_POST['vehicle_registration'] ?? ''); ?>"
                                    placeholder="License plate number or ID"
@@ -275,7 +275,7 @@ function generateParkingRentalCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="start_date" class="form-label">Start Date *</label>
+                            <label for="start_date" class="form-label"><?php echo __('start_date'); ?> *</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" 
                                    value="<?php echo htmlspecialchars($_POST['start_date'] ?? date('Y-m-d')); ?>" required>
                         </div>
@@ -285,15 +285,15 @@ function generateParkingRentalCode($company_id) {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="end_date" class="form-label">End Date (Optional)</label>
+                            <label for="end_date" class="form-label"><?php echo __('end_date'); ?> (<?php echo __('optional'); ?>)</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" 
                                    value="<?php echo htmlspecialchars($_POST['end_date'] ?? ''); ?>">
-                            <small class="text-muted">Leave empty for ongoing rental</small>
+                            <small class="text-muted"><?php echo __('leave_empty_for_ongoing_rental'); ?></small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="monthly_rate" class="form-label">Monthly Rate *</label>
+                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                             <div class="input-group">
                                 <span class="input-group-text" id="currency-symbol">$</span>
                                 <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
@@ -303,19 +303,19 @@ function generateParkingRentalCode($company_id) {
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="currency" class="form-label">Currency</label>
+                            <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">Notes & Special Instructions</label>
+                    <label for="notes" class="form-label"><?php echo __('notes'); ?> & <?php echo __('special_instructions'); ?></label>
                     <textarea class="form-control" id="notes" name="notes" rows="3" 
                               placeholder="Any special instructions, parking rules, or additional information..."
                               style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
@@ -324,7 +324,7 @@ function generateParkingRentalCode($company_id) {
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Add Parking Rental
+                        <i class="fas fa-save"></i> <?php echo __('add_parking_rental'); ?>
                     </button>
                 </div>
             </form>

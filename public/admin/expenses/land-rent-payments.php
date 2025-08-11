@@ -104,8 +104,8 @@ if (function_exists('getCompanySettingLocal')) {
 
 <div class="container-fluid">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="mb-0"><i class="fas fa-credit-card me-2"></i>Land Rent Payments</h3>
-    <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Expenses</a>
+    <h3 class="mb-0"><i class="fas fa-credit-card me-2"></i><?php echo __('land_rent_payments'); ?></h3>
+    <a href="index.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> <?php echo __('back_to_expenses'); ?></a>
   </div>
 
   <?php if ($error): ?>
@@ -125,41 +125,41 @@ if (function_exists('getCompanySettingLocal')) {
     <div class="col-lg-4">
       <div class="card h-100">
         <div class="card-header">
-          <h6 class="m-0">Add Payment</h6>
+          <h6 class="m-0"><?php echo __('add_payment'); ?></h6>
         </div>
         <div class="card-body">
           <form method="POST">
             <div class="mb-3">
-              <label class="form-label">Date</label>
+              <label class="form-label"><?php echo __('date'); ?></label>
               <input type="date" name="payment_date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Amount</label>
+              <label class="form-label"><?php echo __('amount'); ?></label>
               <input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="0.00" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Currency</label>
+              <label class="form-label"><?php echo __('currency'); ?></label>
               <select name="currency" class="form-control">
-                <option value="USD" <?php echo $defaultCurrency==='USD'?'selected':''; ?>>USD</option>
-                <option value="AFN" <?php echo $defaultCurrency==='AFN'?'selected':''; ?>>AFN</option>
-                <option value="EUR" <?php echo $defaultCurrency==='EUR'?'selected':''; ?>>EUR</option>
-                <option value="GBP" <?php echo $defaultCurrency==='GBP'?'selected':''; ?>>GBP</option>
+                <option value="USD" <?php echo $defaultCurrency==='USD'?'selected':''; ?>><?php echo __('usd'); ?></option>
+                <option value="AFN" <?php echo $defaultCurrency==='AFN'?'selected':''; ?>><?php echo __('afn'); ?></option>
+                <option value="EUR" <?php echo $defaultCurrency==='EUR'?'selected':''; ?>><?php echo __('eur'); ?></option>
+                <option value="GBP" <?php echo $defaultCurrency==='GBP'?'selected':''; ?>><?php echo __('gbp'); ?></option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Method</label>
+              <label class="form-label"><?php echo __('method'); ?></label>
               <input type="text" name="method" class="form-control" placeholder="cash, bank, etc">
             </div>
             <div class="mb-3">
-              <label class="form-label">Reference</label>
+              <label class="form-label"><?php echo __('reference'); ?></label>
               <input type="text" name="reference" class="form-control" placeholder="Reference number">
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label"><?php echo __('notes'); ?></label>
               <input type="text" name="notes" class="form-control" placeholder="Optional">
             </div>
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Record Payment</button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> <?php echo __('record_payment'); ?></button>
             </div>
           </form>
         </div>
@@ -169,7 +169,7 @@ if (function_exists('getCompanySettingLocal')) {
     <div class="col-lg-8">
       <div class="card h-100">
         <div class="card-header d-flex align-items-center justify-content-between">
-          <h6 class="m-0">Payment History</h6>
+          <h6 class="m-0"><?php echo __('payment_history'); ?></h6>
           <div>
             <button class="btn btn-sm btn-outline-secondary print-btn" data-target="paymentsCard"><i class="fas fa-print"></i></button>
           </div>
@@ -179,17 +179,17 @@ if (function_exists('getCompanySettingLocal')) {
             <table class="table table-striped table-hover datatable" id="paymentsTable">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th class="text-end">Amount</th>
-                  <th>Currency</th>
-                  <th>Method</th>
-                  <th>Reference</th>
-                  <th>Notes</th>
+                  <th><?php echo __('date'); ?></th>
+                  <th class="text-end"><?php echo __('amount'); ?></th>
+                  <th><?php echo __('currency'); ?></th>
+                  <th><?php echo __('method'); ?></th>
+                  <th><?php echo __('reference'); ?></th>
+                  <th><?php echo __('notes'); ?></th>
                 </tr>
               </thead>
               <tbody>
                 <?php if (empty($payments)): ?>
-                  <tr><td colspan="6" class="text-muted">No payments recorded.</td></tr>
+                  <tr><td colspan="6" class="text-muted"><?php echo __('no_payments_recorded'); ?></td></tr>
                 <?php else: foreach ($payments as $p): ?>
                   <tr>
                     <td><?php echo htmlspecialchars($p['payment_date']); ?></td>

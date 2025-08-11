@@ -329,7 +329,7 @@ $current_settings = [
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-cogs"></i> Platform Settings
+            <i class="fas fa-cogs"></i> <?php echo __('platform_settings'); ?>
         </h1>
     </div>
 
@@ -349,37 +349,37 @@ $current_settings = [
                     <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="branding-tab" data-bs-toggle="tab" data-bs-target="#branding" type="button" role="tab">
-                                <i class="fas fa-palette"></i> Branding
+                                <i class="fas fa-palette"></i> <?php echo __('branding'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="appearance-tab" data-bs-toggle="tab" data-bs-target="#appearance" type="button" role="tab">
-                                <i class="fas fa-paint-brush"></i> Appearance
+                                <i class="fas fa-paint-brush"></i> <?php echo __('appearance'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="logo-tab" data-bs-toggle="tab" data-bs-target="#logo" type="button" role="tab">
-                                <i class="fas fa-image"></i> Logo
+                                <i class="fas fa-image"></i> <?php echo __('logo'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
-                                <i class="fas fa-shield-alt"></i> Security
+                                <i class="fas fa-shield-alt"></i> <?php echo __('security'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
-                                <i class="fas fa-bell"></i> Notifications
+                                <i class="fas fa-bell"></i> <?php echo __('notifications'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="integrations-tab" data-bs-toggle="tab" data-bs-target="#integrations" type="button" role="tab">
-                                <i class="fas fa-plug"></i> Integrations
+                                <i class="fas fa-plug"></i> <?php echo __('integrations'); ?>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
-                                <i class="fas fa-address-book"></i> Contact Info
+                                <i class="fas fa-address-book"></i> <?php echo __('contact_info'); ?>
                             </button>
                         </li>
                     </ul>
@@ -395,14 +395,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="platform_name" class="form-label">Platform Name *</label>
+                                            <label for="platform_name" class="form-label"><?php echo __('platform_name'); ?> *</label>
                                             <input type="text" class="form-control" id="platform_name" name="platform_name" 
                                                    value="<?php echo htmlspecialchars($current_settings['platform_name']); ?>" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_email" class="form-label">Contact Email</label>
+                                            <label for="contact_email" class="form-label"><?php echo __('contact_email'); ?></label>
                                             <input type="email" class="form-control" id="contact_email" name="contact_email" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_email']); ?>">
                                         </div>
@@ -412,14 +412,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="support_phone" class="form-label">Support Phone</label>
+                                            <label for="support_phone" class="form-label"><?php echo __('support_phone'); ?></label>
                                             <input type="text" class="form-control" id="support_phone" name="support_phone" 
                                                    value="<?php echo htmlspecialchars($current_settings['support_phone']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="website_url" class="form-label">Website URL</label>
+                                                <label for="website_url" class="form-label"><?php echo __('website_url'); ?></label>
                                             <input type="url" class="form-control" id="website_url" name="website_url" 
                                                    value="<?php echo htmlspecialchars($current_settings['website_url']); ?>">
                                         </div>
@@ -427,12 +427,12 @@ $current_settings = [
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="platform_description" class="form-label">Platform Description</label>
+                                    <label for="platform_description" class="form-label"><?php echo __('platform_description'); ?></label>
                                     <textarea class="form-control" id="platform_description" name="platform_description" rows="3"><?php echo htmlspecialchars($current_settings['platform_description']); ?></textarea>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Branding
+                                    <i class="fas fa-save"></i> <?php echo __('update_branding'); ?>
                                 </button>
                             </form>
                         </div>
@@ -445,26 +445,26 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="primary_color" class="form-label">Primary Color</label>
+                                            <label for="primary_color" class="form-label"><?php echo __('primary_color'); ?></label>
                                             <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color" 
                                                    value="<?php echo htmlspecialchars($current_settings['primary_color']); ?>">
-                                            <small class="text-muted">Main brand color</small>
+                                            <small class="text-muted"><?php echo __('main_brand_color'); ?></small>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="secondary_color" class="form-label">Secondary Color</label>
+                                            <label for="secondary_color" class="form-label"><?php echo __('secondary_color'); ?></label>
                                             <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color" 
                                                    value="<?php echo htmlspecialchars($current_settings['secondary_color']); ?>">
-                                            <small class="text-muted">Secondary brand color</small>
+                                            <small class="text-muted"><?php echo __('secondary_brand_color'); ?></small>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="accent_color" class="form-label">Accent Color</label>
+                                            <label for="accent_color" class="form-label"><?php echo __('accent_color'); ?></label>
                                             <input type="color" class="form-control form-control-color" id="accent_color" name="accent_color" 
                                                    value="<?php echo htmlspecialchars($current_settings['accent_color']); ?>">
-                                            <small class="text-muted">Highlight color</small>
+                                            <small class="text-muted"><?php echo __('highlight_color'); ?></small>
                                         </div>
                                     </div>
                                 </div>
@@ -472,29 +472,29 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="sidebar_style" class="form-label">Sidebar Style</label>
+                                            <label for="sidebar_style" class="form-label"><?php echo __('sidebar_style'); ?></label>
                                             <select class="form-control" id="sidebar_style" name="sidebar_style">
-                                                <option value="default" <?php echo $current_settings['sidebar_style'] === 'default' ? 'selected' : ''; ?>>Default</option>
-                                                <option value="compact" <?php echo $current_settings['sidebar_style'] === 'compact' ? 'selected' : ''; ?>>Compact</option>
-                                                <option value="modern" <?php echo $current_settings['sidebar_style'] === 'modern' ? 'selected' : ''; ?>>Modern</option>
-                                                <option value="minimal" <?php echo $current_settings['sidebar_style'] === 'minimal' ? 'selected' : ''; ?>>Minimal</option>
+                                                <option value="default" <?php echo $current_settings['sidebar_style'] === 'default' ? 'selected' : ''; ?>><?php echo __('default'); ?></option>
+                                                <option value="compact" <?php echo $current_settings['sidebar_style'] === 'compact' ? 'selected' : ''; ?>><?php echo __('compact'); ?></option>
+                                                <option value="modern" <?php echo $current_settings['sidebar_style'] === 'modern' ? 'selected' : ''; ?>><?php echo __('modern'); ?></option>
+                                                <option value="minimal" <?php echo $current_settings['sidebar_style'] === 'minimal' ? 'selected' : ''; ?>><?php echo __('minimal'); ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="theme_mode" class="form-label">Theme Mode</label>
+                                            <label for="theme_mode" class="form-label"><?php echo __('theme_mode'); ?></label>
                                             <select class="form-control" id="theme_mode" name="theme_mode">
-                                                <option value="light" <?php echo $current_settings['theme_mode'] === 'light' ? 'selected' : ''; ?>>Light</option>
-                                                <option value="dark" <?php echo $current_settings['theme_mode'] === 'dark' ? 'selected' : ''; ?>>Dark</option>
-                                                <option value="auto" <?php echo $current_settings['theme_mode'] === 'auto' ? 'selected' : ''; ?>>Auto</option>
+                                                <option value="light" <?php echo $current_settings['theme_mode'] === 'light' ? 'selected' : ''; ?>><?php echo __('light'); ?></option>
+                                                <option value="dark" <?php echo $current_settings['theme_mode'] === 'dark' ? 'selected' : ''; ?>><?php echo __('dark'); ?></option>
+                                                <option value="auto" <?php echo $current_settings['theme_mode'] === 'auto' ? 'selected' : ''; ?>><?php echo __('auto'); ?></option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Appearance
+                                    <i class="fas fa-save"></i> <?php echo __('update_appearance'); ?>
                                 </button>
                             </form>
                         </div>
@@ -507,14 +507,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="logo" class="form-label">Upload Logo</label>
+                                            <label for="logo" class="form-label"><?php echo __('upload_logo'); ?></label>
                                             <input type="file" class="form-control" id="logo" name="logo" accept="image/*" onchange="previewLogo(this)">
-                                            <small class="text-muted">Recommended size: 200x60px. Max size: 5MB. Formats: JPEG, PNG, GIF, SVG</small>
+                                            <small class="text-muted"><?php echo __('recommended_size'); ?>: 200x60px. <?php echo __('max_size'); ?>: 5MB. <?php echo __('formats'); ?>: JPEG, PNG, GIF, SVG</small>
                                         </div>
                                         
                                         <!-- Preview Area -->
                                         <div class="mb-3" id="logoPreview" style="display: none;">
-                                            <label class="form-label">Preview</label>
+                                            <label class="form-label"><?php echo __('preview'); ?></label>
                                             <div class="border rounded p-3 text-center">
                                                 <img id="previewImage" src="" alt="Logo Preview" style="max-height: 60px; max-width: 200px;">
                                             </div>
@@ -523,14 +523,14 @@ $current_settings = [
                                     <div class="col-md-6">
                                         <?php if ($current_settings['platform_logo']): ?>
                                         <div class="mb-3">
-                                            <label class="form-label">Current Logo</label>
+                                            <label class="form-label"><?php echo __('current_logo'); ?></label>
                                             <div class="border rounded p-3 text-center">
                                                 <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" 
                                                      alt="Current Logo" style="max-height: 60px; max-width: 200px;">
                                             </div>
                                             <div class="mt-2">
                                                 <button type="button" class="btn btn-sm btn-danger" onclick="removeLogo()">
-                                                    <i class="fas fa-trash"></i> Remove Logo
+                                                    <i class="fas fa-trash"></i> <?php echo __('remove_logo'); ?>
                                                 </button>
                                             </div>
                                         </div>
@@ -539,7 +539,7 @@ $current_settings = [
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-upload"></i> Upload Logo
+                                    <i class="fas fa-upload"></i> <?php echo __('upload_logo'); ?>
                                 </button>
                             </form>
                             
@@ -582,14 +582,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="session_timeout" class="form-label">Session Timeout (minutes)</label>
+                                            <label for="session_timeout" class="form-label"><?php echo __('session_timeout'); ?> (minutes)</label>
                                             <input type="number" class="form-control" id="session_timeout" name="session_timeout" 
                                                    value="<?php echo htmlspecialchars($current_settings['session_timeout']); ?>" min="5" max="1440">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="max_login_attempts" class="form-label">Max Login Attempts</label>
+                                            <label for="max_login_attempts" class="form-label"><?php echo __('max_login_attempts'); ?></label>
                                             <input type="number" class="form-control" id="max_login_attempts" name="max_login_attempts" 
                                                    value="<?php echo htmlspecialchars($current_settings['max_login_attempts']); ?>" min="3" max="10">
                                         </div>
@@ -599,7 +599,7 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="password_min_length" class="form-label">Minimum Password Length</label>
+                                            <label for="password_min_length" class="form-label"><?php echo __('minimum_password_length'); ?></label>
                                             <input type="number" class="form-control" id="password_min_length" name="password_min_length" 
                                                    value="<?php echo htmlspecialchars($current_settings['password_min_length']); ?>" min="6" max="20">
                                         </div>
@@ -611,7 +611,7 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="require_strong_password" name="require_strong_password" 
                                                <?php echo $current_settings['require_strong_password'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="require_strong_password">
-                                            Require Strong Passwords
+                                            <?php echo __('require_strong_passwords'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -621,7 +621,7 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="enable_two_factor" name="enable_two_factor" 
                                                <?php echo $current_settings['enable_two_factor'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="enable_two_factor">
-                                            Enable Two-Factor Authentication
+                                            <?php echo __('enable_two_factor_authentication'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -631,13 +631,13 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" 
                                                <?php echo $current_settings['maintenance_mode'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="maintenance_mode">
-                                            Enable Maintenance Mode
+                                            <?php echo __('enable_maintenance_mode'); ?>
                                         </label>
                                     </div>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Security
+                                    <i class="fas fa-save"></i> <?php echo __('update_security'); ?>
                                 </button>
                             </form>
                         </div>
@@ -652,7 +652,7 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" 
                                                <?php echo $current_settings['email_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="email_notifications">
-                                            Enable Email Notifications
+                                            <?php echo __('enable_email_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -662,7 +662,7 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" 
                                                <?php echo $current_settings['sms_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="sms_notifications">
-                                            Enable SMS Notifications
+                                            <?php echo __('enable_sms_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -672,7 +672,7 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" 
                                                <?php echo $current_settings['push_notifications'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="push_notifications">
-                                            Enable Push Notifications
+                                            <?php echo __('enable_push_notifications'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -682,13 +682,13 @@ $current_settings = [
                                         <input class="form-check-input" type="checkbox" id="notification_sound" name="notification_sound" 
                                                <?php echo $current_settings['notification_sound'] ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="notification_sound">
-                                            Enable Notification Sounds
+                                                <?php echo __('enable_notification_sounds'); ?>
                                         </label>
                                     </div>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Notifications
+                                    <i class="fas fa-save"></i> <?php echo __('update_notifications'); ?>
                                 </button>
                             </form>
                         </div>
@@ -698,19 +698,19 @@ $current_settings = [
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_integrations">
                                 
-                                <h6 class="mb-3">SMTP Configuration</h6>
+                                <h6 class="mb-3"><?php echo __('smtp_configuration'); ?></h6>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_host" class="form-label">SMTP Host</label>
+                                            <label for="smtp_host" class="form-label"><?php echo __('smtp_host'); ?></label>
                                             <input type="text" class="form-control" id="smtp_host" name="smtp_host" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_host']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_port" class="form-label">SMTP Port</label>
+                                            <label for="smtp_port" class="form-label"><?php echo __('smtp_port'); ?></label>
                                             <input type="number" class="form-control" id="smtp_port" name="smtp_port" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_port']); ?>">
                                         </div>
@@ -720,14 +720,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_username" class="form-label">SMTP Username</label>
+                                            <label for="smtp_username" class="form-label"><?php echo __('smtp_username'); ?></label>
                                             <input type="text" class="form-control" id="smtp_username" name="smtp_username" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_username']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="smtp_password" class="form-label">SMTP Password</label>
+                                            <label for="smtp_password" class="form-label"><?php echo __('smtp_password'); ?></label>
                                             <input type="password" class="form-control" id="smtp_password" name="smtp_password" 
                                                    value="<?php echo htmlspecialchars($current_settings['smtp_password']); ?>">
                                         </div>
@@ -735,16 +735,16 @@ $current_settings = [
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label for="smtp_encryption" class="form-label">SMTP Encryption</label>
+                                    <label for="smtp_encryption" class="form-label"><?php echo __('smtp_encryption'); ?></label>
                                     <select class="form-control" id="smtp_encryption" name="smtp_encryption">
-                                        <option value="tls" <?php echo $current_settings['smtp_encryption'] === 'tls' ? 'selected' : ''; ?>>TLS</option>
-                                        <option value="ssl" <?php echo $current_settings['smtp_encryption'] === 'ssl' ? 'selected' : ''; ?>>SSL</option>
-                                        <option value="none" <?php echo $current_settings['smtp_encryption'] === 'none' ? 'selected' : ''; ?>>None</option>
+                                        <option value="tls" <?php echo $current_settings['smtp_encryption'] === 'tls' ? 'selected' : ''; ?>><?php echo __('tls'); ?></option>
+                                        <option value="ssl" <?php echo $current_settings['smtp_encryption'] === 'ssl' ? 'selected' : ''; ?>><?php echo __('ssl'); ?></option>
+                                        <option value="none" <?php echo $current_settings['smtp_encryption'] === 'none' ? 'selected' : ''; ?>><?php echo __('none'); ?></option>
                                     </select>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Integrations
+                                    <i class="fas fa-save"></i> <?php echo __('update_integrations'); ?>
                                 </button>
                             </form>
                         </div>
@@ -754,18 +754,18 @@ $current_settings = [
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_contact">
                                 
-                                <h6 class="mb-3">Contact Information</h6>
+                                <h6 class="mb-3"><?php echo __('contact_information'); ?></h6>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_address" class="form-label">Address</label>
+                                            <label for="contact_address" class="form-label"><?php echo __('address'); ?></label>
                                             <textarea class="form-control" id="contact_address" name="contact_address" rows="3"><?php echo htmlspecialchars($current_settings['contact_address']); ?></textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_phone" class="form-label">Phone</label>
+                                            <label for="contact_phone" class="form-label"><?php echo __('phone'); ?></label>
                                             <input type="tel" class="form-control" id="contact_phone" name="contact_phone" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_phone']); ?>">
                                         </div>
@@ -775,33 +775,33 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_email" class="form-label">Email</label>
+                                            <label for="contact_email" class="form-label"><?php echo __('email'); ?></label>
                                             <input type="email" class="form-control" id="contact_email" name="contact_email" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_email']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_website" class="form-label">Website</label>
+                                            <label for="contact_website" class="form-label"><?php echo __('website'); ?></label>
                                             <input type="url" class="form-control" id="contact_website" name="contact_website" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_website']); ?>">
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <h6 class="mb-3 mt-4">Social Media Links</h6>
+                                <h6 class="mb-3 mt-4"><?php echo __('social_media_links'); ?></h6>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_facebook" class="form-label">Facebook</label>
+                                            <label for="contact_facebook" class="form-label"><?php echo __('facebook'); ?></label>
                                             <input type="url" class="form-control" id="contact_facebook" name="contact_facebook" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_facebook']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_twitter" class="form-label">Twitter</label>
+                                            <label for="contact_twitter" class="form-label"><?php echo __('twitter'); ?></label>
                                             <input type="url" class="form-control" id="contact_twitter" name="contact_twitter" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_twitter']); ?>">
                                         </div>
@@ -811,14 +811,14 @@ $current_settings = [
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_linkedin" class="form-label">LinkedIn</label>
+                                            <label for="contact_linkedin" class="form-label"><?php echo __('linkedin'); ?></label>
                                             <input type="url" class="form-control" id="contact_linkedin" name="contact_linkedin" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_linkedin']); ?>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="contact_instagram" class="form-label">Instagram</label>
+                                            <label for="contact_instagram" class="form-label"><?php echo __('instagram'); ?></label>
                                             <input type="url" class="form-control" id="contact_instagram" name="contact_instagram" 
                                                    value="<?php echo htmlspecialchars($current_settings['contact_instagram']); ?>">
                                         </div>
@@ -826,7 +826,7 @@ $current_settings = [
                                 </div>
                                 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Contact Info
+                                    <i class="fas fa-save"></i> <?php echo __('update_contact_info'); ?>
                                 </button>
                             </form>
                         </div>

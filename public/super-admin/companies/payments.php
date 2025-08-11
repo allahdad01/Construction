@@ -144,13 +144,13 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         </h1>
         <div class="d-flex">
             <a href="/constract360/construction/public/super-admin/companies/payment-add.php?company_id=<?php echo $company_id; ?>" class="btn btn-primary btn-sm me-2">
-                <i class="fas fa-plus"></i> Add Payment
+                <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm me-2">
-                <i class="fas fa-arrow-left"></i> Back to Companies
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
-                <i class="fas fa-eye"></i> View Company
+                <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
     </div>
@@ -162,7 +162,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Paid (USD)</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('total_paid_usd'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_paid_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -178,7 +178,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Paid (AFN)</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('total_paid_afn'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_paid_afn, 'AFN'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -194,7 +194,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending (USD)</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('pending_usd'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_pending_usd, 'USD'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -210,7 +210,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Pending (AFN)</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('pending_afn'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo formatCurrencyAmount($total_pending_afn, 'AFN'); ?></div>
                         </div>
                         <div class="col-auto">
@@ -229,7 +229,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed Payments</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('completed_payments'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $completed_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -245,7 +245,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Payments</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('pending_payments'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $pending_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -260,41 +260,41 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <input type="hidden" name="company_id" value="<?php echo $company_id; ?>">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by payment code, transaction ID, or notes" 
+                           placeholder="<?php echo __('search_by_payment_code_transaction_id_or_notes'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                        <option value="failed" <?php echo $status_filter === 'failed' ? 'selected' : ''; ?>>Failed</option>
-                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="completed" <?php echo $status_filter === 'completed' ? 'selected' : ''; ?>><?php echo __('completed'); ?></option>
+                        <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?>><?php echo __('pending'); ?></option>
+                        <option value="failed" <?php echo $status_filter === 'failed' ? 'selected' : ''; ?>><?php echo __('failed'); ?></option>
+                        <option value="cancelled" <?php echo $status_filter === 'cancelled' ? 'selected' : ''; ?>><?php echo __('cancelled'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="method">
-                        <option value="">All Methods</option>
-                        <option value="credit_card" <?php echo $method_filter === 'credit_card' ? 'selected' : ''; ?>>Credit Card</option>
-                        <option value="bank_transfer" <?php echo $method_filter === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
-                        <option value="paypal" <?php echo $method_filter === 'paypal' ? 'selected' : ''; ?>>PayPal</option>
-                        <option value="cash" <?php echo $method_filter === 'cash' ? 'selected' : ''; ?>>Cash</option>
+                        <option value=""><?php echo __('all_methods'); ?></option>
+                        <option value="credit_card" <?php echo $method_filter === 'credit_card' ? 'selected' : ''; ?>><?php echo __('credit_card'); ?></option>
+                        <option value="bank_transfer" <?php echo $method_filter === 'bank_transfer' ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
+                        <option value="paypal" <?php echo $method_filter === 'paypal' ? 'selected' : ''; ?>><?php echo __('paypal'); ?></option>
+                        <option value="cash" <?php echo $method_filter === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_from" 
-                           placeholder="From Date" value="<?php echo htmlspecialchars($date_from); ?>">
+                           placeholder="<?php echo __('from_date'); ?>" value="<?php echo htmlspecialchars($date_from); ?>">
                 </div>
                 <div class="col-md-2">
                     <input type="date" class="form-control" name="date_to" 
-                           placeholder="To Date" value="<?php echo htmlspecialchars($date_to); ?>">
+                           placeholder="<?php echo __('to_date'); ?>" value="<?php echo htmlspecialchars($date_to); ?>">
                 </div>
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary w-100">
@@ -305,7 +305,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
             <div class="row mt-3">
                 <div class="col-12">
                     <a href="?company_id=<?php echo $company_id; ?>" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-times"></i> Clear Filters
+                        <i class="fas fa-times"></i> <?php echo __('clear_filters'); ?>
                     </a>
                 </div>
             </div>
@@ -315,30 +315,30 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     <!-- Payments Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Payments List</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payments_list'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($payments)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-money-bill fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No payments found for this company.</p>
+                    <p class="text-gray-500"><?php echo __('no_payments_found_for_this_company'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Payment Code</th>
-                                <th>Amount</th>
-                                <th>Currency</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Billing Period</th>
-                                <th>Plan</th>
-                                <th>Transaction ID</th>
-                                <th>Payment Date</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
+                                <th><?php echo __('payment_code'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('currency'); ?></th>
+                                <th><?php echo __('method'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('billing_period'); ?></th>
+                                <th><?php echo __('plan'); ?></th>
+                                <th><?php echo __('transaction_id'); ?></th>
+                                <th><?php echo __('payment_date'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -428,7 +428,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?company_id=<?php echo $company_id; ?>&page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&method=<?php echo urlencode($method_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -444,7 +444,7 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?company_id=<?php echo $company_id; ?>&page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status_filter); ?>&method=<?php echo urlencode($method_filter); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>

@@ -37,14 +37,14 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-money-bill"></i> Payment Details
+            <i class="fas fa-money-bill"></i> <?php echo __('payment_details'); ?>
         </h1>
         <div>
             <a href="payments.php?company_id=<?php echo $company_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Payments
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_payments'); ?>
             </a>
             <a href="payment-edit.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit"></i> Edit Payment
+                <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
             </a>
         </div>
     </div>
@@ -54,17 +54,17 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
             <!-- Payment Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Payment Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Code</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_code'); ?></label>
                                 <p class="form-control-plaintext"><?php echo htmlspecialchars($payment['payment_code']); ?></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Amount</label>
+                                <label class="form-label fw-bold"><?php echo __('amount'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="text-success fw-bold">
                                         <?php echo formatCurrencyAmount($payment['amount'], $payment['currency']); ?>
@@ -72,13 +72,13 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Currency</label>
+                                <label class="form-label fw-bold"><?php echo __('currency'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge bg-primary"><?php echo htmlspecialchars($payment['currency']); ?></span>
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Method</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_method'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge bg-info">
                                         <?php echo ucwords(str_replace('_', ' ', $payment['payment_method'])); ?>
@@ -88,7 +88,7 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Status</label>
+                                <label class="form-label fw-bold"><?php echo __('status'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge <?php 
                                         echo $payment['payment_status'] === 'completed' ? 'bg-success' : 
@@ -100,17 +100,17 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Payment Date</label>
+                                <label class="form-label fw-bold"><?php echo __('payment_date'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDate($payment['payment_date']); ?></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Transaction ID</label>
+                                <label class="form-label fw-bold"><?php echo __('transaction_id'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo htmlspecialchars($payment['transaction_id'] ?? 'N/A'); ?>
                                 </p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Subscription Plan</label>
+                                <label class="form-label fw-bold"><?php echo __('subscription_plan'); ?></label>
                                 <p class="form-control-plaintext">
                                     <span class="badge bg-secondary">
                                         <?php echo ucfirst($payment['subscription_plan'] ?? 'N/A'); ?>
@@ -123,7 +123,7 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Billing Period Start</label>
+                                <label class="form-label fw-bold"><?php echo __('billing_period_start'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo $payment['billing_period_start'] ? formatDate($payment['billing_period_start']) : 'N/A'; ?>
                                 </p>
@@ -131,7 +131,7 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Billing Period End</label>
+                                <label class="form-label fw-bold"><?php echo __('billing_period_end'); ?></label>
                                 <p class="form-control-plaintext">
                                     <?php echo $payment['billing_period_end'] ? formatDate($payment['billing_period_end']) : 'N/A'; ?>
                                 </p>
@@ -141,7 +141,7 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     <?php if ($payment['notes']): ?>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Notes</label>
+                        <label class="form-label fw-bold"><?php echo __('notes'); ?></label>
                         <p class="form-control-plaintext"><?php echo nl2br(htmlspecialchars($payment['notes'])); ?></p>
                     </div>
                     <?php endif; ?>
@@ -149,13 +149,13 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Created At</label>
+                                <label class="form-label fw-bold"><?php echo __('created_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($payment['created_at']); ?></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Updated At</label>
+                                <label class="form-label fw-bold"><?php echo __('updated_at'); ?></label>
                                 <p class="form-control-plaintext"><?php echo formatDateTime($payment['updated_at']); ?></p>
                             </div>
                         </div>
@@ -168,23 +168,23 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
             <!-- Company Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <strong>Company:</strong> <?php echo htmlspecialchars($company['company_name']); ?>
+                        <strong><?php echo __('company'); ?>:</strong> <?php echo htmlspecialchars($company['company_name']); ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Company ID:</strong> <?php echo $company_id; ?>
+                        <strong><?php echo __('company_id'); ?>:</strong> <?php echo $company_id; ?>
                     </div>
                     <div class="mb-3">
-                        <strong>Status:</strong> 
+                        <strong><?php echo __('status'); ?>:</strong> 
                         <span class="badge <?php echo $company['subscription_status'] === 'active' ? 'bg-success' : 'bg-danger'; ?>">
                             <?php echo ucfirst($company['subscription_status']); ?>
                         </span>
                     </div>
                     <div class="mb-3">
-                        <strong>Plan:</strong> <?php echo htmlspecialchars($company['subscription_plan'] ?? 'N/A'); ?>
+                        <strong><?php echo __('plan'); ?>:</strong> <?php echo htmlspecialchars($company['subscription_plan'] ?? 'N/A'); ?>
                     </div>
                 </div>
             </div>
@@ -192,25 +192,25 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="payment-edit.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit Payment
+                            <i class="fas fa-edit"></i> <?php echo __('edit_payment'); ?>
                         </a>
                         <?php if ($payment['payment_status'] === 'pending'): ?>
                             <a href="payment-approve.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-success"
                                onclick="return confirm('Are you sure you want to approve this payment?')">
-                                <i class="fas fa-check"></i> Approve Payment
+                                <i class="fas fa-check"></i> <?php echo __('approve_payment'); ?>
                             </a>
                         <?php endif; ?>
                         <a href="payment-delete.php?id=<?php echo $payment_id; ?>&company_id=<?php echo $company_id; ?>" class="btn btn-danger"
                            onclick="return confirm('Are you sure you want to delete this payment?')">
-                            <i class="fas fa-trash"></i> Delete Payment
+                            <i class="fas fa-trash"></i> <?php echo __('delete_payment'); ?>
                         </a>
                         <a href="payments.php?company_id=<?php echo $company_id; ?>" class="btn btn-secondary">
-                            <i class="fas fa-list"></i> Back to Payments
+                            <i class="fas fa-list"></i> <?php echo __('back_to_payments'); ?>
                         </a>
                     </div>
                 </div>
@@ -219,19 +219,19 @@ $company = $stmt->fetch(PDO::FETCH_ASSOC);
             <!-- Payment Statistics -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Payment Statistics</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_statistics'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6">
                             <div class="border-end">
                                 <h4 class="text-primary"><?php echo ucfirst($payment['payment_status']); ?></h4>
-                                <small class="text-muted">Status</small>
+                                <small class="text-muted"><?php echo __('status'); ?></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <h4 class="text-success"><?php echo formatCurrencyAmount($payment['amount'], $payment['currency']); ?></h4>
-                            <small class="text-muted">Amount</small>
+                            <small class="text-muted"><?php echo __('amount'); ?></small>
                         </div>
                     </div>
                 </div>

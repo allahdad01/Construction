@@ -121,16 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-edit"></i> Edit Rental Area
+                <i class="fas fa-edit"></i> <?php echo __('edit_rental_area'); ?>
             </h1>
-            <p class="text-muted mb-0">Update details for <?php echo htmlspecialchars($area['area_name']); ?></p>
+            <p class="text-muted mb-0"><?php echo __('update_details_for'); ?> <?php echo htmlspecialchars($area['area_name']); ?></p>
         </div>
         <div class="btn-group" role="group">
             <a href="view.php?id=<?php echo $area_id; ?>" class="btn btn-outline-primary">
-                <i class="fas fa-eye"></i> View Details
+                <i class="fas fa-eye"></i> <?php echo __('view_details'); ?>
             </a>
             <a href="index.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Areas
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_areas'); ?>
             </a>
         </div>
     </div>
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-edit"></i> Area Information
+                        <i class="fas fa-edit"></i> <?php echo __('area_information'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -158,43 +158,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-info-circle"></i> Basic Information
+                                    <i class="fas fa-info-circle"></i> <?php echo __('basic_information'); ?>
                                 </h6>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="area_name" class="form-label">Area Name *</label>
+                                    <label for="area_name" class="form-label"><?php echo __('area_name'); ?> *</label>
                                     <input type="text" class="form-control" id="area_name" name="area_name" 
                                            value="<?php echo htmlspecialchars($area['area_name']); ?>" 
                                            style="text-transform: none;" autocomplete="off" spellcheck="false" required>
-                                    <small class="form-text text-muted">You can use spaces in area names.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_area_names'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="area_code" class="form-label">Area Code *</label>
+                                    <label for="area_code" class="form-label"><?php echo __('area_code'); ?> *</label>
                                     <input type="text" class="form-control" id="area_code" name="area_code" 
                                            value="<?php echo htmlspecialchars($area['area_code']); ?>" 
                                            style="text-transform: none;" autocomplete="off" spellcheck="false" required>
-                                    <small class="form-text text-muted">You can use spaces in area codes.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_area_codes'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="area_type" class="form-label">Area Type *</label>
+                                    <label for="area_type" class="form-label"><?php echo __('area_type'); ?> *</label>
                                     <select class="form-control" id="area_type" name="area_type" required>
-                                        <option value="">Select Area Type</option>
-                                        <option value="commercial" <?php echo $area['area_type'] === 'commercial' ? 'selected' : ''; ?>>🏢 Commercial</option>
-                                        <option value="industrial" <?php echo $area['area_type'] === 'industrial' ? 'selected' : ''; ?>>🏭 Industrial</option>
-                                        <option value="residential" <?php echo $area['area_type'] === 'residential' ? 'selected' : ''; ?>>🏠 Residential</option>
-                                        <option value="container" <?php echo $area['area_type'] === 'container' ? 'selected' : ''; ?>>📦 Container</option>
-                                        <option value="event" <?php echo $area['area_type'] === 'event' ? 'selected' : ''; ?>>🎉 Event</option>
+                                        <option value=""><?php echo __('select_area_type'); ?></option>
+                                        <option value="commercial" <?php echo $area['area_type'] === 'commercial' ? 'selected' : ''; ?>><?php echo __('commercial'); ?></option>
+                                        <option value="industrial" <?php echo $area['area_type'] === 'industrial' ? 'selected' : ''; ?>><?php echo __('industrial'); ?></option>
+                                        <option value="residential" <?php echo $area['area_type'] === 'residential' ? 'selected' : ''; ?>><?php echo __('residential'); ?></option>
+                                        <option value="container" <?php echo $area['area_type'] === 'container' ? 'selected' : ''; ?>><?php echo __('container'); ?></option>
+                                        <option value="event" <?php echo $area['area_type'] === 'event' ? 'selected' : ''; ?>><?php echo __('event'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="monthly_rate" class="form-label">Monthly Rate *</label>
+                                    <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                                     <div class="input-group">
                                         <span class="input-group-text" id="currency-symbol">$</span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
@@ -204,18 +204,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="currency" class="form-label">Currency</label>
+                                    <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                                     <select class="form-control" id="currency" name="currency">
-                                        <option value="USD" <?php echo ($area['currency'] ?? 'USD') == 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                        <option value="AFN" <?php echo ($area['currency'] ?? '') == 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                        <option value="EUR" <?php echo ($area['currency'] ?? '') == 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                        <option value="GBP" <?php echo ($area['currency'] ?? '') == 'GBP' ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
+                                        <option value="USD" <?php echo ($area['currency'] ?? 'USD') == 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                        <option value="AFN" <?php echo ($area['currency'] ?? '') == 'AFN' ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                                        <option value="EUR" <?php echo ($area['currency'] ?? '') == 'EUR' ? 'selected' : ''; ?>><?php echo __('eur'); ?></option>
+                                        <option value="GBP" <?php echo ($area['currency'] ?? '') == 'GBP' ? 'selected' : ''; ?>><?php echo __('gbp'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="area_size_sqm" class="form-label">Area Size (sqm)</label>
+                                    <label for="area_size_sqm" class="form-label"><?php echo __('area_size_sqm'); ?></label>
                                     <input type="number" step="0.1" min="0" class="form-control" id="area_size_sqm" name="area_size_sqm" 
                                            value="<?php echo htmlspecialchars($area['area_size_sqm'] ?? ''); ?>">
                                 </div>
@@ -226,43 +226,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-align-left"></i> Description & Details
+                                    <i class="fas fa-align-left"></i> <?php echo __('description_details'); ?>
                                 </h6>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label for="description" class="form-label">Description</label>
+                                    <label for="description" class="form-label"><?php echo __('description'); ?></label>
                                     <textarea class="form-control" id="description" name="description" rows="3" 
-                                              placeholder="Describe the area and its features..."
+                                              placeholder="<?php echo __('describe_the_area_and_its_features'); ?>"
                                               style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($area['description'] ?? ''); ?></textarea>
-                                    <small class="form-text text-muted">You can use spaces in descriptions.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_descriptions'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="location_details" class="form-label">Location Details</label>
+                                    <label for="location_details" class="form-label"><?php echo __('location_details'); ?></label>
                                     <textarea class="form-control" id="location_details" name="location_details" rows="3" 
-                                              placeholder="Specific location information..."
+                                              placeholder="<?php echo __('specific_location_information'); ?>"
                                               style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($area['location_details'] ?? ''); ?></textarea>
-                                    <small class="form-text text-muted">You can use spaces in location details.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_location_details'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="amenities" class="form-label">Amenities</label>
+                                    <label for="amenities" class="form-label"><?php echo __('amenities'); ?></label>
                                     <textarea class="form-control" id="amenities" name="amenities" rows="3" 
-                                              placeholder="List available amenities..."
+                                              placeholder="<?php echo __('list_available_amenities'); ?>"
                                               style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($area['amenities'] ?? ''); ?></textarea>
-                                    <small class="form-text text-muted">You can use spaces in amenities.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_amenities'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label for="restrictions" class="form-label">Restrictions</label>
+                                    <label for="restrictions" class="form-label"><?php echo __('restrictions'); ?></label>
                                     <textarea class="form-control" id="restrictions" name="restrictions" rows="3" 
-                                              placeholder="Any restrictions or limitations..."
+                                              placeholder="<?php echo __('any_restrictions_or_limitations'); ?>"
                                               style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($area['restrictions'] ?? ''); ?></textarea>
-                                    <small class="form-text text-muted">You can use spaces in restrictions.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_restrictions'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -271,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-cogs"></i> Amenities
+                                    <i class="fas fa-cogs"></i> <?php echo __('amenities'); ?>
                                 </h6>
                             </div>
                             <div class="col-md-6">
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="has_electricity" name="has_electricity" 
                                                    <?php echo $area['has_electricity'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="has_electricity">
-                                                <i class="fas fa-bolt text-success"></i> Electricity
+                                                <i class="fas fa-bolt text-success"></i> <?php echo __('electricity'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -290,7 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="has_water" name="has_water" 
                                                    <?php echo $area['has_water'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="has_water">
-                                                <i class="fas fa-tint text-info"></i> Water
+                                                <i class="fas fa-tint text-info"></i> <?php echo __('water'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -299,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="has_security" name="has_security" 
                                                    <?php echo $area['has_security'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="has_security">
-                                                <i class="fas fa-shield-alt text-warning"></i> Security
+                                                <i class="fas fa-shield-alt text-warning"></i> <?php echo __('security'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="has_parking" name="has_parking" 
                                                    <?php echo $area['has_parking'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="has_parking">
-                                                <i class="fas fa-car text-primary"></i> Parking
+                                                <i class="fas fa-car text-primary"></i> <?php echo __('parking'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -317,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="has_loading_dock" name="has_loading_dock" 
                                                    <?php echo $area['has_loading_dock'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="has_loading_dock">
-                                                <i class="fas fa-truck text-success"></i> Loading Dock
+                                                <i class="fas fa-truck text-success"></i> <?php echo __('loading_dock'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -326,7 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input class="form-check-input" type="checkbox" id="is_covered" name="is_covered" 
                                                    <?php echo $area['is_covered'] ? 'checked' : ''; ?>>
                                             <label class="form-check-label" for="is_covered">
-                                                <i class="fas fa-home text-secondary"></i> Covered
+                                                <i class="fas fa-home text-secondary"></i> <?php echo __('covered'); ?>
                                             </label>
                                         </div>
                                     </div>
@@ -334,25 +334,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="capacity" class="form-label">Capacity (People)</label>
+                                    <label for="capacity" class="form-label"><?php echo __('capacity'); ?></label>
                                     <input type="number" min="1" class="form-control" id="capacity" name="capacity" 
                                            value="<?php echo htmlspecialchars($area['capacity'] ?? ''); ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="max_vehicle_size" class="form-label">Max Vehicle Size</label>
+                                    <label for="max_vehicle_size" class="form-label"><?php echo __('max_vehicle_size'); ?></label>
                                     <input type="text" class="form-control" id="max_vehicle_size" name="max_vehicle_size" 
                                            value="<?php echo htmlspecialchars($area['max_vehicle_size'] ?? ''); ?>"
-                                           placeholder="e.g., Large trucks, Medium trucks"
+                                           placeholder="<?php echo __('e_g_large_trucks_medium_trucks'); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in vehicle size descriptions.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_vehicle_size_descriptions'); ?></small>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="operating_hours" class="form-label">Operating Hours</label>
+                                    <label for="operating_hours" class="form-label"><?php echo __('operating_hours'); ?></label>
                                     <input type="text" class="form-control" id="operating_hours" name="operating_hours" 
                                            value="<?php echo htmlspecialchars($area['operating_hours'] ?? ''); ?>"
-                                           placeholder="e.g., 8:00 AM - 8:00 PM, 24/7"
+                                           placeholder="<?php echo __('e_g_8_00_am_8_00_pm_24_7'); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in operating hours.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_operating_hours'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -361,41 +361,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-phone"></i> Contact Information
+                                    <i class="fas fa-phone"></i> <?php echo __('contact_information'); ?>
                                 </h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="contact_person" class="form-label">Contact Person</label>
+                                    <label for="contact_person" class="form-label"><?php echo __('contact_person'); ?></label>
                                     <input type="text" class="form-control" id="contact_person" name="contact_person" 
                                            value="<?php echo htmlspecialchars($area['contact_person'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in contact names.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_contact_names'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="contact_phone" class="form-label">Contact Phone</label>
+                                    <label for="contact_phone" class="form-label"><?php echo __('contact_phone'); ?></label>
                                     <input type="text" class="form-control" id="contact_phone" name="contact_phone" 
                                            value="<?php echo htmlspecialchars($area['contact_phone'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in phone numbers.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_phone_numbers'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="contact_email" class="form-label">Contact Email</label>
+                                    <label for="contact_email" class="form-label"><?php echo __('contact_email'); ?></label>
                                     <input type="email" class="form-control" id="contact_email" name="contact_email" 
                                            value="<?php echo htmlspecialchars($area['contact_email'] ?? ''); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in email addresses.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_email_addresses'); ?></small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="text-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Area
+                                <i class="fas fa-save"></i> <?php echo __('update_area'); ?>
                             </button>
                         </div>
                     </form>
@@ -409,7 +409,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle"></i> Current Area Info
+                        <i class="fas fa-info-circle"></i> <?php echo __('current_area_info'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -421,18 +421,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </span>
                     </div>
                     <div class="mb-3">
-                        <h6 class="text-secondary">Financial</h6>
+                        <h6 class="text-secondary"><?php echo __('financial'); ?></h6>
                         <div class="d-flex justify-content-between">
-                            <span>Monthly Rate:</span>
+                            <span><?php echo __('monthly_rate'); ?>:</span>
                             <strong class="text-success"><?php echo formatCurrencyAmount($area['monthly_rate'], $area['currency'] ?? 'USD'); ?></strong>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span>Daily Rate:</span>
+                            <span><?php echo __('daily_rate'); ?>:</span>
                             <strong class="text-info"><?php echo formatCurrencyAmount($area['daily_rate'], $area['currency'] ?? 'USD'); ?></strong>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <h6 class="text-secondary">Status</h6>
+                        <h6 class="text-secondary"><?php echo __('status'); ?></h6>
                         <span class="badge bg-<?php echo $area['status'] === 'available' ? 'success' : ($area['status'] === 'in_use' ? 'warning' : 'secondary'); ?>">
                             <?php echo ucfirst($area['status']); ?>
                         </span>
@@ -444,13 +444,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-calculator"></i> Rate Calculator
+                        <i class="fas fa-calculator"></i> <?php echo __('rate_calculator'); ?>
                     </h6>
                 </div>
                 <div class="card-body" id="rateCalculator">
                     <div class="text-center text-muted">
                         <i class="fas fa-calculator fa-3x mb-3"></i>
-                        <p>Enter monthly rate to calculate</p>
+                        <p><?php echo __('enter_monthly_rate_to_calculate'); ?></p>
                     </div>
                 </div>
             </div>
@@ -536,21 +536,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="row text-center">
                     <div class="col-6 mb-3">
                         <h6 class="text-primary">${formatCurrency(dailyRate, currency)}</h6>
-                        <small class="text-muted">Daily Rate</small>
+                        <small class="text-muted"><?php echo __('daily_rate'); ?></small>
                     </div>
                     <div class="col-6 mb-3">
                         <h6 class="text-success">${formatCurrency(weeklyRate, currency)}</h6>
-                        <small class="text-muted">Weekly Rate</small>
+                        <small class="text-muted"><?php echo __('weekly_rate'); ?></small>
                     </div>
                 </div>
                 <div class="row text-center">
                     <div class="col-6 mb-3">
                         <h6 class="text-info">${formatCurrency(monthlyRate, currency)}</h6>
-                        <small class="text-muted">Monthly Rate</small>
+                        <small class="text-muted"><?php echo __('monthly_rate'); ?></small>
                     </div>
                     <div class="col-6 mb-3">
                         <h6 class="text-warning">${formatCurrency(yearlyRate, currency)}</h6>
-                        <small class="text-muted">Yearly Rate</small>
+                        <small class="text-muted"><?php echo __('yearly_rate'); ?></small>
                     </div>
                 </div>
             `;

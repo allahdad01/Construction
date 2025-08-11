@@ -16,7 +16,7 @@ $empStmt = $conn->prepare('SELECT id, name FROM employees WHERE company_id = ? A
 $empStmt->execute([$company_id, $user['id']]);
 $employee = $empStmt->fetch(PDO::FETCH_ASSOC);
 
-$page_title = 'My Leave Days';
+$page_title = __('my_leave_days');
 
 $start = $_GET['start'] ?? date('Y-m-01');
 $end = $_GET['end'] ?? date('Y-m-d');
@@ -30,39 +30,39 @@ if ($employee) {
 ?>
 <div class="container-fluid">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="mb-0">My Leave Days</h3>
+    <h3 class="mb-0"><?php echo __('my_leave_days'); ?></h3>
   </div>
 
   <?php if (!$employee): ?>
-    <div class="alert alert-warning">No employee record linked to your user account.</div>
+    <div class="alert alert-warning"><?php echo __('no_employee_record_linked_to_your_user_account'); ?></div>
   <?php else: ?>
     <div class="card mb-3">
-      <div class="card-header">Filter</div>
+      <div class="card-header"><?php echo __('filter'); ?></div>
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-4">
-            <label class="form-label">Start</label>
+            <label class="form-label"><?php echo __('start'); ?></label>
             <input type="date" class="form-control" name="start" value="<?php echo htmlspecialchars($start); ?>">
           </div>
           <div class="col-md-4">
-            <label class="form-label">End</label>
+            <label class="form-label"><?php echo __('end'); ?></label>
             <input type="date" class="form-control" name="end" value="<?php echo htmlspecialchars($end); ?>">
           </div>
           <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100"><i class="fas fa-filter"></i> Apply</button>
+            <button class="btn btn-primary w-100"><i class="fas fa-filter"></i> <?php echo __('apply'); ?></button>
           </div>
         </form>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header">Leave Records</div>
+      <div class="card-header"><?php echo __('leave_records'); ?></div>
       <div class="card-body table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>Date</th><th>Type</th><th>Notes</th></tr></thead>
+          <thead><tr><th><?php echo __('date'); ?></th><th><?php echo __('type'); ?></th><th><?php echo __('notes'); ?></th></tr></thead>
           <tbody>
             <?php if (empty($leaves)): ?>
-              <tr><td colspan="3" class="text-muted">No leave days for the selected period.</td></tr>
+              <tr><td colspan="3" class="text-muted"><?php echo __('no_leave_days_for_the_selected_period'); ?></td></tr>
             <?php else: foreach ($leaves as $lv): ?>
               <tr>
                 <td><?php echo htmlspecialchars($lv['date']); ?></td>

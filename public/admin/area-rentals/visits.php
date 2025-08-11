@@ -192,16 +192,16 @@ require_once '../../../includes/header.php';
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-calendar-check"></i> Area Rental Visits
+                <i class="fas fa-calendar-check"></i> <?php echo __('area_rental_visits'); ?>
             </h1>
-            <p class="text-muted mb-0">Manage visits for <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+            <p class="text-muted mb-0"><?php echo __('manage_visits_for'); ?> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
         </div>
         <div class="btn-group" role="group">
             <a href="view.php?id=<?php echo $rental_id; ?>" class="btn btn-outline-primary">
-                <i class="fas fa-eye"></i> View Details
+                <i class="fas fa-eye"></i> <?php echo __('view_details'); ?>
             </a>
             <a href="index.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rentals
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rentals'); ?>
             </a>
         </div>
     </div>
@@ -211,7 +211,7 @@ require_once '../../../includes/header.php';
     <?php endif; ?>
 
     <?php if ($success || isset($_GET['success'])): ?>
-        <div class="alert alert-success">Visit record created successfully!</div>
+        <div class="alert alert-success"><?php echo __('visit_record_created_successfully'); ?></div>
     <?php endif; ?>
 
     <div class="row">
@@ -220,35 +220,35 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-plus"></i> Add Visit Record
+                        <i class="fas fa-plus"></i> <?php echo __('add_visit_record'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="visitForm">
                         <div class="mb-3">
-                            <label for="visit_type" class="form-label">Visit Type *</label>
+                            <label for="visit_type" class="form-label"><?php echo __('visit_type'); ?> *</label>
                             <select class="form-control" id="visit_type" name="visit_type" required>
-                                <option value="">Select Visit Type</option>
-                                <option value="inspection">🔍 Inspection</option>
-                                <option value="maintenance">🔧 Maintenance</option>
-                                <option value="client_visit">👤 Client Visit</option>
-                                <option value="security_check">🛡️ Security Check</option>
-                                <option value="cleaning">🧹 Cleaning</option>
-                                <option value="emergency">🚨 Emergency</option>
-                                <option value="other">📋 Other</option>
+                                <option value=""><?php echo __('select_visit_type'); ?></option>
+                                <option value="inspection">🔍 <?php echo __('inspection'); ?></option>
+                                <option value="maintenance">🔧 <?php echo __('maintenance'); ?></option>
+                                <option value="client_visit">👤 <?php echo __('client_visit'); ?></option>
+                                <option value="security_check">🛡️ <?php echo __('security_check'); ?></option>
+                                <option value="cleaning">🧹 <?php echo __('cleaning'); ?></option>
+                                <option value="emergency">🚨 <?php echo __('emergency'); ?></option>
+                                <option value="other">📋 <?php echo __('other'); ?></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="purpose" class="form-label">Purpose *</label>
+                            <label for="purpose" class="form-label"><?php echo __('purpose'); ?> *</label>
                             <textarea class="form-control" id="purpose" name="purpose" rows="2" 
-                                      placeholder="Describe the purpose of the visit..."
+                                      placeholder="<?php echo __('describe_the_purpose_of_the_visit'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false" required></textarea>
-                            <small class="form-text text-muted">You can use spaces in purpose descriptions.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_purpose_descriptions'); ?></small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="visit_date" class="form-label">Visit Date</label>
+                            <label for="visit_date" class="form-label"><?php echo __('visit_date'); ?></label>
                             <input type="date" class="form-control" id="visit_date" name="visit_date" 
                                    value="<?php echo date('Y-m-d'); ?>" required>
                         </div>
@@ -256,56 +256,56 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="visitor_name" class="form-label">Visitor Name</label>
+                                    <label for="visitor_name" class="form-label"><?php echo __('visitor_name'); ?></label>
                                     <input type="text" class="form-control" id="visitor_name" name="visitor_name" 
-                                           placeholder="Name of visitor"
+                                           placeholder="<?php echo __('name_of_visitor'); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in visitor names.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_visitor_names'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="visitor_contact" class="form-label">Visitor Contact</label>
+                                    <label for="visitor_contact" class="form-label"><?php echo __('visitor_contact'); ?></label>
                                     <input type="text" class="form-control" id="visitor_contact" name="visitor_contact" 
-                                           placeholder="Phone or email"
+                                           placeholder="<?php echo __('phone_or_email'); ?>"
                                            style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                    <small class="form-text text-muted">You can use spaces in contact information.</small>
+                                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_contact_information'); ?></small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="duration_minutes" class="form-label">Duration (Minutes)</label>
+                            <label for="duration_minutes" class="form-label"><?php echo __('duration'); ?> (<?php echo __('minutes'); ?>)</label>
                             <input type="number" min="1" class="form-control" id="duration_minutes" name="duration_minutes" 
-                                   placeholder="How long the visit took">
+                                   placeholder="<?php echo __('how_long_the_visit_took'); ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label for="findings" class="form-label">Findings</label>
+                            <label for="findings" class="form-label"><?php echo __('findings'); ?></label>
                             <textarea class="form-control" id="findings" name="findings" rows="3" 
-                                      placeholder="What was found during the visit..."
+                                      placeholder="<?php echo __('what_was_found_during_the_visit'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                            <small class="form-text text-muted">You can use spaces in findings.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_findings'); ?></small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="recommendations" class="form-label">Recommendations</label>
+                            <label for="recommendations" class="form-label"><?php echo __('recommendations'); ?></label>
                             <textarea class="form-control" id="recommendations" name="recommendations" rows="3" 
-                                      placeholder="Any recommendations or actions needed..."
+                                      placeholder="<?php echo __('any_recommendations_or_actions_needed'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                            <small class="form-text text-muted">You can use spaces in recommendations.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_recommendations'); ?></small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Additional Notes</label>
+                            <label for="notes" class="form-label"><?php echo __('additional_notes'); ?></label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                      placeholder="Additional notes or observations..."
+                                      placeholder="<?php echo __('additional_notes_or_observations'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                            <small class="form-text text-muted">You can use spaces in notes.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_notes'); ?></small>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save"></i> Add Visit Record
+                            <i class="fas fa-save"></i> <?php echo __('add_visit_record'); ?>
                         </button>
                     </form>
                 </div>
@@ -317,20 +317,20 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar"></i> Visit Summary
+                        <i class="fas fa-chart-bar"></i> <?php echo __('visit_summary'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-primary">Total Visits</h6>
+                                <h6 class="text-primary"><?php echo __('total_visits'); ?></h6>
                                 <h4 class="text-primary"><?php echo count($visit_records); ?></h4>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-info">Inspections</h6>
+                                <h6 class="text-info"><?php echo __('inspections'); ?></h6>
                                 <h4 class="text-info">
                                     <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'inspection'; })); ?>
                                 </h4>
@@ -338,7 +338,7 @@ require_once '../../../includes/header.php';
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-warning">Maintenance</h6>
+                                <h6 class="text-warning"><?php echo __('maintenance'); ?></h6>
                                 <h4 class="text-warning">
                                     <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'maintenance'; })); ?>
                                 </h4>
@@ -346,7 +346,7 @@ require_once '../../../includes/header.php';
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-success">Client Visits</h6>
+                                <h6 class="text-success"><?php echo __('client_visits'); ?></h6>
                                 <h4 class="text-success">
                                     <?php echo count(array_filter($visit_records, function($r) { $t = $r['visit_type'] ?? ($r['type'] ?? ''); return $t === 'client_visit'; })); ?>
                                 </h4>
@@ -357,15 +357,15 @@ require_once '../../../includes/header.php';
                     <!-- Rental Details -->
                     <div class="row mt-4">
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Rental Information</h6>
-                            <p><strong>Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                            <p><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                            <p><strong>Area:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
+                            <h6 class="text-secondary"><?php echo __('rental_information'); ?></h6>
+                            <p><strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                            <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                            <p><strong><?php echo __('area'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Area Details</h6>
-                            <p><strong>Type:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
-                            <p><strong>Status:</strong> 
+                            <h6 class="text-secondary"><?php echo __('area_details'); ?></h6>
+                            <p><strong><?php echo __('type'); ?>:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
+                            <p><strong><?php echo __('status'); ?>:</strong> 
                                 <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary'); ?>">
                                     <?php echo ucfirst($rental['status']); ?>
                                 </span>
@@ -379,26 +379,26 @@ require_once '../../../includes/header.php';
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history"></i> Visit History
+                        <i class="fas fa-history"></i> <?php echo __('visit_history'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($visit_records)): ?>
                         <div class="text-center py-4">
                             <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No visit records found.</p>
+                            <p class="text-muted"><?php echo __('no_visit_records_found'); ?></p>
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-bordered" id="visitsTable">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Purpose</th>
-                                        <th>Visitor</th>
-                                        <th>Duration</th>
-                                        <th>Actions</th>
+                                        <th><?php echo __('date'); ?></th>
+                                        <th><?php echo __('type'); ?></th>
+                                        <th><?php echo __('purpose'); ?></th>
+                                        <th><?php echo __('visitor'); ?></th>
+                                        <th><?php echo __('duration'); ?></th>
+                                        <th><?php echo __('actions'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -481,14 +481,14 @@ require_once '../../../includes/header.php';
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Visit Details</h5>
+        <h5 class="modal-title"><?php echo __('visit_details'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div id="viewVisitBody"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('close'); ?></button>
       </div>
     </div>
   </div>
@@ -499,7 +499,7 @@ require_once '../../../includes/header.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Visit</h5>
+        <h5 class="modal-title"><?php echo __('edit_visit'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST" id="editVisitForm">
@@ -507,49 +507,49 @@ require_once '../../../includes/header.php';
         <input type="hidden" name="id" id="edit_visit_id">
         <div class="modal-body">
           <div class="mb-2">
-            <label class="form-label">Type</label>
+            <label class="form-label"><?php echo __('type'); ?></label>
             <input type="text" class="form-control" name="visit_type" id="edit_visit_type">
           </div>
           <div class="mb-2">
-            <label class="form-label">Purpose</label>
+            <label class="form-label"><?php echo __('purpose'); ?></label>
             <textarea class="form-control" name="purpose" id="edit_purpose"></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2">
-              <label class="form-label">Visit Date</label>
+              <label class="form-label"><?php echo __('visit_date'); ?></label>
               <input type="date" class="form-control" name="visit_date" id="edit_visit_date">
             </div>
             <div class="col-md-6 mb-2">
-              <label class="form-label">Duration (minutes)</label>
+              <label class="form-label"><?php echo __('duration'); ?> (<?php echo __('minutes'); ?>)</label>
               <input type="number" class="form-control" name="duration_minutes" id="edit_duration_minutes">
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2">
-              <label class="form-label">Visitor</label>
+              <label class="form-label"><?php echo __('visitor'); ?></label>
               <input type="text" class="form-control" name="visitor_name" id="edit_visitor_name">
             </div>
             <div class="col-md-6 mb-2">
-              <label class="form-label">Contact</label>
+              <label class="form-label"><?php echo __('contact'); ?></label>
               <input type="text" class="form-control" name="visitor_contact" id="edit_visitor_contact">
             </div>
           </div>
           <div class="mb-2">
-            <label class="form-label">Findings</label>
+            <label class="form-label"><?php echo __('findings'); ?></label>
             <textarea class="form-control" name="findings" id="edit_findings"></textarea>
           </div>
           <div class="mb-2">
-            <label class="form-label">Recommendations</label>
+            <label class="form-label"><?php echo __('recommendations'); ?></label>
             <textarea class="form-control" name="recommendations" id="edit_recommendations"></textarea>
           </div>
           <div class="mb-2">
-            <label class="form-label">Notes</label>
+            <label class="form-label"><?php echo __('notes'); ?></label>
             <textarea class="form-control" name="notes" id="edit_notes"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('cancel'); ?></button>
+          <button type="submit" class="btn btn-primary"><?php echo __('save_changes'); ?></button>
         </div>
       </form>
     </div>
@@ -606,11 +606,11 @@ document.addEventListener('DOMContentLoaded', function() {
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
             language: {
-                search: "Search visits:",
-                lengthMenu: "Show _MENU_ records per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ records",
-                infoEmpty: "Showing 0 to 0 of 0 records",
-                infoFiltered: "(filtered from _MAX_ total records)"
+                search: "<?php echo __('search_visits'); ?>:",
+                lengthMenu: "<?php echo __('show_records_per_page'); ?>",
+                info: "<?php echo __('showing_start_to_end_of_total_records'); ?>",
+                infoEmpty: "<?php echo __('showing_0_to_0_of_0_records'); ?>",
+                infoFiltered: "(<?php echo __('filtered_from_total_records'); ?>)"
             }
         });
     }
@@ -622,25 +622,25 @@ async function viewVisit(id) {
     const d = await res.json();
     const html = `
       <div class="row">
-        <div class="col-md-6"><strong>Type:</strong> ${d.visit_type ?? d.type ?? '-'}</div>
-        <div class="col-md-6"><strong>Date:</strong> ${d.visit_date ?? d.date ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('type'); ?>:</strong> ${d.visit_type ?? d.type ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('date'); ?>:</strong> ${d.visit_date ?? d.date ?? '-'}</div>
       </div>
       <div class="row mt-2">
-        <div class="col-md-6"><strong>Visitor:</strong> ${d.visitor_name ?? d.visitor ?? '-'}</div>
-        <div class="col-md-6"><strong>Contact:</strong> ${d.visitor_contact ?? d.contact ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('visitor'); ?>:</strong> ${d.visitor_name ?? d.visitor ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('contact'); ?>:</strong> ${d.visitor_contact ?? d.contact ?? '-'}</div>
       </div>
       <div class="row mt-2">
-        <div class="col-md-6"><strong>Duration:</strong> ${(d.duration_minutes ?? d.duration ?? '-') }</div>
+        <div class="col-md-6"><strong><?php echo __('duration'); ?>:</strong> ${(d.duration_minutes ?? d.duration ?? '-') }</div>
       </div>
-      <div class="mt-2"><strong>Purpose:</strong><br>${(d.purpose ?? '').toString().replace(/</g,'&lt;')}</div>
-      <div class="mt-2"><strong>Findings:</strong><br>${(d.findings ?? '').toString().replace(/</g,'&lt;')}</div>
-      <div class="mt-2"><strong>Recommendations:</strong><br>${(d.recommendations ?? '').toString().replace(/</g,'&lt;')}</div>
-      <div class="mt-2"><strong>Notes:</strong><br>${(d.notes ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('purpose'); ?>:</strong><br>${(d.purpose ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('findings'); ?>:</strong><br>${(d.findings ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('recommendations'); ?>:</strong><br>${(d.recommendations ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('notes'); ?>:</strong><br>${(d.notes ?? '').toString().replace(/</g,'&lt;')}</div>
     `;
     document.getElementById('viewVisitBody').innerHTML = html;
     const modal = new bootstrap.Modal(document.getElementById('viewVisitModal'));
     modal.show();
-  } catch (e) { alert('Failed to load visit details'); }
+  } catch (e) { alert('<?php echo __('failed_to_load_visit_details'); ?>'); }
 }
 
 async function editVisit(id) {
@@ -659,7 +659,7 @@ async function editVisit(id) {
     document.getElementById('edit_notes').value = d.notes || '';
     const modal = new bootstrap.Modal(document.getElementById('editVisitModal'));
     modal.show();
-  } catch (e) { alert('Failed to load visit for edit'); }
+  } catch (e) { alert('<?php echo __('failed_to_load_visit_for_edit'); ?>
 }
 
 async function deleteVisit(id) {

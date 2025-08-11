@@ -173,16 +173,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label for="type" class="form-label"><?php echo __('machine_type'); ?> *</label>
                             <select class="form-control" id="type" name="type" required>
-                                <option value="">Select machine type...</option>
-                                <option value="excavator" <?php echo ($machine['type'] == 'excavator') ? 'selected' : ''; ?>>Excavator</option>
-                                <option value="bulldozer" <?php echo ($machine['type'] == 'bulldozer') ? 'selected' : ''; ?>>Bulldozer</option>
-                                <option value="crane" <?php echo ($machine['type'] == 'crane') ? 'selected' : ''; ?>>Crane</option>
-                                <option value="loader" <?php echo ($machine['type'] == 'loader') ? 'selected' : ''; ?>>Loader</option>
-                                <option value="truck" <?php echo ($machine['type'] == 'truck') ? 'selected' : ''; ?>>Truck</option>
-                                <option value="compactor" <?php echo ($machine['type'] == 'compactor') ? 'selected' : ''; ?>>Compactor</option>
-                                <option value="mixer" <?php echo ($machine['type'] == 'mixer') ? 'selected' : ''; ?>>Concrete Mixer</option>
-                                <option value="generator" <?php echo ($machine['type'] == 'generator') ? 'selected' : ''; ?>>Generator</option>
-                                <option value="other" <?php echo ($machine['type'] == 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value=""><?php echo __('select_machine_type'); ?>...</option>
+                                <option value="excavator" <?php echo ($machine['type'] == 'excavator') ? 'selected' : ''; ?>><?php echo __('excavator'); ?></option>
+                                <option value="bulldozer" <?php echo ($machine['type'] == 'bulldozer') ? 'selected' : ''; ?>><?php echo __('bulldozer'); ?></option>
+                                <option value="crane" <?php echo ($machine['type'] == 'crane') ? 'selected' : ''; ?>><?php echo __('crane'); ?></option>
+                                <option value="loader" <?php echo ($machine['type'] == 'loader') ? 'selected' : ''; ?>><?php echo __('loader'); ?></option>
+                                <option value="truck" <?php echo ($machine['type'] == 'truck') ? 'selected' : ''; ?>><?php echo __('truck'); ?></option>
+                                <option value="compactor" <?php echo ($machine['type'] == 'compactor') ? 'selected' : ''; ?>><?php echo __('compactor'); ?></option>
+                                <option value="mixer" <?php echo ($machine['type'] == 'mixer') ? 'selected' : ''; ?>><?php echo __('concrete_mixer'); ?></option>
+                                <option value="generator" <?php echo ($machine['type'] == 'generator') ? 'selected' : ''; ?>><?php echo __('generator'); ?></option>
+                                <option value="other" <?php echo ($machine['type'] == 'other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="model" class="form-label"><?php echo __('model'); ?></label>
                             <input type="text" class="form-control" id="model" name="model" 
                                    value="<?php echo htmlspecialchars($machine['model'] ?? ''); ?>"
-                                   placeholder="e.g., CAT 320D, Komatsu PC200">
+                                   placeholder="<?php echo __('e_g_cat_320d_komatsu_pc200'); ?>">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -213,19 +213,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="capacity" class="form-label"><?php echo __('capacity'); ?></label>
                             <input type="text" class="form-control" id="capacity" name="capacity" 
                                    value="<?php echo htmlspecialchars($machine['capacity'] ?? ''); ?>"
-                                   placeholder="e.g., 20 tons, 5000L, 150 HP">
+                                   placeholder="<?php echo __('e_g_20_tons_5000l_150_hp'); ?>">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="fuel_type" class="form-label"><?php echo __('fuel_type'); ?></label>
                             <select class="form-control" id="fuel_type" name="fuel_type">
-                                <option value="">Select fuel type...</option>
-                                <option value="diesel" <?php echo ($machine['fuel_type'] == 'diesel') ? 'selected' : ''; ?>>Diesel</option>
-                                <option value="petrol" <?php echo ($machine['fuel_type'] == 'petrol') ? 'selected' : ''; ?>>Petrol</option>
-                                <option value="electric" <?php echo ($machine['fuel_type'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
-                                <option value="hybrid" <?php echo ($machine['fuel_type'] == 'hybrid') ? 'selected' : ''; ?>>Hybrid</option>
-                                <option value="other" <?php echo ($machine['fuel_type'] == 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value=""><?php echo __('select_fuel_type'); ?>...</option>
+                                <option value="diesel" <?php echo ($machine['fuel_type'] == 'diesel') ? 'selected' : ''; ?>><?php echo __('diesel'); ?></option>
+                                <option value="petrol" <?php echo ($machine['fuel_type'] == 'petrol') ? 'selected' : ''; ?>><?php echo __('petrol'); ?></option>
+                                <option value="electric" <?php echo ($machine['fuel_type'] == 'electric') ? 'selected' : ''; ?>><?php echo __('electric'); ?></option>
+                                <option value="hybrid" <?php echo ($machine['fuel_type'] == 'hybrid') ? 'selected' : ''; ?>><?php echo __('hybrid'); ?></option>
+                                <option value="other" <?php echo ($machine['fuel_type'] == 'other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -346,28 +346,28 @@ document.getElementById('type').addEventListener('change', function() {
     let placeholder = '';
     switch(type) {
         case 'excavator':
-            placeholder = 'e.g., 20 tons operating weight';
+            placeholder = '<?php echo __('e_g_20_tons_operating_weight'); ?>';
             break;
         case 'bulldozer':
-            placeholder = 'e.g., 150 HP, blade width 3.2m';
+            placeholder = '<?php echo __('e_g_150_hp_blade_width_3_2m'); ?>';
             break;
         case 'crane':
-            placeholder = 'e.g., 50 tons lifting capacity';
+            placeholder = '<?php echo __('e_g_50_tons_lifting_capacity'); ?>';
             break;
         case 'loader':
-            placeholder = 'e.g., 3 cubic meter bucket';
+            placeholder = '<?php echo __('e_g_3_cubic_meter_bucket'); ?>';
             break;
         case 'truck':
-            placeholder = 'e.g., 10 tons payload';
+            placeholder = '<?php echo __('e_g_10_tons_payload'); ?>';
             break;
         case 'mixer':
-            placeholder = 'e.g., 8 cubic meter drum';
+            placeholder = '<?php echo __('e_g_8_cubic_meter_drum'); ?>';
             break;
         case 'generator':
-            placeholder = 'e.g., 100 kVA';
+            placeholder = '<?php echo __('e_g_100_kva'); ?>';
             break;
         default:
-            placeholder = 'e.g., capacity specifications';
+            placeholder = '<?php echo __('e_g_capacity_specifications'); ?>';
     }
     
     capacityField.placeholder = placeholder;

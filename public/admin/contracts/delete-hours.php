@@ -72,10 +72,10 @@ require_once '../../../includes/header.php';
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Delete Working Hours</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('delete_working_hours'); ?></h1>
         <div>
             <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Timesheet
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?>
             </a>
         </div>
     </div>
@@ -83,22 +83,22 @@ require_once '../../../includes/header.php';
     <!-- Working Hours Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-danger">Working Hours to be Deleted</h6>
+            <h6 class="m-0 font-weight-bold text-danger"><?php echo __('working_hours_to_be_deleted'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract:</strong></td>
+                            <td><strong><?php echo __('contract'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['contract_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Project:</strong></td>
+                            <td><strong><?php echo __('project'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['project_name'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Date:</strong></td>
+                            <td><strong><?php echo __('date'); ?>:</strong></td>
                             <td>
                                 <strong><?php echo date('M j, Y', strtotime($working_hours['date'])); ?></strong>
                                 <br><small class="text-muted"><?php echo date('l', strtotime($working_hours['date'])); ?></small>
@@ -109,17 +109,17 @@ require_once '../../../includes/header.php';
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Employee:</strong></td>
+                            <td><strong><?php echo __('employee'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['employee_name'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Employee Code:</strong></td>
+                            <td><strong><?php echo __('employee_code'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($working_hours['employee_code'] ?? 'N/A'); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Hours Worked:</strong></td>
+                            <td><strong><?php echo __('hours_worked'); ?>:</strong></td>
                             <td>
-                                <strong class="text-danger"><?php echo number_format($working_hours['hours_worked'], 1); ?> hours</strong>
+                                <strong class="text-danger"><?php echo number_format($working_hours['hours_worked'], 1); ?> <?php echo __('hours'); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -128,7 +128,7 @@ require_once '../../../includes/header.php';
             
             <?php if (!empty($working_hours['notes'])): ?>
             <div class="mt-3">
-                <strong>Notes:</strong>
+                <strong><?php echo __('notes'); ?>:</strong>
                 <p class="mt-2 p-3 bg-light border rounded"><?php echo nl2br(htmlspecialchars($working_hours['notes'])); ?></p>
             </div>
             <?php endif; ?>
@@ -139,7 +139,7 @@ require_once '../../../includes/header.php';
     <div class="card shadow border-danger">
         <div class="card-header py-3 bg-danger text-white">
             <h6 class="m-0 font-weight-bold">
-                <i class="fas fa-exclamation-triangle"></i> Confirm Working Hours Deletion
+                <i class="fas fa-exclamation-triangle"></i> <?php echo __('confirm_working_hours_deletion'); ?>
             </h6>
         </div>
         <div class="card-body">
@@ -150,16 +150,16 @@ require_once '../../../includes/header.php';
             <?php endif; ?>
 
             <div class="alert alert-warning" role="alert">
-                <h5><i class="fas fa-exclamation-triangle"></i> Warning!</h5>
-                <p><strong>This action cannot be undone.</strong> Deleting this working hours entry will:</p>
+                <h5><i class="fas fa-exclamation-triangle"></i> <?php echo __('warning'); ?>!</h5>
+                <p><strong><?php echo __('this_action_cannot_be_undone'); ?>.</strong> <?php echo __('deleting_this_working_hours_entry_will'); ?>:</p>
                 <ul>
-                    <li>Permanently remove the working hours record from the database</li>
-                    <li>Update contract timesheet calculations and totals</li>
-                    <li>Affect earnings and payment calculations</li>
-                    <li>Impact progress tracking and reporting</li>
-                    <li>Remove this entry from timesheet history</li>
+                    <li><?php echo __('permanently_remove_the_working_hours_record_from_the_database'); ?></li>
+                    <li><?php echo __('update_contract_timesheet_calculations_and_totals'); ?></li>
+                    <li><?php echo __('affect_earnings_and_payment_calculations'); ?></li>
+                    <li><?php echo __('impact_progress_tracking_and_reporting'); ?></li>
+                    <li><?php echo __('remove_this_entry_from_timesheet_history'); ?></li>
                 </ul>
-                <p class="mb-0"><strong>Are you absolutely sure you want to delete this working hours entry?</strong></p>
+                <p class="mb-0"><strong><?php echo __('are_you_absolutely_sure_you_want_to_delete_this_working_hours_entry'); ?>?</strong></p>
             </div>
 
             <form method="POST">
@@ -167,26 +167,26 @@ require_once '../../../includes/header.php';
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="confirm_delete" name="confirm_delete" value="yes" required>
                         <label class="form-check-label" for="confirm_delete">
-                            <strong>Yes, I understand the consequences and want to delete this working hours entry</strong>
+                            <strong><?php echo __('yes_i_understand_the_consequences_and_want_to_delete_this_working_hours_entry'); ?></strong>
                         </label>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="confirm_text" class="form-label">
-                        <strong>Type "DELETE" to confirm:</strong>
+                        <strong><?php echo __('type_delete_to_confirm'); ?>:</strong>
                     </label>
                     <input type="text" class="form-control" id="confirm_text" name="confirm_text" 
-                           placeholder="Type DELETE to confirm" required>
-                    <small class="form-text text-muted">This field is case-sensitive. You must type exactly "DELETE".</small>
+                           placeholder="<?php echo __('type_delete_to_confirm'); ?>" required>
+                    <small class="form-text text-muted"><?php echo __('this_field_is_case_sensitive_you_must_type_exactly_delete'); ?></small>
                 </div>
 
                 <div class="d-flex justify-content-between">
                     <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                        <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                     </a>
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete Working Hours
+                        <i class="fas fa-trash"></i> <?php echo __('delete_working_hours'); ?>
                     </button>
                 </div>
             </form>
@@ -225,11 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (confirmText.value !== 'DELETE') {
             e.preventDefault();
-            alert('Please type "DELETE" exactly to confirm the deletion.');
+            alert('<?php echo __('please_type_delete_exactly_to_confirm_the_deletion'); ?>.');
             return false;
         }
         
-        if (!confirm('This will permanently delete the working hours entry. Are you absolutely sure?')) {
+        if (!confirm('<?php echo __('this_will_permanently_delete_the_working_hours_entry_are_you_absolutely_sure'); ?>')) {
             e.preventDefault();
             return false;
         }

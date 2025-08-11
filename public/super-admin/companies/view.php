@@ -62,14 +62,14 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-building"></i> Company Details
+            <i class="fas fa-building"></i> <?php echo __('company_details'); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Companies
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/edit.php?id=<?php echo $company['id']; ?>" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit"></i> Edit Company
+                <i class="fas fa-edit"></i> <?php echo __('edit_company'); ?>
             </a>
         </div>
     </div>
@@ -79,30 +79,30 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('company_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td><strong>Company Code:</strong></td>
+                                    <td><strong><?php echo __('company_code'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['company_code']); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Company Name:</strong></td>
+                                    <td><strong><?php echo __('company_name'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['company_name']); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Contact Person:</strong></td>
+                                    <td><strong><?php echo __('contact_person'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['contact_person'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Contact Email:</strong></td>
+                                    <td><strong><?php echo __('contact_email'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['contact_email']); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Contact Phone:</strong></td>
+                                    <td><strong><?php echo __('contact_phone'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['contact_phone'] ?? 'N/A'); ?></td>
                                 </tr>
                             </table>
@@ -110,23 +110,23 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td><strong>Address:</strong></td>
+                                    <td><strong><?php echo __('address'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['address'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>City:</strong></td>
+                                    <td><strong><?php echo __('city'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['city'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>State:</strong></td>
+                                    <td><strong><?php echo __('state'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['state'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Country:</strong></td>
+                                    <td><strong><?php echo __('country'); ?>:</strong></td>
                                     <td><?php echo htmlspecialchars($company['country'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Created:</strong></td>
+                                    <td><strong><?php echo __('created'); ?>:</strong></td>
                                     <td><?php echo formatDate($company['created_at']); ?></td>
                                 </tr>
                             </table>
@@ -139,15 +139,15 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Subscription Details</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('subscription_details'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <strong>Plan:</strong>
+                        <strong><?php echo __('plan'); ?>:</strong>
                         <span class="badge bg-info"><?php echo ucfirst($company['subscription_plan']); ?></span>
                     </div>
                     <div class="mb-3">
-                        <strong>Status:</strong>
+                        <strong><?php echo __('status'); ?>:</strong>
                         <span class="badge <?php 
                             echo $company['subscription_status'] === 'active' ? 'bg-success' : 
                                 ($company['subscription_status'] === 'trial' ? 'bg-warning' : 
@@ -158,20 +158,20 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <?php if ($company['subscription_status'] === 'trial' && $company['trial_ends_at']): ?>
                         <div class="mb-3">
-                            <strong>Trial Ends:</strong>
+                            <strong><?php echo __('trial_ends'); ?>:</strong>
                             <span class="text-warning"><?php echo formatDate($company['trial_ends_at']); ?></span>
                         </div>
                     <?php endif; ?>
                     <div class="mb-3">
-                        <strong>Total Payments:</strong>
+                        <strong><?php echo __('total_payments'); ?>:</strong>
                         <span class="text-success"><?php echo formatCurrency($total_payments); ?></span>
                     </div>
                     <div class="mb-3">
-                        <strong>Limits:</strong>
+                        <strong><?php echo __('limits'); ?>:</strong>
                         <ul class="list-unstyled">
-                            <li>Max Employees: <?php echo $company['max_employees']; ?></li>
-                            <li>Max Machines: <?php echo $company['max_machines']; ?></li>
-                            <li>Max Projects: <?php echo $company['max_projects']; ?></li>
+                            <li><?php echo __('max_employees'); ?>: <?php echo $company['max_employees']; ?></li>
+                            <li><?php echo __('max_machines'); ?>: <?php echo $company['max_machines']; ?></li>
+                            <li><?php echo __('max_projects'); ?>: <?php echo $company['max_projects']; ?></li>
                         </ul>
                     </div>
                 </div>
@@ -186,7 +186,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Users</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('users'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $user_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -202,7 +202,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Employees</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('employees'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $employee_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -218,7 +218,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Machines</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('machines'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $machine_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -234,7 +234,7 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Projects</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('projects'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $project_count; ?></div>
                         </div>
                         <div class="col-auto">
@@ -251,20 +251,20 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-6 col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Users</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_users'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_users)): ?>
-                        <p class="text-muted">No users found.</p>
+                        <p class="text-muted"><?php echo __('no_users_found'); ?></p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
+                                        <th><?php echo __('name'); ?></th>
+                                        <th><?php echo __('email'); ?></th>
+                                        <th><?php echo __('role'); ?></th>
+                                        <th><?php echo __('status'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -287,20 +287,20 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-6 col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Payments</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_payments'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_payments)): ?>
-                        <p class="text-muted">No payments found.</p>
+                        <p class="text-muted"><?php echo __('no_payments_found'); ?></p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Payment Code</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
+                                        <th><?php echo __('payment_code'); ?></th>
+                                        <th><?php echo __('amount'); ?></th>
+                                        <th><?php echo __('status'); ?></th>
+                                        <th><?php echo __('date'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>

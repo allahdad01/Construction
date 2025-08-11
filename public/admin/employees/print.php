@@ -87,78 +87,78 @@ $remaining = max(0.0, $earnedThisMonth - $totalPaid);
 </head>
 <body>
 <div class="actions">
-  <a href="javascript:window.print()" class="btn btn-primary">Print</a>
-  <a href="view.php?id=<?php echo $employee_id; ?>" class="btn">Back</a>
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="view.php?id=<?php echo $employee_id; ?>" class="btn"><?php echo __('back'); ?></a>
 </div>
 
-<h2>Employee Summary</h2>
-<div class="muted">Printed: <?php echo date('Y-m-d H:i'); ?></div>
+<h2><?php echo __('employee_summary'); ?></h2>
+<div class="muted"><?php echo __('printed'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
 
 <div class="card">
-  <div class="card-header">Personal Information</div>
+  <div class="card-header"><?php echo __('personal_information'); ?></div>
   <div class="card-body">
     <table>
-      <tr><th style="width:28%">Full Name</th><td><?php echo htmlspecialchars($displayName); ?></td></tr>
-      <tr><th>Employee Code</th><td><?php echo htmlspecialchars($e['employee_code'] ?? 'N/A'); ?></td></tr>
-      <tr><th>Position</th><td><?php echo htmlspecialchars($e['position'] ?? 'N/A'); ?></td></tr>
-      <tr><th>Status</th><td><?php echo ucfirst($e['status'] ?? 'inactive'); ?></td></tr>
-      <tr><th>Email</th><td><?php echo htmlspecialchars($e['email'] ?? $e['user_email'] ?? '-'); ?></td></tr>
-      <tr><th>Phone</th><td><?php echo htmlspecialchars($e['phone'] ?? '-'); ?></td></tr>
-      <tr><th>Hire Date</th><td><?php echo !empty($e['hire_date']) ? date('M j, Y', strtotime($e['hire_date'])) : '-'; ?></td></tr>
+      <tr><th style="width:28%"><?php echo __('full_name'); ?></th><td><?php echo htmlspecialchars($displayName); ?></td></tr>
+      <tr><th><?php echo __('employee_code'); ?></th><td><?php echo htmlspecialchars($e['employee_code'] ?? 'N/A'); ?></td></tr>
+      <tr><th><?php echo __('position'); ?></th><td><?php echo htmlspecialchars($e['position'] ?? 'N/A'); ?></td></tr>
+      <tr><th><?php echo __('status'); ?></th><td><?php echo ucfirst($e['status'] ?? 'inactive'); ?></td></tr>
+      <tr><th><?php echo __('email'); ?></th><td><?php echo htmlspecialchars($e['email'] ?? $e['user_email'] ?? '-'); ?></td></tr>
+      <tr><th><?php echo __('phone'); ?></th><td><?php echo htmlspecialchars($e['phone'] ?? '-'); ?></td></tr>
+      <tr><th><?php echo __('hire_date'); ?></th><td><?php echo !empty($e['hire_date']) ? date('M j, Y', strtotime($e['hire_date'])) : '-'; ?></td></tr>
     </table>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Salary</div>
+  <div class="card-header"><?php echo __('salary'); ?></div>
   <div class="card-body">
     <table>
-      <tr><th style="width:28%">Monthly Salary</th><td><?php echo formatCurrencyAmount($monthlySalary, $salaryCurrency); ?></td></tr>
-      <tr><th>Daily Rate</th><td><?php echo formatCurrencyAmount($dailyRate, $salaryCurrency); ?></td></tr>
-      <tr><th>Earned (This Month)</th><td><?php echo formatCurrencyAmount($earnedThisMonth, $salaryCurrency); ?></td></tr>
-      <tr><th>Total Paid (Recent)</th><td><?php echo formatCurrencyAmount($totalPaid, $salaryCurrency); ?></td></tr>
-      <tr><th>Remaining</th><td><?php echo formatCurrencyAmount($remaining, $salaryCurrency); ?></td></tr>
+      <tr><th style="width:28%"><?php echo __('monthly_salary'); ?></th><td><?php echo formatCurrencyAmount($monthlySalary, $salaryCurrency); ?></td></tr>
+      <tr><th><?php echo __('daily_rate'); ?></th><td><?php echo formatCurrencyAmount($dailyRate, $salaryCurrency); ?></td></tr>
+      <tr><th><?php echo __('earned'); ?> (<?php echo __('this_month'); ?>)</th><td><?php echo formatCurrencyAmount($earnedThisMonth, $salaryCurrency); ?></td></tr>
+      <tr><th><?php echo __('total_paid'); ?> (<?php echo __('recent'); ?>)</th><td><?php echo formatCurrencyAmount($totalPaid, $salaryCurrency); ?></td></tr>
+      <tr><th><?php echo __('remaining'); ?></th><td><?php echo formatCurrencyAmount($remaining, $salaryCurrency); ?></td></tr>
     </table>
   </div>
 </div>
 
 <div class="grid-2">
   <div class="card">
-    <div class="card-header">Attendance</div>
+    <div class="card-header"><?php echo __('attendance'); ?></div>
     <div class="card-body">
       <table>
-        <tr><th style="width:48%">Total Days</th><td><?php echo (int)($att['total_days'] ?? 0); ?></td></tr>
-        <tr><th>Present</th><td><?php echo (int)($att['present_days'] ?? 0); ?></td></tr>
-        <tr><th>Leave</th><td><?php echo (int)($att['leave_days'] ?? 0); ?></td></tr>
-        <tr><th>Absent</th><td><?php echo (int)($att['absent_days'] ?? 0); ?></td></tr>
+        <tr><th style="width:48%"><?php echo __('total_days'); ?></th><td><?php echo (int)($att['total_days'] ?? 0); ?></td></tr>
+        <tr><th><?php echo __('present'); ?></th><td><?php echo (int)($att['present_days'] ?? 0); ?></td></tr>
+        <tr><th><?php echo __('leave'); ?></th><td><?php echo (int)($att['leave_days'] ?? 0); ?></td></tr>
+        <tr><th><?php echo __('absent'); ?></th><td><?php echo (int)($att['absent_days'] ?? 0); ?></td></tr>
       </table>
     </div>
   </div>
   <div class="card">
-    <div class="card-header">Work Summary</div>
+    <div class="card-header"><?php echo __('work_summary'); ?></div>
     <div class="card-body">
       <table>
-        <tr><th style="width:48%">Total Contracts</th><td><?php echo (int)($stats['total_contracts'] ?? 0); ?></td></tr>
-        <tr><th>Active Contracts</th><td><?php echo (int)($stats['active_contracts'] ?? 0); ?></td></tr>
-        <tr><th>Total Hours Worked</th><td><?php echo number_format((float)($stats['total_hours_worked'] ?? 0), 1); ?> hrs</td></tr>
+        <tr><th style="width:48%"><?php echo __('total_contracts'); ?></th><td><?php echo (int)($stats['total_contracts'] ?? 0); ?></td></tr>
+        <tr><th><?php echo __('active_contracts'); ?></th><td><?php echo (int)($stats['active_contracts'] ?? 0); ?></td></tr>
+        <tr><th><?php echo __('total_hours_worked'); ?></th><td><?php echo number_format((float)($stats['total_hours_worked'] ?? 0), 1); ?> hrs</td></tr>
       </table>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Recent Contracts</div>
+  <div class="card-header"><?php echo __('recent_contracts'); ?></div>
   <div class="card-body">
     <?php if (empty($contracts)): ?>
-      <div class="small muted">No contracts assigned.</div>
+      <div class="small muted"><?php echo __('no_contracts_assigned'); ?></div>
     <?php else: ?>
       <table>
         <thead>
           <tr>
-            <th style="width:40%">Contract</th>
-            <th style="width:30%">Project</th>
-            <th style="width:15%">Status</th>
-            <th style="width:15%">Created</th>
+            <th style="width:40%"><?php echo __('contract'); ?></th>
+            <th style="width:30%"><?php echo __('project'); ?></th>
+            <th style="width:15%"><?php echo __('status'); ?></th>
+            <th style="width:15%"><?php echo __('created'); ?></th>
           </tr>
         </thead>
         <tbody>
@@ -177,18 +177,18 @@ $remaining = max(0.0, $earnedThisMonth - $totalPaid);
 </div>
 
 <div class="card">
-  <div class="card-header">Recent Salary Payments</div>
+  <div class="card-header"><?php echo __('recent_salary_payments'); ?></div>
   <div class="card-body">
     <?php if (empty($payments)): ?>
-      <div class="small muted">No salary payments found.</div>
+      <div class="small muted"><?php echo __('no_salary_payments_found'); ?></div>
     <?php else: ?>
       <table>
         <thead>
           <tr>
-            <th style="width:18%">Date</th>
-            <th style="width:20%">Method</th>
-            <th style="width:42%">Notes</th>
-            <th class="right" style="width:20%">Amount</th>
+            <th style="width:18%"><?php echo __('date'); ?></th>
+            <th style="width:20%"><?php echo __('method'); ?></th>
+            <th style="width:42%"><?php echo __('notes'); ?></th>
+            <th class="right" style="width:20%"><?php echo __('amount'); ?></th>
           </tr>
         </thead>
         <tbody>

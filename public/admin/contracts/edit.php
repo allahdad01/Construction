@@ -195,8 +195,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (($_POST['currency'] ?? $contract['currency']) == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? $contract['currency']) == 'AFN') ? 'selected' : ''; ?>>AFN</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? $contract['currency']) == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? $contract['currency']) == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
                             </select>
                         </div>
                     </div>

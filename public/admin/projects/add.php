@@ -155,12 +155,12 @@ function generateProjectCode($company_id) {
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="total_budget" class="form-label"><?php echo __('budget'); ?> (Optional)</label>
+                            <label for="total_budget" class="form-label"><?php echo __('budget'); ?> <small class="text-muted">(<?php echo __('optional'); ?>)</small></label>
                             <input type="number" step="0.01" min="0" class="form-control" id="total_budget" name="total_budget" 
                                    value="<?php echo htmlspecialchars($_POST['total_budget'] ?? ''); ?>" 
                                    placeholder="Leave empty if budget is unknown">
                             <small class="form-text text-muted">
-                                For machine rental contracts, budget may not be known upfront
+                                <?php echo __('for_machine_rental_contracts_budget_may_not_be_known_upfront'); ?>
                             </small>
                         </div>
                     </div>

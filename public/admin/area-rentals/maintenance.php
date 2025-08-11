@@ -212,16 +212,16 @@ require_once '../../../includes/header.php';
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-tools"></i> Area Rental Maintenance
+                <i class="fas fa-tools"></i> <?php echo __('area_rental_maintenance'); ?>
             </h1>
-            <p class="text-muted mb-0">Manage maintenance for <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+            <p class="text-muted mb-0"><?php echo __('manage_maintenance_for'); ?> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
         </div>
         <div class="btn-group" role="group">
             <a href="view.php?id=<?php echo $rental_id; ?>" class="btn btn-outline-primary">
-                <i class="fas fa-eye"></i> View Details
+                <i class="fas fa-eye"></i> <?php echo __('view_details'); ?>
             </a>
             <a href="index.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rentals
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rentals'); ?>
             </a>
         </div>
     </div>
@@ -231,7 +231,7 @@ require_once '../../../includes/header.php';
     <?php endif; ?>
 
     <?php if ($success || isset($_GET['success'])): ?>
-        <div class="alert alert-success">Maintenance record created successfully!</div>
+        <div class="alert alert-success"><?php echo __('maintenance_record_created_successfully'); ?></div>
     <?php endif; ?>
 
     <div class="row">
@@ -240,60 +240,60 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-plus"></i> Add Maintenance Record
+                        <i class="fas fa-plus"></i> <?php echo __('add_maintenance_record'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="maintenanceForm">
                         <div class="mb-3">
-                            <label for="maintenance_type" class="form-label">Maintenance Type *</label>
+                            <label for="maintenance_type" class="form-label"><?php echo __('maintenance_type'); ?> *</label>
                             <select class="form-control" id="maintenance_type" name="maintenance_type" required>
-                                <option value="">Select Maintenance Type</option>
-                                <option value="repair">🔧 Repair</option>
-                                <option value="inspection">🔍 Inspection</option>
-                                <option value="cleaning">🧹 Cleaning</option>
-                                <option value="upgrade">⚡ Upgrade</option>
-                                <option value="preventive">🛡️ Preventive</option>
-                                <option value="emergency">🚨 Emergency</option>
-                                <option value="other">📋 Other</option>
+                                <option value=""><?php echo __('select_maintenance_type'); ?></option>
+                                <option value="repair"><?php echo __('repair'); ?></option>
+                                <option value="inspection"><?php echo __('inspection'); ?></option>
+                                <option value="cleaning"><?php echo __('cleaning'); ?></option>
+                                <option value="upgrade"><?php echo __('upgrade'); ?></option>
+                                <option value="preventive"><?php echo __('preventive'); ?></option>
+                                <option value="emergency"><?php echo __('emergency'); ?></option>
+                                <option value="other"><?php echo __('other'); ?></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
+                            <label for="description" class="form-label"><?php echo __('description'); ?> *</label>
                             <textarea class="form-control" id="description" name="description" rows="3" 
-                                      placeholder="Describe the maintenance needed..."
+                                      placeholder="<?php echo __('describe_the_maintenance_needed'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false" required></textarea>
-                            <small class="form-text text-muted">You can use spaces in descriptions.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_descriptions'); ?></small>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="priority" class="form-label">Priority</label>
+                                    <label for="priority" class="form-label"><?php echo __('priority'); ?></label>
                                     <select class="form-control" id="priority" name="priority">
-                                        <option value="low">🟢 Low</option>
-                                        <option value="medium" selected>🟡 Medium</option>
-                                        <option value="high">🟠 High</option>
-                                        <option value="urgent">🔴 Urgent</option>
+                                        <option value="low"><?php echo __('low'); ?></option>
+                                        <option value="medium" selected><?php echo __('medium'); ?></option>
+                                        <option value="high"><?php echo __('high'); ?></option>
+                                        <option value="urgent"><?php echo __('urgent'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="status" class="form-label">Status</label>
+                                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                                     <select class="form-control" id="status" name="status">
-                                        <option value="pending" selected>⏳ Pending</option>
-                                        <option value="in_progress">🔄 In Progress</option>
-                                        <option value="completed">✅ Completed</option>
-                                        <option value="cancelled">❌ Cancelled</option>
+                                        <option value="pending" selected><?php echo __('pending'); ?></option>
+                                        <option value="in_progress"><?php echo __('in_progress'); ?></option>
+                                        <option value="completed"><?php echo __('completed'); ?></option>
+                                        <option value="cancelled"><?php echo __('cancelled'); ?></option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="maintenance_date" class="form-label">Maintenance Date</label>
+                            <label for="maintenance_date" class="form-label"><?php echo __('maintenance_date'); ?></label>
                             <input type="date" class="form-control" id="maintenance_date" name="maintenance_date" 
                                    value="<?php echo date('Y-m-d'); ?>" required>
                         </div>
@@ -301,7 +301,7 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="estimated_cost" class="form-label">Estimated Cost</label>
+                                    <label for="estimated_cost" class="form-label"><?php echo __('estimated_cost'); ?></label>
                                     <?php if (in_array('estimated_cost', $__maintCols, true)): ?>
                                     <input type="number" step="0.01" min="0" class="form-control" id="estimated_cost" name="estimated_cost" placeholder="0.00">
                                     <?php else: ?>
@@ -311,7 +311,7 @@ require_once '../../../includes/header.php';
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="actual_cost" class="form-label">Actual Cost</label>
+                                    <label for="actual_cost" class="form-label"><?php echo __('actual_cost'); ?></label>
                                     <?php if (in_array('actual_cost', $__maintCols, true)): ?>
                                     <input type="number" step="0.01" min="0" class="form-control" id="actual_cost" name="actual_cost" placeholder="0.00">
                                     <?php else: ?>
@@ -322,21 +322,21 @@ require_once '../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="completed_date" class="form-label">Completed Date</label>
+                            <label for="completed_date" class="form-label"><?php echo __('completed_date'); ?></label>
                             <input type="date" class="form-control" id="completed_date" name="completed_date">
-                            <small class="form-text text-muted">Leave empty if not completed yet.</small>
+                            <small class="form-text text-muted"><?php echo __('leave_empty_if_not_completed_yet'); ?></small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Additional Notes</label>
+                            <label for="notes" class="form-label"><?php echo __('additional_notes'); ?></label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                      placeholder="Additional notes or instructions..."
+                                      placeholder="<?php echo __('additional_notes_or_instructions'); ?>"
                                       style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                            <small class="form-text text-muted">You can use spaces in notes.</small>
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_notes'); ?></small>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save"></i> Add Maintenance Record
+                            <i class="fas fa-save"></i> <?php echo __('add_maintenance_record'); ?>
                         </button>
                     </form>
                 </div>
@@ -348,20 +348,20 @@ require_once '../../../includes/header.php';
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar"></i> Maintenance Summary
+                        <i class="fas fa-chart-bar"></i> <?php echo __('maintenance_summary'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-primary">Total Records</h6>
+                                <h6 class="text-primary"><?php echo __('total_records'); ?></h6>
                                 <h4 class="text-primary"><?php echo count($maintenance_records); ?></h4>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-warning">Pending</h6>
+                                <h6 class="text-warning"><?php echo __('pending'); ?></h6>
                                 <h4 class="text-warning">
                                     <?php echo count(array_filter($maintenance_records, function($r) { return $r['status'] === 'pending'; })); ?>
                                 </h4>
@@ -369,7 +369,7 @@ require_once '../../../includes/header.php';
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-info">In Progress</h6>
+                                <h6 class="text-info"><?php echo __('in_progress'); ?></h6>
                                 <h4 class="text-info">
                                     <?php echo count(array_filter($maintenance_records, function($r) { return $r['status'] === 'in_progress'; })); ?>
                                 </h4>
@@ -377,7 +377,7 @@ require_once '../../../includes/header.php';
                         </div>
                         <div class="col-md-3">
                             <div class="text-center mb-3">
-                                <h6 class="text-success">Completed</h6>
+                                <h6 class="text-success"><?php echo __('completed'); ?></h6>
                                 <h4 class="text-success">
                                     <?php echo count(array_filter($maintenance_records, function($r) { return $r['status'] === 'completed'; })); ?>
                                 </h4>
@@ -388,15 +388,15 @@ require_once '../../../includes/header.php';
                     <!-- Rental Details -->
                     <div class="row mt-4">
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Rental Information</h6>
-                            <p><strong>Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                            <p><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                            <p><strong>Area:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
+                            <h6 class="text-secondary"><?php echo __('rental_information'); ?></h6>
+                            <p><strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                            <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                            <p><strong><?php echo __('area'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-secondary">Area Details</h6>
-                            <p><strong>Type:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
-                            <p><strong>Status:</strong> 
+                            <h6 class="text-secondary"><?php echo __('area_details'); ?></h6>
+                            <p><strong><?php echo __('type'); ?>:</strong> <?php echo ucfirst($rental['area_type']); ?></p>
+                            <p><strong><?php echo __('status'); ?>:</strong> 
                                 <span class="badge bg-<?php echo $rental['status'] === 'active' ? 'success' : ($rental['status'] === 'pending' ? 'warning' : 'secondary'); ?>">
                                     <?php echo ucfirst($rental['status']); ?>
                                 </span>
@@ -410,27 +410,27 @@ require_once '../../../includes/header.php';
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history"></i> Maintenance History
+                        <i class="fas fa-history"></i> <?php echo __('maintenance_history'); ?>
                     </h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($maintenance_records)): ?>
                         <div class="text-center py-4">
                             <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No maintenance records found.</p>
+                            <p class="text-muted"><?php echo __('no_maintenance_records_found'); ?></p>
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-bordered" id="maintenanceTable">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Description</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Cost</th>
-                                        <th>Actions</th>
+                                        <th><?php echo __('date'); ?></th>
+                                        <th><?php echo __('type'); ?></th>
+                                        <th><?php echo __('description'); ?></th>
+                                        <th><?php echo __('priority'); ?></th>
+                                        <th><?php echo __('status'); ?></th>
+                                        <th><?php echo __('cost'); ?></th>
+                                        <th><?php echo __('actions'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -530,7 +530,7 @@ require_once '../../../includes/header.php';
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Maintenance Details</h5>
+        <h5 class="modal-title"><?php echo __('maintenance_details'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -539,7 +539,7 @@ require_once '../../../includes/header.php';
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('close'); ?></button>
       </div>
     </div>
   </div>
@@ -550,7 +550,7 @@ require_once '../../../includes/header.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Maintenance</h5>
+        <h5 class="modal-title"><?php echo __('edit_maintenance'); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST" id="editMaintenanceForm">
@@ -558,61 +558,61 @@ require_once '../../../includes/header.php';
         <input type="hidden" name="id" id="edit_id">
         <div class="modal-body">
           <div class="mb-2">
-            <label class="form-label">Type</label>
+            <label class="form-label"><?php echo __('type'); ?></label>
             <input type="text" class="form-control" name="maintenance_type" id="edit_type">
           </div>
           <div class="mb-2">
-            <label class="form-label">Description</label>
+            <label class="form-label"><?php echo __('description'); ?></label>
             <textarea class="form-control" name="description" id="edit_description"></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2">
-              <label class="form-label">Priority</label>
+              <label class="form-label"><?php echo __('priority'); ?></label>
               <select class="form-control" name="priority" id="edit_priority">
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
+                <option value="low"><?php echo __('low'); ?></option>
+                <option value="medium"><?php echo __('medium'); ?></option>
+                <option value="high"><?php echo __('high'); ?></option>
+                <option value="urgent"><?php echo __('urgent'); ?></option>
               </select>
             </div>
             <div class="col-md-6 mb-2">
-              <label class="form-label">Status</label>
+              <label class="form-label"><?php echo __('status'); ?></label>
               <select class="form-control" name="status" id="edit_status">
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="pending"><?php echo __('pending'); ?></option>
+                <option value="in_progress"><?php echo __('in_progress'); ?></option>
+                <option value="completed"><?php echo __('completed'); ?></option>
+                <option value="cancelled"><?php echo __('cancelled'); ?></option>
               </select>
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2">
-              <label class="form-label">Maintenance Date</label>
+              <label class="form-label"><?php echo __('maintenance_date'); ?></label>
               <input type="date" class="form-control" name="maintenance_date" id="edit_maintenance_date">
             </div>
             <div class="col-md-6 mb-2">
-              <label class="form-label">Completed Date</label>
+            <label class="form-label"><?php echo __('completed_date'); ?></label>
               <input type="date" class="form-control" name="completed_date" id="edit_completed_date">
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2">
-              <label class="form-label">Estimated Cost</label>
+              <label class="form-label"><?php echo __('estimated_cost'); ?></label>
               <input type="number" step="0.01" class="form-control" name="estimated_cost" id="edit_estimated_cost">
             </div>
             <div class="col-md-6 mb-2">
-              <label class="form-label">Actual Cost</label>
+              <label class="form-label"><?php echo __('actual_cost'); ?></label>
               <input type="number" step="0.01" class="form-control" name="actual_cost" id="edit_actual_cost">
             </div>
           </div>
           <div class="mb-2">
-            <label class="form-label">Notes</label>
+            <label class="form-label"><?php echo __('notes'); ?></label>
             <textarea class="form-control" name="notes" id="edit_notes"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('cancel'); ?></button>
+          <button type="submit" class="btn btn-primary"><?php echo __('save_changes'); ?></button>
         </div>
       </form>
     </div>
@@ -669,11 +669,11 @@ document.addEventListener('DOMContentLoaded', function() {
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
             language: {
-                search: "Search maintenance:",
-                lengthMenu: "Show _MENU_ records per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ records",
-                infoEmpty: "Showing 0 to 0 of 0 records",
-                infoFiltered: "(filtered from _MAX_ total records)"
+                search: "<?php echo __('search_maintenance'); ?>:",
+                lengthMenu: "<?php echo __('show_maintenance_records_per_page'); ?>",
+                info: "<?php echo __('showing_start_to_end_of_total_maintenance_records'); ?>",
+                infoEmpty: "<?php echo __('showing_0_to_0_of_0_maintenance_records'); ?>",
+                infoFiltered: "(<?php echo __('filtered_from_total_maintenance_records'); ?>)"
             }
         });
     }
@@ -685,24 +685,24 @@ async function viewMaintenance(id) {
     const data = await res.json();
     const html = `
       <div class="row">
-        <div class="col-md-6"><strong>Type:</strong> ${data.maintenance_type ?? '-'}</div>
-        <div class="col-md-6"><strong>Status:</strong> ${data.status ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('type'); ?>:</strong> ${data.maintenance_type ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('status'); ?>:</strong> ${data.status ?? '-'}</div>
       </div>
       <div class="row mt-2">
-        <div class="col-md-6"><strong>Date:</strong> ${data.maintenance_date ?? '-'}</div>
-        <div class="col-md-6"><strong>Completed:</strong> ${data.completed_date ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('date'); ?>:</strong> ${data.maintenance_date ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('completed'); ?>:</strong> ${data.completed_date ?? '-'}</div>
       </div>
-      <div class="mt-2"><strong>Description:</strong><br>${(data.description ?? '').toString().replace(/</g,'&lt;')}</div>
-      <div class="mt-2"><strong>Notes:</strong><br>${(data.notes ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('description'); ?>:</strong><br>${(data.description ?? '').toString().replace(/</g,'&lt;')}</div>
+      <div class="mt-2"><strong><?php echo __('notes'); ?>:</strong><br>${(data.notes ?? '').toString().replace(/</g,'&lt;')}</div>
       <div class="row mt-2">
-        <div class="col-md-6"><strong>Estimated Cost:</strong> ${data.estimated_cost ?? '-'}</div>
-        <div class="col-md-6"><strong>Actual Cost:</strong> ${data.actual_cost ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('estimated_cost'); ?>:</strong> ${data.estimated_cost ?? '-'}</div>
+        <div class="col-md-6"><strong><?php echo __('actual_cost'); ?>:</strong> ${data.actual_cost ?? '-'}</div>
       </div>
     `;
     document.getElementById('viewMaintenanceBody').innerHTML = html;
     const modal = new bootstrap.Modal(document.getElementById('viewMaintenanceModal'));
     modal.show();
-  } catch (e) { alert('Failed to load maintenance details'); }
+  } catch (e) { alert('<?php echo __('failed_to_load_maintenance_details'); ?>'); }
 }
 
 async function editMaintenance(id) {
@@ -721,16 +721,16 @@ async function editMaintenance(id) {
     document.getElementById('edit_notes').value = d.notes || '';
     const modal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
     modal.show();
-  } catch (e) { alert('Failed to load maintenance for edit'); }
+  } catch (e) { alert('<?php echo __('failed_to_load_maintenance_for_edit'); ?>'); }
 }
 
 async function deleteMaintenance(id) {
-  if (!confirm('Delete this maintenance record?')) return;
+  if (!confirm('<?php echo __('delete_this_maintenance_record'); ?>')) return;
   const form = new FormData();
   form.append('action', 'delete');
   form.append('id', id);
   const res = await fetch(`maintenance.php?id=<?php echo $rental_id; ?>`, { method: 'POST', body: form });
-  if (res.ok) { location.reload(); } else { alert('Failed to delete'); }
+  if (res.ok) { location.reload(); } else { alert('<?php echo __('failed_to_delete'); ?>'); }
 }
 </script>
 

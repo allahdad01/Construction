@@ -139,14 +139,14 @@ function generateMachineCode($company_id) {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="machineForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Machine Name *</label>
+                                    <label for="name" class="form-label"><?php echo __('machine_name'); ?> *</label>
                                     <input type="text" class="form-control" id="name" name="name"
                                            value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
                                            required>
@@ -154,17 +154,17 @@ function generateMachineCode($company_id) {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="type" class="form-label">Machine Type *</label>
+                                    <label for="type" class="form-label"><?php echo __('machine_type'); ?> *</label>
                                     <select class="form-control" id="type" name="type" required>
-                                        <option value="">Select Type</option>
-                                        <option value="excavator" <?php echo ($_POST['type'] ?? '') === 'excavator' ? 'selected' : ''; ?>>Excavator</option>
-                                        <option value="bulldozer" <?php echo ($_POST['type'] ?? '') === 'bulldozer' ? 'selected' : ''; ?>>Bulldozer</option>
-                                        <option value="loader" <?php echo ($_POST['type'] ?? '') === 'loader' ? 'selected' : ''; ?>>Loader</option>
-                                        <option value="crane" <?php echo ($_POST['type'] ?? '') === 'crane' ? 'selected' : ''; ?>>Crane</option>
-                                        <option value="dump_truck" <?php echo ($_POST['type'] ?? '') === 'dump_truck' ? 'selected' : ''; ?>>Dump Truck</option>
-                                        <option value="concrete_mixer" <?php echo ($_POST['type'] ?? '') === 'concrete_mixer' ? 'selected' : ''; ?>>Concrete Mixer</option>
-                                        <option value="compactor" <?php echo ($_POST['type'] ?? '') === 'compactor' ? 'selected' : ''; ?>>Compactor</option>
-                                        <option value="other" <?php echo ($_POST['type'] ?? '') === 'other' ? 'selected' : ''; ?>>Other</option>
+                                        <option value=""><?php echo __('select_type'); ?></option>
+                                        <option value="excavator" <?php echo ($_POST['type'] ?? '') === 'excavator' ? 'selected' : ''; ?>><?php echo __('excavator'); ?></option>
+                                        <option value="bulldozer" <?php echo ($_POST['type'] ?? '') === 'bulldozer' ? 'selected' : ''; ?>><?php echo __('bulldozer'); ?></option>
+                                        <option value="loader" <?php echo ($_POST['type'] ?? '') === 'loader' ? 'selected' : ''; ?>><?php echo __('loader'); ?></option>
+                                        <option value="crane" <?php echo ($_POST['type'] ?? '') === 'crane' ? 'selected' : ''; ?>><?php echo __('crane'); ?></option>
+                                        <option value="dump_truck" <?php echo ($_POST['type'] ?? '') === 'dump_truck' ? 'selected' : ''; ?>><?php echo __('dump_truck'); ?></option>
+                                        <option value="concrete_mixer" <?php echo ($_POST['type'] ?? '') === 'concrete_mixer' ? 'selected' : ''; ?>><?php echo __('concrete_mixer'); ?></option>
+                                        <option value="compactor" <?php echo ($_POST['type'] ?? '') === 'compactor' ? 'selected' : ''; ?>><?php echo __('compactor'); ?></option>
+                                        <option value="other" <?php echo ($_POST['type'] ?? '') === 'other' ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -173,7 +173,7 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="model" class="form-label">Model *</label>
+                                    <label for="model" class="form-label"><?php echo __('model'); ?> *</label>
                                     <input type="text" class="form-control" id="model" name="model"
                                            value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>"
                                            required>
@@ -181,7 +181,7 @@ function generateMachineCode($company_id) {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="year_manufactured" class="form-label">Year Manufactured *</label>
+                                    <label for="year_manufactured" class="form-label"><?php echo __('year_manufactured'); ?> *</label>
                                     <input type="number" class="form-control" id="year_manufactured" name="year_manufactured"
                                            value="<?php echo htmlspecialchars($_POST['year_manufactured'] ?? ''); ?>"
                                            min="1900" max="<?php echo date('Y') + 1; ?>" required>
@@ -192,7 +192,7 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="capacity" class="form-label">Capacity</label>
+                                    <label for="capacity" class="form-label"><?php echo __('capacity'); ?></label>
                                     <input type="text" class="form-control" id="capacity" name="capacity"
                                            value="<?php echo htmlspecialchars($_POST['capacity'] ?? ''); ?>"
                                            placeholder="e.g., 20 tons, 10 cubic yards">
@@ -200,9 +200,9 @@ function generateMachineCode($company_id) {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="fuel_type" class="form-label">Fuel Type</label>
+                                    <label for="fuel_type" class="form-label"><?php echo __('fuel_type'); ?></label>
                                     <select class="form-control" id="fuel_type" name="fuel_type">
-                                        <option value="">Select Fuel Type</option>
+                                        <option value=""><?php echo __('select_fuel_type'); ?></option>
                                         <option value="diesel" <?php echo ($_POST['fuel_type'] ?? '') === 'diesel' ? 'selected' : ''; ?>>Diesel</option>
                                         <option value="gasoline" <?php echo ($_POST['fuel_type'] ?? '') === 'gasoline' ? 'selected' : ''; ?>>Gasoline</option>
                                         <option value="electric" <?php echo ($_POST['fuel_type'] ?? '') === 'electric' ? 'selected' : ''; ?>>Electric</option>
@@ -216,7 +216,7 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="purchase_cost" class="form-label">Purchase Cost *</label>
+                                    <label for="purchase_cost" class="form-label"><?php echo __('purchase_cost'); ?> *</label>
                                     <input type="number" class="form-control" id="purchase_cost" name="purchase_cost"
                                            value="<?php echo htmlspecialchars($_POST['purchase_cost'] ?? ''); ?>"
                                            step="0.01" min="0" required>
@@ -224,18 +224,18 @@ function generateMachineCode($company_id) {
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="purchase_currency" class="form-label">Currency</label>
+                                    <label for="purchase_currency" class="form-label"><?php echo __('currency'); ?></label>
                                     <select class="form-control" id="purchase_currency" name="purchase_currency">
-                                        <option value="USD" <?php echo (($_POST['purchase_currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                        <option value="AFN" <?php echo (($_POST['purchase_currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN</option>
-                                        <option value="EUR" <?php echo (($_POST['purchase_currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR</option>
-                                        <option value="GBP" <?php echo (($_POST['purchase_currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                                        <option value="USD" <?php echo (($_POST['purchase_currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                        <option value="AFN" <?php echo (($_POST['purchase_currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                                        <option value="EUR" <?php echo (($_POST['purchase_currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?></option>
+                                        <option value="GBP" <?php echo (($_POST['purchase_currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="purchase_date" class="form-label">Purchase Date</label>
+                                    <label for="purchase_date" class="form-label"><?php echo __('purchase_date'); ?></label>
                                     <input type="date" class="form-control" id="purchase_date" name="purchase_date"
                                            value="<?php echo htmlspecialchars($_POST['purchase_date'] ?? ''); ?>">
                                 </div>
@@ -245,15 +245,15 @@ function generateMachineCode($company_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Machine Code</label>
+                                    <label class="form-label"><?php echo __('machine_code'); ?></label>
                                     <input type="text" class="form-control" id="machine_code_preview" readonly>
-                                    <div class="form-text">Will be automatically generated</div>
+                                    <div class="form-text"><?php echo __('will_be_automatically_generated'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Current Status</label>
-                                    <input type="text" class="form-control" value="Available" readonly>
+                                    <label class="form-label"><?php echo __('current_status'); ?></label>
+                                    <input type="text" class="form-control" value="<?php echo __('available'); ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -262,10 +262,10 @@ function generateMachineCode($company_id) {
 
                         <div class="d-flex justify-content-between">
                             <a href="index.php" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Machine
+                                <i class="fas fa-save"></i> <?php echo __('add_machine'); ?>
                             </button>
                         </div>
                     </form>
@@ -277,30 +277,30 @@ function generateMachineCode($company_id) {
             <!-- Information Card -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6><i class="fas fa-info-circle text-info"></i> Machine Code</h6>
-                        <p class="text-muted">A unique machine code will be automatically generated.</p>
+                        <h6><i class="fas fa-info-circle text-info"></i> <?php echo __('machine_code'); ?></h6>
+                        <p class="text-muted"><?php echo __('a_unique_machine_code_will_be_automatically_generated'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-truck text-primary"></i> Machine Types</h6>
+                        <h6><i class="fas fa-truck text-primary"></i> <?php echo __('machine_types'); ?></h6>
                         <ul class="text-muted">
-                            <li><strong>Excavator:</strong> For digging and earth moving</li>
-                            <li><strong>Bulldozer:</strong> For pushing and leveling</li>
-                            <li><strong>Loader:</strong> For loading materials</li>
-                            <li><strong>Crane:</strong> For lifting heavy objects</li>
-                            <li><strong>Dump Truck:</strong> For transporting materials</li>
-                            <li><strong>Concrete Mixer:</strong> For mixing concrete</li>
-                            <li><strong>Compactor:</strong> For compacting soil</li>
+                            <li><strong><?php echo __('excavator'); ?>:</strong> <?php echo __('for_digging_and_earth_moving'); ?></li>
+                            <li><strong><?php echo __('bulldozer'); ?>:</strong> <?php echo __('for_pushing_and_leveling'); ?></li>
+                            <li><strong><?php echo __('loader'); ?>:</strong> <?php echo __('for_loading_materials'); ?></li>
+                            <li><strong><?php echo __('crane'); ?>:</strong> <?php echo __('for_lifting_heavy_objects'); ?></li>
+                            <li><strong><?php echo __('dump_truck'); ?>:</strong> <?php echo __('for_transporting_materials'); ?></li>
+                            <li><strong><?php echo __('concrete_mixer'); ?>:</strong> <?php echo __('for_mixing_concrete'); ?></li>
+                            <li><strong><?php echo __('compactor'); ?>:</strong> <?php echo __('for_compacting_soil'); ?></li>
                         </ul>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-dollar-sign text-success"></i> Cost Tracking</h6>
-                        <p class="text-muted">Track the purchase cost of your machines for accounting and depreciation purposes.</p>
+                        <h6><i class="fas fa-dollar-sign text-success"></i> <?php echo __('cost_tracking'); ?></h6>
+                        <p class="text-muted"><?php echo __('track_the_purchase_cost_of_your_machines_for_accounting_and_depreciation_purposes'); ?></p>
                     </div>
                 </div>
             </div>
@@ -308,21 +308,21 @@ function generateMachineCode($company_id) {
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         <a href="index.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-list me-2"></i>View All Machines
+                            <i class="fas fa-list me-2"></i> <?php echo __('view_all_machines'); ?>
                         </a>
                         <a href="../contracts/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-file-contract me-2"></i>Manage Contracts
+                            <i class="fas fa-file-contract me-2"></i> <?php echo __('manage_contracts'); ?>
                         </a>
                         <a href="../employees/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-users me-2"></i>Manage Employees
+                            <i class="fas fa-users me-2"></i> <?php echo __('manage_employees'); ?>
                         </a>
                         <a href="../reports/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                            <i class="fas fa-chart-bar me-2"></i> <?php echo __('view_reports'); ?>
                         </a>
                     </div>
                 </div>
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback';
-                    errorDiv.textContent = 'This field is required.';
+                    errorDiv.textContent = '<?php echo __('this_field_is_required'); ?>';
                     field.parentNode.appendChild(errorDiv);
                 }
             } else {
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!document.getElementById('purchase_cost').nextElementSibling || !document.getElementById('purchase_cost').nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = 'Purchase cost must be a positive number.';
+                errorDiv.textContent = '<?php echo __('purchase_cost_must_be_a_positive_number'); ?>';
                 document.getElementById('purchase_cost').parentNode.appendChild(errorDiv);
             }
         }
@@ -388,14 +388,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!document.getElementById('year_manufactured').nextElementSibling || !document.getElementById('year_manufactured').nextElementSibling.classList.contains('invalid-feedback')) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback';
-                errorDiv.textContent = `Year must be between 1900 and ${currentYear + 1}.`;
+                errorDiv.textContent = `<?php echo __('year_must_be_between_1900_and'); ?> ${currentYear + 1}.`;
                 document.getElementById('year_manufactured').parentNode.appendChild(errorDiv);
             }
         }
 
         if (!isValid) {
             e.preventDefault();
-            showNotification('Please fix the errors in the form.', 'error');
+            showNotification('<?php echo __('please_fix_the_errors_in_the_form'); ?>', 'error');
         }
     });
 
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Required field validation
         if (field.hasAttribute('required') && !value) {
             isValid = false;
-            errorMessage = 'This field is required.';
+            errorMessage = '<?php echo __('this_field_is_required'); ?>';
         }
 
         // Purchase cost validation
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const val = parseFloat(value);
             if (isNaN(val) || val <= 0) {
                 isValid = false;
-                errorMessage = 'Purchase cost must be a positive number.';
+                errorMessage = '<?php echo __('purchase_cost_must_be_a_positive_number'); ?>';
             }
         }
 

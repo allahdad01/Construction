@@ -74,7 +74,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1 class="h3 mb-4">Dashboard</h1>
+            <h1 class="h3 mb-4"><?php echo __('dashboard'); ?></h1>
         </div>
     </div>
 
@@ -86,7 +86,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Active Employees</div>
+                                <?php echo __('active_employees'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $employeeCount; ?></div>
                         </div>
                         <div class="col-auto">
@@ -103,7 +103,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Available Machines</div>
+                                <?php echo __('available_machines'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $machineCount; ?></div>
                         </div>
                         <div class="col-auto">
@@ -120,7 +120,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Active Contracts</div>
+                                <?php echo __('active_contracts'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $contractCount; ?></div>
                         </div>
                         <div class="col-auto">
@@ -137,7 +137,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Active Projects</div>
+                                <?php echo __('active_projects'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $projectCount; ?></div>
                         </div>
                         <div class="col-auto">
@@ -154,19 +154,19 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-8 col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Financial Summary (This Month)</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('financial_summary'); ?> (<?php echo __('this_month'); ?>)</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="text-center">
-                                <h6 class="text-success">Total Revenue</h6>
+                                <h6 class="text-success"><?php echo __('total_revenue'); ?></h6>
                                 <h4 class="text-success"><?php echo formatCurrencyAmount($monthlyRevenueUSD, 'USD'); ?></h4>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="text-center">
-                                <h6 class="text-danger">Total Expenses</h6>
+                                <h6 class="text-danger"><?php echo __('total_expenses'); ?></h6>
                                 <h4 class="text-danger"><?php echo formatCurrencyAmount($monthlyExpensesUSD, 'USD'); ?></h4>
                             </div>
                         </div>
@@ -174,7 +174,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <hr>
                     <div class="text-center">
                         <h5 class="<?php echo ($monthlyRevenueUSD - $monthlyExpensesUSD) >= 0 ? 'text-success' : 'text-danger'; ?>">
-                            Net Profit/Loss: <?php echo formatCurrencyAmount($monthlyRevenueUSD - $monthlyExpensesUSD, 'USD'); ?>
+                            <?php echo __('net_profit_loss'); ?>: <?php echo formatCurrencyAmount($monthlyRevenueUSD - $monthlyExpensesUSD, 'USD'); ?>
                         </h5>
                     </div>
                 </div>
@@ -187,28 +187,28 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-xl-6 col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6 mb-3">
                             <a href="../employees/add.php" class="btn btn-primary btn-block">
-                                <i class="fas fa-user-plus"></i> Add Employee
+                                <i class="fas fa-user-plus"></i> <?php echo __('add_employee'); ?>
                             </a>
                         </div>
                         <div class="col-6 mb-3">
                             <a href="../machines/add.php" class="btn btn-success btn-block">
-                                <i class="fas fa-truck"></i> Add Machine
+                                <i class="fas fa-truck"></i> <?php echo __('add_machine'); ?>
                             </a>
                         </div>
                         <div class="col-6 mb-3">
                             <a href="../contracts/add.php" class="btn btn-info btn-block">
-                                <i class="fas fa-file-contract"></i> New Contract
+                                <i class="fas fa-file-contract"></i> <?php echo __('new_contract'); ?>
                             </a>
                         </div>
                         <div class="col-6 mb-3">
                             <a href="../expenses/add.php" class="btn btn-warning btn-block">
-                                <i class="fas fa-dollar-sign"></i> Add Expense
+                                <i class="fas fa-dollar-sign"></i> <?php echo __('add_expense'); ?>
                             </a>
                         </div>
                     </div>
@@ -222,11 +222,11 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_activities'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recentActivities)): ?>
-                        <p class="text-muted">No recent activities.</p>
+                        <p class="text-muted"><?php echo __('no_recent_activities'); ?></p>
                     <?php else: ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($recentActivities as $activity): ?>

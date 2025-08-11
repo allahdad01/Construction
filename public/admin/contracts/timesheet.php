@@ -144,22 +144,22 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Contract Timesheet</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('contract_timesheet'); ?></h1>
         <div>
             <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm me-2">
-                <i class="fas fa-plus"></i> Add Work Hours
+                <i class="fas fa-plus"></i> <?php echo __('add_work_hours'); ?>
             </a>
             <a href="add-payment.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-success btn-sm me-2">
-                <i class="fas fa-dollar-sign"></i> Add Payment
+                <i class="fas fa-dollar-sign"></i> <?php echo __('add_payment'); ?>
             </a>
             <a href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=pdf" target="_blank" class="btn btn-danger btn-sm me-1">
-                <i class="fas fa-file-pdf"></i> PDF
+                <i class="fas fa-file-pdf"></i> <?php echo __('pdf'); ?>
             </a>
             <a href="export-timesheet.php?contract_id=<?php echo $contract_id; ?>&type=excel" class="btn btn-success btn-sm me-2">
-                <i class="fas fa-file-excel"></i> Excel
+                <i class="fas fa-file-excel"></i> <?php echo __('excel'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Contracts
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_contracts'); ?>
             </a>
         </div>
     </div>
@@ -167,14 +167,14 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Success Messages -->
     <?php if (isset($_GET['payment_deleted'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> Payment has been successfully deleted.
+            <i class="fas fa-check-circle"></i> <?php echo __('payment_has_been_successfully_deleted'); ?>.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_GET['hours_deleted'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> Working hours entry has been successfully deleted.
+            <i class="fas fa-check-circle"></i> <?php echo __('working_hours_entry_has_been_successfully_deleted'); ?>.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
@@ -182,26 +182,26 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Contract Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Contract Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_information'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract Code:</strong></td>
+                            <td><strong><?php echo __('contract_code'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($contract['contract_code']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Project:</strong></td>
+                            <td><strong><?php echo __('project'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($contract['project_name']); ?> (<?php echo htmlspecialchars($contract['project_code']); ?>)</td>
                         </tr>
                         <tr>
-                            <td><strong>Machine:</strong></td>
+                            <td><strong><?php echo __('machine'); ?>:</strong></td>
                             <td><?php echo htmlspecialchars($contract['machine_name']); ?> (<?php echo htmlspecialchars($contract['machine_code']); ?>)</td>
                         </tr>
                         <tr>
-                            <td><strong>Employees:</strong></td>
+                            <td><strong><?php echo __('employees'); ?>:</strong></td>
                             <td>
                                 <?php if (!empty($contract_employees)): ?>
                                     <?php foreach ($contract_employees as $index => $employee): ?>
@@ -209,7 +209,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                         (<?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?>)<?php echo $index < count($contract_employees) - 1 ? ', ' : ''; ?>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <span class="text-muted">No employees assigned</span>
+                                    <span class="text-muted"><?php echo __('no_employees_assigned'); ?></span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -218,7 +218,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Contract Type:</strong></td>
+                            <td><strong><?php echo __('contract_type'); ?>:</strong></td>
                             <td>
                                 <span class="badge <?php 
                                     echo $contract['contract_type'] === 'hourly' ? 'bg-primary' : 
@@ -229,7 +229,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Currency:</strong></td>
+                            <td><strong><?php echo __('currency'); ?>:</strong></td>
                             <td>
                                 <span class="badge bg-warning text-dark">
                                     <i class="fas fa-money-bill-wave"></i> <?php echo getCurrencySymbol($contract_currency) . ' (' . $contract_currency . ')'; ?>
@@ -237,7 +237,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Rate:</strong></td>
+                            <td><strong><?php echo __('rate'); ?>:</strong></td>
                             <td>
                                 <strong class="text-success">
                                     <?php echo formatCurrencyAmount($contract['rate_amount'], $contract_currency); ?>
@@ -246,7 +246,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Total Contract Value:</strong></td>
+                            <td><strong><?php echo __('total_contract_value'); ?>:</strong></td>
                             <td>
                                 <strong class="text-primary">
                                     <?php echo formatCurrencyAmount($contract['total_amount'] ?? 0, $contract_currency); ?>
@@ -254,11 +254,11 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Required Hours:</strong></td>
+                            <td><strong><?php echo __('required_hours'); ?>:</strong></td>
                             <td><?php echo $contract['total_hours_required'] ?: 'N/A'; ?> hours</td>
                         </tr>
                         <tr>
-                            <td><strong>Working Hours/Day:</strong></td>
+                            <td><strong><?php echo __('working_hours_per_day'); ?>:</strong></td>
                             <td><?php echo $contract['working_hours_per_day']; ?> hours</td>
                         </tr>
                     </table>
@@ -275,12 +275,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Hours Worked</div>
+                                <?php echo __('total_hours_worked'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo number_format($total_hours_worked, 1); ?> hrs
                             </div>
                             <small class="text-muted">
-                                of <?php echo $contract['total_hours_required'] ?: 'unlimited'; ?> required
+                                <?php echo __('of'); ?> <?php echo $contract['total_hours_required'] ?: __('unlimited'); ?> <?php echo __('required'); ?>
                             </small>
                         </div>
                         <div class="col-auto">
@@ -297,12 +297,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Amount Earned (<?php echo $contract_currency; ?>)</div>
+                                <?php echo __('total_amount_earned'); ?> (<?php echo $contract_currency; ?>)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo formatCurrencyAmount($total_amount_earned, $contract_currency); ?>
                             </div>
                             <small class="text-muted">
-                                Based on <?php echo ucfirst($contract['contract_type']); ?> rate
+                                <?php echo __('based_on'); ?> <?php echo ucfirst($contract['contract_type']); ?> <?php echo __('rate'); ?>
                             </small>
                         </div>
                         <div class="col-auto">
@@ -319,12 +319,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Amount Paid (<?php echo $contract_currency; ?>)</div>
+                                <?php echo __('amount_paid'); ?> (<?php echo $contract_currency; ?>)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php echo formatCurrencyAmount($total_amount_paid, $contract_currency); ?>
                             </div>
                             <small class="text-muted">
-                                <?php echo count($payments); ?> payment(s) received
+                                <?php echo count($payments); ?> <?php echo __('payment_s_received'); ?>
                             </small>
                         </div>
                         <div class="col-auto">
@@ -341,14 +341,14 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Remaining Balance (<?php echo $contract_currency; ?>)</div>
+                                <?php echo __('remaining_balance'); ?> (<?php echo $contract_currency; ?>)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <span class="<?php echo $remaining_amount < 0 ? 'text-danger' : 'text-warning'; ?>">
                                     <?php echo formatCurrencyAmount($remaining_amount, $contract_currency); ?>
                                 </span>
                             </div>
                             <small class="text-muted">
-                                <?php echo $remaining_amount < 0 ? 'Overpaid' : ($remaining_amount > 0 ? 'Outstanding' : 'Fully paid'); ?>
+                                <?php echo $remaining_amount < 0 ? __('overpaid') : ($remaining_amount > 0 ? __('outstanding') : __('fully_paid')); ?>
                             </small>
                         </div>
                         <div class="col-auto">
@@ -363,7 +363,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Progress Bar -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Contract Progress</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_progress'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
@@ -377,12 +377,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         </div>
                     </div>
                     <small class="text-muted">
-                        <?php echo $total_hours_worked; ?> of <?php echo $contract['total_hours_required'] ?: '∞'; ?> hours completed
+                        <?php echo $total_hours_worked; ?> <?php echo __('of'); ?> <?php echo $contract['total_hours_required'] ?: '∞'; ?> <?php echo __('hours_completed'); ?>
                     </small>
                 </div>
                 <div class="col-md-4 text-end">
-                    <h6>Current Month</h6>
-                    <p class="mb-1"><strong><?php echo number_format($current_month_hours, 1); ?> hours</strong></p>
+                    <h6><?php echo __('current_month'); ?></h6>
+                    <p class="mb-1"><strong><?php echo number_format($current_month_hours, 1); ?> <?php echo __('hours'); ?></strong></p>
                                                         <p class="mb-0"><strong><?php echo formatCurrencyAmount($current_month_amount, $contract_currency); ?></strong></p>
                 </div>
             </div>
@@ -392,18 +392,18 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Working Hours Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Daily Timesheet</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('daily_timesheet'); ?></h6>
             <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus"></i> Add Hours
+                <i class="fas fa-plus"></i> <?php echo __('add_hours'); ?>
             </a>
         </div>
         <div class="card-body">
             <?php if (empty($working_hours)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-clock fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No working hours recorded yet.</p>
+                    <p class="text-gray-500"><?php echo __('no_working_hours_recorded_yet'); ?></p>
                     <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add First Entry
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_entry'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -411,13 +411,13 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <table class="table table-bordered" id="timesheetTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Employee</th>
-                                <th>Hours Worked</th>
-                                <th>Rate</th>
-                                <th>Daily Amount</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('employee'); ?></th>
+                                <th><?php echo __('hours_worked'); ?></th>
+                                <th><?php echo __('rate'); ?></th>
+                                <th><?php echo __('daily_amount'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -480,7 +480,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                             <?php if (!empty($wh['notes'])): ?>
                                                 <small class="text-muted"><?php echo htmlspecialchars($wh['notes']); ?></small>
                                             <?php else: ?>
-                                                <small class="text-muted">No notes</small>
+                                                <small class="text-muted"><?php echo __('no_notes'); ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -502,8 +502,8 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         </tbody>
                         <tfoot>
                             <tr class="table-info">
-                                <td colspan="2"><strong>Total</strong></td>
-                                <td class="text-center"><strong><?php echo number_format($total_hours_worked, 1); ?> hours</strong></td>
+                                <td colspan="2"><strong><?php echo __('total'); ?></strong></td>
+                                <td class="text-center"><strong><?php echo number_format($total_hours_worked, 1); ?> <?php echo __('hours'); ?></strong></td>
                                 <td></td>
                                 <td><strong><?php echo formatCurrencyAmount($total_amount_earned, $contract_currency); ?></strong></td>
                                 <td colspan="2"></td>
@@ -518,18 +518,18 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Payments Section -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Contract Payments</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_payments'); ?></h6>
             <a href="add-payment.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-success btn-sm">
-                <i class="fas fa-plus"></i> Add Payment
+                <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
             </a>
         </div>
         <div class="card-body">
             <?php if (empty($payments)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-credit-card fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No payments recorded yet.</p>
+                    <p class="text-gray-500"><?php echo __('no_payments_recorded_yet'); ?></p>
                     <a href="add-payment.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Add First Payment
+                        <i class="fas fa-plus"></i> <?php echo __('add_first_payment'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -537,12 +537,12 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Payment Date</th>
-                                <th>Amount</th>
-                                <th>Payment Method</th>
-                                <th>Reference</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th><?php echo __('payment_date'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('payment_method'); ?></th>
+                                <th><?php echo __('reference'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -583,7 +583,7 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                         </tbody>
                         <tfoot>
                             <tr class="table-success">
-                                <td><strong>Total Paid</strong></td>
+                                <td><strong><?php echo __('total_paid'); ?></strong></td>
                                 <td><strong><?php echo formatCurrencyAmount($total_amount_paid, $contract_currency); ?></strong></td>
                                 <td colspan="4"></td>
                             </tr>
@@ -597,21 +597,21 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
     <!-- Monthly Chart -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Monthly Work Hours & Revenue</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('monthly_work_hours_revenue'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($monthly_data)): ?>
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-chart-bar fa-3x mb-3"></i>
-                    <p>No working hours data available for chart display.</p>
+                    <p><?php echo __('no_working_hours_data_available_for_chart_display'); ?></p>
                 </div>
             <?php else: ?>
                 <canvas id="monthlyChart" width="400" height="100"></canvas>
                 <div class="mt-3">
                     <small class="text-muted">
-                        Showing data for <?php echo count($monthly_data); ?> month(s). 
-                        Total hours: <?php echo array_sum(array_column($monthly_data, 'hours')); ?> | 
-                        Total amount: <?php echo formatCurrencyAmount(array_sum(array_column($monthly_data, 'amount')), $contract_currency); ?>
+                        <?php echo __('showing_data_for'); ?> <?php echo count($monthly_data); ?> <?php echo __('month_s'); ?>. 
+                        <?php echo __('total_hours'); ?>: <?php echo array_sum(array_column($monthly_data, 'hours')); ?> | 
+                        <?php echo __('total_amount'); ?>: <?php echo formatCurrencyAmount(array_sum(array_column($monthly_data, 'amount')), $contract_currency); ?>
                     </small>
                 </div>
             <?php endif; ?>
@@ -653,14 +653,14 @@ if (Object.keys(monthlyData).length > 0) {
             });
         }),
         datasets: [{
-            label: 'Hours Worked',
+            label: '<?php echo __('hours_worked'); ?>',
             data: hoursData,
             backgroundColor: 'rgba(54, 162, 235, 0.5)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1,
             yAxisID: 'y'
         }, {
-            label: 'Revenue',
+            label: '<?php echo __('revenue'); ?>',
             data: amountData,
             backgroundColor: 'rgba(75, 192, 192, 0.5)',
             borderColor: 'rgba(75, 192, 192, 1)',
@@ -680,7 +680,7 @@ if (Object.keys(monthlyData).length > 0) {
                 display: true,
                 title: {
                     display: true,
-                    text: 'Month'
+                    text: '<?php echo __('month'); ?>'
                 }
             },
             y: {
@@ -689,7 +689,7 @@ if (Object.keys(monthlyData).length > 0) {
                 position: 'left',
                 title: {
                     display: true,
-                    text: 'Hours'
+                    text: '<?php echo __('hours'); ?>'
                 }
             },
             y1: {
@@ -698,7 +698,7 @@ if (Object.keys(monthlyData).length > 0) {
                 position: 'right',
                 title: {
                     display: true,
-                    text: 'Revenue ($)'
+                    text: '<?php echo __('revenue'); ?>'
                 },
                 grid: {
                     drawOnChartArea: false,
@@ -708,7 +708,7 @@ if (Object.keys(monthlyData).length > 0) {
     });
     }
 } else {
-    console.log('No monthly data available for chart');
+    console.log('<?php echo __('no_monthly_data_available_for_chart'); ?>');
 }
 </script>
 

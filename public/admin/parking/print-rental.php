@@ -84,50 +84,50 @@ $payments = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 </head>
 <body>
 <div class="actions">
-  <a href="javascript:window.print()" class="btn btn-primary">Print</a>
-  <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn">Back</a>
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn"><?php echo __('back'); ?></a>
 </div>
 
-<h2>Parking Rental Summary</h2>
-<div class="muted">Printed: <?php echo date('Y-m-d H:i'); ?></div>
+<h2><?php echo __('parking_rental_summary'); ?></h2>
+<div class="muted"><?php echo __('printed'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
 
 <div class="card">
-  <div class="card-header">Rental Information</div>
+  <div class="card-header"><?php echo __('rental_information'); ?></div>
   <div class="card-body">
     <div class="grid">
-      <div><strong>Rental Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></div>
-      <div><strong>Status:</strong> <?php echo ucfirst(htmlspecialchars($rental['status'])); ?></div>
-      <div><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name'] ?? 'N/A'); ?></div>
-      <div><strong>Contact:</strong> <?php echo htmlspecialchars($rental['client_contact'] ?? '-'); ?></div>
-      <div><strong>Vehicle:</strong> <?php echo htmlspecialchars(trim(($rental['vehicle_type'] ?? '-') . ' ' . ($rental['vehicle_registration'] ?? ''))); ?></div>
-      <div><strong>Space:</strong> <?php echo htmlspecialchars($rental['space_name'] . ' (' . $rental['space_code'] . ')'); ?></div>
-      <div><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></div>
-      <div><strong>End Date:</strong> <?php echo !empty($rental['end_date']) ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></div>
-      <div><strong>Days:</strong> <?php echo (int)$days; ?></div>
-      <div><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount((float)$rental['monthly_rate'], $currency); ?></div>
-      <div><strong>Daily Rate:</strong> <?php echo formatCurrencyAmount($daily, $currency); ?></div>
-      <div><strong>Expected:</strong> <?php echo formatCurrencyAmount($expected, $currency); ?></div>
-      <div><strong>Paid:</strong> <?php echo formatCurrencyAmount($paid, $currency); ?></div>
-      <div><strong>Due:</strong> <?php echo formatCurrencyAmount($due, $currency); ?></div>
+      <div><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></div>
+      <div><strong><?php echo __('status'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($rental['status'])); ?></div>
+      <div><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name'] ?? 'N/A'); ?></div>
+      <div><strong><?php echo __('contact'); ?>:</strong> <?php echo htmlspecialchars($rental['client_contact'] ?? '-'); ?></div>
+      <div><strong><?php echo __('vehicle'); ?>:</strong> <?php echo htmlspecialchars(trim(($rental['vehicle_type'] ?? '-') . ' ' . ($rental['vehicle_registration'] ?? ''))); ?></div>
+      <div><strong><?php echo __('space'); ?>:</strong> <?php echo htmlspecialchars($rental['space_name'] . ' (' . $rental['space_code'] . ')'); ?></div>
+      <div><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></div>
+      <div><strong><?php echo __('end_date'); ?>:</strong> <?php echo !empty($rental['end_date']) ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></div>
+      <div><strong><?php echo __('days'); ?>:</strong> <?php echo (int)$days; ?></div>
+      <div><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount((float)$rental['monthly_rate'], $currency); ?></div>
+      <div><strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrencyAmount($daily, $currency); ?></div>
+      <div><strong><?php echo __('expected'); ?>:</strong> <?php echo formatCurrencyAmount($expected, $currency); ?></div>
+      <div><strong><?php echo __('paid'); ?>:</strong> <?php echo formatCurrencyAmount($paid, $currency); ?></div>
+      <div><strong><?php echo __('due'); ?>:</strong> <?php echo formatCurrencyAmount($due, $currency); ?></div>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Payments</div>
+  <div class="card-header"><?php echo __('payments'); ?></div>
   <div class="card-body">
     <?php if (empty($payments)): ?>
-      <div class="muted">No payments found.</div>
+      <div class="muted"><?php echo __('no_payments_found'); ?></div>
     <?php else: ?>
       <table>
         <thead>
           <tr>
-            <th style="width:16%">Date</th>
-            <th style="width:20%">Reference</th>
-            <th style="width:16%">Method</th>
-            <th style="width:14%">Status</th>
-            <th style="width:24%">Notes</th>
-            <th class="right" style="width:10%">Amount</th>
+            <th style="width:16%"><?php echo __('date'); ?></th>
+            <th style="width:20%"><?php echo __('reference'); ?></th>
+            <th style="width:16%"><?php echo __('method'); ?></th>
+            <th style="width:14%"><?php echo __('status'); ?></th>
+            <th style="width:24%"><?php echo __('notes'); ?></th>
+            <th class="right" style="width:10%"><?php echo __('amount'); ?></th>
           </tr>
         </thead>
         <tbody>

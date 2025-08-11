@@ -120,14 +120,14 @@ require_once '../../../includes/header.php';
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-edit"></i> Edit Employee
+            <i class="fas fa-edit"></i> <?php echo __('edit_employee'); ?>
         </h1>
         <div class="d-flex">
             <a href="view.php?id=<?php echo $employee_id; ?>" class="btn btn-info me-2">
-                <i class="fas fa-eye"></i> View Employee
+                <i class="fas fa-eye"></i> <?php echo __('view_employee'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Employees
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_employees'); ?>
             </a>
         </div>
     </div>
@@ -154,14 +154,14 @@ require_once '../../../includes/header.php';
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" id="employeeForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Full Name *</label>
+                                    <label for="name" class="form-label"><?php echo __('full_name'); ?> *</label>
                                     <input type="text" class="form-control" id="name" name="name"
                                            value="<?php echo htmlspecialchars($employee['name']); ?>"
                                            required>
@@ -169,10 +169,10 @@ require_once '../../../includes/header.php';
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email Address</label>
+                                    <label for="email" class="form-label"><?php echo __('email_address'); ?></label>
                                     <input type="email" class="form-control" id="email" name="email"
                                            value="<?php echo htmlspecialchars($employee['email']); ?>">
-                                    <div class="form-text">This will update the user account email if changed.</div>
+                                    <div class="form-text"><?php echo __('this_will_update_the_user_account_email_if_changed'); ?></div>
                                 </div>
                             </div>
                         </div>
@@ -180,21 +180,21 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <label for="phone" class="form-label"><?php echo __('phone_number'); ?></label>
                                     <input type="tel" class="form-control" id="phone" name="phone"
                                            value="<?php echo htmlspecialchars($employee['phone']); ?>">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="position" class="form-label">Position *</label>
+                                    <label for="position" class="form-label"><?php echo __('position'); ?> *</label>
                                     <select class="form-control" id="position" name="position" required>
-                                        <option value="">Select Position</option>
-                                        <option value="driver" <?php echo $employee['position'] === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                                        <option value="driver_assistant" <?php echo $employee['position'] === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
-                                        <option value="operator" <?php echo $employee['position'] === 'operator' ? 'selected' : ''; ?>>Machine Operator</option>
-                                        <option value="supervisor" <?php echo $employee['position'] === 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
-                                        <option value="technician" <?php echo $employee['position'] === 'technician' ? 'selected' : ''; ?>>Technician</option>
+                                        <option value=""><?php echo __('select_position'); ?></option>
+                                        <option value="driver" <?php echo $employee['position'] === 'driver' ? 'selected' : ''; ?>><?php echo __('driver'); ?></option>
+                                        <option value="driver_assistant" <?php echo $employee['position'] === 'driver_assistant' ? 'selected' : ''; ?>><?php echo __('driver_assistant'); ?></option>
+                                        <option value="operator" <?php echo $employee['position'] === 'operator' ? 'selected' : ''; ?>><?php echo __('machine_operator'); ?></option>
+                                        <option value="supervisor" <?php echo $employee['position'] === 'supervisor' ? 'selected' : ''; ?>><?php echo __('supervisor'); ?></option>
+                                        <option value="technician" <?php echo $employee['position'] === 'technician' ? 'selected' : ''; ?>><?php echo __('technician'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -203,19 +203,19 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="monthly_salary" class="form-label">Monthly Salary *</label>
+                                    <label for="monthly_salary" class="form-label"><?php echo __('monthly_salary'); ?> *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
                                                value="<?php echo htmlspecialchars($employee['monthly_salary']); ?>"
                                                step="0.01" min="0" required>
                                     </div>
-                                    <div class="form-text">Daily rate will be calculated automatically (Monthly Salary ÷ 30)</div>
+                                    <div class="form-text"><?php echo __('daily_rate_will_be_calculated_automatically'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="hire_date" class="form-label">Hire Date</label>
+                                    <label for="hire_date" class="form-label"><?php echo __('hire_date'); ?></label>
                                     <input type="date" class="form-control" id="hire_date" name="hire_date"
                                            value="<?php echo htmlspecialchars($employee['hire_date']); ?>">
                                 </div>
@@ -225,18 +225,18 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="status" class="form-label">Status</label>
+                                    <label for="status" class="form-label"><?php echo __('status'); ?></label>
                                     <select class="form-control" id="status" name="status">
-                                        <option value="active" <?php echo $employee['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
-                                        <option value="inactive" <?php echo $employee['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                                        <option value="active" <?php echo $employee['status'] === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                                        <option value="inactive" <?php echo $employee['status'] === 'inactive' ? 'selected' : ''; ?>><?php echo __('inactive'); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Employee Code</label>
+                                    <label class="form-label"><?php echo __('employee_code'); ?></label>
                                     <input type="text" class="form-control" value="<?php echo htmlspecialchars($employee['employee_code']); ?>" readonly>
-                                    <div class="form-text">Employee code cannot be changed.</div>
+                                    <div class="form-text"><?php echo __('employee_code_cannot_be_changed'); ?></div>
                                 </div>
                             </div>
                         </div>
@@ -244,14 +244,14 @@ require_once '../../../includes/header.php';
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Daily Rate</label>
+                                    <label class="form-label"><?php echo __('daily_rate'); ?></label>
                                     <input type="text" class="form-control" id="daily_rate_display"
                                            value="$<?php echo number_format($employee['daily_rate'], 2); ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Created Date</label>
+                                    <label class="form-label"><?php echo __('created_date'); ?></label>
                                     <input type="text" class="form-control"
                                            value="<?php echo date('M j, Y', strtotime($employee['created_at'])); ?>" readonly>
                                 </div>
@@ -262,10 +262,10 @@ require_once '../../../includes/header.php';
 
                         <div class="d-flex justify-content-between">
                             <a href="view.php?id=<?php echo $employee_id; ?>" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Employee
+                                <i class="fas fa-save"></i> <?php echo __('update_employee'); ?>
                             </button>
                         </div>
                     </form>
@@ -277,7 +277,7 @@ require_once '../../../includes/header.php';
             <!-- Employee Summary -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
@@ -296,31 +296,31 @@ require_once '../../../includes/header.php';
                     <div class="row text-center">
                         <div class="col-6">
                             <h6 class="text-success">$<?php echo number_format($employee['monthly_salary'], 2); ?></h6>
-                            <small class="text-muted">Monthly Salary</small>
+                            <small class="text-muted"><?php echo __('monthly_salary'); ?></small>
                         </div>
                         <div class="col-6">
                             <h6 class="text-info">$<?php echo number_format($employee['daily_rate'], 2); ?></h6>
-                            <small class="text-muted">Daily Rate</small>
+                            <small class="text-muted"><?php echo __('daily_rate'); ?></small>
                         </div>
                     </div>
 
                     <hr>
 
                     <div class="mb-2">
-                        <strong>Position:</strong> <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
+                        <strong><?php echo __('position'); ?>:</strong> <?php echo ucfirst(str_replace('_', ' ', $employee['position'])); ?>
                     </div>
                     <div class="mb-2">
-                        <strong>Status:</strong>
+                        <strong><?php echo __('status'); ?>:</strong>
                         <span class="badge bg-<?php echo $employee['status'] === 'active' ? 'success' : 'secondary'; ?>">
                             <?php echo ucfirst($employee['status']); ?>
                         </span>
                     </div>
                     <div class="mb-2">
-                        <strong>User Account:</strong>
+                        <strong><?php echo __('user_account'); ?>:</strong>
                         <?php if ($employee['user_id']): ?>
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success"><?php echo __('active'); ?></span>
                         <?php else: ?>
-                            <span class="badge bg-secondary">No Account</span>
+                            <span class="badge bg-secondary"><?php echo __('no_account'); ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -329,21 +329,21 @@ require_once '../../../includes/header.php';
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         <a href="view.php?id=<?php echo $employee_id; ?>" class="list-group-item list-group-item-action">
-                            <i class="fas fa-eye me-2"></i>View Employee Details
+                            <i class="fas fa-eye me-2"></i> <?php echo __('view_employee_details'); ?>
                         </a>
                         <a href="../attendance/?employee_id=<?php echo $employee_id; ?>" class="list-group-item list-group-item-action">
-                            <i class="fas fa-clock me-2"></i>View Attendance
+                            <i class="fas fa-clock me-2"></i> <?php echo __('view_attendance'); ?>
                         </a>
                         <a href="../salary-payments/?employee_id=<?php echo $employee_id; ?>" class="list-group-item list-group-item-action">
-                            <i class="fas fa-money-bill me-2"></i>Salary Payments
+                            <i class="fas fa-money-bill me-2"></i> <?php echo __('salary_payments'); ?>
                         </a>
                         <a href="../contracts/?employee_id=<?php echo $employee_id; ?>" class="list-group-item list-group-item-action">
-                            <i class="fas fa-file-contract me-2"></i>View Contracts
+                            <i class="fas fa-file-contract me-2"></i> <?php echo __('view_contracts'); ?>
                         </a>
                     </div>
                 </div>
@@ -352,27 +352,27 @@ require_once '../../../includes/header.php';
             <!-- Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6><i class="fas fa-info-circle text-info"></i> Employee Code</h6>
-                        <p class="text-muted">Employee codes are automatically generated and cannot be changed.</p>
+                        <h6><i class="fas fa-info-circle text-info"></i> <?php echo __('employee_code'); ?></h6>
+                        <p class="text-muted"><?php echo __('employee_codes_are_automatically_generated_and_cannot_be_changed'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-calculator text-success"></i> Salary Calculation</h6>
-                        <p class="text-muted">Daily rate is calculated as: Monthly Salary ÷ 30 days</p>
+                        <h6><i class="fas fa-calculator text-success"></i> <?php echo __('salary_calculation'); ?></h6>
+                        <p class="text-muted"><?php echo __('daily_rate_is_calculated_as'); ?></p>
                     </div>
 
                     <div class="mb-3">
-                        <h6><i class="fas fa-user-tag text-primary"></i> Positions</h6>
+                        <h6><i class="fas fa-user-tag text-primary"></i> <?php echo __('positions'); ?></h6>
                         <ul class="text-muted">
-                            <li><strong>Driver:</strong> Primary machine operator</li>
-                            <li><strong>Driver Assistant:</strong> Supports driver operations</li>
-                            <li><strong>Machine Operator:</strong> Specialized machinery operator</li>
-                            <li><strong>Supervisor:</strong> Oversees operations</li>
-                            <li><strong>Technician:</strong> Maintains equipment</li>
+                            <li><strong><?php echo __('driver'); ?>:</strong> <?php echo __('primary_machine_operator'); ?></li>
+                            <li><strong><?php echo __('driver_assistant'); ?>:</strong> <?php echo __('supports_driver_operations'); ?></li>
+                            <li><strong><?php echo __('machine_operator'); ?>:</strong> <?php echo __('specialized_machinery_operator'); ?></li>
+                            <li><strong><?php echo __('supervisor'); ?>:</strong> <?php echo __('oversees_operations'); ?></li>
+                            <li><strong><?php echo __('technician'); ?>:</strong> <?php echo __('maintains_equipment'); ?></li>
                         </ul>
                     </div>
                 </div>

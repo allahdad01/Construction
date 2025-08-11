@@ -139,10 +139,10 @@ function generateParkingSpaceCode($company_id) {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-parking"></i> Add Parking Space
+            <i class="fas fa-parking"></i> <?php echo __('add_parking_space'); ?>
         </h1>
         <a href="index.php" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Parking Spaces
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_parking_spaces'); ?>
         </a>
     </div>
 
@@ -157,31 +157,31 @@ function generateParkingSpaceCode($company_id) {
     <!-- Add Parking Space Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Parking Space Details</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space_details'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6">
                                         <div class="mb-3">
-                    <label for="space_name" class="form-label">Space Name *</label>
+                    <label for="space_name" class="form-label"><?php echo __('space_name'); ?> *</label>
                     <input type="text" class="form-control" id="space_name" name="space_name" 
                            value="<?php echo htmlspecialchars($_POST['space_name'] ?? ''); ?>" 
-                           placeholder="e.g., Main Parking Lot A, Construction Zone 1, etc." 
+                           placeholder="<?php echo __('e_g_main_parking_lot_a_construction_zone_1_etc'); ?>" 
                            style="text-transform: none; text-indent: 0; letter-spacing: normal;" 
                            autocomplete="off" spellcheck="false" required>
-                    <small class="form-text text-muted">You can use spaces in the name (e.g., "Main Parking Lot A")</small>
+                    <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_the_name'); ?></small>
                 </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="space_type" class="form-label">Space Type *</label>
+                            <label for="space_type" class="form-label"><?php echo __('space_type'); ?> *</label>
                             <select class="form-control" id="space_type" name="space_type" required>
-                                <option value="">Select Space Type</option>
-                                <option value="covered" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'covered') ? 'selected' : ''; ?>>Covered</option>
-                                <option value="uncovered" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'uncovered') ? 'selected' : ''; ?>>Uncovered</option>
-                                <option value="indoor" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'indoor') ? 'selected' : ''; ?>>Indoor</option>
-                                <option value="outdoor" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'outdoor') ? 'selected' : ''; ?>>Outdoor</option>
+                                <option value=""><?php echo __('select_space_type'); ?></option>
+                                <option value="covered" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'covered') ? 'selected' : ''; ?>><?php echo __('covered'); ?></option>
+                                <option value="uncovered" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'uncovered') ? 'selected' : ''; ?>><?php echo __('uncovered'); ?></option>
+                                <option value="indoor" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'indoor') ? 'selected' : ''; ?>><?php echo __('indoor'); ?></option>
+                                <option value="outdoor" <?php echo (isset($_POST['space_type']) && $_POST['space_type'] == 'outdoor') ? 'selected' : ''; ?>><?php echo __('outdoor'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -190,16 +190,16 @@ function generateParkingSpaceCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="vehicle_category" class="form-label">Vehicle Category *</label>
+                            <label for="vehicle_category" class="form-label"><?php echo __('vehicle_category'); ?> *</label>
                             <select class="form-control" id="vehicle_category" name="vehicle_category" required>
-                                <option value="">Select Vehicle Category</option>
-                                <option value="machines" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'machines') ? 'selected' : ''; ?>>Construction Machines</option>
-                                <option value="cars" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'cars') ? 'selected' : ''; ?>>Cars</option>
-                                <option value="trucks" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'trucks') ? 'selected' : ''; ?>>Trucks</option>
-                                <option value="vans" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'vans') ? 'selected' : ''; ?>>Vans</option>
-                                <option value="motorcycles" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'motorcycles') ? 'selected' : ''; ?>>Motorcycles</option>
-                                <option value="trailers" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'trailers') ? 'selected' : ''; ?>>Trailers</option>
-                                <option value="general" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'general') ? 'selected' : ''; ?>>General</option>
+                                <option value=""><?php echo __('select_vehicle_category'); ?></option>
+                                <option value="machines" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'machines') ? 'selected' : ''; ?>><?php echo __('construction_machines'); ?></option>
+                                <option value="cars" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'cars') ? 'selected' : ''; ?>><?php echo __('cars'); ?></option>
+                                <option value="trucks" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'trucks') ? 'selected' : ''; ?>><?php echo __('trucks'); ?></option>
+                                <option value="vans" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'vans') ? 'selected' : ''; ?>><?php echo __('vans'); ?></option>
+                                <option value="motorcycles" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'motorcycles') ? 'selected' : ''; ?>><?php echo __('motorcycles'); ?></option>
+                                <option value="trailers" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'trailers') ? 'selected' : ''; ?>><?php echo __('trailers'); ?></option>
+                                <option value="general" <?php echo (isset($_POST['vehicle_category']) && $_POST['vehicle_category'] == 'general') ? 'selected' : ''; ?>><?php echo __('general'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -207,12 +207,12 @@ function generateParkingSpaceCode($company_id) {
                         <div class="mb-3">
                             <label for="size" class="form-label">Space Size</label>
                             <select class="form-control" id="size" name="size">
-                                <option value="">Auto-detect from category</option>
-                                <option value="small" <?php echo (isset($_POST['size']) && $_POST['size'] == 'small') ? 'selected' : ''; ?>>Small (Cars, Motorcycles)</option>
-                                <option value="medium" <?php echo (isset($_POST['size']) && $_POST['size'] == 'medium') ? 'selected' : ''; ?>>Medium (Vans, Small Trucks)</option>
-                                <option value="large" <?php echo (isset($_POST['size']) && $_POST['size'] == 'large') ? 'selected' : ''; ?>>Large (Trucks, Small Machines)</option>
-                                <option value="xlarge" <?php echo (isset($_POST['size']) && $_POST['size'] == 'xlarge') ? 'selected' : ''; ?>>Extra Large (Heavy Machines)</option>
-                                <option value="custom" <?php echo (isset($_POST['size']) && $_POST['size'] == 'custom') ? 'selected' : ''; ?>>Custom Size</option>
+                                <option value=""><?php echo __('auto_detect_from_category'); ?></option>
+                                <option value="small" <?php echo (isset($_POST['size']) && $_POST['size'] == 'small') ? 'selected' : ''; ?>><?php echo __('small'); ?> (<?php echo __('cars'); ?>, <?php echo __('motorcycles'); ?>)</option>
+                                <option value="medium" <?php echo (isset($_POST['size']) && $_POST['size'] == 'medium') ? 'selected' : ''; ?>><?php echo __('medium'); ?> (<?php echo __('vans'); ?>, <?php echo __('small_trucks'); ?>)</option>
+                                <option value="large" <?php echo (isset($_POST['size']) && $_POST['size'] == 'large') ? 'selected' : ''; ?>><?php echo __('large'); ?> (<?php echo __('trucks'); ?>, <?php echo __('small_machines'); ?>)</option>
+                                <option value="xlarge" <?php echo (isset($_POST['size']) && $_POST['size'] == 'xlarge') ? 'selected' : ''; ?>><?php echo __('extra_large'); ?> (<?php echo __('heavy_machines'); ?>)</option>
+                                <option value="custom" <?php echo (isset($_POST['size']) && $_POST['size'] == 'custom') ? 'selected' : ''; ?>><?php echo __('custom_size'); ?></option>
                             </select>
                         </div>
                     </div>
@@ -221,51 +221,45 @@ function generateParkingSpaceCode($company_id) {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="monthly_rate" class="form-label">Monthly Rate *</label>
+                            <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                             <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
                                    value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ''); ?>" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="currency" class="form-label">Currency *</label>
+                            <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                             <select class="form-control" id="currency" name="currency" required>
-                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
-                                <option value="JPY" <?php echo (($_POST['currency'] ?? '') == 'JPY') ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
-                                <option value="CAD" <?php echo (($_POST['currency'] ?? '') == 'CAD') ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
-                                <option value="AUD" <?php echo (($_POST['currency'] ?? '') == 'AUD') ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
-                                <option value="CHF" <?php echo (($_POST['currency'] ?? '') == 'CHF') ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
-                                <option value="CNY" <?php echo (($_POST['currency'] ?? '') == 'CNY') ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
-                                <option value="INR" <?php echo (($_POST['currency'] ?? '') == 'INR') ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="capacity" class="form-label">Vehicle Capacity</label>
+                            <label for="capacity" class="form-label"><?php echo __('vehicle_capacity'); ?></label>
                             <input type="number" min="1" max="10" class="form-control" id="capacity" name="capacity" 
                                    value="<?php echo htmlspecialchars($_POST['capacity'] ?? '1'); ?>" 
-                                   placeholder="Number of vehicles">
-                            <small class="form-text text-muted">How many vehicles can park in this space</small>
+                                   placeholder="<?php echo __('e_g_1_2_3_etc'); ?>">
+                            <small class="form-text text-muted"><?php echo __('how_many_vehicles_can_park_in_this_space'); ?></small>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="description" class="form-label">Description & Features</label>
+                    <label for="description" class="form-label"><?php echo __('description_features'); ?></label>
                     <textarea class="form-control" id="description" name="description" rows="3" 
-                              placeholder="Additional features: security cameras, charging stations, loading dock, etc. You can use spaces in descriptions."
+                              placeholder="<?php echo __('e_g_additional_features_security_cameras_charging_stations_loading_dock_etc'); ?>"
                               style="text-transform: none; text-indent: 0; letter-spacing: normal; resize: vertical;"
                               autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
-                    <small class="form-text text-muted">Describe any special features, restrictions, or notes about this parking space</small>
+                    <small class="form-text text-muted"><?php echo __('describe_any_special_features_restrictions_or_notes_about_this_parking_space'); ?></small>
                 </div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Add Parking Space
+                        <i class="fas fa-save"></i> <?php echo __('add_parking_space'); ?>
                     </button>
                 </div>
             </form>

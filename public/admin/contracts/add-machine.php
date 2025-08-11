@@ -81,26 +81,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-plus"></i> Add Machine to Contract</h1>
-    <a href="view.php?id=<?php echo (int)$contract_id; ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-plus"></i> <?php echo __('add_machine_to_contract'); ?></h1>
+    <a href="view.php?id=<?php echo (int)$contract_id; ?>" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back'); ?></a>
   </div>
   <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
   <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
   <div class="card">
-    <div class="card-header">Contract: <?php echo htmlspecialchars($contract['contract_code']); ?></div>
+    <div class="card-header"><?php echo __('contract'); ?>: <?php echo htmlspecialchars($contract['contract_code']); ?></div>
     <div class="card-body">
       <form method="POST">
         <div class="mb-3">
-          <label class="form-label">Select Machines (available)</label>
+          <label class="form-label"><?php echo __('select_machines'); ?> (<?php echo __('available'); ?>)</label>
           <select class="form-control" name="machine_ids[]" multiple required>
             <?php foreach ($available_machines as $m): ?>
               <option value="<?php echo $m['id']; ?>"><?php echo htmlspecialchars($m['machine_code'] . ' - ' . $m['name'] . ' (' . $m['type'] . ')'); ?></option>
             <?php endforeach; ?>
           </select>
-          <small class="text-muted">Hold Ctrl/Cmd to select multiple.</small>
+          <small class="text-muted"><?php echo __('hold_ctrl_cmd_to_select_multiple'); ?></small>
         </div>
         <div class="text-end">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <?php echo __('add'); ?></button>
         </div>
       </form>
     </div>

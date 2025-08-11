@@ -210,7 +210,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         <div class="alert alert-danger">
             <div class="d-flex align-items-start">
                 <div class="flex-grow-1">
-                    <strong><i class="fas fa-exclamation-triangle"></i> Delete Failed</strong><br>
+                    <strong><i class="fas fa-exclamation-triangle"></i> <?php echo __('delete_failed'); ?></strong><br>
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             </div>
@@ -227,18 +227,18 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             <?php if (isset($_GET['delete']) && is_numeric($_GET['delete']) && strpos($error, 'related records') !== false && $employee_to_delete): ?>
                  <hr>
                  <div class="mt-3">
-                     <p class="mb-2"><strong>Options:</strong></p>
+                     <p class="mb-2"><strong><?php echo __('options'); ?>:</strong></p>
                      <div class="btn-group" role="group">
                          <button type="button" class="btn btn-outline-danger btn-sm" 
                                  onclick="forceDeleteEmployee(<?php echo (int)$_GET['delete']; ?>, '<?php echo htmlspecialchars($employee_to_delete['name'] ?? 'Employee', ENT_QUOTES); ?>')">
-                             <i class="fas fa-trash-alt"></i> Force Delete (Remove All Related Records)
+                             <i class="fas fa-trash-alt"></i> <?php echo __('force_delete'); ?> (<?php echo __('remove_all_related_records'); ?>)
                          </button>
                          <a href="index.php" class="btn btn-outline-secondary btn-sm">
-                             <i class="fas fa-times"></i> Cancel
+                             <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                          </a>
                      </div>
                      <small class="form-text text-muted mt-2">
-                         <i class="fas fa-info-circle"></i> Force delete will permanently remove the employee and all related records (salary payments, attendance, etc.).
+                         <i class="fas fa-info-circle"></i> <?php echo __('force_delete_will_permanently_remove_the_employee_and_all_related_records'); ?>
                      </small>
                  </div>
              <?php endif; ?>

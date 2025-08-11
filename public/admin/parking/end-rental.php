@@ -165,11 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-stop"></i> End Parking Rental
+            <i class="fas fa-stop"></i> <?php echo __('end_parking_rental'); ?>
         </h1>
         <div>
             <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rental
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rental'); ?>
             </a>
         </div>
     </div>
@@ -194,27 +194,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">End Rental</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('end_rental'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Warning:</strong> This action will end the rental and make the parking space available for new rentals.
+                        <strong><?php echo __('warning'); ?>:</strong> <?php echo __('this_action_will_end_the_rental_and_make_the_parking_space_available_for_new_rentals'); ?>
                     </div>
 
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="end_date" class="form-label">End Date *</label>
+                                    <label for="end_date" class="form-label"><?php echo __('end_date'); ?> *</label>
                                     <input type="date" class="form-control" id="end_date" name="end_date" 
                                            value="<?php echo date('Y-m-d'); ?>" required>
-                                    <small class="text-muted">Select the date when the rental should end</small>
+                                    <small class="text-muted"><?php echo __('select_the_date_when_the_rental_should_end'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Start Date</label>
+                                    <label class="form-label"><?php echo __('start_date'); ?></label>
                                     <input type="text" class="form-control" value="<?php echo date('M j, Y', strtotime($rental['start_date'])); ?>" readonly>
                                 </div>
                             </div>
@@ -223,14 +223,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Monthly Rate</label>
+                                    <label class="form-label"><?php echo __('monthly_rate'); ?></label>
                                     <input type="text" class="form-control" 
                                            value="<?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Client</label>
+                                    <label class="form-label"><?php echo __('client'); ?></label>
                                     <input type="text" class="form-control" value="<?php echo htmlspecialchars($rental['client_name']); ?>" readonly>
                                 </div>
                             </div>
@@ -261,13 +261,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <hr>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Final Payment:</strong> There is a remaining amount of <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?> for this rental.
+                            <strong><?php echo __('final_payment'); ?>:</strong> <?php echo __('there_is_a_remaining_amount_of'); ?> <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?> <?php echo __('for_this_rental'); ?>.
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="final_payment_amount" class="form-label">Final Payment Amount</label>
+                                    <label for="final_payment_amount" class="form-label"><?php echo __('final_payment_amount'); ?></label>
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <?php 
@@ -278,21 +278,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <input type="number" step="0.01" class="form-control" id="final_payment_amount" name="final_payment_amount" 
                                                value="<?php echo $remaining_amount; ?>" max="<?php echo $remaining_amount; ?>">
                                     </div>
-                                    <small class="text-muted">Maximum: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?></small>
+                                    <small class="text-muted"><?php echo __('maximum'); ?>: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="final_payment_method" class="form-label">Payment Method</label>
+                                    <label for="final_payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
                                     <select class="form-control" id="final_payment_method" name="final_payment_method">
-                                        <option value="">Select Payment Method</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="bank_transfer">Bank Transfer</option>
-                                        <option value="credit_card">Credit Card</option>
-                                        <option value="debit_card">Debit Card</option>
-                                        <option value="mobile_payment">Mobile Payment</option>
-                                        <option value="check">Check</option>
-                                        <option value="other">Other</option>
+                                        <option value=""><?php echo __('select_payment_method'); ?></option>
+                                        <option value="cash"><?php echo __('cash'); ?></option>
+                                        <option value="bank_transfer"><?php echo __('bank_transfer'); ?></option>
+                                        <option value="credit_card"><?php echo __('credit_card'); ?></option>
+                                        <option value="debit_card"><?php echo __('debit_card'); ?></option>
+                                        <option value="mobile_payment"><?php echo __('mobile_payment'); ?></option>
+                                        <option value="check"><?php echo __('check'); ?></option>
+                                        <option value="other"><?php echo __('other'); ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -301,14 +301,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="final_payment_reference" class="form-label">Reference Number</label>
+                                    <label for="final_payment_reference" class="form-label"><?php echo __('reference_number'); ?></label>
                                     <input type="text" class="form-control" id="final_payment_reference" name="final_payment_reference" 
                                            placeholder="Transaction ID, Check #, etc.">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="final_payment_notes" class="form-label">Payment Notes</label>
+                                    <label for="final_payment_notes" class="form-label"><?php echo __('payment_notes'); ?></label>
                                     <textarea class="form-control" id="final_payment_notes" name="final_payment_notes" rows="2" 
                                               placeholder="Final payment notes..."></textarea>
                                 </div>
@@ -318,16 +318,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <hr>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i>
-                            <strong>Fully Paid:</strong> This rental has been fully paid. No remaining amount.
+                            <strong><?php echo __('fully_paid'); ?>:</strong> <?php echo __('this_rental_has_been_fully_paid'); ?>. <?php echo __('no_remaining_amount'); ?>.
                         </div>
                         <?php endif; ?>
 
                         <div class="d-flex justify-content-between">
                             <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to end this rental?')">
-                                <i class="fas fa-stop"></i> End Rental
+                                <i class="fas fa-stop"></i> <?php echo __('end_rental'); ?>
                             </button>
                         </div>
                     </form>
@@ -338,16 +338,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Rental Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('rental_summary'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <p><strong>Rental Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                    <p><strong>Status:</strong> 
-                        <span class="badge bg-success">Active</span>
+                    <p><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                    <p><strong><?php echo __('status'); ?>:</strong> 
+                        <span class="badge bg-success"><?php echo __('active'); ?></span>
                     </p>
-                    <p><strong>Parking Space:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
-                    <p><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
-                    <p><strong>Duration:</strong> 
+                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
+                    <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
+                    <p><strong><?php echo __('duration'); ?>:</strong> 
                         <?php 
                         $days = ceil((time() - strtotime($rental['start_date'])) / (60 * 60 * 24));
                         echo $days . ' days so far';

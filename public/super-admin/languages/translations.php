@@ -158,11 +158,11 @@ if ($language_id) {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-language"></i> Manage Translations
+            <i class="fas fa-language"></i> <?php echo __('manage_translations'); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Languages
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
             </a>
         </div>
     </div>
@@ -180,14 +180,14 @@ if ($language_id) {
         <div class="col-md-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Select Language</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('select_language'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="GET">
                         <div class="mb-3">
-                            <label for="language_id" class="form-label">Choose Language</label>
+                            <label for="language_id" class="form-label"><?php echo __('choose_language'); ?></label>
                             <select class="form-control" id="language_id" name="language_id" onchange="this.form.submit()">
-                                <option value="">Select a language...</option>
+                                <option value=""><?php echo __('select_a_language'); ?>...</option>
                                 <?php foreach ($languages as $lang): ?>
                                     <option value="<?php echo $lang['id']; ?>" <?php echo $language_id == $lang['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($lang['language_name']); ?> (<?php echo htmlspecialchars($lang['language_name_native']); ?>)
@@ -209,14 +209,14 @@ if ($language_id) {
                         $translation_percentage = $total_keys > 0 ? round(($translated_keys / $total_keys) * 100, 1) : 0;
                         ?>
                         <div class="alert alert-info">
-                            <strong>Language:</strong> <?php echo htmlspecialchars($selected_language['language_name']); ?><br>
-                            <strong>Native Name:</strong> <?php echo htmlspecialchars($selected_language['language_name_native']); ?><br>
-                            <strong>Direction:</strong> <?php echo strtoupper($selected_language['direction']); ?><br>
-                            <strong>Status:</strong> 
+                            <strong><?php echo __('language'); ?>:</strong> <?php echo htmlspecialchars($selected_language['language_name']); ?><br>
+                            <strong><?php echo __('native_name'); ?>:</strong> <?php echo htmlspecialchars($selected_language['language_name_native']); ?><br>
+                            <strong><?php echo __('direction'); ?>:</strong> <?php echo strtoupper($selected_language['direction']); ?><br>
+                            <strong><?php echo __('status'); ?>:</strong> 
                             <span class="badge <?php echo $selected_language['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
-                                <?php echo $selected_language['is_active'] ? 'Active' : 'Inactive'; ?>
+                                <?php echo $selected_language['is_active'] ? __('active') : __('inactive'); ?>
                             </span><br>
-                            <strong>Translation Progress:</strong> 
+                            <strong><?php echo __('translation_progress'); ?>:</strong> 
                             <span class="badge bg-info"><?php echo $translated_keys; ?> / <?php echo $total_keys; ?> (<?php echo $translation_percentage; ?>%)</span>
                         </div>
                     <?php endif; ?>
@@ -227,22 +227,22 @@ if ($language_id) {
             <?php if ($language_id): ?>
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Bulk Translation Management</h6>
+                        <h6 class="m-0 font-weight-bold text-primary"><?php echo __('bulk_translation_management'); ?></h6>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Instructions:</strong> Fill in the translation values for each key. Empty fields will be skipped. 
-                            Click "Save All Translations" at the bottom to save everything at once.
+                            <strong><?php echo __('instructions'); ?>:</strong> <?php echo __('fill_in_the_translation_values_for_each_key'); ?>. <?php echo __('empty_fields_will_be_skipped'); ?>. 
+                            <?php echo __('click_save_all_translations_at_the_bottom_to_save_everything_at_once'); ?>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillEmptyFields()">
-                                    <i class="fas fa-magic"></i> Fill Empty Fields
+                                    <i class="fas fa-magic"></i> <?php echo __('fill_empty_fields'); ?>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllFields()">
-                                    <i class="fas fa-eraser"></i> Clear All
+                                    <i class="fas fa-eraser"></i> <?php echo __('clear_all'); ?>
                                 </button>
                             </div>
                             <div>
@@ -261,12 +261,12 @@ if ($language_id) {
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">
-                            Translations for <?php echo htmlspecialchars($selected_language['language_name']); ?>
+                            <?php echo __('translations_for'); ?> <?php echo htmlspecialchars($selected_language['language_name']); ?>
                         </h6>
                         <div class="d-flex align-items-center">
                             <input type="text" id="searchKeys" class="form-control form-control-sm me-2" 
                                    placeholder="Search keys..." style="width: 200px;">
-                            <span class="badge bg-primary"><?php echo count($all_keys); ?> total keys</span>
+                            <span class="badge bg-primary"><?php echo count($all_keys); ?> <?php echo __('total_keys'); ?></span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -277,17 +277,17 @@ if ($language_id) {
                             <?php if (empty($translations)): ?>
                                 <div class="text-center py-4">
                                     <i class="fas fa-language fa-3x text-gray-300 mb-3"></i>
-                                    <p class="text-gray-500">No translations found for this language.</p>
-                                    <p class="text-muted">Add your first translation using the form on the left.</p>
+                                    <p class="text-gray-500"><?php echo __('no_translations_found_for_this_language'); ?></p>
+                                    <p class="text-muted"><?php echo __('add_your_first_translation_using_the_form_on_the_left'); ?></p>
                                 </div>
                             <?php else: ?>
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th style="width: 30%;">Translation Key</th>
-                                                <th style="width: 60%;">Translation Value</th>
-                                                <th style="width: 10%;">Status</th>
+                                                <th style="width: 30%;"><?php echo __('translation_key'); ?></th>
+                                                <th style="width: 60%;"><?php echo __('translation_value'); ?></th>
+                                                <th style="width: 10%;"><?php echo __('status'); ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -306,9 +306,9 @@ if ($language_id) {
                                                     </td>
                                                     <td>
                                                         <?php if ($translation['exists']): ?>
-                                                            <span class="badge bg-success">Translated</span>
+                                                            <span class="badge bg-success"><?php echo __('translated'); ?></span>
                                                         <?php else: ?>
-                                                            <span class="badge bg-warning">Missing</span>
+                                                            <span class="badge bg-warning"><?php echo __('missing'); ?></span>
                                                         <?php endif; ?>
                                                     </td>
                                                 </tr>
@@ -320,10 +320,10 @@ if ($language_id) {
                                 <!-- Save All Button -->
                                 <div class="text-center mt-4">
                                     <button type="submit" class="btn btn-success btn-lg">
-                                        <i class="fas fa-save"></i> Save All Translations
+                                        <i class="fas fa-save"></i> <?php echo __('save_all_translations'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-lg ms-2" onclick="resetForm()">
-                                        <i class="fas fa-undo"></i> Reset Changes
+                                        <i class="fas fa-undo"></i> <?php echo __('reset_changes'); ?>
                                     </button>
                                 </div>
                             <?php endif; ?>
@@ -333,8 +333,8 @@ if ($language_id) {
                 <div class="card shadow mb-4">
                     <div class="card-body text-center py-5">
                         <i class="fas fa-language fa-4x text-gray-300 mb-3"></i>
-                        <h5 class="text-gray-600">Select a Language</h5>
-                        <p class="text-muted">Choose a language from the dropdown to manage its translations.</p>
+                        <h5 class="text-gray-600"><?php echo __('select_a_language'); ?></h5>
+                        <p class="text-muted"><?php echo __('choose_a_language_from_the_dropdown_to_manage_its_translations'); ?></p>
                     </div>
                 </div>
             <?php endif; ?>

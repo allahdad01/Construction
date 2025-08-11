@@ -97,11 +97,11 @@ function generateExpenseCode($company_id) {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-plus"></i> Add New Expense
+            <i class="fas fa-plus"></i> <?php echo __('add_new_expense'); ?>
         </h1>
         <div>
             <a href="index.php" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Expenses
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_expenses'); ?>
             </a>
         </div>
     </div>
@@ -122,56 +122,56 @@ function generateExpenseCode($company_id) {
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Expense Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('expense_information'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST" id="expenseForm">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="category" class="form-label">Category *</label>
+                            <label for="category" class="form-label"><?php echo __('category'); ?> *</label>
                             <select class="form-control" id="category" name="category" required>
-                                <option value="">Select expense type...</option>
-                                <option value="fuel">Fuel</option>
-                                <option value="maintenance">Maintenance</option>
-                                <option value="repairs">Repairs</option>
-                                <option value="supplies">Supplies</option>
-                                <option value="utilities">Utilities</option>
-                                <option value="rent">Rent</option>
-                                <option value="insurance">Insurance</option>
-                                <option value="licenses">Licenses</option>
-                                <option value="transportation">Transportation</option>
-                                <option value="meals">Meals</option>
-                                <option value="office">Office Expenses</option>
-                                <option value="other">Other</option>
+                                <option value=""><?php echo __('select_expense_type'); ?>...</option>
+                                <option value="fuel"><?php echo __('fuel'); ?></option>
+                                <option value="maintenance"><?php echo __('maintenance'); ?></option>
+                                <option value="repairs"><?php echo __('repairs'); ?></option>
+                                <option value="supplies"><?php echo __('supplies'); ?></option>
+                                <option value="utilities"><?php echo __('utilities'); ?></option>
+                                <option value="rent"><?php echo __('rent'); ?></option>
+                                <option value="insurance"><?php echo __('insurance'); ?></option>
+                                <option value="licenses"><?php echo __('licenses'); ?></option>
+                                <option value="transportation"><?php echo __('transportation'); ?></option>
+                                <option value="meals"><?php echo __('meals'); ?></option>
+                                <option value="office"><?php echo __('office_expenses'); ?></option>
+                                <option value="other"><?php echo __('other'); ?></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="amount" class="form-label">Amount *</label>
+                            <label for="amount" class="form-label"><?php echo __('amount'); ?> *</label>
                             <input type="number" class="form-control" id="amount" name="amount" 
                                    step="0.01" min="0.01" required
                                    value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label for="currency" class="form-label">Currency *</label>
+                            <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                             <select class="form-control" id="currency" name="currency" required>
-                                <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                <option value="AFN" <?php echo ($_POST['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                <option value="EUR" <?php echo ($_POST['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                <option value="GBP" <?php echo ($_POST['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
-                                <option value="JPY" <?php echo ($_POST['currency'] ?? '') === 'JPY' ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
-                                <option value="CAD" <?php echo ($_POST['currency'] ?? '') === 'CAD' ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
-                                <option value="AUD" <?php echo ($_POST['currency'] ?? '') === 'AUD' ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
-                                <option value="CHF" <?php echo ($_POST['currency'] ?? '') === 'CHF' ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
-                                <option value="CNY" <?php echo ($_POST['currency'] ?? '') === 'CNY' ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
-                                <option value="INR" <?php echo ($_POST['currency'] ?? '') === 'INR' ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
+                                <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
+                                <option value="AFN" <?php echo ($_POST['currency'] ?? '') === 'AFN' ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
+                                <option value="EUR" <?php echo ($_POST['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
+                                <option value="GBP" <?php echo ($_POST['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
+                                <option value="JPY" <?php echo ($_POST['currency'] ?? '') === 'JPY' ? 'selected' : ''; ?>><?php echo __('jpy'); ?> - <?php echo __('japanese_yen'); ?> (¥)</option>
+                                <option value="CAD" <?php echo ($_POST['currency'] ?? '') === 'CAD' ? 'selected' : ''; ?>><?php echo __('cad'); ?> - <?php echo __('canadian_dollar'); ?> (C$)</option>
+                                <option value="AUD" <?php echo ($_POST['currency'] ?? '') === 'AUD' ? 'selected' : ''; ?>><?php echo __('aud'); ?> - <?php echo __('australian_dollar'); ?> (A$)</option>
+                                <option value="CHF" <?php echo ($_POST['currency'] ?? '') === 'CHF' ? 'selected' : ''; ?>><?php echo __('chf'); ?> - <?php echo __('swiss_franc'); ?> (CHF)</option>
+                                <option value="CNY" <?php echo ($_POST['currency'] ?? '') === 'CNY' ? 'selected' : ''; ?>><?php echo __('cny'); ?> - <?php echo __('chinese_yuan'); ?> (¥)</option>
+                                <option value="INR" <?php echo ($_POST['currency'] ?? '') === 'INR' ? 'selected' : ''; ?>><?php echo __('inr'); ?> - <?php echo __('indian_rupee'); ?> (₹)</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="expense_date" class="form-label">Expense Date *</label>
+                            <label for="expense_date" class="form-label"><?php echo __('expense_date'); ?> *</label>
                             <input type="date" class="form-control" id="expense_date" name="expense_date" 
                                    value="<?php echo date('Y-m-d'); ?>" required>
                         </div>
@@ -179,25 +179,25 @@ function generateExpenseCode($company_id) {
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="payment_method" class="form-label">Payment Method</label>
+                            <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
                             <select class="form-control" id="payment_method" name="payment_method">
-                                <option value="cash">Cash</option>
-                                <option value="credit_card">Credit Card</option>
-                                <option value="debit_card">Debit Card</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="check">Check</option>
-                                <option value="other">Other</option>
+                                <option value="cash"><?php echo __('cash'); ?></option>
+                                <option value="credit_card"><?php echo __('credit_card'); ?></option>
+                                <option value="debit_card"><?php echo __('debit_card'); ?></option>
+                                <option value="bank_transfer"><?php echo __('bank_transfer'); ?></option>
+                                <option value="check"><?php echo __('check'); ?></option>
+                                <option value="other"><?php echo __('other'); ?></option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <label for="reference_number" class="form-label"><?php echo __('reference_number'); ?></label>
                             <input type="text" class="form-control" id="reference_number" name="reference_number" 
                                    placeholder="Optional reference number">
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
+                            <label for="description" class="form-label"><?php echo __('description'); ?> *</label>
                             <textarea class="form-control" id="description" name="description" 
                                       rows="4" placeholder="Enter detailed description of the expense..." required></textarea>
                         </div>
@@ -207,10 +207,10 @@ function generateExpenseCode($company_id) {
                 <div class="row mt-4">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Add Expense
+                            <i class="fas fa-save"></i> <?php echo __('add_expense'); ?>
                         </button>
                         <a href="index.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                         </a>
                     </div>
                 </div>
@@ -233,7 +233,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(e) {
     const amount = document.getElementById('amount').value;
     if (parseFloat(amount) <= 0) {
         e.preventDefault();
-        alert('Amount must be greater than 0.');
+        alert('<?php echo __('amount_must_be_greater_than_0'); ?>');
         return false;
     }
 });

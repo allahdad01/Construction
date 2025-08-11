@@ -107,14 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-edit"></i> Edit Company
+            <i class="fas fa-edit"></i> <?php echo __('edit_company'); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Companies
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
-                <i class="fas fa-eye"></i> View Company
+                <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
     </div>
@@ -129,58 +129,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Company Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('edit_company_information'); ?></h6>
         </div>
         <div class="card-body">
             <form method="POST">
                 <div class="row">
                     <div class="col-md-6">
-                        <h5 class="mb-3">Basic Information</h5>
+                        <h5 class="mb-3"><?php echo __('basic_information'); ?></h5>
                         
                         <div class="mb-3">
-                            <label for="company_name" class="form-label">Company Name *</label>
+                            <label for="company_name" class="form-label"><?php echo __('company_name'); ?> *</label>
                             <input type="text" class="form-control" id="company_name" name="company_name" 
                                    value="<?php echo htmlspecialchars($company['company_name']); ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="contact_person" class="form-label">Contact Person</label>
+                            <label for="contact_person" class="form-label"><?php echo __('contact_person'); ?></label>
                             <input type="text" class="form-control" id="contact_person" name="contact_person" 
                                    value="<?php echo htmlspecialchars($company['contact_person'] ?? ''); ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label for="contact_email" class="form-label">Contact Email *</label>
+                            <label for="contact_email" class="form-label"><?php echo __('contact_email'); ?> *</label>
                             <input type="email" class="form-control" id="contact_email" name="contact_email" 
                                    value="<?php echo htmlspecialchars($company['contact_email']); ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="contact_phone" class="form-label">Contact Phone</label>
+                            <label for="contact_phone" class="form-label"><?php echo __('contact_phone'); ?></label>
                             <input type="text" class="form-control" id="contact_phone" name="contact_phone" 
                                    value="<?php echo htmlspecialchars($company['contact_phone'] ?? ''); ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
+                            <label for="address" class="form-label"><?php echo __('address'); ?></label>
                             <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($company['address'] ?? ''); ?></textarea>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <h5 class="mb-3">Location & Subscription</h5>
+                        <h5 class="mb-3"><?php echo __('location_subscription'); ?></h5>
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="city" class="form-label">City</label>
+                                    <label for="city" class="form-label"><?php echo __('city'); ?></label>
                                     <input type="text" class="form-control" id="city" name="city" 
                                            value="<?php echo htmlspecialchars($company['city'] ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="state" class="form-label">State</label>
+                                    <label for="state" class="form-label"><?php echo __('state'); ?></label>
                                     <input type="text" class="form-control" id="state" name="state" 
                                            value="<?php echo htmlspecialchars($company['state'] ?? ''); ?>">
                                 </div>
@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="mb-3">
-                            <label for="country" class="form-label">Country</label>
+                            <label for="country" class="form-label"><?php echo __('country'); ?></label>
                             <input type="text" class="form-control" id="country" name="country" 
                                    value="<?php echo htmlspecialchars($company['country'] ?? ''); ?>">
                         </div>
@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="subscription_plan" class="form-label">Subscription Plan</label>
+                                    <label for="subscription_plan" class="form-label"><?php echo __('subscription_plan'); ?></label>
                                     <select class="form-control" id="subscription_plan" name="subscription_plan">
                                         <option value="basic" <?php echo $company['subscription_plan'] === 'basic' ? 'selected' : ''; ?>>Basic</option>
                                         <option value="professional" <?php echo $company['subscription_plan'] === 'professional' ? 'selected' : ''; ?>>Professional</option>
@@ -206,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="subscription_status" class="form-label">Status</label>
+                                    <label for="subscription_status" class="form-label"><?php echo __('status'); ?></label>
                                     <select class="form-control" id="subscription_status" name="subscription_status">
                                         <option value="trial" <?php echo $company['subscription_status'] === 'trial' ? 'selected' : ''; ?>>Trial</option>
                                         <option value="active" <?php echo $company['subscription_status'] === 'active' ? 'selected' : ''; ?>>Active</option>
@@ -218,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="mb-3">
-                            <label for="trial_ends_at" class="form-label">Trial Ends At</label>
+                            <label for="trial_ends_at" class="form-label"><?php echo __('trial_ends_at'); ?></label>
                             <input type="date" class="form-control" id="trial_ends_at" name="trial_ends_at" 
                                    value="<?php echo $company['trial_ends_at'] ?? ''; ?>">
                         </div>
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
                                        <?php echo $company['is_active'] ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="is_active">
-                                    Company is active
+                                    <?php echo __('company_is_active'); ?>
                                 </label>
                             </div>
                         </div>
@@ -237,25 +237,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="row">
                     <div class="col-12">
-                        <h5 class="mb-3">Limits</h5>
+                        <h5 class="mb-3"><?php echo __('limits'); ?></h5>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="max_employees" class="form-label">Max Employees</label>
+                                    <label for="max_employees" class="form-label"><?php echo __('max_employees'); ?></label>
                                     <input type="number" class="form-control" id="max_employees" name="max_employees" 
                                            value="<?php echo $company['max_employees']; ?>" min="1" max="1000">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="max_machines" class="form-label">Max Machines</label>
+                                    <label for="max_machines" class="form-label"><?php echo __('max_machines'); ?></label>
                                     <input type="number" class="form-control" id="max_machines" name="max_machines" 
                                            value="<?php echo $company['max_machines']; ?>" min="1" max="1000">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="max_projects" class="form-label">Max Projects</label>
+                                    <label for="max_projects" class="form-label"><?php echo __('max_projects'); ?></label>
                                     <input type="number" class="form-control" id="max_projects" name="max_projects" 
                                            value="<?php echo $company['max_projects']; ?>" min="1" max="1000">
                                 </div>
@@ -267,10 +267,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row mt-4">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Update Company
+                            <i class="fas fa-save"></i> <?php echo __('update_company'); ?>
                         </button>
                         <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                         </a>
                     </div>
                 </div>

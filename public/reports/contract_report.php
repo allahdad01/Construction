@@ -127,31 +127,31 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Contract Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
-                                    <td><strong>Total Active Contracts</strong></td>
+                                    <td><strong><?php echo __('total_active_contracts'); ?></strong></td>
                                     <td><?php echo number_format((float)$total_contracts); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Earnings</strong></td>
+                                    <td><strong><?php echo __('total_earnings'); ?></strong></td>
                                     <td class="text-success"><?php echo formatCurrency((float)$total_earnings); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Working Hours</strong></td>
-                                    <td><?php echo number_format((float)$total_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('total_working_hours'); ?></strong></td>
+                                    <td><?php echo number_format((float)$total_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Earnings per Contract</strong></td>
+                                    <td><strong><?php echo __('average_earnings_per_contract'); ?></strong></td>
                                     <td><?php echo formatCurrency((float)$avg_earnings); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Hours per Contract</strong></td>
-                                    <td><?php echo number_format((float)$avg_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('average_hours_per_contract'); ?></strong></td>
+                                    <td><?php echo number_format((float)$avg_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -164,18 +164,18 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Performance by Contract Type</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('performance_by_contract_type'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Count</th>
-                                    <th>Avg Rate</th>
-                                    <th>Total Hours</th>
-                                    <th>Total Earnings</th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('count'); ?></th>
+                                    <th><?php echo __('avg_rate'); ?></th>
+                                    <th><?php echo __('total_hours'); ?></th>
+                                    <th><?php echo __('total_earnings'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -201,7 +201,7 @@ try {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Contract Performance</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_performance'); ?></h6>
                 </div>
                 <div class="card-body">
                     <canvas id="contractPerformanceChart" height="100"></canvas>
@@ -213,7 +213,7 @@ try {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Contract Status</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_status'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="fixed-chart">
@@ -221,16 +221,16 @@ try {
                     </div>
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Active Contracts</span>
+                            <span><?php echo __('active_contracts'); ?></span>
                             <span><?php echo number_format((float)$total_contracts); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Total Earnings</span>
+                            <span><?php echo __('total_earnings'); ?></span>
                             <span><?php echo formatCurrency((float)$total_earnings); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Total Hours</span>
-                            <span><?php echo number_format((float)$total_hours, 1); ?> hrs</span>
+                            <span><?php echo __('total_hours'); ?></span>
+                            <span><?php echo number_format((float)$total_hours, 1); ?> <?php echo __('hours'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -243,27 +243,27 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Contract Details</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('contract_details'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped" id="contractTable">
                             <thead>
                                 <tr>
-                                    <th>Contract</th>
-                                    <th>Project</th>
-                                    <th>Machine</th>
-                                    <th>Employee</th>
-                                    <th>Type</th>
-                                    <th>Rate</th>
-                                    <th>Working Hours</th>
-                                    <th>Working Days</th>
-                                    <th>Earnings</th>
+                                    <th><?php echo __('contract'); ?></th>
+                                    <th><?php echo __('project'); ?></th>
+                                    <th><?php echo __('machine'); ?></th>
+                                    <th><?php echo __('employee'); ?></th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('rate'); ?></th>
+                                    <th><?php echo __('working_hours'); ?></th>
+                                    <th><?php echo __('working_days'); ?></th>
+                                    <th><?php echo __('earnings'); ?></th>
                                     <?php if (!$is_super_admin): ?>
-                                    <th>Payments</th>
-                                    <th>Remaining</th>
+                                    <th><?php echo __('payments'); ?></th>
+                                    <th><?php echo __('remaining'); ?></th>
                                     <?php endif; ?>
-                                    <th>Progress</th>
+                                    <th><?php echo __('progress'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -287,8 +287,8 @@ try {
                                         </span>
                                     </td>
                                     <td><?php echo formatCurrencyAmount($contract['rate_amount'], $contract['currency'] ?? 'USD'); ?></td>
-                                    <td><?php echo number_format((float)$contract['total_hours'], 1); ?> hrs</td>
-                                    <td><?php echo number_format((float)$contract['working_days']); ?> days</td>
+                                    <td><?php echo number_format((float)$contract['total_hours'], 1); ?> <?php echo __('hours'); ?></td>
+                                    <td><?php echo number_format((float)$contract['working_days']); ?> <?php echo __('days'); ?></td>
                                     <td class="text-success"><?php echo formatCurrencyAmount($contract['earnings'], $contract['currency'] ?? 'USD'); ?></td>
                                     <?php if (!$is_super_admin): ?>
                                     <td class="text-info"><?php echo formatCurrencyAmount($contract['payments_received'], $contract['currency'] ?? 'USD'); ?></td>
@@ -322,7 +322,7 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Top Performing Contracts</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('top_performing_contracts'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -337,7 +337,7 @@ try {
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                #<?php echo $index + 1; ?> Contract</div>
+                                                #<?php echo $index + 1; ?> <?php echo __('contract'); ?></div>
                                             <div class="h6 mb-0 font-weight-bold text-gray-800">
                                                 <?php echo htmlspecialchars($contract['contract_code']); ?>
                                             </div>
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?php echo json_encode(array_slice(array_column($contract_data, 'contract_code'), 0, 10)); ?>,
             datasets: [{
-                label: 'Earnings',
+                label: '<?php echo __('earnings'); ?>',
                 data: <?php echo json_encode(array_slice(array_column($contract_data, 'earnings'), 0, 10)); ?>,
                 backgroundColor: 'rgba(40, 167, 69, 0.8)',
                 borderColor: 'rgb(40, 167, 69)',
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, chart) {
-                        return 'Earnings: $' + number_format(tooltipItem.yLabel);
+                        return '<?php echo __('earnings'); ?>: $' + number_format(tooltipItem.yLabel);
                     }
                 }
             }
@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusChart = new Chart(statusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Active', 'Completed', 'Pending'],
+            labels: ['<?php echo __('active'); ?>', '<?php echo __('completed'); ?>', '<?php echo __('pending'); ?>'],
             datasets: [{
                 data: [
                     <?php echo $total_contracts; ?>,

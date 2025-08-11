@@ -106,31 +106,31 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
-                                    <td><strong>Total Active Machines</strong></td>
+                                    <td><strong><?php echo __('total_active_machines'); ?></strong></td>
                                     <td><?php echo number_format($total_machines); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Earnings</strong></td>
+                                    <td><strong><?php echo __('total_earnings'); ?></strong></td>
                                     <td class="text-success"><?php echo formatCurrency($total_earnings); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Working Hours</strong></td>
-                                    <td><?php echo number_format($total_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('total_working_hours'); ?></strong></td>
+                                    <td><?php echo number_format($total_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Earnings per Machine</strong></td>
+                                    <td><strong><?php echo __('average_earnings_per_machine'); ?></strong></td>
                                     <td><?php echo formatCurrency($avg_earnings); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Hours per Machine</strong></td>
-                                    <td><?php echo number_format($avg_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('average_hours_per_machine'); ?></strong></td>
+                                    <td><?php echo number_format($avg_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -143,18 +143,18 @@ try {
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Performance by Machine Type</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('performance_by_machine_type'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Count</th>
-                                    <th>Avg Year</th>
-                                    <th>Total Hours</th>
-                                    <th>Total Earnings</th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('count'); ?></th>
+                                    <th><?php echo __('avg_year'); ?></th>
+                                    <th><?php echo __('total_hours'); ?></th>
+                                    <th><?php echo __('total_earnings'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -180,7 +180,7 @@ try {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Performance</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_performance'); ?></h6>
                 </div>
                 <div class="card-body">
                     <canvas id="machinePerformanceChart" height="100"></canvas>
@@ -192,7 +192,7 @@ try {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Utilization</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_utilization'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="fixed-chart">
@@ -200,16 +200,16 @@ try {
                     </div>
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Active Machines</span>
+                            <span><?php echo __('active_machines'); ?></span>
                             <span><?php echo number_format($total_machines); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Total Earnings</span>
+                            <span><?php echo __('total_earnings'); ?></span>
                             <span><?php echo formatCurrency($total_earnings); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span>Total Hours</span>
-                            <span><?php echo number_format($total_hours, 1); ?> hrs</span>
+                            <span><?php echo __('total_hours'); ?></span>
+                            <span><?php echo number_format($total_hours, 1); ?> <?php echo __('hours'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -222,26 +222,26 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Details</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_details'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped" id="machineTable">
                             <thead>
                                 <tr>
-                                    <th>Machine</th>
-                                    <th>Type</th>
-                                    <th>Model</th>
-                                    <th>Year</th>
-                                    <th>Capacity</th>
-                                    <th>Fuel Type</th>
-                                    <th>Active Contracts</th>
-                                    <th>Working Hours</th>
+                                    <th><?php echo __('machine'); ?></th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('model'); ?></th>
+                                    <th><?php echo __('year'); ?></th>
+                                    <th><?php echo __('capacity'); ?></th>
+                                    <th><?php echo __('fuel_type'); ?></th>
+                                    <th><?php echo __('active_contracts'); ?></th>
+                                    <th><?php echo __('working_hours'); ?></th>
                                     <?php if (!$is_super_admin): ?>
-                                    <th>Working Days</th>
+                                    <th><?php echo __('working_days'); ?></th>
                                     <?php endif; ?>
-                                    <th>Earnings</th>
-                                    <th>Utilization</th>
+                                    <th><?php echo __('earnings'); ?></th>
+                                    <th><?php echo __('utilization'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -268,9 +268,9 @@ try {
                                     <td><?php echo htmlspecialchars($machine['capacity']); ?></td>
                                     <td><?php echo ucfirst($machine['fuel_type']); ?></td>
                                     <td><?php echo number_format($machine['active_contracts']); ?></td>
-                                    <td><?php echo number_format($machine['total_hours'], 1); ?> hrs</td>
+                                    <td><?php echo number_format($machine['total_hours'], 1); ?> <?php echo __('hours'); ?></td>
                                     <?php if (!$is_super_admin): ?>
-                                    <td><?php echo number_format($machine['working_days']); ?> days</td>
+                                    <td><?php echo number_format($machine['working_days']); ?> <?php echo __('days'); ?></td>
                                     <?php endif; ?>
                                     <td class="text-success"><?php echo formatCurrency($machine['earnings']); ?></td>
                                     <td>
@@ -302,7 +302,7 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Top Performing Machines</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('top_performing_machines'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -317,7 +317,7 @@ try {
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                #<?php echo $index + 1; ?> Machine</div>
+                                                #<?php echo $index + 1; ?> <?php echo __('machine'); ?></div>
                                             <div class="h6 mb-0 font-weight-bold text-gray-800">
                                                 <?php echo htmlspecialchars($machine['machine_code']); ?>
                                             </div>
@@ -347,19 +347,19 @@ try {
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Machine Age Analysis</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('machine_age_analysis'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>Age Distribution</h6>
+                            <h6><?php echo __('age_distribution'); ?></h6>
                             <div class="table-responsive">
                                 <table class="table table-sm">
                                     <thead>
                                         <tr>
-                                            <th>Age Range</th>
-                                            <th>Count</th>
-                                            <th>Avg Earnings</th>
+                                            <th><?php echo __('age_range'); ?></th>
+                                            <th><?php echo __('count'); ?></th>
+                                            <th><?php echo __('avg_earnings'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -393,14 +393,14 @@ try {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6>Fuel Type Analysis</h6>
+                            <h6><?php echo __('fuel_type_analysis'); ?></h6>
                             <div class="table-responsive">
                                 <table class="table table-sm">
                                     <thead>
                                         <tr>
-                                            <th>Fuel Type</th>
-                                            <th>Count</th>
-                                            <th>Avg Hours</th>
+                                            <th><?php echo __('fuel_type'); ?></th>
+                                            <th><?php echo __('count'); ?></th>
+                                            <th><?php echo __('avg_hours'); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -416,7 +416,7 @@ try {
                                         <tr>
                                             <td><?php echo ucfirst($fuel); ?></td>
                                             <td><?php echo number_format($count); ?></td>
-                                            <td><?php echo number_format($avg_hours, 1); ?> hrs</td>
+                                            <td><?php echo number_format($avg_hours, 1); ?> <?php echo __('hours'); ?></td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?php echo json_encode(array_slice(array_column($machine_data, 'machine_code'), 0, 10)); ?>,
             datasets: [{
-                label: 'Earnings',
+                label: '<?php echo __('earnings'); ?>',
                 data: <?php echo json_encode(array_slice(array_column($machine_data, 'earnings'), 0, 10)); ?>,
                 backgroundColor: 'rgba(78, 115, 223, 0.8)',
                 borderColor: 'rgb(78, 115, 223)',
@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, chart) {
-                        return 'Earnings: $' + number_format(tooltipItem.yLabel);
+                        return '<?php echo __('earnings'); ?>: $' + number_format(tooltipItem.yLabel);
                     }
                 }
             }
@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const utilizationChart = new Chart(utilizationCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Active', 'Idle', 'Maintenance'],
+            labels: ['<?php echo __('active'); ?>', '<?php echo __('idle'); ?>', '<?php echo __('maintenance'); ?>'],
             datasets: [{
                 data: [
                     <?php echo $total_machines; ?>,

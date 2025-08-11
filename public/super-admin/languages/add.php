@@ -59,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Add New Language</h1>
+        <h1 class="h3 mb-0 text-gray-800"><?php echo __('add_new_language'); ?></h1>
         <a href="index.php" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left"></i> Back to Languages
+            <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
         </a>
     </div>
 
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Language Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('language_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
@@ -89,22 +89,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="language_code" class="form-label">
-                                        <i class="fas fa-code"></i> Language Code *
+                                        <i class="fas fa-code"></i> <?php echo __('language_code'); ?> *
                                     </label>
                                     <input type="text" class="form-control" id="language_code" name="language_code" 
                                            value="<?php echo htmlspecialchars($_POST['language_code'] ?? ''); ?>" 
                                            maxlength="5" required>
-                                    <small class="text-muted">ISO language code (e.g., en, da, ps, fr, es)</small>
+                                    <small class="text-muted"><?php echo __('iso_language_code'); ?> (e.g., en, da, ps, fr, es)</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="language_name" class="form-label">
-                                        <i class="fas fa-language"></i> Language Name (English) *
+                                        <i class="fas fa-language"></i> <?php echo __('language_name'); ?> (English) *
                                     </label>
                                     <input type="text" class="form-control" id="language_name" name="language_name" 
                                            value="<?php echo htmlspecialchars($_POST['language_name'] ?? ''); ?>" required>
-                                    <small class="text-muted">Language name in English</small>
+                                    <small class="text-muted"><?php echo __('language_name_in_english'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -113,23 +113,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="language_name_native" class="form-label">
-                                        <i class="fas fa-font"></i> Native Language Name *
+                                        <i class="fas fa-font"></i> <?php echo __('native_language_name'); ?> *
                                     </label>
                                     <input type="text" class="form-control" id="language_name_native" name="language_name_native" 
                                            value="<?php echo htmlspecialchars($_POST['language_name_native'] ?? ''); ?>" required>
-                                    <small class="text-muted">Language name in its native script</small>
+                                    <small class="text-muted"><?php echo __('language_name_in_its_native_script'); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="direction" class="form-label">
-                                        <i class="fas fa-text-width"></i> Text Direction *
+                                        <i class="fas fa-text-width"></i> <?php echo __('text_direction'); ?> *
                                     </label>
                                     <select class="form-control" id="direction" name="direction" required>
                                         <option value="ltr" <?php echo ($_POST['direction'] ?? 'ltr') === 'ltr' ? 'selected' : ''; ?>>Left to Right (LTR)</option>
                                         <option value="rtl" <?php echo ($_POST['direction'] ?? '') === 'rtl' ? 'selected' : ''; ?>>Right to Left (RTL)</option>
                                     </select>
-                                    <small class="text-muted">Text direction for this language</small>
+                                    <small class="text-muted"><?php echo __('text_direction_for_this_language'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -139,18 +139,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
                                        <?php echo isset($_POST['is_active']) ? 'checked' : ''; ?>>
                                 <label class="form-check-label" for="is_active">
-                                    <i class="fas fa-check-circle"></i> Active Language
+                                    <i class="fas fa-check-circle"></i> <?php echo __('active_language'); ?>
                                 </label>
-                                <small class="text-muted d-block">Active languages are available for companies to select</small>
+                                <small class="text-muted d-block"><?php echo __('active_languages_are_available_for_companies_to_select'); ?></small>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a href="index.php" class="btn btn-secondary me-md-2">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Language
+                                <i class="fas fa-save"></i> <?php echo __('add_language'); ?>
                             </button>
                         </div>
                     </form>
@@ -161,10 +161,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('information'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <h6>Language Code Guidelines</h6>
+                    <h6><?php echo __('language_code_guidelines'); ?></h6>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-check text-success"></i> Use ISO 639-1 codes (2 letters)</li>
                         <li><i class="fas fa-check text-success"></i> Examples: en, fr, es, da, ps</li>
@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <hr>
                     
-                    <h6>Text Direction</h6>
+                    <h6><?php echo __('text_direction'); ?></h6>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-arrow-right text-primary"></i> <strong>LTR:</strong> English, French, Spanish</li>
                         <li><i class="fas fa-arrow-left text-info"></i> <strong>RTL:</strong> Arabic, Persian, Pashto</li>
@@ -182,15 +182,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <hr>
                     
-                    <h6>Examples</h6>
+                    <h6><?php echo __('examples'); ?></h6>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Code</th>
-                                    <th>Name</th>
-                                    <th>Native</th>
-                                    <th>Direction</th>
+                                    <th><?php echo __('code'); ?></th>
+                                    <th><?php echo __('name'); ?></th>
+                                    <th><?php echo __('native'); ?></th>
+                                    <th><?php echo __('direction'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -226,18 +226,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Next Steps</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('next_steps'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
                         <a href="translations.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-language"></i> Add Translations
+                            <i class="fas fa-language"></i> <?php echo __('add_translations'); ?>
                         </a>
                         <a href="import.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-upload"></i> Import Translations
+                            <i class="fas fa-upload"></i> <?php echo __('import_translations'); ?>
                         </a>
                         <a href="index.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-list"></i> View All Languages
+                            <i class="fas fa-list"></i> <?php echo __('view_all_languages'); ?>
                         </a>
                     </div>
                 </div>

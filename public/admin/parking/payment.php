@@ -177,11 +177,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-credit-card"></i> Parking Rental Payment
+            <i class="fas fa-credit-card"></i> <?php echo __('parking_rental_payment'); ?>
         </h1>
         <div>
             <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Rental
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rental'); ?>
             </a>
         </div>
     </div>
@@ -199,22 +199,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Payment Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6">
                             <?php if ($end_date && $end_date > $start_date): ?>
                                 <h4 class="text-primary"><?php echo formatCurrencyAmount($total_amount, $rental['currency'] ?? 'USD'); ?></h4>
-                                <small class="text-muted">Total Amount</small>
+                                <small class="text-muted"><?php echo __('total_amount'); ?></small>
                             <?php else: ?>
                                 <h4 class="text-primary"><?php echo formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD'); ?></h4>
-                                <small class="text-muted">Current Amount</small>
+                                <small class="text-muted"><?php echo __('current_amount'); ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="col-6">
                             <h4 class="text-success"><?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></h4>
-                            <small class="text-muted">Total Paid</small>
+                            <small class="text-muted"><?php echo __('total_paid'); ?></small>
                         </div>
                     </div>
                     <hr>
@@ -222,9 +222,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h4 class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>">
                             <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
                         </h4>
-                        <small class="text-muted">Remaining Amount</small>
+                        <small class="text-muted"><?php echo __('remaining_amount'); ?></small>
                         <?php if ($remaining_amount <= 0): ?>
-                            <br><span class="badge bg-success">Fully Paid</span>
+                            <br><span class="badge bg-success"><?php echo __('fully_paid'); ?></span>
                         <?php endif; ?>
                     </div>
                     <?php if (!$end_date || $end_date <= $start_date): ?>
@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="text-center">
                             <small class="text-info">
                                 <i class="fas fa-info-circle"></i> 
-                                Ongoing rental - amount increases daily (<?php echo $current_days; ?> days so far)
+                                <?php echo __('ongoing_rental'); ?> - <?php echo __('amount_increases_daily'); ?> (<?php echo $current_days; ?> <?php echo __('days_so_far'); ?>)
                             </small>
                         </div>
                     <?php endif; ?>
@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="text-center">
                             <small class="text-warning">
                                 <i class="fas fa-clock"></i> 
-                                Late payment for ended rental (ended on <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>)
+                                <?php echo __('late_payment_for_ended_rental'); ?> (<?php echo __('ended_on'); ?> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>)
                             </small>
                         </div>
                     <?php endif; ?>
@@ -253,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Record Payment</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('record_payment'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if ($remaining_amount > 0): ?>
@@ -261,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="payment_amount" class="form-label">Payment Amount *</label>
+                                        <label for="payment_amount" class="form-label"><?php echo __('payment_amount'); ?> *</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
                                                 <?php 
@@ -272,12 +272,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input type="number" step="0.01" class="form-control" id="payment_amount" name="payment_amount" 
                                                    value="<?php echo $remaining_amount; ?>" max="<?php echo $remaining_amount; ?>" required>
                                         </div>
-                                        <small class="text-muted">Maximum: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?></small>
+                                        <small class="text-muted"><?php echo __('maximum'); ?>: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?></small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="payment_date" class="form-label">Payment Date *</label>
+                                        <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
                                         <input type="date" class="form-control" id="payment_date" name="payment_date" 
                                                value="<?php echo date('Y-m-d'); ?>" required>
                                     </div>
@@ -287,52 +287,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="payment_method" class="form-label">Payment Method *</label>
+                                        <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?> *</label>
                                         <select class="form-control" id="payment_method" name="payment_method" required>
-                                            <option value="">Select Payment Method</option>
-                                            <option value="cash">Cash</option>
-                                            <option value="bank_transfer">Bank Transfer</option>
-                                            <option value="credit_card">Credit Card</option>
-                                            <option value="debit_card">Debit Card</option>
-                                            <option value="mobile_payment">Mobile Payment</option>
-                                            <option value="check">Check</option>
-                                            <option value="other">Other</option>
+                                            <option value=""><?php echo __('select_payment_method'); ?></option>
+                                            <option value="cash"><?php echo __('cash'); ?></option>
+                                            <option value="bank_transfer"><?php echo __('bank_transfer'); ?></option>
+                                            <option value="credit_card"><?php echo __('credit_card'); ?></option>
+                                            <option value="debit_card"><?php echo __('debit_card'); ?></option>
+                                            <option value="mobile_payment"><?php echo __('mobile_payment'); ?></option>
+                                            <option value="check"><?php echo __('check'); ?></option>
+                                            <option value="other"><?php echo __('other'); ?></option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="reference_number" class="form-label">Reference Number</label>
+                                        <label for="reference_number" class="form-label"><?php echo __('reference_number'); ?></label>
                                         <input type="text" class="form-control" id="reference_number" name="reference_number" 
                                                placeholder="Transaction ID, Check #, etc."
                                                style="text-transform: none;" autocomplete="off" spellcheck="false">
-                                        <small class="form-text text-muted">You can use spaces in reference numbers.</small>
+                                        <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_reference_numbers'); ?></small>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="notes" class="form-label">Payment Notes</label>
+                                <label for="notes" class="form-label"><?php echo __('payment_notes'); ?></label>
                                 <textarea class="form-control" id="notes" name="notes" rows="2" 
                                           placeholder="Additional payment details..."
                                           style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
-                                <small class="form-text text-muted">You can use spaces in payment notes.</small>
+                                <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_payment_notes'); ?></small>
                             </div>
 
                             <div class="d-flex justify-content-between">
                                 <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Cancel
+                                    <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                                 </a>
                                 <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save"></i> Record Payment
+                                    <i class="fas fa-save"></i> <?php echo __('record_payment'); ?>
                                 </button>
                             </div>
                         </form>
                     <?php else: ?>
                         <div class="text-center py-4">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <h5 class="text-success">Fully Paid!</h5>
-                            <p class="text-muted">This rental has been fully paid.</p>
+                            <h5 class="text-success"><?php echo __('fully_paid'); ?>!</h5>
+                            <p class="text-muted"><?php echo __('this_rental_has_been_fully_paid'); ?></p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -343,25 +343,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Payment History -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Payment History</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_history'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($payments)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">No payments recorded yet.</p>
+                    <p class="text-muted"><?php echo __('no_payments_recorded_yet'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="paymentsTable">
                         <thead>
                             <tr>
-                                <th>Payment Code</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Reference</th>
-                                <th>Notes</th>
+                                <th><?php echo __('payment_code'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('method'); ?></th>
+                                <th><?php echo __('reference'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -405,26 +405,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Rental Information -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Rental Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('rental_information'); ?></h6>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Rental Code:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
-                    <p><strong>Client:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                    <p><strong>Parking Space:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
+                    <p><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                    <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Start Date:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
+                    <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
                     <?php if (!empty($rental['end_date'])): ?>
-                        <p><strong>End Date:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?></p>
+                        <p><strong><?php echo __('end_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?></p>
                     <?php endif; ?>
-                    <p><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                    <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
                     <?php if ($rental['status'] === 'ended'): ?>
-                        <p><strong>Status:</strong> 
-                            <span class="badge bg-secondary">Ended</span>
+                        <p><strong><?php echo __('status'); ?>:</strong> 
+                            <span class="badge bg-secondary"><?php echo __('ended'); ?></span>
                             <?php if ($remaining_amount > 0): ?>
-                                <span class="badge bg-warning">Pending Payment</span>
+                                <span class="badge bg-warning"><?php echo __('pending_payment'); ?></span>
                             <?php endif; ?>
                         </p>
                     <?php endif; ?>

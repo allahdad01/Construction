@@ -254,20 +254,20 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user"></i> Employee Details
+            <i class="fas fa-user"></i> <?php echo __('employee_details'); ?>
         </h1>
         <div class="d-flex">
             <a href="edit.php?id=<?php echo $employee_id; ?>" class="btn btn-warning me-2">
-                <i class="fas fa-edit"></i> Edit Employee
+                <i class="fas fa-edit"></i> <?php echo __('edit_employee'); ?>
             </a>
             <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#addLeaveModal">
-                <i class="fas fa-calendar-times"></i> Add Leave Days
+                <i class="fas fa-calendar-times"></i> <?php echo __('add_leave_days'); ?>
             </button>
             <a href="print.php?id=<?php echo $employee_id; ?>" target="_blank" class="btn btn-outline-dark me-2">
-                <i class="fas fa-print"></i> Print
+                <i class="fas fa-print"></i> <?php echo __('print'); ?>
             </a>
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Employees
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_employees'); ?>
             </a>
         </div>
     </div>
@@ -367,7 +367,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Contracts
+                                <?php echo __('total_contracts'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $contract_stats['total_contracts']; ?></div>
                         </div>
@@ -385,7 +385,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Hours Worked
+                                <?php echo __('total_hours_worked'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($contract_stats['total_hours_worked'] ?? 0, 1); ?> hrs</div>
                         </div>
@@ -403,7 +403,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Attendance Rate
+                                <?php echo __('attendance_rate'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 <?php 
@@ -427,7 +427,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Leave Days Used
+                                <?php echo __('leave_days_used'); ?>
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $attendance_stats['leave_days']; ?></div>
                         </div>
@@ -446,12 +446,12 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Personal Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('personal_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Full Name:</strong><br>
+                            <p><strong><?php echo __('full_name'); ?>:</strong><br>
                                 <?php 
                                 if (!empty($employee['first_name']) && !empty($employee['last_name'])) {
                                     echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']);
@@ -462,27 +462,27 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                                 }
                                 ?>
                             </p>
-                            <p><strong>Employee Code:</strong><br><?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?></p>
-                            <p><strong>Position:</strong><br><?php echo htmlspecialchars($employee['position'] ?? 'N/A'); ?></p>
-                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'] ?? 0, $salary_currency); ?></p>
+                            <p><strong><?php echo __('employee_code'); ?>:</strong><br><?php echo htmlspecialchars($employee['employee_code'] ?? 'N/A'); ?></p>
+                            <p><strong><?php echo __('position'); ?>:</strong><br><?php echo htmlspecialchars($employee['position'] ?? 'N/A'); ?></p>
+                            <p><strong><?php echo __('monthly_salary'); ?>:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'] ?? 0, $salary_currency); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Email:</strong><br>
+                            <p><strong><?php echo __('email'); ?>:</strong><br>
                                 <?php if (!empty($employee['email'])): ?>
                                     <a href="mailto:<?php echo htmlspecialchars($employee['email']); ?>"><?php echo htmlspecialchars($employee['email']); ?></a>
                                 <?php else: ?>
-                                    Not provided
+                                    <?php echo __('not_provided'); ?>
                                 <?php endif; ?>
                             </p>
-                            <p><strong>Phone:</strong><br>
+                            <p><strong><?php echo __('phone'); ?>:</strong><br>
                                 <?php if (!empty($employee['phone'])): ?>
                                     <a href="tel:<?php echo htmlspecialchars($employee['phone']); ?>"><?php echo htmlspecialchars($employee['phone']); ?></a>
                                 <?php else: ?>
-                                    Not provided
+                                    <?php echo __('not_provided'); ?>
                                 <?php endif; ?>
                             </p>
-                            <p><strong>Status:</strong><br><span class="badge bg-<?php echo ($employee['status'] ?? 'inactive') === 'active' ? 'success' : 'secondary'; ?>"><?php echo ucfirst($employee['status'] ?? 'inactive'); ?></span></p>
-                            <p><strong>Hire Date:</strong><br><?php echo $employee['hire_date'] ? date('M j, Y', strtotime($employee['hire_date'])) : 'N/A'; ?></p>
+                            <p><strong><?php echo __('status'); ?>:</strong><br><span class="badge bg-<?php echo ($employee['status'] ?? 'inactive') === 'active' ? 'success' : 'secondary'; ?>"><?php echo ucfirst($employee['status'] ?? 'inactive'); ?></span></p>
+                            <p><strong><?php echo __('hire_date'); ?>:</strong><br><?php echo $employee['hire_date'] ? date('M j, Y', strtotime($employee['hire_date'])) : 'N/A'; ?></p>
                         </div>
                     </div>
                 </div>
@@ -493,19 +493,19 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Salary Information</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('salary_information'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Monthly Salary:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'], $salary_currency); ?></p>
-                            <p><strong>Daily Rate:</strong><br><?php echo formatCurrencyAmount(($employee['monthly_salary'] ?? 0) / 30, $salary_currency); ?></p>
-                            <p><strong>Earned This Month:</strong><br><?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></p>
+                            <p><strong><?php echo __('monthly_salary'); ?>:</strong><br><?php echo formatCurrencyAmount($employee['monthly_salary'], $salary_currency); ?></p>
+                            <p><strong><?php echo __('daily_rate'); ?>:</strong><br><?php echo formatCurrencyAmount(($employee['monthly_salary'] ?? 0) / 30, $salary_currency); ?></p>
+                            <p><strong><?php echo __('earned_this_month'); ?>:</strong><br><?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Total Paid:</strong><br><?php echo formatCurrencyAmount($total_paid, $salary_currency); ?></p>
-                            <p><strong>Remaining:</strong><br><?php echo formatCurrencyAmount($salary_remaining, $salary_currency); ?></p>
-                            <p><strong>Days Worked:</strong><br><?php echo $days_worked_this_month; ?> days</p>
+                            <p><strong><?php echo __('total_paid'); ?>:</strong><br><?php echo formatCurrencyAmount($total_paid, $salary_currency); ?></p>
+                            <p><strong><?php echo __('remaining'); ?>:</strong><br><?php echo formatCurrencyAmount($salary_remaining, $salary_currency); ?></p>
+                            <p><strong><?php echo __('days_worked'); ?>:</strong><br><?php echo $days_worked_this_month; ?> days</p>
                         </div>
                     </div>
                     
@@ -519,7 +519,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                             <?php echo number_format($payment_percentage, 1); ?>%
                         </div>
                     </div>
-                    <small class="text-muted">Payment Progress: <?php echo formatCurrencyAmount($total_paid, $salary_currency); ?> of <?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></small>
+                    <small class="text-muted"><?php echo __('payment_progress'); ?>: <?php echo formatCurrencyAmount($total_paid, $salary_currency); ?> <?php echo __('of'); ?> <?php echo formatCurrencyAmount($salary_earned_this_month, $salary_currency); ?></small>
                 </div>
             </div>
         </div>
@@ -531,13 +531,13 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Contracts</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_contracts'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_contracts)): ?>
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-file-contract fa-3x mb-3"></i>
-                            <p>No contracts assigned yet</p>
+                            <p><?php echo __('no_contracts_assigned_yet'); ?></p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($recent_contracts as $contract): ?>
@@ -567,7 +567,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-warning">Recent Leave History</h6>
+                    <h6 class="m-0 font-weight-bold text-warning"><?php echo __('recent_leave_history'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php
@@ -586,7 +586,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <?php if (empty($leave_records)): ?>
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-calendar-times fa-3x mb-3"></i>
-                            <p>No leave records yet</p>
+                            <p><?php echo __('no_leave_records_yet'); ?></p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($leave_records as $leave): ?>
@@ -608,7 +608,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                         
                         <div class="text-center mt-3">
                             <a href="../attendance/index.php?employee_id=<?php echo $employee_id; ?>" class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-list"></i> View All Attendance
+                                <i class="fas fa-list"></i> <?php echo __('view_all_attendance'); ?>
                             </a>
                         </div>
                     <?php endif; ?>
@@ -620,13 +620,13 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Salary Payments</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('recent_salary_payments'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (empty($salary_payments)): ?>
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-money-bill fa-3x mb-3"></i>
-                            <p>No salary payments yet</p>
+                            <p><?php echo __('no_salary_payments_yet'); ?></p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($salary_payments as $payment): ?>
@@ -662,32 +662,32 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('quick_actions'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <a href="edit.php?id=<?php echo $employee_id; ?>" class="btn btn-outline-warning w-100">
                                 <i class="fas fa-edit fa-2x mb-2"></i>
-                                <br>Edit Employee
+                                <br><?php echo __('edit_employee'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="../attendance/?employee_id=<?php echo $employee_id; ?>" class="btn btn-outline-info w-100">
                                 <i class="fas fa-clock fa-2x mb-2"></i>
-                                <br>View Attendance
+                                <br><?php echo __('view_attendance'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="../salary-payments/?employee_id=<?php echo $employee_id; ?>" class="btn btn-outline-success w-100">
                                 <i class="fas fa-money-bill fa-2x mb-2"></i>
-                                <br>Salary Payments
+                                <br><?php echo __('salary_payments'); ?>
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="../contracts/?employee_id=<?php echo $employee_id; ?>" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-file-contract fa-2x mb-2"></i>
-                                <br>View Contracts
+                                <br><?php echo __('view_contracts'); ?>
                             </a>
                         </div>
                     </div>
@@ -704,7 +704,7 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
             <form action="" method="POST" id="addLeaveForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addLeaveModalLabel">
-                        <i class="fas fa-calendar-times"></i> Add Leave Days for <?php echo htmlspecialchars($display_name); ?>
+                        <i class="fas fa-calendar-times"></i> <?php echo __('add_leave_days_for'); ?> <?php echo htmlspecialchars($display_name); ?>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -713,65 +713,65 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     <input type="hidden" name="employee_id" value="<?php echo $employee_id; ?>">
                     
                     <div class="mb-3">
-                        <label for="leave_type" class="form-label">Leave Type *</label>
+                        <label for="leave_type" class="form-label"><?php echo __('leave_type'); ?> *</label>
                         <select class="form-control" id="leave_type" name="leave_type" required>
-                            <option value="">Select Leave Type</option>
-                            <option value="sick">Sick Leave</option>
-                            <option value="vacation">Vacation</option>
-                            <option value="personal">Personal Leave</option>
-                            <option value="emergency">Emergency Leave</option>
-                            <option value="maternity">Maternity Leave</option>
-                            <option value="paternity">Paternity Leave</option>
-                            <option value="unpaid">Unpaid Leave</option>
+                            <option value=""><?php echo __('select_leave_type'); ?></option>
+                            <option value="sick"><?php echo __('sick_leave'); ?></option>
+                            <option value="vacation"><?php echo __('vacation'); ?></option>
+                            <option value="personal"><?php echo __('personal_leave'); ?></option>
+                            <option value="emergency"><?php echo __('emergency_leave'); ?></option>
+                            <option value="maternity"><?php echo __('maternity_leave'); ?></option>
+                            <option value="paternity"><?php echo __('paternity_leave'); ?></option>
+                            <option value="unpaid"><?php echo __('unpaid_leave'); ?></option>
                         </select>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="start_date" class="form-label">Start Date *</label>
+                                <label for="start_date" class="form-label"><?php echo __('start_date'); ?> *</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="end_date" class="form-label">End Date *</label>
+                                <label for="end_date" class="form-label"><?php echo __('end_date'); ?> *</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date" required>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="leave_reason" class="form-label">Reason</label>
-                        <textarea class="form-control" id="leave_reason" name="leave_reason" rows="3" placeholder="Optional: Provide reason for leave"></textarea>
+                        <label for="leave_reason" class="form-label"><?php echo __('reason'); ?></label>
+                        <textarea class="form-control" id="leave_reason" name="leave_reason" rows="3" placeholder="<?php echo __('optional_provide_reason_for_leave'); ?>"></textarea>
                     </div>
 
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="half_day" name="half_day" value="1">
                             <label class="form-check-label" for="half_day">
-                                Half Day Leave (applies to single day only)
+                                <?php echo __('half_day_leave_applies_to_single_day_only'); ?>
                             </label>
                         </div>
                     </div>
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Current Leave Status:</strong><br>
-                        Total Leave Days: <?php echo $employee['total_leave_days'] ?? 20; ?> days<br>
-                        Used Leave Days: <?php echo $employee['used_leave_days'] ?? 0; ?> days<br>
-                        Remaining: <?php echo $employee['remaining_leave_days'] ?? 20; ?> days
+                        <strong><?php echo __('current_leave_status'); ?>:</strong><br>
+                        <?php echo __('total_leave_days'); ?>: <?php echo $employee['total_leave_days'] ?? 20; ?> <?php echo __('days'); ?><br>
+                        <?php echo __('used_leave_days'); ?>: <?php echo $employee['used_leave_days'] ?? 0; ?> <?php echo __('days'); ?><br>
+                        <?php echo __('remaining'); ?>: <?php echo $employee['remaining_leave_days'] ?? 20; ?> <?php echo __('days'); ?>
                     </div>
 
                     <div id="leaveDaysCount" class="alert alert-warning" style="display: none;">
                         <i class="fas fa-calculator"></i>
-                        <strong>Selected Range:</strong> <span id="daysText"></span>
+                        <strong><?php echo __('selected_range'); ?>:</strong> <span id="daysText"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo __('cancel'); ?></button>
                     <button type="submit" class="btn btn-info">
-                        <i class="fas fa-plus"></i> Add Leave Days
+                        <i class="fas fa-plus"></i> <?php echo __('add_leave_days'); ?>
                     </button>
                 </div>
             </form>

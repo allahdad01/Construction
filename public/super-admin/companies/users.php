@@ -92,17 +92,17 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-users"></i> Company Users - <?php echo htmlspecialchars($company['company_name']); ?>
+            <i class="fas fa-users"></i> <?php echo __('company_users'); ?> - <?php echo htmlspecialchars($company['company_name']); ?>
         </h1>
         <div>
             <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Companies
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/user-add.php?company_id=<?php echo $company['id']; ?>" class="btn btn-success btn-sm">
-                <i class="fas fa-plus"></i> Add User
+                <i class="fas fa-plus"></i> <?php echo __('add_user'); ?>
             </a>
             <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
-                <i class="fas fa-eye"></i> View Company
+                <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
     </div>
@@ -114,7 +114,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Users</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1"><?php echo __('total_users'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $total_users; ?></div>
                         </div>
                         <div class="col-auto">
@@ -130,7 +130,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Users</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('active_users'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $active_users; ?></div>
                         </div>
                         <div class="col-auto">
@@ -146,7 +146,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Admin Users</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><?php echo __('admin_users'); ?></div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $admin_users; ?></div>
                         </div>
                         <div class="col-auto">
@@ -161,44 +161,44 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     <!-- Search and Filter -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Search & Filter</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('search_and_filter'); ?></h6>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
                 <input type="hidden" name="company_id" value="<?php echo $company_id; ?>">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search" 
-                           placeholder="Search by name, email, or username" 
+                           placeholder="<?php echo __('search_by_name_email_or_username'); ?>" 
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="role">
-                        <option value="">All Roles</option>
-                        <option value="company_admin" <?php echo $role_filter === 'company_admin' ? 'selected' : ''; ?>>Company Admin</option>
-                        <option value="employee" <?php echo $role_filter === 'employee' ? 'selected' : ''; ?>>Employee</option>
-                        <option value="driver" <?php echo $role_filter === 'driver' ? 'selected' : ''; ?>>Driver</option>
-                        <option value="driver_assistant" <?php echo $role_filter === 'driver_assistant' ? 'selected' : ''; ?>>Driver Assistant</option>
-                        <option value="parking_user" <?php echo $role_filter === 'parking_user' ? 'selected' : ''; ?>>Parking User</option>
-                        <option value="area_renter" <?php echo $role_filter === 'area_renter' ? 'selected' : ''; ?>>Area Renter</option>
-                        <option value="container_renter" <?php echo $role_filter === 'container_renter' ? 'selected' : ''; ?>>Container Renter</option>
+                        <option value=""><?php echo __('all_roles'); ?></option>
+                        <option value="company_admin" <?php echo $role_filter === 'company_admin' ? 'selected' : ''; ?>><?php echo __('company_admin'); ?></option>
+                        <option value="employee" <?php echo $role_filter === 'employee' ? 'selected' : ''; ?>><?php echo __('employee'); ?></option>
+                        <option value="driver" <?php echo $role_filter === 'driver' ? 'selected' : ''; ?>><?php echo __('driver'); ?></option>
+                        <option value="driver_assistant" <?php echo $role_filter === 'driver_assistant' ? 'selected' : ''; ?>><?php echo __('driver_assistant'); ?></option>
+                        <option value="parking_user" <?php echo $role_filter === 'parking_user' ? 'selected' : ''; ?>><?php echo __('parking_user'); ?></option>
+                        <option value="area_renter" <?php echo $role_filter === 'area_renter' ? 'selected' : ''; ?>><?php echo __('area_renter'); ?></option>
+                        <option value="container_renter" <?php echo $role_filter === 'container_renter' ? 'selected' : ''; ?>><?php echo __('container_renter'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-control" name="status">
-                        <option value="">All Status</option>
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                        <option value="suspended" <?php echo $status_filter === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
+                        <option value=""><?php echo __('all_status'); ?></option>
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>><?php echo __('active'); ?></option>
+                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>><?php echo __('inactive'); ?></option>
+                        <option value="suspended" <?php echo $status_filter === 'suspended' ? 'selected' : ''; ?>><?php echo __('suspended'); ?></option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> <?php echo __('search'); ?>
                     </button>
                 </div>
                 <div class="col-md-2">
                     <a href="?company_id=<?php echo $company_id; ?>" class="btn btn-secondary w-100">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <?php echo __('clear'); ?>
                     </a>
                 </div>
             </form>
@@ -208,27 +208,27 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     <!-- Users Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Users List</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('users_list'); ?></h6>
         </div>
         <div class="card-body">
             <?php if (empty($users)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">No users found for this company.</p>
+                    <p class="text-gray-500"><?php echo __('no_users_found_for_this_company'); ?></p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Last Login</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th><?php echo __('name'); ?></th>
+                                <th><?php echo __('email'); ?></th>
+                                <th><?php echo __('username'); ?></th>
+                                <th><?php echo __('role'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('last_login'); ?></th>
+                                <th><?php echo __('created'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -261,7 +261,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                                         </span>
                                     </td>
                                     <td>
-                                        <?php echo $user['last_login'] ? formatDateTime($user['last_login']) : 'Never'; ?>
+                                        <?php echo $user['last_login'] ? formatDateTime($user['last_login']) : __('never'); ?>
                                     </td>
                                     <td><?php echo formatDate($user['created_at']); ?></td>
                                     <td>
@@ -302,7 +302,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?company_id=<?php echo $company_id; ?>&page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&role=<?php echo urlencode($role_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Previous
+                                        <?php echo __('previous'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -318,7 +318,7 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                             <?php if ($page < $total_pages): ?>
                                 <li class="page-item">
                                     <a class="page-link" href="?company_id=<?php echo $company_id; ?>&page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&role=<?php echo urlencode($role_filter); ?>&status=<?php echo urlencode($status_filter); ?>">
-                                        Next
+                                        <?php echo __('next'); ?>
                                     </a>
                                 </li>
                             <?php endif; ?>

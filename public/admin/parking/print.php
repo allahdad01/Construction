@@ -148,39 +148,39 @@ foreach ($rentals as $r) {
 </head>
 <body>
 <div class="actions">
-  <a href="javascript:window.print()" class="btn btn-primary">Print</a>
-  <a href="view.php?id=<?php echo $space_id; ?>" class="btn">Back</a>
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="view.php?id=<?php echo $space_id; ?>" class="btn"><?php echo __('back'); ?></a>
 </div>
 
-<h2>Parking Space Summary</h2>
-<div class="muted small">Printed: <?php echo date('Y-m-d H:i'); ?></div>
+<h2><?php echo __('parking_space_summary'); ?></h2>
+<div class="muted small"><?php echo __('printed'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
 
 <div class="card">
-  <div class="card-header">Space Information</div>
+  <div class="card-header"><?php echo __('space_information'); ?></div>
   <div class="card-body">
     <div class="grid">
-      <div><strong>Space Code:</strong> <?php echo htmlspecialchars($space['space_code']); ?></div>
-      <div><strong>Status:</strong> <?php echo ucfirst(htmlspecialchars($space['status'])); ?></div>
-      <div><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></div>
-      <div><strong>Vehicle Category:</strong> <?php echo htmlspecialchars($space['vehicle_category'] ?? 'general'); ?></div>
-      <div><strong>Space Type:</strong> <?php echo htmlspecialchars($space['space_type'] ?? 'standard'); ?></div>
-      <div><strong>Size:</strong> <?php echo htmlspecialchars($space['size'] ?? 'medium'); ?></div>
-      <div><strong>Monthly Rate:</strong> <?php echo formatCurrencyAmount((float)($space['monthly_rate'] ?? 0), $currency); ?></div>
-      <div><strong>Daily Rate:</strong> <?php echo formatCurrencyAmount(((float)($space['monthly_rate'] ?? 0))/30.0, $currency); ?></div>
-      <div><strong>Capacity:</strong> <?php echo isset($space['capacity']) ? (int)$space['capacity'] : '-'; ?></div>
-      <div><strong>Created:</strong> <?php echo !empty($space['created_at']) ? date('M j, Y', strtotime($space['created_at'])) : '-'; ?></div>
+      <div><strong><?php echo __('space_code'); ?>:</strong> <?php echo htmlspecialchars($space['space_code']); ?></div>
+      <div><strong><?php echo __('status'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($space['status'])); ?></div>
+      <div><strong><?php echo __('space_name'); ?>:</strong> <?php echo htmlspecialchars($space['space_name'] ?? 'N/A'); ?></div>
+      <div><strong><?php echo __('vehicle_category'); ?>:</strong> <?php echo htmlspecialchars($space['vehicle_category'] ?? 'general'); ?></div>
+      <div><strong><?php echo __('space_type'); ?>:</strong> <?php echo htmlspecialchars($space['space_type'] ?? 'standard'); ?></div>
+      <div><strong><?php echo __('size'); ?>:</strong> <?php echo htmlspecialchars($space['size'] ?? 'medium'); ?></div>
+      <div><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount((float)($space['monthly_rate'] ?? 0), $currency); ?></div>
+      <div><strong><?php echo __('daily_rate'); ?>:</strong> <?php echo formatCurrencyAmount(((float)($space['monthly_rate'] ?? 0))/30.0, $currency); ?></div>
+      <div><strong><?php echo __('capacity'); ?>:</strong> <?php echo isset($space['capacity']) ? (int)$space['capacity'] : '-'; ?></div>
+      <div><strong><?php echo __('created'); ?>:</strong> <?php echo !empty($space['created_at']) ? date('M j, Y', strtotime($space['created_at'])) : '-'; ?></div>
       <?php if (!empty($space['description'])): ?>
-      <div style="grid-column: 1 / span 2;"><strong>Description:</strong><br><span class="small wrap"><?php echo nl2br(htmlspecialchars($space['description'])); ?></span></div>
+      <div style="grid-column: 1 / span 2;"><strong><?php echo __('description'); ?>:</strong><br><span class="small wrap"><?php echo nl2br(htmlspecialchars($space['description'])); ?></span></div>
       <?php endif; ?>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Earnings</div>
+  <div class="card-header"><?php echo __('earnings'); ?></div>
   <div class="card-body">
     <?php if (empty($total_by_currency)): ?>
-      <div class="small muted">No payments received.</div>
+      <div class="small muted"><?php echo __('no_payments_received'); ?></div>
     <?php else: ?>
       <div class="stacked">
         <?php foreach ($total_by_currency as $cur => $sum): ?>
@@ -192,25 +192,25 @@ foreach ($rentals as $r) {
 </div>
 
 <div class="card">
-  <div class="card-header">Rentals</div>
+  <div class="card-header"><?php echo __('rentals'); ?></div>
   <div class="card-body">
     <?php if (empty($perRental)): ?>
-      <div class="small muted">No rentals found for this space.</div>
+      <div class="small muted"><?php echo __('no_rentals_found_for_this_space'); ?></div>
     <?php else: ?>
       <table class="table-narrow rentals-table">
         <thead>
           <tr>
-            <th class="w-12">Rental Code</th>
-            <th class="w-14">Client</th>
-            <th class="w-14">Contact</th>
-            <th class="w-14">Vehicle</th>
-            <th class="w-18">Period</th>
-            <th class="w-10 right">Days</th>
-            <th class="w-14 right">Rate (mo)</th>
-            <th class="w-14 right">Expected</th>
-            <th class="w-14 right">Paid</th>
-            <th class="w-14 right">Due</th>
-            <th class="w-10">Status</th>
+            <th class="w-12"><?php echo __('rental_code'); ?></th>
+            <th class="w-14"><?php echo __('client'); ?></th>
+            <th class="w-14"><?php echo __('contact'); ?></th>
+            <th class="w-14"><?php echo __('vehicle'); ?></th>
+            <th class="w-18"><?php echo __('period'); ?></th>
+            <th class="w-10 right"><?php echo __('days'); ?></th>
+            <th class="w-14 right"><?php echo __('rate_mo'); ?></th>
+            <th class="w-14 right"><?php echo __('expected'); ?></th>
+            <th class="w-14 right"><?php echo __('paid'); ?></th>
+            <th class="w-14 right"><?php echo __('due'); ?></th>
+            <th class="w-10"><?php echo __('status'); ?></th>
           </tr>
         </thead>
         <tbody>
@@ -234,27 +234,27 @@ foreach ($rentals as $r) {
           <?php endforeach; ?>
         </tbody>
       </table>
-      <div class="small muted" style="margin-top:8px;">Overall expected: <?php echo formatCurrencyAmount($overall_expected, $currency); ?></div>
+      <div class="small muted" style="margin-top:8px;"><?php echo __('overall_expected'); ?>: <?php echo formatCurrencyAmount($overall_expected, $currency); ?></div>
     <?php endif; ?>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header">Payments</div>
+  <div class="card-header"><?php echo __('payments'); ?></div>
   <div class="card-body">
     <?php if (empty($payments)): ?>
-      <div class="small muted">No payments found.</div>
+      <div class="small muted"><?php echo __('no_payments_found'); ?></div>
     <?php else: ?>
       <table class="table-narrow">
         <thead>
           <tr>
-            <th class="w-14">Date</th>
-            <th class="w-18">Reference</th>
-            <th class="w-16">Method</th>
-            <th class="w-12">Status</th>
-            <th class="w-20">Notes</th>
-            <th class="w-10 right">Amount</th>
-            <th class="w-10">Currency</th>
+            <th class="w-14"><?php echo __('date'); ?></th>
+            <th class="w-18"><?php echo __('reference'); ?></th>
+            <th class="w-16"><?php echo __('method'); ?></th>
+            <th class="w-12"><?php echo __('status'); ?></th>
+            <th class="w-20"><?php echo __('notes'); ?></th>
+            <th class="w-10 right"><?php echo __('amount'); ?></th>
+            <th class="w-10"><?php echo __('currency'); ?></th>
           </tr>
         </thead>
         <tbody>

@@ -120,31 +120,31 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Summary</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_summary'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
-                                    <td><strong>Total Employees</strong></td>
+                                    <td><strong><?php echo __('total_employees'); ?></strong></td>
                                     <td><?php echo number_format($total_employees); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Salary Budget</strong></td>
+                                    <td><strong><?php echo __('total_salary_budget'); ?></strong></td>
                                     <td><?php echo formatCurrency($total_salary); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Salary</strong></td>
+                                    <td><strong><?php echo __('average_salary'); ?></strong></td>
                                     <td><?php echo formatCurrency($avg_salary); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Working Hours</strong></td>
-                                    <td><?php echo number_format($total_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('total_working_hours'); ?></strong></td>
+                                    <td><?php echo number_format($total_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Average Hours per Employee</strong></td>
-                                    <td><?php echo number_format($avg_hours, 1); ?> hours</td>
+                                    <td><strong><?php echo __('average_hours_per_employee'); ?></strong></td>
+                                    <td><?php echo number_format($avg_hours, 1); ?> <?php echo __('hours'); ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -157,17 +157,17 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Performance by Type</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('performance_by_type'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Count</th>
-                                    <th>Avg Salary</th>
-                                    <th>Avg Hours</th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('count'); ?></th>
+                                    <th><?php echo __('avg_salary'); ?></th>
+                                    <th><?php echo __('avg_hours'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -192,7 +192,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Performance</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_performance'); ?></h6>
                 </div>
                 <div class="card-body">
                     <canvas id="employeePerformanceChart" height="100"></canvas>
@@ -204,7 +204,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Attendance Overview</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('attendance_overview'); ?></h6>
                 </div>
                 <div class="card-body">
                     <?php if (!$is_super_admin && !empty($attendance_data)): ?>
@@ -218,20 +218,20 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                             $total_leave = array_sum(array_column($attendance_data, 'leave_days'));
                             ?>
                             <div class="d-flex justify-content-between mb-1">
-                                <span>Present Days</span>
+                                <span><?php echo __('present_days'); ?></span>
                                 <span><?php echo number_format($total_present); ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
-                                <span>Absent Days</span>
+                                <span><?php echo __('absent_days'); ?></span>
                                 <span><?php echo number_format($total_absent); ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
-                                <span>Leave Days</span>
+                                <span><?php echo __('leave_days'); ?></span>
                                 <span><?php echo number_format($total_leave); ?></span>
                             </div>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">Attendance data not available</p>
+                        <p class="text-muted"><?php echo __('attendance_data_not_available'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -243,25 +243,25 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Employee Details</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('employee_details'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped" id="employeeTable">
                             <thead>
                                 <tr>
-                                    <th>Employee</th>
-                                    <th>Position</th>
-                                    <th>Type</th>
-                                    <th>Salary</th>
-                                    <th>Working Hours</th>
-                                    <th>Working Days</th>
+                                    <th><?php echo __('employee'); ?></th>
+                                    <th><?php echo __('position'); ?></th>
+                                    <th><?php echo __('type'); ?></th>
+                                    <th><?php echo __('salary'); ?></th>
+                                    <th><?php echo __('working_hours'); ?></th>
+                                    <th><?php echo __('working_days'); ?></th>
                                     <?php if (!$is_super_admin): ?>
-                                    <th>Earnings</th>
+                                    <th><?php echo __('earnings'); ?></th>
                                     <?php endif; ?>
-                                    <th>Leave Used</th>
-                                    <th>Leave Remaining</th>
-                                    <th>Performance</th>
+                                    <th><?php echo __('leave_used'); ?></th>
+                                    <th><?php echo __('leave_remaining'); ?></th>
+                                    <th><?php echo __('performance'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -280,13 +280,13 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                         </span>
                                     </td>
                                     <td><?php echo formatCurrency($employee['monthly_salary']); ?></td>
-                                    <td><?php echo number_format($employee['total_hours'], 1); ?> hrs</td>
-                                    <td><?php echo number_format($employee['working_days']); ?> days</td>
+                                    <td><?php echo number_format($employee['total_hours'], 1); ?> <?php echo __('hours'); ?></td>
+                                    <td><?php echo number_format($employee['working_days']); ?> <?php echo __('days'); ?></td>
                                     <?php if (!$is_super_admin): ?>
                                     <td class="text-success"><?php echo formatCurrency($employee['earnings']); ?></td>
                                     <?php endif; ?>
-                                    <td><?php echo number_format($employee['used_leave_days']); ?> days</td>
-                                    <td><?php echo number_format($employee['remaining_leave_days']); ?> days</td>
+                                    <td><?php echo number_format($employee['used_leave_days']); ?> <?php echo __('days'); ?></td>
+                                    <td><?php echo number_format($employee['remaining_leave_days']); ?> <?php echo __('days'); ?></td>
                                     <td>
                                         <?php
                                         $performance = 0;
@@ -314,7 +314,7 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
         <div class="col-12">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Top Performers</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('top_performers'); ?></h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -329,12 +329,12 @@ $avg_hours = $total_employees > 0 ? $total_hours / $total_employees : 0;
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                #<?php echo $index + 1; ?> Performer</div>
+                                                #<?php echo $index + 1; ?> <?php echo __('performer'); ?></div>
                                             <div class="h6 mb-0 font-weight-bold text-gray-800">
                                                 <?php echo htmlspecialchars($employee['name']); ?>
                                             </div>
                                             <div class="text-xs text-muted">
-                                                <?php echo number_format($employee['total_hours'], 1); ?> hours
+                                                <?php echo number_format($employee['total_hours'], 1); ?> <?php echo __('hours'); ?>
                                             </div>
                                         </div>
                                         <div class="col-auto">
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?php echo json_encode(array_slice(array_column($employee_data, 'name'), 0, 10)); ?>,
             datasets: [{
-                label: 'Working Hours',
+                label: '<?php echo __('working_hours'); ?>',
                 data: <?php echo json_encode(array_slice(array_column($employee_data, 'total_hours'), 0, 10)); ?>,
                 backgroundColor: 'rgba(78, 115, 223, 0.8)',
                 borderColor: 'rgb(78, 115, 223)',
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ticks: {
                         beginAtZero: true,
                         callback: function(value) {
-                            return value + ' hrs';
+                            return value + ' <?php echo __('hours'); ?>';
                         }
                     }
                 }]
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, chart) {
-                        return 'Hours: ' + tooltipItem.yLabel + ' hrs';
+                        return '<?php echo __('hours'); ?>: ' + tooltipItem.yLabel + ' <?php echo __('hours'); ?>';
                     }
                 }
             }
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const attendanceChart = new Chart(attendanceCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Present', 'Absent', 'Leave'],
+            labels: ['<?php echo __('present'); ?>', '<?php echo __('absent'); ?>', '<?php echo __('leave'); ?>'],
             datasets: [{
                 data: [
                     <?php echo array_sum(array_column($attendance_data, 'present_days')); ?>,

@@ -343,7 +343,7 @@ $chartDatasetsJson = json_encode($chart_datasets);
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <div class="text-muted small mb-2">No payments in last 30 days</div>
+                        <div class="text-muted small mb-2"><?php echo __('no_payments_in_last_30_days'); ?></div>
                     <?php endif; ?>
                     <canvas id="revenueChart" width="100%" height="40"></canvas>
                 </div>

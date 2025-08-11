@@ -184,12 +184,12 @@ function generateContractCode($company_id) {
                                     <?php endforeach; ?>
                                 </select>
                                 <a href="../projects/add.php" class="btn btn-outline-primary" title="Add New Project">
-                                    <i class="fas fa-plus"></i> Add Project
+                                    <i class="fas fa-plus"></i> <?php echo __('add_project'); ?>
                                 </a>
                             </div>
                             <?php if (empty($projects)): ?>
                                 <small class="form-text text-muted">
-                                    <i class="fas fa-info-circle"></i> No active projects available. <a href="../projects/add.php">Create one first</a>.
+                                    <i class="fas fa-info-circle"></i> <?php echo __('no_active_projects_available'); ?> <a href="../projects/add.php"><?php echo __('create_one_first'); ?></a>.
                                 </small>
                             <?php endif; ?>
                         </div>
@@ -204,7 +204,7 @@ function generateContractCode($company_id) {
                                 </option>
                                 <?php endforeach; ?>
                             </select>
-                            <small class="text-muted">Hold Ctrl/Cmd to select multiple machines.</small>
+                            <small class="text-muted"><?php echo __('hold_ctrl_cmd_to_select_multiple_machines'); ?></small>
                         </div>
                     </div>
                 </div>
@@ -233,8 +233,8 @@ function generateContractCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
-                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>>AFN</option>
+                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
                             </select>
                         </div>
                     </div>

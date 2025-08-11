@@ -36,20 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $required_fields = ['employee_id', 'payment_date', 'amount_paid'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                throw new Exception("Field '$field' is required.");
+                throw new Exception(__('field') . " '$field' " . __('is_required'));
             }
         }
 
         // Validate amount
         if (!is_numeric($_POST['amount_paid']) || $_POST['amount_paid'] <= 0) {
-            throw new Exception("Amount paid must be a positive number.");
+            throw new Exception(__('amount_paid') . ' ' . __('must_be_a_positive_number'));
         }
 
         // Validate payment date
         $payment_date = $_POST['payment_date'];
         $today = date('Y-m-d');
         if ($payment_date > $today) {
-            throw new Exception("Payment date cannot be in the future.");
+            throw new Exception(__('payment_date') . ' ' . __('cannot_be_in_the_future'));
         }
 
         // Generate payment code
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $conn->commit();
 
-        $success = "Salary payment added successfully! Payment Code: $payment_code";
+        $success = __('salary_payment_added_successfully') . '! ' . __('payment_code') . ': ' . $payment_code;
 
         // Use JavaScript redirect instead of header redirect
         echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
@@ -159,7 +159,7 @@ function generateSalaryPaymentCode($company_id) {
                                     $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDays) : $employee['monthly_salary'];
                                 ?>
                                 <option value="<?php echo $employee['id']; ?>" data-salary="<?php echo $displaySalary; ?>" data-worked-days="<?php echo $workedDays; ?>" data-is-driver="<?php echo $isDriver ? '1':'0'; ?>" <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? ('Worked Days: ' . $workedDays . ' => ') : 'Monthly: ') . formatCurrency($displaySalary)); ?>
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $workedDays . ' => ') : __('monthly') . ': ') . formatCurrency($displaySalary)); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -186,16 +186,10 @@ function generateSalaryPaymentCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                             <select class="form-control" id="currency" name="currency" required>
-                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>>USD - US Dollar ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>>AFN - Afghan Afghani (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>>EUR - Euro (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>>GBP - British Pound (£)</option>
-                                <option value="JPY" <?php echo (($_POST['currency'] ?? '') == 'JPY') ? 'selected' : ''; ?>>JPY - Japanese Yen (¥)</option>
-                                <option value="CAD" <?php echo (($_POST['currency'] ?? '') == 'CAD') ? 'selected' : ''; ?>>CAD - Canadian Dollar (C$)</option>
-                                <option value="AUD" <?php echo (($_POST['currency'] ?? '') == 'AUD') ? 'selected' : ''; ?>>AUD - Australian Dollar (A$)</option>
-                                <option value="CHF" <?php echo (($_POST['currency'] ?? '') == 'CHF') ? 'selected' : ''; ?>>CHF - Swiss Franc (CHF)</option>
-                                <option value="CNY" <?php echo (($_POST['currency'] ?? '') == 'CNY') ? 'selected' : ''; ?>>CNY - Chinese Yuan (¥)</option>
-                                <option value="INR" <?php echo (($_POST['currency'] ?? '') == 'INR') ? 'selected' : ''; ?>>INR - Indian Rupee (₹)</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('USD'); ?> - <?php echo __('USD'); ?> ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('AFN'); ?> - <?php echo __('AFN'); ?> (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('EUR'); ?> - <?php echo __('EUR'); ?> (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('GBP'); ?> - <?php echo __('GBP'); ?> (£)</option>
                             </select>
                         </div>
                     </div>

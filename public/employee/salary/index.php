@@ -25,7 +25,7 @@ $empStmt = $conn->prepare($empSql);
 $empStmt->execute([$company_id, $user['id']]);
 $employee = $empStmt->fetch(PDO::FETCH_ASSOC);
 
-$page_title = 'My Salary Payments';
+$page_title = __('my_salary_payments');
 
 $payments = [];
 if ($employee) {
@@ -36,23 +36,23 @@ if ($employee) {
 ?>
 <div class="container-fluid">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="mb-0">My Salary</h3>
+    <h3 class="mb-0"><?php echo __('my_salary'); ?></h3>
   </div>
 
   <?php if (!$employee): ?>
-    <div class="alert alert-warning">No employee record linked to your user account.</div>
+    <div class="alert alert-warning"><?php echo __('no_employee_record_linked_to_your_user_account'); ?></div>
   <?php else: ?>
     <div class="row g-4 mb-3">
       <div class="col-md-4">
         <div class="card"><div class="card-body">
-          <div class="text-muted">Position</div>
+          <div class="text-muted"><?php echo __('position'); ?></div>
           <div><strong><?php echo htmlspecialchars($employee['position'] ?? ''); ?></strong></div>
         </div></div>
       </div>
       <?php if (isset($employee['salary_amount'])): ?>
       <div class="col-md-4">
         <div class="card"><div class="card-body">
-          <div class="text-muted">Base Salary</div>
+          <div class="text-muted"><?php echo __('base_salary'); ?></div>
           <div><strong><?php echo formatCurrencyAmount((float)($employee['salary_amount'] ?? 0), $employee['salary_currency'] ?? 'USD'); ?></strong></div>
         </div></div>
       </div>
@@ -60,13 +60,13 @@ if ($employee) {
     </div>
 
     <div class="card">
-      <div class="card-header">Payments</div>
+      <div class="card-header"><?php echo __('payments'); ?></div>
       <div class="card-body table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>Code</th><th>Period</th><th class="text-end">Amount</th><th>Date</th></tr></thead>
+          <thead><tr><th><?php echo __('code'); ?></th><th><?php echo __('period'); ?></th><th class="text-end"><?php echo __('amount'); ?></th><th><?php echo __('date'); ?></th></tr></thead>
           <tbody>
             <?php if (empty($payments)): ?>
-              <tr><td colspan="4" class="text-muted">No salary payments found.</td></tr>
+              <tr><td colspan="4" class="text-muted"><?php echo __('no_salary_payments_found'); ?></td></tr>
             <?php else: foreach ($payments as $p): ?>
               <tr>
                 <td><?php echo htmlspecialchars($p['payment_code'] ?? ('#'.$p['id'])); ?></td>
