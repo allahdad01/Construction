@@ -33,6 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Generate expense code
         $expense_code = generateExpenseCode();
 
+        // Ensure platform company (id=0) exists for FK
+        try {
+            $chk = $conn->query("SELECT id FROM companies WHERE id = 0");
+            $existsZero = $chk && $chk->fetchColumn();
+            if (!$existsZero) {
+                $ins = $conn->prepare("INSERT INTO companies (id, company_code, company_name, subscription_plan, subscription_status, is_active, created_at, updated_at) VALUES (0, 'PLATFORM0', 'Platform', 'basic', 'active', 1, NOW(), NOW())");
+                $ins->execute();
+            }
+        } catch (Exception $e) { /* ignore */ }
+
         // Start transaction
         $conn->beginTransaction();
 
