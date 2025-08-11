@@ -5,7 +5,6 @@ require_once '../../../config/currency_helper.php';
 require_once '../../../includes/header.php';
 
 requireAuth();
-// Only drivers can add hours
 requireAnyRole(['driver']);
 
 $db = new Database();

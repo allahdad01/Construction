@@ -10,6 +10,7 @@ $db = new Database();
 $conn = $db->getConnection();
 $user = getCurrentUser();
 $company_id = getCurrentCompanyId();
+$isAssistant = ($user['role'] === 'driver_assistant');
 
 // Resolve employee for current user
 $empStmt = $conn->prepare('SELECT id, name FROM employees WHERE company_id = ? AND user_id = ? LIMIT 1');
@@ -65,10 +66,10 @@ if ($employee) {
       <div class="card-header">Worked Contracts</div>
       <div class="card-body table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>Code</th><th>Type</th><th>Status</th><th class="text-end">Hours Worked</th><th class="text-end">Rate</th><th class="text-end">Actions</th></tr></thead>
+          <thead><tr><th>Code</th><th>Type</th><th>Status</th><th class="text-end">Hours Worked</th><th class="text-end">Rate</th><?php if (!$isAssistant): ?><th class="text-end">Actions</th><?php endif; ?></tr></thead>
           <tbody>
             <?php if (empty($items)): ?>
-              <tr><td colspan="6" class="text-muted">No contract work found for the selected period.</td></tr>
+              <tr><td colspan="<?php echo $isAssistant ? 5 : 6; ?>" class="text-muted">No contract work found for the selected period.</td></tr>
             <?php else: foreach ($items as $it): ?>
               <tr>
                 <td><?php echo htmlspecialchars($it['contract_code']); ?></td>
@@ -76,10 +77,12 @@ if ($employee) {
                 <td><?php echo htmlspecialchars(ucfirst($it['status'])); ?></td>
                 <td class="text-end"><?php echo number_format((float)$it['hours_worked'], 1); ?></td>
                 <td class="text-end"><?php echo formatCurrencyAmount((float)($it['rate_amount'] ?? 0), $it['currency'] ?? 'USD'); ?></td>
+                <?php if (!$isAssistant): ?>
                 <td class="text-end">
                   <a href="/constract360/construction/public/employee/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Add Hours</a>
                   <a href="/constract360/construction/public/employee/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> Timesheet</a>
                 </td>
+                <?php endif; ?>
               </tr>
             <?php endforeach; endif; ?>
           </tbody>

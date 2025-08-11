@@ -5,12 +5,13 @@ require_once '../../../config/currency_helper.php';
 require_once '../../../includes/header.php';
 
 requireAuth();
-requireAnyRole(['driver','driver_assistant']);
+requireAnyRole(['driver']);
 
 $db = new Database();
 $conn = $db->getConnection();
 $company_id = getCurrentCompanyId();
 $user = getCurrentUser();
+$isAssistant = ($user['role'] === 'driver_assistant');
 
 // Resolve current employee
 $empStmt = $conn->prepare('SELECT id, name FROM employees WHERE company_id = ? AND user_id = ? LIMIT 1');
@@ -45,7 +46,9 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">My Timesheet</h1>
     <div>
+      <?php if (!$isAssistant): ?>
       <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Hours</a>
+      <?php endif; ?>
       <a href="/constract360/construction/public/employee/contracts/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Contracts</a>
     </div>
   </div>
@@ -79,7 +82,9 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
         <div class="text-center py-4">
           <i class="fas fa-clock fa-3x text-gray-300 mb-3"></i>
           <p class="text-gray-500">No working hours recorded yet.</p>
+          <?php if (!$isAssistant): ?>
           <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary"><i class="fas fa-plus"></i> Add First Entry</a>
+          <?php endif; ?>
         </div>
       <?php else: ?>
         <div class="table-responsive">
