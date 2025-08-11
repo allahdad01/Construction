@@ -104,7 +104,19 @@ if (empty($all_keys)) {
         'reports_machine', 'system_settings', 'platform_settings', 'user_management',
         'language_settings', 'currency_settings', 'date_format_settings', 'timezone_settings',
         'backup_restore', 'system_logs', 'audit_trail', 'notifications', 'alerts',
-        'help_support', 'documentation', 'api_documentation', 'developer_tools'
+        'help_support', 'documentation', 'api_documentation', 'developer_tools',
+        // Newly added super-admin pages/keys
+        'super_admin_dashboard', 'quick_actions', 'add_company', 'manage_plans', 'view_payments',
+        'system_overview', 'system_information', 'total_users', 'active_companies', 'trial_companies',
+        'monthly_revenue', 'quick_links', 'manage_companies', 'subscription_plans', 'payment_history',
+        'recent_companies', 'no_companies_found', 'view_all_companies', 'recent_payments', 'no_payments_found', 'view_all_payments',
+        'subscription_plan_statistics', 'no_subscription_data_available', 'plan', 'companies',
+        'platform_expenses', 'total_usd', 'total_afn', 'monthly_usd', 'monthly_afn', 'monthly_count',
+        'total_expenses_by_currency', 'expenses', 'total', 'no_expenses_found', 'this_month_by_currency',
+        'monthly_total', 'no_expenses_this_month', 'search_filter', 'search_by_code_description_notes', 'all_types',
+        'office_supplies', 'utilities', 'rent', 'maintenance', 'marketing', 'software', 'travel', 'other',
+        'from_date', 'to_date', 'search', 'clear', 'expense_code', 'type', 'description', 'amount', 'currency', 'date',
+        'receipt', 'actions', 'na', 'confirm_delete_expense', 'platform_reports'
     ];
 }
 
