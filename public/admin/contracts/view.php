@@ -43,6 +43,27 @@ if (!$contract) {
     exit;
 }
 
+// Load linked machines (primary + additional from contract_machines)
+$linkMachines = [];
+try {
+    $machineIds = [];
+    if (!empty($contract['machine_id'])) { $machineIds[] = (int)$contract['machine_id']; }
+    $stLm = $conn->prepare('SELECT machine_id FROM contract_machines WHERE company_id = ? AND contract_id = ?');
+    $stLm->execute([$company_id, (int)$contract_id]);
+    foreach ($stLm->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $mid = (int)$row['machine_id']; if ($mid) { $machineIds[] = $mid; }
+    }
+    $machineIds = array_values(array_unique($machineIds));
+    if (!empty($machineIds)) {
+        $ph = implode(',', array_fill(0, count($machineIds), '?'));
+        $stM = $conn->prepare("SELECT id, machine_code, name, type FROM machines WHERE id IN ($ph)");
+        $stM->execute($machineIds);
+        $linkMachines = $stM->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+} catch (Exception $e) {
+    $linkMachines = [];
+}
+
 // Get working hours for this contract
 $stmt = $conn->prepare("
     SELECT wh.*, e.name as employee_name, e.employee_code
