@@ -101,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_email'] = $_POST['email'];
         
     } catch (Exception $e) {
-        // Rollback transaction on error
-        $conn->rollBack();
+        // Rollback transaction on error if active
+        if ($conn->inTransaction()) { $conn->rollBack(); }
         $error = $e->getMessage();
     }
 }
