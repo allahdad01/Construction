@@ -136,30 +136,8 @@ if ($language_id) {
         $translation_map[$translation['translation_key']] = $translation['translation_value'];
     }
 
-    // Ensure newly added known keys are present in DB for this language
-    $known_keys = $all_keys_to_display;
-    // Humanize a key (e.g., monthly_usd -> Monthly usd)
-    $humanize = function(string $k): string {
-        $s = str_replace('_', ' ', $k);
-        return ucwords($s);
-    };
-    $conn->beginTransaction();
-    try {
-        foreach ($known_keys as $k) {
-            if (!isset($translation_map[$k])) {
-                $val = $humanize($k);
-                $ins = $conn->prepare("INSERT INTO language_translations (language_id, translation_key, translation_value) VALUES (?, ?, ?)");
-                $ins->execute([$language_id, $k, $val]);
-                $translation_map[$k] = $val;
-            }
-        }
-        $conn->commit();
-    } catch (Exception $e) {
-        if ($conn->inTransaction()) { $conn->rollBack(); }
-    }
-    
     // Build complete translations array with all keys
-    foreach ($known_keys as $key) {
+    foreach ($all_keys_to_display as $key) {
         $translations[] = [
             'translation_key' => $key,
             'translation_value' => $translation_map[$key] ?? '',
