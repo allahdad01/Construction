@@ -858,33 +858,6 @@
             console.log('Enhanced JavaScript loaded successfully!');
         });
     </script>
-    <!-- Mobile off-canvas sidebar handlers -->
-    <script>
-        // Mobile off-canvas sidebar handlers
-        (function(){
-          const sidebar = document.getElementById('sidebar');
-          const overlay = document.getElementById('sidebarOverlay');
-          const toggle = document.getElementById('sidebarToggle');
-          if (toggle && sidebar && overlay) {
-            const open = ()=>{ sidebar.classList.add('open'); overlay.classList.add('show'); document.body.classList.add('no-scroll'); };
-            const close = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('show'); document.body.classList.remove('no-scroll'); };
-            toggle.addEventListener('click', function(e){ e.preventDefault(); sidebar.classList.contains('open') ? close() : open(); });
-            overlay.addEventListener('click', close);
-            window.addEventListener('resize', function(){ if (window.innerWidth >= 992) { close(); } });
-          }
-        })();
 
-        // Ensure tables are wrapped in responsive containers if not already
-        (function(){
-          document.querySelectorAll('table.table').forEach(function(tbl){
-            if (!tbl.closest('.table-responsive')) {
-              const wrap = document.createElement('div');
-              wrap.className = 'table-responsive';
-              tbl.parentNode.insertBefore(wrap, tbl);
-              wrap.appendChild(tbl);
-            }
-          });
-        })();
-    </script>
 </body>
 </html>
