@@ -122,6 +122,7 @@ foreach ($contracts as &$contract) {
     }
     
 }
+unset($contract);
 
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM contracts WHERE company_id = ?");
