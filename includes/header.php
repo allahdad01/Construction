@@ -555,8 +555,25 @@ date_default_timezone_set($company_timezone);
             to { transform: translateX(0); }
         }
     </style>
+<style>
+/* Mobile sidebar off-canvas and overlay */
+@media (max-width: 991.98px) {
+  .sidebar { transform: translateX(-100%); width: 280px; }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+}
+.sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1025; }
+.sidebar-overlay.show { display: block; }
+body.no-scroll { overflow: hidden; }
+/* Tables: ensure horizontal scroll on small screens */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 575.98px) {
+  table.table { font-size: 0.85rem; }
+}
+</style>
 </head>
 <body data-theme="<?php echo $theme_mode; ?>">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <!-- Sidebar -->
     <nav class="sidebar <?php echo $sidebar_style; ?>" id="sidebar">
         <div class="sidebar-header">
@@ -772,7 +789,7 @@ date_default_timezone_set($company_timezone);
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-link d-md-none" id="sidebarToggle">
+                        <button class="btn btn-link d-lg-none" id="sidebarToggle">
                             <i class="fas fa-bars"></i>
                         </button>
                         <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
@@ -838,7 +855,7 @@ date_default_timezone_set($company_timezone);
         </nav>
 
         <!-- Page Content -->
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-2 p-md-4">
         
         <script>
         // Define API base URL
