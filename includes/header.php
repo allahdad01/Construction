@@ -588,7 +588,7 @@ date_default_timezone_set($company_timezone);
                         </a>
                     </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
                         <i class="fas fa-chart-bar"></i>
                         <span><?php echo __('reports'); ?></span>
                     </a>
