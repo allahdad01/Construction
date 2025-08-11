@@ -115,7 +115,7 @@ if (isset($_POST['change_password'])) {
         $confirm_password = $_POST['confirm_password'];
 
         // Validate current password (always fetch fresh hash)
-        $stPwd = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $stPwd = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
         $stPwd->execute([$current_user['id']]);
         $current_hash = (string)($stPwd->fetchColumn() ?: '');
         if ($current_hash === '' || !password_verify($current_password, $current_hash)) {
@@ -133,7 +133,7 @@ if (isset($_POST['change_password'])) {
 
         // Update password
         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
         $stmt->execute([$hashed_password, $current_user['id']]);
 
         $success = __('password_changed_successfully');
