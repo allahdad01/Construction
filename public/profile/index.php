@@ -114,8 +114,11 @@ if (isset($_POST['change_password'])) {
         $new_password = $_POST['new_password'];
         $confirm_password = $_POST['confirm_password'];
 
-        // Validate current password
-        if (!password_verify($current_password, $current_user['password'])) {
+        // Validate current password (always fetch fresh hash)
+        $stPwd = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $stPwd->execute([$current_user['id']]);
+        $current_hash = (string)($stPwd->fetchColumn() ?: '');
+        if ($current_hash === '' || !password_verify($current_password, $current_hash)) {
             throw new Exception(__('current_password_incorrect'));
         }
 
