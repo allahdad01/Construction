@@ -36,25 +36,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Create expense record
-        $stmt = $conn->prepare("
-            INSERT INTO expenses (
-                company_id, expense_code, category, description, amount, currency, expense_date, 
-                payment_method, reference_number, notes, created_at
-            ) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
+        // Discover columns in expenses table
+        $available = [];
+        try { $rs = $conn->query("SHOW COLUMNS FROM expenses"); foreach ($rs->fetchAll(PDO::FETCH_ASSOC) as $c) { $available[$c['Field']] = true; } } catch (Exception $e) {}
 
-        $stmt->execute([
-            $expense_code,
-            $_POST['expense_type'],
-            $_POST['description'],
-            $_POST['amount'],
-            $_POST['currency'] ?? 'USD',
-            $_POST['expense_date'],
-            $_POST['payment_method'],
-            $_POST['reference_number'] ?: null,
-            $_POST['notes'] ?: null
-        ]);
+        // Build insert columns and values dynamically
+        $cols = [];
+        $vals = [];
+        $params = [];
+        if (!empty($available['company_id'])) { $cols[] = 'company_id'; $vals[] = '?'; $params[] = null; }
+        if (!empty($available['expense_code'])) { $cols[] = 'expense_code'; $vals[] = '?'; $params[] = $expense_code; }
+        if (!empty($available['category'])) { $cols[] = 'category'; $vals[] = '?'; $params[] = $_POST['expense_type']; }
+        if (!empty($available['description'])) { $cols[] = 'description'; $vals[] = '?'; $params[] = $_POST['description']; }
+        if (!empty($available['amount'])) { $cols[] = 'amount'; $vals[] = '?'; $params[] = $_POST['amount']; }
+        if (!empty($available['currency'])) { $cols[] = 'currency'; $vals[] = '?'; $params[] = $_POST['currency'] ?? 'USD'; }
+        if (!empty($available['expense_date'])) { $cols[] = 'expense_date'; $vals[] = '?'; $params[] = $_POST['expense_date']; }
+        if (!empty($available['payment_method'])) { $cols[] = 'payment_method'; $vals[] = '?'; $params[] = $_POST['payment_method']; }
+        if (!empty($available['reference_number'])) { $cols[] = 'reference_number'; $vals[] = '?'; $params[] = $_POST['reference_number'] ?: null; }
+        if (!empty($available['notes'])) { $cols[] = 'notes'; $vals[] = '?'; $params[] = $_POST['notes'] ?: null; }
+        if (!empty($available['created_at'])) { $cols[] = 'created_at'; $vals[] = 'NOW()'; }
+
+        $sql = 'INSERT INTO expenses (' . implode(',', $cols) . ') VALUES (' . implode(',', $vals) . ')';
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
 
         $expense_id = $conn->lastInsertId();
 
