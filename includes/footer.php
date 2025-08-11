@@ -78,17 +78,21 @@
                 mainContent.classList.add('expanded');
             }
             
-            // Mobile sidebar toggle
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
+            // Mobile sidebar initial state: collapsed
+            function setMobileState(){
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                }
             }
+            setMobileState();
             
             // Responsive sidebar behavior
             window.addEventListener('resize', function() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('show');
-                }
+                setMobileState();
             });
             
             // Enhanced Navigation

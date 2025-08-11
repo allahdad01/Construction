@@ -556,6 +556,17 @@ date_default_timezone_set($company_timezone);
             to { transform: translateX(0); }
         }
     </style>
+    <style>
+    /* Mobile adjustments without off-canvas overlay */
+    @media (max-width: 768px) {
+      .sidebar { width: 240px; }
+      .sidebar.collapsed { width: 0; overflow: hidden; }
+      .sidebar.collapsed .nav-link span { display: inline; }
+      .main-content { margin-left: 0 !important; }
+      .main-content.expanded { margin-left: 0 !important; }
+      .top-navbar { padding: 0.75rem 1rem; }
+    }
+    </style>
 </head>
 <body data-theme="<?php echo $theme_mode; ?>">
     <!-- Sidebar -->
