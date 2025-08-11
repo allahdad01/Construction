@@ -68,8 +68,8 @@
                     e.preventDefault();
                     e.stopPropagation();
                     if (window.innerWidth <= 768) {
-                        sidebar.classList.toggle('collapsed');
-                        // Do not toggle main content margin on mobile
+                        sidebar.classList.toggle('show');
+                        sidebar.classList.remove('collapsed');
                     } else {
                         sidebar.classList.toggle('collapsed');
                         mainContent.classList.toggle('expanded');
@@ -88,9 +88,10 @@
             // Mobile sidebar initial state: collapsed
             function setMobileState(){
                 if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('show');
                     sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
                 } else {
+                    sidebar.classList.remove('show');
                     sidebar.classList.remove('collapsed');
                     mainContent.classList.remove('expanded');
                 }
@@ -862,6 +863,22 @@
             window.addEventListener('unhandledrejection', function(e) {
                 console.error('Unhandled Promise Rejection:', e.reason);
                 showNotification('An error occurred. Please try again.', 'error');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarToggle = document.getElementById('sidebarToggle');
+                    
+                    // Check if sidebar is open and click is not inside sidebar or on toggle button
+                    if (sidebar && sidebar.classList.contains('show') && 
+                        !sidebar.contains(e.target) && 
+                        !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                        sidebar.classList.add('collapsed');
+                    }
+                }
             });
             
             console.log('Enhanced JavaScript loaded successfully!');

@@ -249,6 +249,9 @@ date_default_timezone_set($company_timezone);
             position: sticky;
             top: 0;
             z-index: 1020;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .navbar-brand {
@@ -425,19 +428,128 @@ date_default_timezone_set($company_timezone);
             .sidebar {
                 transform: translateX(-100%);
                 width: 280px;
+                position: fixed;
+                top: 60px; /* Height of the top navbar */
+                bottom: 0;
+                left: 0;
+                z-index: 1020;
+                max-width: 100%;
+                height: calc(100vh - 60px); /* Subtract navbar height */
+                overflow-y: auto;
             }
 
             .sidebar.show {
                 transform: translateX(0);
             }
 
+            .sidebar.collapsed {
+                width: 0;
+                transform: translateX(-100%);
+                overflow: hidden;
+            }
+
             .main-content {
                 margin-left: 0;
+                padding-top: 60px; /* Add padding to account for fixed navbar */
             }
 
             .top-navbar {
-                padding: 1rem;
+                padding: 0.5rem 1rem;
+                position: fixed;
+                width: 100%;
+                left: 0;
+                right: 0;
+                top: 0;
+                z-index: 1030;
+                height: 60px;
+                display: flex;
+                align-items: center;
             }
+
+            .top-navbar .container-fluid {
+                width: 100%;
+                padding: 0;
+            }
+
+            .top-navbar .d-flex {
+                width: 100%;
+                justify-content: space-between !important;
+                align-items: center;
+            }
+
+            .top-navbar h4 {
+                font-size: 0.9rem;
+                margin: 0 0 0 0.5rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 50%;
+            }
+
+            .top-navbar .navbar-nav {
+                align-items: center;
+                margin-left: auto;
+            }
+
+            .top-navbar .dropdown {
+                margin-left: 0.5rem;
+                position: relative;
+            }
+
+            .user-dropdown-toggle {
+                display: flex;
+                align-items: center;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .user-dropdown-toggle .d-none {
+                display: none !important;
+            }
+
+            .user-dropdown-toggle .user-avatar {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+                font-size: 0.75rem;
+                margin-right: 0.25rem;
+            }
+
+            .dropdown-menu {
+                position: fixed !important;
+                top: 60px !important;
+                left: auto !important;
+                right: 10px !important;
+                width: calc(100% - 20px);
+                max-width: 300px;
+                transform: none !important;
+                border-radius: var(--border-radius);
+                box-shadow: var(--box-shadow-lg);
+                z-index: 1050 !important;
+            }
+
+            #notificationDropdown .badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                font-size: 0.6rem;
+                padding: 0.2rem 0.3rem;
+            }
+
+            .sidebarToggle {
+                padding: 0.5rem;
+                margin-right: 0.5rem;
+            }
+        }
+
+        /* Ensure dropdowns are fully visible and outside navbar */
+        .dropdown-menu {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Ensure dropdowns have higher z-index than navbar */
+        .dropdown-menu {
+            z-index: 1050 !important;
         }
 
         /* Dark Mode Support */
@@ -559,8 +671,19 @@ date_default_timezone_set($company_timezone);
     <style>
     /* Mobile adjustments without off-canvas overlay */
     @media (max-width: 768px) {
-      .sidebar { width: 240px; }
-      .sidebar.collapsed { width: 0; overflow: hidden; }
+      .sidebar { 
+        width: 240px; 
+        transform: translateX(-100%); 
+        transition: transform 0.3s ease-in-out;
+      }
+      .sidebar.show { 
+        transform: translateX(0); 
+      }
+      .sidebar.collapsed { 
+        width: 0; 
+        transform: translateX(-100%);
+        overflow: hidden; 
+      }
       .sidebar.collapsed .nav-link span { display: none; }
       .main-content { margin-left: 0 !important; }
       .main-content.expanded { margin-left: 0 !important; }
@@ -784,7 +907,7 @@ date_default_timezone_set($company_timezone);
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-link d-md-none" id="sidebarToggle">
+                        <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
                             <i class="fas fa-bars"></i>
                         </button>
                         <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
@@ -1085,4 +1208,32 @@ date_default_timezone_set($company_timezone);
                 document.body.appendChild(errorToast);
             });
         }
+        </script>
+        <script>
+        // Improve dropdown positioning on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            function adjustDropdownPosition() {
+                if (window.innerWidth <= 768) {
+                    const dropdowns = document.querySelectorAll('.dropdown-menu');
+                    dropdowns.forEach(dropdown => {
+                        const toggle = dropdown.previousElementSibling;
+                        if (toggle) {
+                            const toggleRect = toggle.getBoundingClientRect();
+                            dropdown.style.top = `${toggleRect.bottom + 10}px`;
+                            dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
+                        }
+                    });
+                }
+            }
+
+            // Adjust on load and resize
+            adjustDropdownPosition();
+            window.addEventListener('resize', adjustDropdownPosition);
+
+            // Adjust when dropdowns are shown
+            const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('shown.bs.dropdown', adjustDropdownPosition);
+            });
+        });
         </script>
