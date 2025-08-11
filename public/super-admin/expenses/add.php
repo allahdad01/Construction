@@ -41,11 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO expenses (
                 company_id, expense_code, category, description, amount, currency, expense_date, 
                 payment_method, reference_number, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $stmt->execute([
-            1, // Default company_id for super admin expenses
             $expense_code,
             $_POST['expense_type'],
             $_POST['description'],

@@ -23,7 +23,7 @@ $stmt = $conn->prepare("
     SELECT e.*, c.company_name 
     FROM expenses e 
     LEFT JOIN companies c ON e.company_id = c.id 
-    WHERE e.id = ? AND e.company_id = 1
+    WHERE e.id = ? AND e.company_id IS NULL
 ");
 $stmt->execute([$expense_id]);
 $expense = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             UPDATE expenses SET 
                 category = ?, description = ?, amount = ?, currency = ?, expense_date = ?, 
                 payment_method = ?, reference_number = ?, notes = ?, updated_at = NOW()
-            WHERE id = ? AND company_id = 1
+            WHERE id = ? AND company_id IS NULL
         ");
 
         $stmt->execute([

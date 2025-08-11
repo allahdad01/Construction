@@ -22,8 +22,8 @@ $type_filter = $_GET['type'] ?? '';
 $date_from = $_GET['date_from'] ?? '';
 $date_to = $_GET['date_to'] ?? '';
 
-// Build query - only super admin expenses (company_id = 1)
-$where_conditions = ["company_id = 1"];
+// Build query - only super admin expenses (company_id IS NULL)
+$where_conditions = ["company_id IS NULL"];
 $params = [];
 
 if (!empty($search)) {
@@ -66,7 +66,7 @@ $stmt->execute($params);
 $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get multi-currency statistics - only super admin expenses
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id = 1");
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM expenses WHERE company_id IS NULL");
 $stmt->execute();
 $total_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
@@ -74,7 +74,7 @@ $total_expenses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $stmt = $conn->prepare("
     SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
     FROM expenses 
-    WHERE company_id = 1 
+    WHERE company_id IS NULL 
     GROUP BY currency
 ");
 $stmt->execute();
@@ -84,7 +84,7 @@ $expenses_by_currency = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $conn->prepare("
     SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
     FROM expenses 
-    WHERE company_id = 1 AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+    WHERE company_id IS NULL AND expense_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
     GROUP BY currency
 ");
 $stmt->execute();
