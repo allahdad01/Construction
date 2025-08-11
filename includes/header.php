@@ -282,145 +282,19 @@ date_default_timezone_set($company_timezone);
             position: relative;
         }
 
-        .user-dropdown-toggle {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            color: var(--gray-700);
-            text-decoration: none;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
+        .dropdown {
+            position: relative;
         }
 
-        .user-dropdown-toggle:hover {
-            background-color: var(--gray-100);
-            color: var(--primary-color);
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            margin-right: 0.5rem;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            background: white;
-        }
-
-        .card:hover {
-            box-shadow: var(--box-shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            background: white;
-            border-bottom: 1px solid var(--gray-200);
-            padding: 1.25rem 1.5rem;
-            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Buttons */
-        .btn {
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            transition: var(--transition);
-            border: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #667eea);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #4a5fd8, #5a6fd8);
-            transform: translateY(-1px);
-            box-shadow: var(--box-shadow-lg);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #20c997);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #e74c3c);
-        }
-
-        /* Forms */
-        .form-control {
-            border-radius: var(--border-radius);
-            border: 1px solid var(--gray-300);
-            padding: 0.75rem 1rem;
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Tables */
-        .table {
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-        }
-
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), #667eea);
-            color: white;
-            border: none;
-            font-weight: 600;
-            padding: 1rem;
-        }
-
-        .table tbody tr {
-            transition: var(--transition);
-        }
-
-        .table tbody tr:hover {
-            background-color: var(--gray-100);
-        }
-
-        /* Alerts */
-        .alert {
-            border-radius: var(--border-radius);
-            border: none;
-            padding: 1rem 1.25rem;
-        }
-
-        /* Badges */
-        .badge {
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            padding: 0.375rem 0.75rem;
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: auto;
+            right: 0;
+            margin-top: 0.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1050;
         }
 
         /* Responsive Design */
@@ -464,54 +338,21 @@ date_default_timezone_set($company_timezone);
                 height: 60px;
                 display: flex;
                 align-items: center;
+                background-color: white;
+                overflow: visible;
             }
 
             .top-navbar .container-fluid {
                 width: 100%;
                 padding: 0;
+                overflow: visible;
             }
 
             .top-navbar .d-flex {
                 width: 100%;
                 justify-content: space-between !important;
                 align-items: center;
-            }
-
-            .top-navbar h4 {
-                font-size: 0.9rem;
-                margin: 0 0 0 0.5rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 50%;
-            }
-
-            .top-navbar .navbar-nav {
-                align-items: center;
-                margin-left: auto;
-            }
-
-            .top-navbar .dropdown {
-                margin-left: 0.5rem;
-                position: relative;
-            }
-
-            .user-dropdown-toggle {
-                display: flex;
-                align-items: center;
-                padding: 0.25rem 0.5rem;
-            }
-
-            .user-dropdown-toggle .d-none {
-                display: none !important;
-            }
-
-            .user-dropdown-toggle .user-avatar {
-                width: 28px;
-                height: 28px;
-                min-width: 28px;
-                font-size: 0.75rem;
-                margin-right: 0.25rem;
+                overflow: visible;
             }
 
             .dropdown-menu {
@@ -527,29 +368,22 @@ date_default_timezone_set($company_timezone);
                 z-index: 1050 !important;
             }
 
-            #notificationDropdown .badge {
-                position: absolute;
-                top: -5px;
-                right: -5px;
-                font-size: 0.6rem;
-                padding: 0.2rem 0.3rem;
-            }
-
-            .sidebarToggle {
-                padding: 0.5rem;
-                margin-right: 0.5rem;
+            .top-navbar .dropdown {
+                position: static;
             }
         }
 
-        /* Ensure dropdowns are fully visible and outside navbar */
+        /* Ensure dropdowns are fully visible */
         .dropdown-menu {
             max-height: 80vh;
             overflow-y: auto;
         }
 
-        /* Ensure dropdowns have higher z-index than navbar */
-        .dropdown-menu {
-            z-index: 1050 !important;
+        /* Prevent navbar from becoming scrollable */
+        .top-navbar, 
+        .top-navbar .container-fluid, 
+        .top-navbar .d-flex {
+            overflow: visible !important;
         }
 
         /* Dark Mode Support */
@@ -1210,7 +1044,7 @@ date_default_timezone_set($company_timezone);
         }
         </script>
         <script>
-        // Improve dropdown positioning on mobile
+        // Improve dropdown positioning
         document.addEventListener('DOMContentLoaded', function() {
             function adjustDropdownPosition() {
                 if (window.innerWidth <= 768) {
@@ -1219,9 +1053,20 @@ date_default_timezone_set($company_timezone);
                         const toggle = dropdown.previousElementSibling;
                         if (toggle) {
                             const toggleRect = toggle.getBoundingClientRect();
+                            dropdown.style.position = 'fixed';
                             dropdown.style.top = `${toggleRect.bottom + 10}px`;
                             dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
+                            dropdown.style.transform = 'none';
                         }
+                    });
+                } else {
+                    // Reset desktop dropdown styles
+                    const dropdowns = document.querySelectorAll('.dropdown-menu');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.style.position = 'absolute';
+                        dropdown.style.top = '100%';
+                        dropdown.style.right = '0';
+                        dropdown.style.transform = '';
                     });
                 }
             }
