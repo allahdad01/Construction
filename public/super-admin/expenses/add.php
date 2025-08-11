@@ -183,14 +183,6 @@ function generateExpenseCode() {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="expense_date" class="form-label">Expense Date *</label>
-                                    <input type="date" class="form-control" id="expense_date" name="expense_date" 
-                                           value="<?php echo htmlspecialchars($_POST['expense_date'] ?? date('Y-m-d')); ?>" 
-                                           required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
                                     <label for="payment_method" class="form-label">Payment Method *</label>
                                     <select class="form-control" id="payment_method" name="payment_method" required>
                                         <option value="">Select Method</option>
