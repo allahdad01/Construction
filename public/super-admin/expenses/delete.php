@@ -17,7 +17,7 @@ if (!$expense_id) {
 }
 
 // Get expense details - only super admin expenses (company_id = 1)
-$stmt = $conn->prepare("SELECT * FROM expenses WHERE id = ? AND company_id = 0");
+$stmt = $conn->prepare("SELECT * FROM expenses WHERE id = ? AND company_id IS NULL");
 $stmt->execute([$expense_id]);
 $expense = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -30,7 +30,7 @@ if (!$expense) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Delete the expense
-        $stmt = $conn->prepare("DELETE FROM expenses WHERE id = ? AND company_id = 0");
+        $stmt = $conn->prepare("DELETE FROM expenses WHERE id = ? AND company_id IS NULL");
         $stmt->execute([$expense_id]);
         
         if ($stmt->rowCount() > 0) {
