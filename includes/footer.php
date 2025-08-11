@@ -64,9 +64,16 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             
             if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.toggle('collapsed');
+                        // Do not toggle main content margin on mobile
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                        mainContent.classList.toggle('expanded');
+                    }
                     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
                 });
             }
