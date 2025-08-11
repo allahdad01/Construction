@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Validate email format
         if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             throw new Exception(__('invalid_email_format'));
         }
@@ -47,61 +46,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception(__('email_already_exists'));
         }
 
+        // Discover available columns
+        $userCols = [];
+        try { $rs = $conn->query("SHOW COLUMNS FROM users"); foreach ($rs->fetchAll(PDO::FETCH_ASSOC) as $c) { $userCols[$c['Field']] = true; } } catch (Exception $e) {}
+        $empCols = [];
+        try { $rs2 = $conn->query("SHOW COLUMNS FROM employees"); foreach ($rs2->fetchAll(PDO::FETCH_ASSOC) as $c) { $empCols[$c['Field']] = true; } } catch (Exception $e) {}
+
         // Start transaction
         $conn->beginTransaction();
 
-        // Update user information
-        $stmt = $conn->prepare("
-            UPDATE users SET 
-                first_name = ?, 
-                last_name = ?, 
-                email = ?,
-                updated_at = NOW()
-            WHERE id = ?
-        ");
-        
-        $stmt->execute([
-            $_POST['first_name'],
-            $_POST['last_name'],
-            $_POST['email'],
-            $current_user['id']
-        ]);
+        // Build dynamic users update
+        $userSet = [];
+        $userParams = [];
+        if (!empty($userCols['first_name'])) { $userSet[] = 'first_name = ?'; $userParams[] = $_POST['first_name']; }
+        if (!empty($userCols['last_name'])) { $userSet[] = 'last_name = ?'; $userParams[] = $_POST['last_name']; }
+        if (!empty($userCols['name']) && (empty($userCols['first_name']) || empty($userCols['last_name']))) {
+            $fullName = trim(($_POST['first_name'] ?? '') . ' ' . ($_POST['last_name'] ?? ''));
+            $userSet[] = 'name = ?'; $userParams[] = $fullName;
+        }
+        $userSet[] = 'email = ?'; $userParams[] = $_POST['email'];
+        $userSet[] = 'updated_at = NOW()';
+        $userParams[] = $current_user['id'];
+        $sqlUsers = 'UPDATE users SET ' . implode(', ', $userSet) . ' WHERE id = ?';
+        $stmt = $conn->prepare($sqlUsers);
+        $stmt->execute($userParams);
 
-        // Update employee information if user is an employee
+        // Update employees table if user is driver/assistant
         if ($current_user['role'] === 'driver' || $current_user['role'] === 'driver_assistant') {
-            $stmt = $conn->prepare("
-                UPDATE employees SET 
-                    first_name = ?, 
-                    last_name = ?, 
-                    email = ?,
-                    phone = ?,
-                    address = ?,
-                    updated_at = NOW()
-                WHERE user_id = ? AND company_id = ?
-            ");
-            
-            $stmt->execute([
-                $_POST['first_name'],
-                $_POST['last_name'],
-                $_POST['email'],
-                $_POST['phone'] ?? '',
-                $_POST['address'] ?? '',
-                $current_user['id'],
-                $company_id
-            ]);
+            $empSet = [];
+            $empParams = [];
+            if (!empty($empCols['first_name'])) { $empSet[] = 'first_name = ?'; $empParams[] = $_POST['first_name']; }
+            if (!empty($empCols['last_name'])) { $empSet[] = 'last_name = ?'; $empParams[] = $_POST['last_name']; }
+            if (!empty($empCols['name']) && (empty($empCols['first_name']) || empty($empCols['last_name']))) {
+                $fullName = trim(($_POST['first_name'] ?? '') . ' ' . ($_POST['last_name'] ?? ''));
+                $empSet[] = 'name = ?'; $empParams[] = $fullName;
+            }
+            if (!empty($empCols['email'])) { $empSet[] = 'email = ?'; $empParams[] = $_POST['email']; }
+            if (!empty($empCols['phone'])) { $empSet[] = 'phone = ?'; $empParams[] = $_POST['phone'] ?? ''; }
+            if (!empty($empCols['address'])) { $empSet[] = 'address = ?'; $empParams[] = $_POST['address'] ?? ''; }
+            if (!empty($empCols['updated_at'])) { $empSet[] = 'updated_at = NOW()'; }
+            $empParams[] = $current_user['id'];
+            $empParams[] = $company_id;
+            if (!empty($empSet)) {
+                $sqlEmp = 'UPDATE employees SET ' . implode(', ', $empSet) . ' WHERE user_id = ? AND company_id = ?';
+                $stmt = $conn->prepare($sqlEmp);
+                $stmt->execute($empParams);
+            }
         }
 
-        // Commit transaction
+        // Commit
         $conn->commit();
 
         $success = __('profile_updated_successfully');
-        
-        // Refresh user session data
-        $_SESSION['user_name'] = $_POST['first_name'] . ' ' . $_POST['last_name'];
+        $_SESSION['user_name'] = trim(($_POST['first_name'] ?? '') . ' ' . ($_POST['last_name'] ?? ''));
         $_SESSION['user_email'] = $_POST['email'];
-        
+
     } catch (Exception $e) {
-        // Rollback transaction on error if active
         if ($conn->inTransaction()) { $conn->rollBack(); }
         $error = $e->getMessage();
     }
