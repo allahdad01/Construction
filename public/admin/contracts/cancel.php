@@ -23,7 +23,7 @@ if ($contract_id <= 0) {
         $st->execute([$contract_id, $company_id]);
         $c = $st->fetch(PDO::FETCH_ASSOC);
         if (!$c) { throw new Exception('Contract not found.'); }
-        if ($c['status'] === 'completed') { throw new Exception('Contract is already completed.'); }
+        if ($c['status'] === 'cancelled') { throw new Exception('Contract is already cancelled.'); }
 
         // Collect all machines linked to this contract (primary + contract_machines)
         $machineIds = [];
@@ -38,8 +38,8 @@ if ($contract_id <= 0) {
         // Transaction: update contract status, end assignments, free machines
         $conn->beginTransaction();
 
-        // Mark contract completed and set end_date if null
-        $conn->prepare("UPDATE contracts SET status='completed', end_date = COALESCE(end_date, CURRENT_DATE) WHERE id=? AND company_id=?")
+        // Mark contract cancelled and set end_date to today
+        $conn->prepare("UPDATE contracts SET status='cancelled', end_date = CURRENT_DATE WHERE id=? AND company_id=?")
              ->execute([$contract_id, $company_id]);
 
         if (!empty($machineIds)) {
@@ -55,14 +55,13 @@ if ($contract_id <= 0) {
         }
 
         $conn->commit();
-        $success = 'Contract marked as completed and machines freed.';
+        $success = 'Contract cancelled and machines freed.';
     } catch (Exception $e) {
         if ($conn->inTransaction()) { $conn->rollBack(); }
         $error = $e->getMessage();
     }
 }
 
-// Redirect back to index with a message using query params
 $target = 'index.php';
 if ($success) { $target .= '?msg=' . urlencode($success); }
 if ($error) { $target .= (strpos($target,'?')!==false?'&':'?') . 'error=' . urlencode($error); }

@@ -515,6 +515,11 @@ $chartDatasetsJson = json_encode($chart_datasets);
                                                    onclick="return confirmDelete('<?php echo __('confirm_complete_contract'); ?>')">
                                                     <i class="fas fa-check"></i>
                                                 </a>
+                                                <a href="cancel.php?id=<?php echo $contract['id']; ?>" 
+                                                   class="btn btn-sm btn-outline-danger" title="Cancel"
+                                                   onclick="return confirm('<?php echo __('confirm_cancel_contract') ?? 'Are you sure to cancel this contract?'; ?>');">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
                                             <?php endif; ?>
                                         </div>
                                     </td>
