@@ -64,9 +64,7 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             
             if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function(e) {
-                    // Desktop-only collapse toggle; mobile handled by off-canvas script
-                    if (window.innerWidth < 992) { return; }
+                sidebarToggle.addEventListener('click', function() {
                     sidebar.classList.toggle('collapsed');
                     mainContent.classList.toggle('expanded');
                     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
