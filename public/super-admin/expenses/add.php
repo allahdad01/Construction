@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cols = [];
         $vals = [];
         $params = [];
-        if (!empty($available['company_id'])) { $cols[] = 'company_id'; $vals[] = '?'; $params[] = null; }
+        if (!empty($available['company_id'])) { $cols[] = 'company_id'; $vals[] = '0'; }
         if (!empty($available['expense_code'])) { $cols[] = 'expense_code'; $vals[] = '?'; $params[] = $expense_code; }
         if (!empty($available['category'])) { $cols[] = 'category'; $vals[] = '?'; $params[] = $_POST['expense_type']; }
         if (!empty($available['description'])) { $cols[] = 'description'; $vals[] = '?'; $params[] = $_POST['description']; }

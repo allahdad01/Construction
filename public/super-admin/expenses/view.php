@@ -23,7 +23,7 @@ $stmt = $conn->prepare("
     SELECT e.*, c.company_name 
     FROM expenses e 
     LEFT JOIN companies c ON e.company_id = c.id 
-    WHERE e.id = ? AND e.company_id IS NULL
+    WHERE e.id = ? AND e.company_id = 0
 ");
 $stmt->execute([$expense_id]);
 $expense = $stmt->fetch(PDO::FETCH_ASSOC);
