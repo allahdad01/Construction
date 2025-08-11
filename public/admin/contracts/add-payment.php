@@ -37,6 +37,11 @@ if (!$contract) {
     exit();
 }
 
+// Ensure currency column exists on contract_payments
+try {
+    $conn->exec("ALTER TABLE contract_payments ADD COLUMN currency VARCHAR(3) DEFAULT NULL AFTER amount");
+} catch (Exception $e) { /* ignore if exists */ }
+
 // Calculate contract earnings and payments
 $stmt = $conn->prepare("
     SELECT SUM(hours_worked) as total_hours 
@@ -77,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reference_number = trim($_POST['reference_number'] ?? '');
     $status = $_POST['status'] ?? 'completed';
     $notes = trim($_POST['notes'] ?? '');
+    $payment_currency = $contract['currency'] ?? 'USD';
     
     // Validation
     if (empty($payment_date)) {
@@ -94,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $payment_code = 'PAY' . str_pad($count + 1, 6, '0', STR_PAD_LEFT);
             
             $stmt = $conn->prepare("
-                INSERT INTO contract_payments (company_id, contract_id, payment_code, payment_date, amount, payment_method, reference_number, status, notes) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO contract_payments (company_id, contract_id, payment_code, payment_date, amount, currency, payment_method, reference_number, status, notes) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
             $stmt->execute([
@@ -104,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $payment_code,
                 $payment_date,
                 $amount,
+                $payment_currency,
                 $payment_method,
                 $reference_number,
                 $status,
