@@ -520,6 +520,8 @@ $current_settings = [
         .contact-details p {
             margin: 0;
             opacity: 0.9;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .social-links {
