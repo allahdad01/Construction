@@ -2,12 +2,30 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; <?php echo APP_NAME; ?> <?php echo date('Y'); ?></span>
-                    </div>
+            <style>
+            .app-footer{background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color:#fff;}
+            .app-footer .footer-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px;}
+            .app-footer a{color:rgba(255,255,255,.85); text-decoration:none}
+            .app-footer a:hover{color:#fff; text-decoration:underline}
+            .app-footer .footer-links{display:flex; gap:14px; flex-wrap:wrap; justify-content:center}
+            .app-footer small{opacity:.9}
+            @media (max-width:768px){ .app-footer .footer-inner{flex-direction:column; text-align:center} }
+            </style>
+            <footer class="app-footer">
+              <div class="container-fluid footer-inner">
+                <div class="footer-left">
+                  <strong><?php echo htmlspecialchars(($platform_name ?? APP_NAME) . ''); ?></strong>
                 </div>
+                <div class="footer-links">
+                  <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <a href="#"><?php echo __('help_support') ?? 'Help'; ?></a>
+                  <a href="#"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
+                </div>
+                <div class="footer-right">
+                  <small>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(($platform_name ?? APP_NAME)); ?></small>
+                </div>
+              </div>
             </footer>
             <!-- End of Footer -->
         </div>
