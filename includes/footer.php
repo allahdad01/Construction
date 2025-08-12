@@ -2,13 +2,24 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
+            <?php
+            if (!isset($platform_name) || $platform_name === '') {
+                if (function_exists('getSystemSettingLocal') && isset($conn)) {
+                    $platform_name = getSystemSettingLocal($conn, 'platform_name', APP_NAME);
+                } else {
+                    $platform_name = APP_NAME;
+                }
+            }
+            ?>
             <style>
             .app-footer{background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color:#fff;}
-            .app-footer .footer-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px;}
+            .app-footer .footer-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; flex-wrap:wrap}
             .app-footer a{color:rgba(255,255,255,.85); text-decoration:none}
             .app-footer a:hover{color:#fff; text-decoration:underline}
             .app-footer .footer-links{display:flex; gap:14px; flex-wrap:wrap; justify-content:center}
-            .app-footer small{opacity:.9}
+            .app-footer small{opacity:.9; word-break:break-word; overflow-wrap:anywhere}
+            .app-footer .footer-left strong{word-break:break-word; overflow-wrap:anywhere; display:block}
+            .app-footer .footer-left,.app-footer .footer-right{min-width:0;}
             @media (max-width:768px){ .app-footer .footer-inner{flex-direction:column; text-align:center} }
             </style>
             <footer class="app-footer">
