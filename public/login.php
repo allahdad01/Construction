@@ -83,6 +83,7 @@ $primary_color = getSystemSettingLocal($conn2, 'primary_color', '#243447');
 $secondary_color = getSystemSettingLocal($conn2, 'secondary_color', '#222E3D');
 $accent_color = getSystemSettingLocal($conn2, 'accent_color', '#F17300');
 $favicon = getSystemSettingLocal($conn2, 'platform_favicon', '');
+$platform_logo = getSystemSettingLocal($conn2, 'platform_logo', '');
 
 $error = '';
 
@@ -269,6 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .feature-list { list-style: none; padding: 0; margin: 2rem 0; }
         .feature-list li { padding: 0.5rem 0; display: flex; align-items: center; }
         .feature-list li i { margin-right: 0.5rem; color: rgba(255, 255, 255, 0.8); }
+        .brand-logo { height: 60px; width: auto; margin-bottom: 1rem; }
 
         @media (max-width: 768px) {
             .login-sidebar { display: none; }
@@ -282,9 +284,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Sidebar -->
             <div class="col-lg-5">
                 <div class="login-sidebar">
-                    <div class="icon-large">
-                        <i class="fas fa-hard-hat"></i>
-                    </div>
+                    <?php if (!empty($platform_logo)): ?>
+                        <img class="brand-logo" src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo">
+                    <?php else: ?>
+                        <div class="icon-large">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                    <?php endif; ?>
                     <h2 class="mb-4">Construction Management System</h2>
                     <p class="mb-4">Streamline your construction operations with our comprehensive management platform.</p>
                     <ul class="feature-list">
