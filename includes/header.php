@@ -59,9 +59,9 @@ function getSystemSettingLocal($conn, $key, $default = '') {
 
 $platform_name = getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform');
 $platform_logo = getSystemSettingLocal($conn, 'platform_logo', '');
-$primary_color = getSystemSettingLocal($conn, 'primary_color', '#4e73df');
-$secondary_color = getSystemSettingLocal($conn, 'secondary_color', '#858796');
-$accent_color = getSystemSettingLocal($conn, 'accent_color', '#1cc88a');
+$primary_color = getSystemSettingLocal($conn, 'primary_color', '#243447');
+$secondary_color = getSystemSettingLocal($conn, 'secondary_color', '#222E3D');
+$accent_color = getSystemSettingLocal($conn, 'accent_color', '#F17300');
 $theme_mode = getSystemSettingLocal($conn, 'theme_mode', 'light');
 $sidebar_style = getSystemSettingLocal($conn, 'sidebar_style', 'default');
 
@@ -107,18 +107,18 @@ date_default_timezone_set($company_timezone);
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --info-color: #17a2b8;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
+            --light-color: #F6F0E6;
+            --dark-color: #222E3D;
             --white-color: #ffffff;
-            --gray-100: #f8f9fa;
+            --gray-100: #F6F0E6;
             --gray-200: #e9ecef;
             --gray-300: #dee2e6;
             --gray-400: #ced4da;
             --gray-500: #adb5bd;
             --gray-600: #6c757d;
-            --gray-700: #495057;
-            --gray-800: #343a40;
-            --gray-900: #212529;
+            --gray-700: #243447;
+            --gray-800: #222E3D;
+            --gray-900: #1b2532;
             --border-radius: 0.5rem;
             --border-radius-lg: 0.75rem;
             --border-radius-xl: 1rem;
@@ -148,7 +148,7 @@ date_default_timezone_set($company_timezone);
             left: 0;
             height: 100vh;
             width: 280px;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #667eea 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: white;
             z-index: 1030;
             transition: var(--transition);
@@ -258,7 +258,7 @@ date_default_timezone_set($company_timezone);
 
         /* Utility Classes */
         .text-gradient { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .bg-gradient-primary { background: linear-gradient(135deg, var(--primary-color), #667eea); }
+        .bg-gradient-primary { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); }
         .bg-gradient-success { background: linear-gradient(135deg, var(--success-color), #20c997); }
         .bg-gradient-warning { background: linear-gradient(135deg, var(--warning-color), #fd7e14); }
         .bg-gradient-danger { background: linear-gradient(135deg, var(--danger-color), #e74c3c); }
