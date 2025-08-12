@@ -30,6 +30,11 @@ function getSystemSettingLocal($conn, $key, $default = '') {
 $current_settings = [
     'platform_name' => getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform'),
     'platform_logo' => getSystemSettingLocal($conn, 'platform_logo', ''),
+    'platform_favicon' => getSystemSettingLocal($conn, 'platform_favicon', ''),
+    'primary_color' => getSystemSettingLocal($conn, 'primary_color', '#243447'),
+    'secondary_color' => getSystemSettingLocal($conn, 'secondary_color', '#222E3D'),
+    'accent_color' => getSystemSettingLocal($conn, 'accent_color', '#F17300'),
+    'theme_mode' => getSystemSettingLocal($conn, 'theme_mode', 'light'),
     'contact_address' => getSystemSettingLocal($conn, 'contact_address', ''),
     'contact_phone' => getSystemSettingLocal($conn, 'contact_phone', ''),
     'contact_email' => getSystemSettingLocal($conn, 'contact_email', ''),
@@ -46,6 +51,10 @@ $current_settings = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo __('construction_saas_platform_title'); ?></title>
+    <?php if (!empty($current_settings['platform_favicon'])): ?>
+    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
+    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
+    <?php endif; ?>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -58,18 +67,18 @@ $current_settings = [
     
     <style>
         :root {
-            --primary-color: #4e73df;
-            --secondary-color: #858796;
+            --primary-color: <?php echo htmlspecialchars($current_settings['primary_color']); ?>;
+            --secondary-color: <?php echo htmlspecialchars($current_settings['secondary_color']); ?>;
             --success-color: #1cc88a;
-            --warning-color: #f6c23e;
+            --warning-color: #FFD54A; /* warm yellow */
             --danger-color: #e74a3b;
             --info-color: #36b9cc;
-            --dark-color: #2c3e50;
-            --light-color: #f8f9fa;
-            --construction-orange: #ff6b35;
-            --construction-yellow: #f7931e;
-            --construction-blue: #2c5aa0;
-            --construction-gray: #4a4a4a;
+            --dark-color: <?php echo htmlspecialchars($current_settings['secondary_color']); ?>;
+            --light-color: #F6F0E6; /* cream */
+            --construction-orange: <?php echo htmlspecialchars($current_settings['accent_color']); ?>;
+            --construction-yellow: #FFD54A;
+            --construction-blue: <?php echo htmlspecialchars($current_settings['primary_color']); ?>;
+            --construction-gray: <?php echo htmlspecialchars($current_settings['secondary_color']); ?>;
         }
 
         * {
@@ -92,7 +101,7 @@ $current_settings = [
         }
 
         .navbar.scrolled {
-            background: rgba(44, 90, 160, 0.98) !important;
+            background: var(--construction-blue) !important;
             padding: 0.5rem 0;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
@@ -156,9 +165,9 @@ $current_settings = [
             right: 0;
             bottom: 0;
             background-image: 
-                radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(247, 147, 30, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(44, 90, 160, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(241, 115, 0, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 213, 74, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(36, 52, 71, 0.12) 0%, transparent 50%);
             animation: constructionFloat 20s ease-in-out infinite;
         }
 

@@ -70,6 +70,20 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     }
 }
 
+// Fetch palette from system settings
+$db2 = new Database();
+$conn2 = $db2->getConnection();
+function getSystemSettingLocal($conn, $key, $default = '') {
+    $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
+    $stmt->execute([$key]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $row['setting_value'] : $default;
+}
+$primary_color = getSystemSettingLocal($conn2, 'primary_color', '#243447');
+$secondary_color = getSystemSettingLocal($conn2, 'secondary_color', '#222E3D');
+$accent_color = getSystemSettingLocal($conn2, 'accent_color', '#F17300');
+$favicon = getSystemSettingLocal($conn2, 'platform_favicon', '');
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -157,6 +171,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Construction Management System</title>
+    <?php if (!empty($favicon)): ?>
+    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
+    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
+    <?php endif; ?>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -167,19 +185,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <style>
         :root {
-            --primary-color: #4e73df;
-            --secondary-color: #858796;
+            --primary-color: <?php echo htmlspecialchars($primary_color); ?>;
+            --secondary-color: <?php echo htmlspecialchars($secondary_color); ?>;
             --success-color: #1cc88a;
             --info-color: #36b9cc;
-            --warning-color: #f6c23e;
+            --warning-color: #FFD54A;
             --danger-color: #e74a3b;
-            --light-color: #f8f9fc;
-            --dark-color: #5a5c69;
+            --light-color: #F6F0E6;
+            --dark-color: <?php echo htmlspecialchars($secondary_color); ?>;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -197,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .login-sidebar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             color: white;
             padding: 3rem 2rem;
             display: flex;
@@ -224,11 +242,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(36, 52, 71, 0.2);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             border: none;
             border-radius: 10px;
             padding: 12px 24px;
@@ -238,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(78, 115, 223, 0.3);
+            box-shadow: 0 8px 25px rgba(36, 52, 71, 0.25);
         }
 
         .form-check-input:checked {
@@ -246,41 +264,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: var(--primary-color);
         }
 
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-
-        .icon-large {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            margin: 2rem 0;
-        }
-
-        .feature-list li {
-            padding: 0.5rem 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .feature-list li i {
-            margin-right: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
+        .alert { border-radius: 10px; border: none; }
+        .icon-large { font-size: 4rem; margin-bottom: 1rem; }
+        .feature-list { list-style: none; padding: 0; margin: 2rem 0; }
+        .feature-list li { padding: 0.5rem 0; display: flex; align-items: center; }
+        .feature-list li i { margin-right: 0.5rem; color: rgba(255, 255, 255, 0.8); }
 
         @media (max-width: 768px) {
-            .login-sidebar {
-                display: none;
-            }
-            
-            .login-form {
-                padding: 2rem 1rem;
-            }
+            .login-sidebar { display: none; }
+            .login-form { padding: 2rem 1rem; }
         }
     </style>
 </head>
@@ -295,7 +287,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <h2 class="mb-4">Construction Management System</h2>
                     <p class="mb-4">Streamline your construction operations with our comprehensive management platform.</p>
-                    
                     <ul class="feature-list">
                         <li><i class="fas fa-check"></i> Employee & Machine Management</li>
                         <li><i class="fas fa-check"></i> Contract & Project Tracking</li>
@@ -305,7 +296,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </ul>
                 </div>
             </div>
-
             <!-- Login Form -->
             <div class="col-lg-7">
                 <div class="login-form">
@@ -313,14 +303,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h3 class="text-dark mb-2">Welcome Back!</h3>
                         <p class="text-muted">Sign in to your account to continue</p>
                     </div>
-
                     <?php if ($error): ?>
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             <?php echo htmlspecialchars($error); ?>
                         </div>
                     <?php endif; ?>
-
                     <form method="POST" id="loginForm">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
@@ -362,7 +350,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </button>
                         </div>
                     </form>
-
                     <div class="text-center mt-4">
                         <p class="text-muted">
                             <a href="#" class="text-decoration-none">Forgot your password?</a>
@@ -372,11 +359,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <a href="#" class="text-decoration-none">Contact your administrator</a>
                         </p>
                     </div>
-
                     <div class="text-center mt-4">
-                        <small class="text-muted">
-                            &copy; 2024 Construction Management System. All rights reserved.
-                        </small>
+                        <small class="text-muted">&copy; 2024 Construction Management System. All rights reserved.</small>
                     </div>
                 </div>
             </div>
@@ -385,7 +369,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Toggle password visibility
