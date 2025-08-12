@@ -635,6 +635,9 @@ $current_settings = [
 
         .footer p, .footer li, .footer a {
             color: rgba(255, 255, 255, 0.8);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: normal;
         }
 
         .footer a:hover {
@@ -1349,8 +1352,8 @@ $current_settings = [
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3"><?php echo __('construction_saas_platform'); ?></h5>
-                    <p class="text-muted"><?php echo __('advanced_construction_management_solution_for_modern_construction_companies'); ?></p>
+                    <h5 class="mb-3"><?php echo htmlspecialchars($current_settings['platform_name'] ?? __('construction_saas_platform')); ?></h5>
+                    <p class="text-muted" style="overflow-wrap:anywhere;word-break:break-word;white-space:normal"><?php echo __('advanced_construction_management_solution_for_modern_construction_companies'); ?></p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
@@ -1404,7 +1407,7 @@ $current_settings = [
             
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0 text-muted">&copy; 2024 <?php echo __('construction_saas_platform'); ?>. <?php echo __('all_rights_reserved'); ?></p>
+                    <p class="mb-0 text-muted">&copy; 2024 <?php echo htmlspecialchars($current_settings['platform_name'] ?? __('construction_saas_platform')); ?>. <?php echo __('all_rights_reserved'); ?></p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <p class="mb-0 text-muted"><?php echo __('made_with'); ?> <i class="fas fa-heart text-danger"></i> <?php echo __('for_construction_professionals'); ?></p>
