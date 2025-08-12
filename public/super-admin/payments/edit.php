@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                                     <select class="form-control" id="currency" name="currency" required>
                                         <option value=""><?php echo __('select_currency'); ?></option>
-                                        <option value="USD" <?php echo ($_POST['currency'] ?? $payment['currency']) === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?> (<?php echo __('us_dollar'); ?>)</option>
+                                        <option value="USD" <?php echo ($_POST['currency'] ?? $payment['currency']) === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
                                         <option value="AFN" <?php echo ($_POST['currency'] ?? $payment['currency']) === 'AFN' ? 'selected' : ''; ?>><?php echo __('afn'); ?> (<?php echo __('afghan_afghani'); ?>)</option>
                                     </select>
                                 </div>
@@ -324,7 +324,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <h6 class="font-weight-bold"><?php echo __('currencies'); ?></h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-dollar-sign me-2"></i><?php echo __('usd'); ?> (<?php echo __('us_dollar'); ?>)</li>
+                            <li><i class="fas fa-dollar-sign me-2"></i><?php echo __('usd'); ?></li>
                             <li><i class="fas fa-coins me-2"></i><?php echo __('afn'); ?> (<?php echo __('afghan_afghani'); ?>)</li>
                         </ul>
                     </div>

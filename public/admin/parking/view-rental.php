@@ -90,15 +90,15 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 <?php if ($remaining_amount > 0): ?>
                     <a href="payment.php?id=<?php echo $rental_id; ?>" class="btn btn-warning">
-                        <i class="fas fa-clock"></i> Late Payment
+                        <i class="fas fa-clock"></i> <?php echo __('late_payment'); ?>
                     </a>
                 <?php endif; ?>
             <?php endif; ?>
             <a href="print-rental.php?id=<?php echo $rental_id; ?>" target="_blank" class="btn btn-outline-dark">
-                <i class="fas fa-print"></i> Print
+                <i class="fas fa-print"></i> <?php echo __('print'); ?>
             </a>
             <a href="view.php?id=<?php echo $rental['parking_space_id']; ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Space
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_space'); ?>
             </a>
         </div>
     </div>
@@ -144,17 +144,17 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                             if ($end_date && $end_date > $start_date) {
                                 $total_days = $start_date->diff($end_date)->days;
                                 $end_date_display = date('M j, Y', strtotime($rental['end_date']));
-                                echo '<p><strong>End Date:</strong> ' . $end_date_display . '</p>';
-                                echo '<p><strong>Total Days:</strong> ' . $total_days . ' days</p>';
+                                echo '<p><strong>' . __('end_date') . ':</strong> ' . $end_date_display . '</p>';
+                                echo '<p><strong>' . __('total_days') . ':</strong> ' . $total_days . ' ' . __('days') . '</p>';
                             } else {
                                 // For ongoing rentals, calculate days from start to today
                                 $current_days = $start_date->diff($current_date)->days;
                                 $daily_rate = $rental['monthly_rate'] / 30;
                                 $current_amount = $current_days * $daily_rate;
                                 
-                                echo '<p><strong>End Date:</strong> <span class="text-info">Ongoing rental</span></p>';
-                                echo '<p><strong>Days So Far:</strong> ' . $current_days . ' days</p>';
-                                echo '<p><strong>Current Amount:</strong> ' . formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD') . '</p>';
+                                echo '<p><strong>' . __('end_date') . ':</strong> <span class="text-info">' . __('ongoing_rental') . '</span></p>';
+                                echo '<p><strong>' . __('days_so_far') . ':</strong> ' . $current_days . ' ' . __('days') . '</p>';
+                                echo '<p><strong>' . __('current_amount') . ':</strong> ' . formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD') . '</p>';
                             }
                             ?>
                             <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
@@ -205,9 +205,9 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                     <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space'); ?></h6>
                 </div>
                 <div class="card-body">
-                    <p><strong>Sp   ace Code:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
-                    <p><strong>Space Name:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
-                    <p><strong>Category:</strong> 
+                    <p><strong><?php echo __('space_code'); ?>:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
+                    <p><strong><?php echo __('space_name'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
+                    <p><strong><?php echo __('category'); ?>:</strong> 
                         <?php 
                         $category_display = [
                             'machines' => '🏗️ Construction Machines',
@@ -222,7 +222,7 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
                         echo $category_display[$category] ?? ucfirst($category);
                         ?>
                     </p>
-                    <p><strong>Created:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
+                    <p><strong><?php echo __('created'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
                 </div>
             </div>
         </div>

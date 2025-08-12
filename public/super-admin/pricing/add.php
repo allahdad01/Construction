@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="mb-3">
                                     <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                                     <select class="form-control" id="currency" name="currency">
-                                        <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?> (<?php echo __('us_dollar'); ?>)</option>
+                                        <option value="USD" <?php echo ($_POST['currency'] ?? 'USD') === 'USD' ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
                                         <option value="AFN" <?php echo ($_POST['currency'] ?? 'USD') === 'AFN' ? 'selected' : ''; ?>><?php echo __('afn'); ?> (<?php echo __('afghan_afghani'); ?>)</option>
                                     </select>
                                 </div>

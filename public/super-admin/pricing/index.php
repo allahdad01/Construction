@@ -225,10 +225,11 @@ $avg_price = $stmt->fetch(PDO::FETCH_ASSOC)['avg_price'] ?? 0;
                                     </td>
                                     <td>
                                         <strong class="text-success">
-                                            $<?php echo number_format($plan['price'], 2); ?>
+                                            <?php echo formatCurrencyAmount($plan['price'], $plan['currency']); ?>
                                         </strong>
-                                        <br>
-                                        <small class="text-muted"><?php echo ucfirst($plan['billing_cycle']); ?></small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary"><?php echo ucfirst($plan['billing_cycle']); ?></span>
                                     </td>
                                     <td>
                                         <small>
