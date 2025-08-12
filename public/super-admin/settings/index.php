@@ -944,9 +944,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const triggerTabList = [].slice.call(document.querySelectorAll('#settingsTabs button'));
     triggerTabList.forEach(function (triggerEl) {
         const tabTrigger = new bootstrap.Tab(triggerEl);
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault();
+        // Click should activate without cancelling default to preserve keyboard behaviors
+        triggerEl.addEventListener('click', function () {
             tabTrigger.show();
+        });
+        // Ensure keyboard Space/Enter activate the tab
+        triggerEl.addEventListener('keydown', function (e) {
+            if (e.key === ' ' || e.key === 'Spacebar' || e.code === 'Space' || e.key === 'Enter') {
+                e.preventDefault();
+                tabTrigger.show();
+            }
         });
     });
 });
