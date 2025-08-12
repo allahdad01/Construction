@@ -164,7 +164,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 throw new Exception('No logo to remove.');
             }
-            
+        } elseif ($action === 'update_favicon') {
+            // Handle favicon upload (nav logo)
+            if (!isset($_FILES['favicon']) || $_FILES['favicon']['error'] !== UPLOAD_ERR_OK) {
+                if (isset($_FILES['favicon']) && $_FILES['favicon']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    $upload_errors = [
+                        UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize directive.',
+                        UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE directive.',
+                        UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+                        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder.',
+                        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                        UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.'
+                    ];
+                    $error_msg = $upload_errors[$_FILES['favicon']['error']] ?? 'Unknown upload error.';
+                    throw new Exception('Upload failed: ' . $error_msg);
+                } else {
+                    throw new Exception('Please select a favicon file to upload.');
+                }
+            }
+            $file = $_FILES['favicon'];
+            $allowed_types = ['image/x-icon', 'image/png', 'image/svg+xml'];
+            $max_size = 1024 * 1024; // 1MB
+            if (!in_array($file['type'], $allowed_types)) {
+                throw new Exception('Invalid file type. Only ICO, PNG, or SVG allowed.');
+            }
+            if ($file['size'] > $max_size) {
+                throw new Exception('File size too large. Maximum size is 1MB.');
+            }
+            $upload_dir = __DIR__ . '/../../../public/uploads/logos/';
+            if (!is_dir($upload_dir)) { mkdir($upload_dir, 0755, true); }
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'platform_favicon_' . time() . '_' . uniqid() . '.' . $ext;
+            $filepath = $upload_dir . $filename;
+            if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+                throw new Exception('Failed to upload favicon.');
+            }
+            // Remove old favicon
+            $old_favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
+            if (!empty($old_favicon)) {
+                $old_path = __DIR__ . '/../../../' . $old_favicon;
+                if (file_exists($old_path) && is_file($old_path)) { @unlink($old_path); }
+            }
+            // Save new relative path
+            $fav_path = 'public/uploads/logos/' . $filename;
+            $stmt = $conn->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES ('platform_favicon', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+            $stmt->execute([$fav_path]);
+            $success = 'Favicon uploaded successfully!';
         } elseif ($action === 'update_security') {
             // Update security settings
             $session_timeout = (int)($_POST['session_timeout'] ?? 30);
@@ -295,6 +340,7 @@ $current_settings = [
     'support_phone' => getSystemSettingLocal($conn, 'support_phone', '+1-555-0123'),
     'website_url' => getSystemSettingLocal($conn, 'website_url', 'https://construction.com'),
     'platform_logo' => getSystemSettingLocal($conn, 'platform_logo', ''),
+    'platform_favicon' => getSystemSettingLocal($conn, 'platform_favicon', ''),
     'primary_color' => getSystemSettingLocal($conn, 'primary_color', '#243447'),
     'secondary_color' => getSystemSettingLocal($conn, 'secondary_color', '#222E3D'),
     'accent_color' => getSystemSettingLocal($conn, 'accent_color', '#F17300'),
@@ -360,6 +406,11 @@ $current_settings = [
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="logo-tab" data-bs-toggle="tab" data-bs-target="#logo" type="button" role="tab">
                                 <i class="fas fa-image"></i> <?php echo __('logo'); ?>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="favicon-tab" data-bs-toggle="tab" data-bs-target="#favicon" type="button" role="tab">
+                                <i class="fas fa-star"></i> Favicon
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -571,6 +622,35 @@ $current_settings = [
                                 }
                             }
                             </script>
+                            </form>
+                        </div>
+
+                        <!-- Favicon Settings -->
+                        <div class="tab-pane fade" id="favicon" role="tabpanel">
+                            <form method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="action" value="update_favicon">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="favicon" class="form-label">Upload Favicon (ICO/PNG/SVG)</label>
+                                            <input type="file" class="form-control" id="favicon" name="favicon" accept=".ico,.png,.svg">
+                                            <small class="text-muted">Recommended: square image, max 1MB</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <?php if ($current_settings['platform_favicon']): ?>
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Favicon</label>
+                                            <div class="border rounded p-3 text-center">
+                                                <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>" alt="Favicon" style="height:32px;width:32px;">
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Favicon
+                                </button>
                             </form>
                         </div>
                         

@@ -64,6 +64,7 @@ $secondary_color = getSystemSettingLocal($conn, 'secondary_color', '#222E3D');
 $accent_color = getSystemSettingLocal($conn, 'accent_color', '#F17300');
 $theme_mode = getSystemSettingLocal($conn, 'theme_mode', 'light');
 $sidebar_style = getSystemSettingLocal($conn, 'sidebar_style', 'default');
+$platform_favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
 
 // Get company settings
 function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
@@ -87,6 +88,10 @@ date_default_timezone_set($company_timezone);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($platform_name); ?></title>
+    <?php if (!empty($platform_favicon)): ?>
+    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
+    <?php endif; ?>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
