@@ -431,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 feedback.className = 'small text-muted';
                 feedback.textContent = 'Sending reset link...';
-                fetch('/constract360/construction/api/request-password-reset.php', {
+                fetch('api/request-password-reset.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
