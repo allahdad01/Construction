@@ -43,6 +43,10 @@ if (!$contract) {
     exit;
 }
 
+// Allow showing messages from actions
+if (!empty($_GET['msg'])) { $success = $_GET['msg']; }
+if (!empty($_GET['error'])) { $error = $_GET['error']; }
+
 // Load linked machines (primary + additional from contract_machines)
 $linkMachines = [];
 try {
@@ -261,7 +265,12 @@ if ($contract['contract_type'] === 'hourly') {
                                             <td><?php echo htmlspecialchars($m['machine_code']); ?></td>
                                             <td><?php echo htmlspecialchars($m['name']); ?></td>
                                             <td><?php echo htmlspecialchars($m['type']); ?></td>
-                                            <td><a class="btn btn-sm btn-outline-secondary" href="../machines/view.php?id=<?php echo (int)$m['id']; ?>">View</a></td>
+                                            <td>
+                                                <a class="btn btn-sm btn-outline-secondary" href="../machines/view.php?id=<?php echo (int)$m['id']; ?>">View</a>
+                                                <?php if ((int)$m['id'] !== (int)$contract['machine_id']): ?>
+                                                <a class="btn btn-sm btn-outline-danger" href="remove-machine.php?contract_id=<?php echo (int)$contract_id; ?>&machine_id=<?php echo (int)$m['id']; ?>" onclick="return confirm('Remove this machine from the contract?');">Remove</a>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
