@@ -199,27 +199,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
+            background: radial-gradient(1200px 600px at -10% -10%, rgba(255, 213, 74, 0.15), transparent 60%),
+                        radial-gradient(1200px 600px at 110% 110%, rgba(241, 115, 0, 0.12), transparent 60%),
+                        linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
+        /* Floating shape accents */
+        .shape { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.25; animation: float 12s ease-in-out infinite; }
+        .shape.s1 { width: 280px; height: 280px; background: var(--construction-orange); top: -60px; left: -60px; animation-delay: 0s; }
+        .shape.s2 { width: 320px; height: 320px; background: var(--construction-yellow); bottom: -80px; right: -80px; animation-delay: 3s; }
+        @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-18px) } }
+
         .login-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: saturate(180%) blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             width: 100%;
-            max-width: 900px;
-            min-height: 600px;
+            max-width: 980px;
+            min-height: 620px;
         }
 
         .login-sidebar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
+            background: linear-gradient(145deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             color: white;
-            padding: 3rem 2rem;
+            padding: 3rem 2.25rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -227,59 +239,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
         }
 
-        .login-form {
-            padding: 3rem 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        .brand-logo { height: 64px; width: auto; margin-bottom: 1rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
+        .tagline { opacity: 0.9; max-width: 380px; }
 
-        .form-control {
-            border: 2px solid #e3e6f0;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
+        .login-form { padding: 3rem 2.25rem; display: flex; flex-direction: column; justify-content: center; animation: fadeIn 0.6s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
 
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(36, 52, 71, 0.2);
-        }
+        .input-group .input-group-text { background: #fff; border: 2px solid #e9eef5; border-right: 0; border-radius: 10px 0 0 10px; color: var(--dark-color); }
+        .form-control { border: 2px solid #e9eef5; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 16px; transition: all 0.25s ease; }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(36, 52, 71, 0.15); }
+        .input-group .btn { border-radius: 0 10px 10px 0; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%); border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(36, 52, 71, 0.25); }
+        .btn-primary:disabled { opacity: 0.8; cursor: not-allowed; }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(36, 52, 71, 0.25);
-        }
+        .actions-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .muted-link { color: #6b7480; text-decoration: none; }
+        .muted-link:hover { color: var(--primary-color); text-decoration: underline; }
 
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
+        .divider { display: flex; align-items: center; text-align: center; margin: 1.25rem 0; color: #99a2ad; }
+        .divider::before, .divider::after { content: ""; flex: 1; border-bottom: 1px solid #e6eaf0; }
+        .divider:not(:empty)::before { margin-right: .75em; }
+        .divider:not(:empty)::after { margin-left: .75em; }
 
-        .alert { border-radius: 10px; border: none; }
-        .icon-large { font-size: 4rem; margin-bottom: 1rem; }
-        .feature-list { list-style: none; padding: 0; margin: 2rem 0; }
-        .feature-list li { padding: 0.5rem 0; display: flex; align-items: center; }
-        .feature-list li i { margin-right: 0.5rem; color: rgba(255, 255, 255, 0.8); }
-        .brand-logo { height: 60px; width: auto; margin-bottom: 1rem; }
+        .alert { border-radius: 12px; border: none; }
 
         @media (max-width: 768px) {
             .login-sidebar { display: none; }
-            .login-form { padding: 2rem 1rem; }
+            .login-form { padding: 2rem 1.25rem; }
+            .login-container { min-height: auto; }
         }
     </style>
 </head>
 <body>
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+
     <div class="login-container">
         <div class="row g-0 h-100">
             <!-- Sidebar -->
@@ -288,18 +284,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php if (!empty($platform_logo)): ?>
                         <img class="brand-logo" src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo">
                     <?php else: ?>
-                        <div class="icon-large">
-                            <i class="fas fa-hard-hat"></i>
-                        </div>
+                        <div class="icon-large"><i class="fas fa-hard-hat"></i></div>
                     <?php endif; ?>
-                    <h2 class="mb-4"><?php echo htmlspecialchars($platform_name); ?></h2>
-                    <p class="mb-4">Streamline your construction operations with our comprehensive management platform.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> Employee & Machine Management</li>
-                        <li><i class="fas fa-check"></i> Contract & Project Tracking</li>
-                        <li><i class="fas fa-check"></i> Financial Reporting</li>
-                        <li><i class="fas fa-check"></i> Real-time Analytics</li>
-                        <li><i class="fas fa-check"></i> Multi-tenant Architecture</li>
+                    <h2 class="mb-2"><?php echo htmlspecialchars($platform_name); ?></h2>
+                    <p class="tagline mb-4">Streamline your construction operations with our comprehensive management platform.</p>
+                    <ul class="feature-list text-start w-100" style="max-width:420px">
+                        <li><i class="fas fa-check me-2"></i> Employee & Machine Management</li>
+                        <li><i class="fas fa-check me-2"></i> Contract & Project Tracking</li>
+                        <li><i class="fas fa-check me-2"></i> Financial Reporting</li>
+                        <li><i class="fas fa-check me-2"></i> Real-time Analytics</li>
+                        <li><i class="fas fa-check me-2"></i> Multi-tenant Architecture</li>
                     </ul>
                 </div>
             </div>
@@ -307,70 +301,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-7">
                 <div class="login-form">
                     <div class="text-center mb-4">
-                        <h3 class="text-dark mb-2">Welcome Back!</h3>
-                        <p class="text-muted">Sign in to your account to continue</p>
+                        <h3 class="text-dark mb-1">Welcome Back</h3>
+                        <p class="text-muted mb-0">Sign in to continue to <?php echo htmlspecialchars($platform_name); ?>.</p>
                     </div>
+
                     <?php if ($error): ?>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <?php echo htmlspecialchars($error); ?>
-                        </div>
+                        <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($error); ?></div>
                     <?php endif; ?>
+
                     <form method="POST" id="loginForm">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-envelope"></i>
-                                </span>
-                                <input type="email" class="form-control" id="email" name="email" 
-                                       value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" 
-                                       placeholder="Enter your email" required>
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" placeholder="you@example.com" required autocomplete="username">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-lock"></i>
-                                </span>
-                                <input type="password" class="form-control" id="password" name="password" 
-                                       placeholder="Enter your password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Your password" required autocomplete="current-password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"><i class="fas fa-eye"></i></button>
                             </div>
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-                            <label class="form-check-label" for="remember_me">
-                                Remember me
-                            </label>
+                        <div class="mb-3 actions-row">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                                <label class="form-check-label" for="remember_me">Remember me</label>
+                            </div>
+                            <a href="#" class="muted-link" data-bs-toggle="modal" data-bs-target="#forgotModal">Forgot password?</a>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>
-                                Sign In
+                            <button type="submit" class="btn btn-primary btn-lg" id="signInBtn">
+                                <span class="btn-text"><i class="fas fa-sign-in-alt me-2"></i>Sign In</span>
+                                <span class="btn-loading d-none"><span class="spinner-border spinner-border-sm me-2"></span>Signing In...</span>
                             </button>
                         </div>
                     </form>
-                    <div class="text-center mt-4">
-                        <p class="text-muted">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#forgotModal">Forgot your password?</a>
-                        </p>
-                        <p class="text-muted">
-                            Don't have an account? 
+
+                    <div class="divider">or</div>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-0">Don't have an account?
                             <?php $contact_email = getSystemSettingLocal($conn2, 'contact_email', ''); ?>
                             <?php if (!empty($contact_email)): ?>
-                            <a href="mailto:<?php echo htmlspecialchars($contact_email); ?>" class="text-decoration-none">Contact your administrator</a>
+                                <a href="mailto:<?php echo htmlspecialchars($contact_email); ?>" class="text-decoration-none">Contact your administrator</a>
                             <?php else: ?>
-                            <a href="/constract360/construction/public/contact.php" class="text-decoration-none">Contact your administrator</a>
+                                <a href="/constract360/construction/public/contact.php" class="text-decoration-none">Contact your administrator</a>
                             <?php endif; ?>
                         </p>
                     </div>
+
                     <div class="text-center mt-4">
                         <small class="text-muted">&copy; 2024 <?php echo htmlspecialchars($platform_name); ?>. All rights reserved.</small>
                     </div>
@@ -406,15 +391,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
+        const emailField = document.getElementById('email');
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('signInBtn');
+        const btnText = btn?.querySelector('.btn-text');
+        const btnLoading = btn?.querySelector('.btn-loading');
+
+        emailField && emailField.focus();
+
         if (togglePassword && password) {
             togglePassword.addEventListener('click', function() {
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+
+        if (form && btn && btnText && btnLoading) {
+            form.addEventListener('submit', function() {
+                btn.disabled = true;
+                btnText.classList.add('d-none');
+                btnLoading.classList.remove('d-none');
             });
         }
 
