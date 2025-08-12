@@ -320,11 +320,8 @@ function generateSalaryPaymentCode($company_id) {
     remainingDisplay.textContent = remaining.toFixed(2);
     summaryCurrency.textContent = currencySel.value;
     setSummaryVisibility(true);
-    // If amount not set, prefill with remaining before this payment
-    if (!amountInput.value || parseFloat(amountInput.value) === 0){
-      amountInput.value = Math.max(0, expected - paidOthers).toFixed(2);
-      remainingDisplay.textContent = (0).toFixed(2);
-    }
+    // Suggest remaining as placeholder; do not auto-fill the amount
+    amountInput.placeholder = Math.max(0, expected - paidOthers).toFixed(2);
   }
 
   if (employeeSelect) {
