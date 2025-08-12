@@ -230,10 +230,10 @@ function generateParkingSpaceCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                             <select class="form-control" id="currency" name="currency" required>
-                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> (£)</option>
                             </select>
                         </div>
                     </div>
