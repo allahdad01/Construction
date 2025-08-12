@@ -37,6 +37,54 @@ if (!$payment) {
     exit;
 }
 
+// Compute expected, paid-to-date, and remaining for the month/year of this payment
+$periodMonth = (int)($payment['payment_month'] ?? 0);
+$periodYear = (int)($payment['payment_year'] ?? 0);
+if ($periodMonth <= 0 || $periodYear <= 0) {
+    $ts = strtotime($payment['payment_date']);
+    $periodMonth = (int)date('n', $ts);
+    $periodYear = (int)date('Y', $ts);
+}
+
+function getDaysWorkedInMonth($employeeId, $companyId, $month, $year) {
+    global $conn;
+    $start = date('Y-m-01', strtotime($year . '-' . $month . '-01'));
+    $end = date('Y-m-t', strtotime($start));
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND status = 'present' AND date BETWEEN ? AND ?");
+    $stmt->execute([$companyId, $employeeId, $start, $end]);
+    return (int)$stmt->fetchColumn();
+}
+
+$expected_total = 0.0;
+try {
+    if (!empty($payment['total_amount'])) {
+        $expected_total = (float)$payment['total_amount'];
+    } else {
+        $empStmt = $conn->prepare('SELECT position, monthly_salary FROM employees WHERE id = ? AND company_id = ?');
+        $empStmt->execute([$payment['employee_id'], $company_id]);
+        $emp = $empStmt->fetch(PDO::FETCH_ASSOC) ?: ['position' => '', 'monthly_salary' => 0];
+        $position = $emp['position'] ?? '';
+        $monthly_salary = (float)($emp['monthly_salary'] ?? 0);
+        if (in_array($position, ['driver', 'driver_assistant'], true)) {
+            $days = getDaysWorkedInMonth((int)$payment['employee_id'], $company_id, $periodMonth, $periodYear);
+            $daily_rate = $monthly_salary / 30.0;
+            $expected_total = $daily_rate * $days;
+        } else {
+            $expected_total = $monthly_salary;
+        }
+    }
+} catch (Exception $e) { $expected_total = 0.0; }
+
+// Sum of other payments for same employee and period (exclude current)
+$paid_excl_current = 0.0;
+try {
+    $sumStmt = $conn->prepare('SELECT COALESCE(SUM(amount_paid),0) FROM salary_payments WHERE company_id = ? AND employee_id = ? AND status = "completed" AND payment_month = ? AND payment_year = ? AND id <> ?');
+    $sumStmt->execute([$company_id, $payment['employee_id'], $periodMonth, $periodYear, $payment_id]);
+    $paid_excl_current = (float)$sumStmt->fetchColumn();
+} catch (Exception $e) { $paid_excl_current = 0.0; }
+
+$remaining_before = max(0.0, $expected_total - $paid_excl_current);
+
 // Get employees for dropdown
 $stmt = $conn->prepare("SELECT id, employee_code, name, position, monthly_salary FROM employees WHERE company_id = ? ORDER BY name");
 $stmt->execute([$company_id]);
@@ -149,6 +197,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
+    <!-- Summary: Expected/Paid/Remaining -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Expected (<?php echo date('F Y', mktime(0,0,0,$periodMonth,1,$periodYear)); ?>)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="expectedDisplay"><?php echo formatCurrencyAmount($expected_total, 'USD'); ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Paid (others)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="paidOtherDisplay"><?php echo formatCurrencyAmount($paid_excl_current, 'USD'); ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Remaining</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="remainingDisplay"><?php echo formatCurrencyAmount($remaining_before - (float)$payment['amount_paid'], 'USD'); ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Payment Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -158,6 +234,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="card-body">
             <form method="POST">
+                <input type="hidden" id="expected_total" value="<?php echo htmlspecialchars($expected_total); ?>">
+                <input type="hidden" id="paid_excl_current" value="<?php echo htmlspecialchars($paid_excl_current); ?>">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
