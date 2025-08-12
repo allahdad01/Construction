@@ -84,6 +84,7 @@ $secondary_color = getSystemSettingLocal($conn2, 'secondary_color', '#222E3D');
 $accent_color = getSystemSettingLocal($conn2, 'accent_color', '#F17300');
 $favicon = getSystemSettingLocal($conn2, 'platform_favicon', '');
 $platform_logo = getSystemSettingLocal($conn2, 'platform_logo', '');
+$platform_name = getSystemSettingLocal($conn2, 'platform_name', 'Construction Management System');
 
 $error = '';
 
@@ -171,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Construction Management System</title>
+    <title>Login - <?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($favicon)): ?>
     <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
     <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
@@ -291,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-hard-hat"></i>
                         </div>
                     <?php endif; ?>
-                    <h2 class="mb-4">Construction Management System</h2>
+                    <h2 class="mb-4"><?php echo htmlspecialchars($platform_name); ?></h2>
                     <p class="mb-4">Streamline your construction operations with our comprehensive management platform.</p>
                     <ul class="feature-list">
                         <li><i class="fas fa-check"></i> Employee & Machine Management</li>
@@ -371,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
                     </div>
                     <div class="text-center mt-4">
-                        <small class="text-muted">&copy; 2024 Construction Management System. All rights reserved.</small>
+                        <small class="text-muted">&copy; 2024 <?php echo htmlspecialchars($platform_name); ?>. All rights reserved.</small>
                     </div>
                 </div>
             </div>
