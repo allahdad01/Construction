@@ -19,6 +19,35 @@ $stmt = $conn->prepare("SELECT e.id, e.employee_code, e.name, e.position, e.mont
 $stmt->execute([$company_id]);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Helper to fetch days worked in a specific month for an employee
+function getDaysWorkedInMonth($employeeId, $companyId, $month, $year) {
+    global $conn;
+    $start = date('Y-m-01', strtotime($year . '-' . $month . '-01'));
+    $end = date('Y-m-t', strtotime($start));
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND status = 'present' AND date BETWEEN ? AND ?");
+    $stmt->execute([$companyId, $employeeId, $start, $end]);
+    return (int)$stmt->fetchColumn();
+}
+
+// Determine the target payroll month/year based on selected payment_date (defaults to today)
+$payment_date_value = $_POST['payment_date'] ?? date('Y-m-d');
+$periodMonth = (int)date('n', strtotime($payment_date_value));
+$periodYear = (int)date('Y', strtotime($payment_date_value));
+$periodStart = date('Y-m-01', strtotime($payment_date_value));
+$periodEnd = date('Y-m-t', strtotime($payment_date_value));
+
+// Precompute paid-to-date per employee for the period
+$paidByEmployee = [];
+try {
+    $sumStmt = $conn->prepare("SELECT employee_id, COALESCE(SUM(amount_paid),0) AS s FROM salary_payments WHERE company_id = ? AND status = 'completed' AND payment_date BETWEEN ? AND ? GROUP BY employee_id");
+    $sumStmt->execute([$company_id, $periodStart, $periodEnd]);
+    foreach ($sumStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $paidByEmployee[(int)$row['employee_id']] = (float)$row['s'];
+    }
+} catch (Exception $e) {
+    // ignore aggregation errors; default zero
+}
+
 // Helper to fetch days worked in current month for an employee
 function getDaysWorkedThisMonth($employeeId, $companyId) {
     global $conn;
@@ -139,6 +168,36 @@ function generateSalaryPaymentCode($company_id) {
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
+    <!-- Summary: Expected/Paid/Remaining (for selected month) -->
+    <div class="row mb-3" id="summaryRow" style="display:none;">
+        <div class="col-md-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        <?php echo __('expected'); ?> (<span id="summaryPeriod"><?php echo date('F Y', strtotime($periodStart)); ?></span>, <span id="summaryCurrency"><?php echo htmlspecialchars($_POST['currency'] ?? 'USD'); ?></span>)
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="expectedDisplay">0.00</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('paid'); ?> (<?php echo __('others'); ?>)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="paidOtherDisplay">0.00</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('remaining'); ?></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="remainingDisplay">0.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Salary Payment Form -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -146,6 +205,8 @@ function generateSalaryPaymentCode($company_id) {
         </div>
         <div class="card-body">
             <form method="POST">
+                <input type="hidden" id="expected_total" value="0">
+                <input type="hidden" id="paid_excl_current" value="0">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
@@ -154,12 +215,19 @@ function generateSalaryPaymentCode($company_id) {
                                 <option value=""><?php echo __('select_employee'); ?></option>
                                 <?php foreach ($employees as $employee): ?>
                                 <?php 
-                                    $workedDays = getDaysWorkedThisMonth($employee['id'], $company_id);
+                                    // Expected based on CURRENT period for initial hint in option text (drivers by worked days)
+                                    $workedDaysCurrent = getDaysWorkedInMonth($employee['id'], $company_id, $periodMonth, $periodYear);
                                     $isDriver = in_array($employee['position'], ['driver','driver_assistant']);
-                                    $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDays) : $employee['monthly_salary'];
+                                    $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDaysCurrent) : $employee['monthly_salary'];
+                                    $paidOthers = $paidByEmployee[(int)$employee['id']] ?? 0.0;
                                 ?>
-                                <option value="<?php echo $employee['id']; ?>" data-salary="<?php echo $displaySalary; ?>" data-worked-days="<?php echo $workedDays; ?>" data-is-driver="<?php echo $isDriver ? '1':'0'; ?>" <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $workedDays . ' => ') : __('monthly') . ': ') . formatCurrency($displaySalary)); ?>
+                                <option value="<?php echo $employee['id']; ?>" 
+                                        data-salary="<?php echo (float)$displaySalary; ?>"
+                                        data-worked-days="<?php echo (int)$workedDaysCurrent; ?>"
+                                        data-is-driver="<?php echo $isDriver ? '1':'0'; ?>"
+                                        data-paid-other="<?php echo (float)$paidOthers; ?>"
+                                        <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $workedDaysCurrent . ' => ') : __('monthly') . ': ') . formatCurrency($displaySalary)); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -195,13 +263,6 @@ function generateSalaryPaymentCode($company_id) {
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
-                            <input type="date" class="form-control" id="payment_date" name="payment_date" 
-                                   value="<?php echo htmlspecialchars($_POST['payment_date'] ?? date('Y-m-d')); ?>" required>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
                             <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
                             <select class="form-control" id="payment_method" name="payment_method">
                                 <option value="cash" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'cash') ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
@@ -229,20 +290,57 @@ function generateSalaryPaymentCode($company_id) {
 </div>
 
 <script>
-// Auto-fill amount based on selected employee
-const employeeSelect = document.getElementById('employee_id');
-const amountInput = document.getElementById('amount_paid');
-if (employeeSelect && amountInput) {
-  employeeSelect.addEventListener('change', function() {
-    const opt = this.options[this.selectedIndex];
-    const isDriver = opt.getAttribute('data-is-driver') === '1';
-    const salary = parseFloat(opt.getAttribute('data-salary')) || 0;
-    if (isDriver) {
-      amountInput.value = salary.toFixed(2);
-    } else {
-      amountInput.value = salary.toFixed(2);
+(function(){
+  const employeeSelect = document.getElementById('employee_id');
+  const amountInput = document.getElementById('amount_paid');
+  const expectedInput = document.getElementById('expected_total');
+  const paidOtherInput = document.getElementById('paid_excl_current');
+  const expectedDisplay = document.getElementById('expectedDisplay');
+  const paidOtherDisplay = document.getElementById('paidOtherDisplay');
+  const remainingDisplay = document.getElementById('remainingDisplay');
+  const summaryRow = document.getElementById('summaryRow');
+  const currencySel = document.getElementById('currency');
+  const summaryCurrency = document.getElementById('summaryCurrency');
+
+  function setSummaryVisibility(visible){
+    summaryRow.style.display = visible ? '' : 'none';
+  }
+
+  function recalc(){
+    const opt = employeeSelect.options[employeeSelect.selectedIndex];
+    if (!opt || !opt.value) { setSummaryVisibility(false); return; }
+    const expected = parseFloat(opt.getAttribute('data-salary')) || 0;
+    const paidOthers = parseFloat(opt.getAttribute('data-paid-other')) || 0;
+    expectedInput.value = expected.toFixed(2);
+    paidOtherInput.value = paidOthers.toFixed(2);
+    expectedDisplay.textContent = expected.toFixed(2);
+    paidOtherDisplay.textContent = paidOthers.toFixed(2);
+    const amt = parseFloat(amountInput.value || '0') || 0;
+    const remaining = Math.max(0, expected - paidOthers - amt);
+    remainingDisplay.textContent = remaining.toFixed(2);
+    summaryCurrency.textContent = currencySel.value;
+    setSummaryVisibility(true);
+    // If amount not set, prefill with remaining before this payment
+    if (!amountInput.value || parseFloat(amountInput.value) === 0){
+      amountInput.value = Math.max(0, expected - paidOthers).toFixed(2);
+      remainingDisplay.textContent = (0).toFixed(2);
     }
-  });
-}
+  }
+
+  if (employeeSelect) {
+    employeeSelect.addEventListener('change', recalc);
+  }
+  if (amountInput) {
+    amountInput.addEventListener('input', recalc);
+  }
+  if (currencySel) {
+    currencySel.addEventListener('change', function(){
+      summaryCurrency.textContent = currencySel.value;
+    });
+  }
+
+  // Initial state if a value is preselected
+  recalc();
+})();
 </script>
 <?php require_once '../../../includes/footer.php'; ?>
