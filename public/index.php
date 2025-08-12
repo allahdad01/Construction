@@ -151,7 +151,7 @@ $current_settings = [
         }
 
         /* Construction-themed background patterns */
-        .construction-bg {
+        .construction-bg, .hero-section {
             background: linear-gradient(135deg, var(--construction-blue) 0%, var(--primary-color) 100%);
             position: relative;
             overflow: hidden;
@@ -298,17 +298,17 @@ $current_settings = [
         /* Features Section */
         .features-section {
             padding: 100px 0;
-            background: white;
+            background: var(--light-color);
             position: relative;
             z-index: 10;
         }
 
         .feature-card {
-            background: white;
+            background: #ffffff;
             border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -368,7 +368,7 @@ $current_settings = [
 
         /* Pricing Section */
         .pricing-section {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            background: linear-gradient(135deg, var(--primary-color), var(--construction-blue));
             color: white;
             padding: 80px 0;
             position: relative;
@@ -376,11 +376,11 @@ $current_settings = [
         }
 
         .pricing-card {
-            background: white;
+            background: #ffffff;
             border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -477,7 +477,7 @@ $current_settings = [
 
         /* Contact Section */
         .contact-section {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            background: linear-gradient(135deg, var(--construction-blue), var(--primary-color));
             color: white;
             padding: 80px 0;
             position: relative;
@@ -620,7 +620,7 @@ $current_settings = [
 
         /* Footer */
         .footer {
-            background: linear-gradient(135deg, #1a252f, #2c3e50);
+            background: linear-gradient(135deg, var(--primary-color), var(--construction-blue));
             color: white;
             padding: 60px 0 30px;
             position: relative;
@@ -769,7 +769,7 @@ $current_settings = [
     </div>
 
     <!-- Header Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(44, 90, 160, 0.95); backdrop-filter: blur(10px);">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--construction-blue); backdrop-filter: blur(10px);">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
                 <?php if (!empty($current_settings['platform_logo'])): ?>
