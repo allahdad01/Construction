@@ -358,11 +358,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </form>
                     <div class="text-center mt-4">
                         <p class="text-muted">
-                            <a href="#" class="text-decoration-none">Forgot your password?</a>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#forgotModal">Forgot your password?</a>
                         </p>
                         <p class="text-muted">
                             Don't have an account? 
-                            <a href="#" class="text-decoration-none">Contact your administrator</a>
+                            <?php $contact_email = getSystemSettingLocal($conn2, 'contact_email', ''); ?>
+                            <?php if (!empty($contact_email)): ?>
+                            <a href="mailto:<?php echo htmlspecialchars($contact_email); ?>" class="text-decoration-none">Contact your administrator</a>
+                            <?php else: ?>
+                            <a href="/constract360/construction/public/contact.php" class="text-decoration-none">Contact your administrator</a>
+                            <?php endif; ?>
                         </p>
                     </div>
                     <div class="text-center mt-4">
@@ -373,36 +378,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-key me-2"></i>Reset Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Enter your account email</label>
+              <input type="email" class="form-control" id="forgotEmail" placeholder="you@example.com">
+            </div>
+            <div id="forgotFeedback" class="small"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="sendResetBtn"><i class="fas fa-paper-plane me-1"></i>Send Reset Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Toggle password visibility
-            const togglePassword = document.getElementById('togglePassword');
-            const password = document.getElementById('password');
-
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        if (togglePassword && password) {
             togglePassword.addEventListener('click', function() {
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
+        }
 
-            // Form validation
-            const form = document.getElementById('loginForm');
-            form.addEventListener('submit', function(e) {
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value.trim();
-
-                if (!email || !password) {
-                    e.preventDefault();
-                    alert('Please fill in all required fields.');
+        // Forgot password submit
+        const sendBtn = document.getElementById('sendResetBtn');
+        const emailInput = document.getElementById('forgotEmail');
+        const feedback = document.getElementById('forgotFeedback');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', function(){
+                const email = (emailInput.value || '').trim();
+                if (!email) {
+                    feedback.className = 'small text-danger';
+                    feedback.textContent = 'Please enter your email.';
+                    return;
                 }
+                feedback.className = 'small text-muted';
+                feedback.textContent = 'Sending reset link...';
+                fetch('/constract360/construction/api/request-password-reset.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        feedback.className = 'small text-success';
+                        feedback.textContent = data.message || 'If the email exists, a reset link has been sent.';
+                    } else {
+                        feedback.className = 'small text-danger';
+                        feedback.textContent = data.message || 'Failed to send reset link.';
+                    }
+                }).catch(() => {
+                    feedback.className = 'small text-danger';
+                    feedback.textContent = 'Network error. Please try again.';
+                });
             });
-
-            // Auto-focus on email field
-            document.getElementById('email').focus();
-        });
+        }
+    });
     </script>
 </body>
 </html>
