@@ -28,7 +28,7 @@ try {
             JOIN companies c ON e.company_id = c.id
             LEFT JOIN working_hours wh ON e.id = wh.employee_id 
                 AND wh.date BETWEEN ? AND ?
-            WHERE e.is_active = 1
+            WHERE e.is_active = 1 AND e.position = 'driver'
             GROUP BY e.id
             ORDER BY total_hours DESC
         ");
@@ -54,7 +54,7 @@ try {
             LEFT JOIN working_hours wh ON e.id = wh.employee_id 
                 AND wh.date BETWEEN ? AND ?
             LEFT JOIN contracts c ON wh.contract_id = c.id
-            WHERE e.company_id = ? AND e.is_active = 1
+            WHERE e.company_id = ? AND e.is_active = 1 AND e.position = 'driver'
             GROUP BY e.id
             ORDER BY total_hours DESC
         ");
@@ -73,7 +73,7 @@ try {
         FROM employees e
             LEFT JOIN employee_attendance a ON e.id = a.employee_id 
                 AND a.date BETWEEN ? AND ?
-            WHERE e.company_id = ? AND e.is_active = 1
+            WHERE e.company_id = ? AND e.is_active = 1 AND e.position = 'driver'
             GROUP BY e.id
         ");
         $stmt->execute([$start_date, $end_date, $company_id]);
@@ -90,7 +90,7 @@ try {
         FROM employees e
         LEFT JOIN working_hours wh ON e.id = wh.employee_id 
             AND wh.date BETWEEN ? AND ?
-        WHERE e.is_active = 1
+        WHERE e.is_active = 1 AND e.position = 'driver'
         " . (!$is_super_admin ? "AND e.company_id = ?" : "") . "
         GROUP BY e.position
     ");
