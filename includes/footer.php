@@ -19,8 +19,8 @@
                 <div class="footer-links">
                   <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
                   <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
-                  <a href="#"><?php echo __('help_support') ?? 'Help'; ?></a>
-                  <a href="#"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
+                  <a href="/constract360/construction/public/pages/page.php?slug=help-center"><?php echo __('help_support') ?? 'Help'; ?></a>
+                  <a href="/constract360/construction/public/pages/page.php?slug=privacy-policy"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
                 </div>
                 <div class="footer-right">
                   <small>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(($platform_name ?? APP_NAME)); ?></small>
