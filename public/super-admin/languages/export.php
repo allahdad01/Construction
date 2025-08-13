@@ -33,9 +33,14 @@ $stmt->execute([$language_id]);
 $translations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($format === 'csv') {
-    // Set headers for CSV download
-    header('Content-Type: text/csv');
+    // Set headers for CSV download (UTF-8 with BOM for Excel compatibility)
+    header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="translations_' . $language['language_code'] . '.csv"');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
+    // Output UTF-8 BOM so Excel recognizes encoding
+    echo "\xEF\xBB\xBF";
     
     // Create CSV output
     $output = fopen('php://output', 'w');
@@ -43,9 +48,11 @@ if ($format === 'csv') {
     // Add header row
     fputcsv($output, ['translation_key', 'translation_value']);
     
-    // Add data rows
+    // Add data rows (ensure UTF-8 strings)
     foreach ($translations as $translation) {
-        fputcsv($output, [$translation['translation_key'], $translation['translation_value']]);
+        $key = (string)$translation['translation_key'];
+        $val = (string)$translation['translation_value'];
+        fputcsv($output, [$key, $val]);
     }
     
     fclose($output);
