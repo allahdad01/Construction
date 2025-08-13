@@ -434,7 +434,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/settings/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>">
                         <i class="fas fa-cog"></i>
                         <span><?php echo __('settings'); ?></span>
                     </a>
