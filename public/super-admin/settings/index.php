@@ -722,54 +722,39 @@ $current_settings = [
                             </form>
                         </div>
                         
-                        <!-- Notification Settings -->
+                        <!-- Notifications Settings -->
                         <div class="tab-pane fade" id="notifications" role="tabpanel">
                             <form method="POST">
                                 <input type="hidden" name="action" value="update_notifications">
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" 
-                                               <?php echo $current_settings['email_notifications'] ? 'checked' : ''; ?>>
-                                        <label class="form-check-label" for="email_notifications">
-                                            <?php echo __('enable_email_notifications'); ?>
-                                        </label>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" <?php echo ((int)$current_settings['email_notifications'] ? 'checked' : ''); ?>>
+                                            <label class="form-check-label" for="email_notifications">Email Notifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" <?php echo ((int)$current_settings['sms_notifications'] ? 'checked' : ''); ?>>
+                                            <label class="form-check-label" for="sms_notifications">SMS Notifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" <?php echo ((int)$current_settings['push_notifications'] ? 'checked' : ''); ?>>
+                                            <label class="form-check-label" for="push_notifications">Push Notifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="notification_sound" name="notification_sound" <?php echo ((int)$current_settings['notification_sound'] ? 'checked' : ''); ?>>
+                                            <label class="form-check-label" for="notification_sound">Notification Sound</label>
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" 
-                                               <?php echo $current_settings['sms_notifications'] ? 'checked' : ''; ?>>
-                                        <label class="form-check-label" for="sms_notifications">
-                                            <?php echo __('enable_sms_notifications'); ?>
-                                        </label>
-                                    </div>
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Notifications</button>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" 
-                                               <?php echo $current_settings['push_notifications'] ? 'checked' : ''; ?>>
-                                        <label class="form-check-label" for="push_notifications">
-                                            <?php echo __('enable_push_notifications'); ?>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="notification_sound" name="notification_sound" 
-                                               <?php echo $current_settings['notification_sound'] ? 'checked' : ''; ?>>
-                                        <label class="form-check-label" for="notification_sound">
-                                                <?php echo __('enable_notification_sounds'); ?>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> <?php echo __('update_notifications'); ?>
-                                </button>
                             </form>
                         </div>
                         
