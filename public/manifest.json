@@ -1,8 +1,8 @@
 {
   "name": "Construct360 SaaS Platform",
   "short_name": "Construct360",
-  "start_url": "/constract360/construction/public/",
-  "scope": "/constract360/construction/public/",
+  "start_url": "http://localhost/constract360/construction/public/",
+  "scope": "http://localhost/constract360/construction/public/",
   "display": "standalone",
   "background_color": "#243447",
   "theme_color": "#F17300",
