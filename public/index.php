@@ -874,7 +874,7 @@ $current_settings = [
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-content" data-aos="fade-right">
-                    <h1 class="hero-title"><?php echo __('construction_saas_platform'); ?></h1>
+                    <h1 class="hero-title"><?php echo htmlspecialchars($current_settings['platform_name'] ?? __('construction_saas_platform')); ?></h1>
                     <p class="hero-subtitle"><?php echo __('advanced_construction_management_solution'); ?></p>
                     <p class="hero-description">
                         <?php echo __('hero_description'); ?>
@@ -1357,10 +1357,11 @@ $current_settings = [
                     <h5 class="mb-3"><?php echo htmlspecialchars($current_settings['platform_name'] ?? __('construction_saas_platform')); ?></h5>
                     <p class="text-muted" style="overflow-wrap:anywhere;word-break:break-word;white-space:normal"><?php echo __('advanced_construction_management_solution_for_modern_construction_companies'); ?></p>
                     <div class="d-flex gap-3">
-                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <?php $fb = $current_settings['contact_facebook'] ?? ''; $tw = $current_settings['contact_twitter'] ?? ''; $ln = $current_settings['contact_linkedin'] ?? ''; $ig = $current_settings['contact_instagram'] ?? ''; ?>
+                        <?php if ($fb): ?><a href="<?php echo htmlspecialchars($fb); ?>" class="text-white" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a><?php endif; ?>
+                        <?php if ($tw): ?><a href="<?php echo htmlspecialchars($tw); ?>" class="text-white" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a><?php endif; ?>
+                        <?php if ($ln): ?><a href="<?php echo htmlspecialchars($ln); ?>" class="text-white" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a><?php endif; ?>
+                        <?php if ($ig): ?><a href="<?php echo htmlspecialchars($ig); ?>" class="text-white" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a><?php endif; ?>
                     </div>
                 </div>
                 
