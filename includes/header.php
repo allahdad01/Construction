@@ -529,8 +529,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                     </div>
                     
                     <div class="d-flex align-items-center">
-                        <?php if ($is_company_admin): ?>
-                        <!-- Notifications (tenant admins only) -->
+                        <?php if ($is_company_admin || $is_employee): ?>
+                        <!-- Notifications (tenant admins and employees) -->
                         <div class="dropdown me-3">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
                                 <i class="fas fa-bell"></i>
@@ -934,6 +934,7 @@ function loadNotifications(){
 </script>
 <script>
 const isCompanyAdmin = <?php echo $is_company_admin ? 'true' : 'false'; ?>;
+const isEmployee = <?php echo $is_employee ? 'true' : 'false'; ?>;
 // Register service worker for out-of-browser notifications
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
@@ -949,7 +950,6 @@ if ('serviceWorker' in navigator) {
     const data = await res.json();
     if (!data.success) return;
     const vapidPublicKey = data.publicKey;
-    // Convert base64url to Uint8Array
     function urlB64ToUint8Array(base64String) {
       const padding = '='.repeat((4 - base64String.length % 4) % 4);
       const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');

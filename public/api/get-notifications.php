@@ -25,7 +25,7 @@ try {
     $userId = (int)($currentUser['id'] ?? 0);
     $role = $currentUser['role'] ?? '';
     if ($userId <= 0) { throw new Exception('Unauthorized'); }
-    if ($role !== 'company_admin') { http_response_code(403); echo json_encode(['success'=>false,'error'=>'Forbidden']); return; }
+    if (!in_array($role, ['company_admin','driver','driver_assistant'])) { http_response_code(403); echo json_encode(['success'=>false,'error'=>'Forbidden']); return; }
 
     // Fetch latest notifications
     $limit = 20;
