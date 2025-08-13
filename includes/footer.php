@@ -861,13 +861,18 @@
                 }
             });
             
-            // Enhanced Accessibility
-            const focusableElements = document.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            // Enhanced Accessibility (avoid blocking typing in inputs/textareas)
+            const focusableElements = document.querySelectorAll('a, button, [role="button"], [tabindex]:not([tabindex="-1"])');
             focusableElements.forEach(element => {
                 element.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        this.click();
+                    const tag = this.tagName;
+                    const isEditable = this.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+                    if (e.key === 'Enter') {
+                        if (!isEditable) { e.preventDefault(); this.click(); }
+                    } else if (e.key === ' ' || e.code === 'Space') {
+                        if (!isEditable && (tag === 'A' || tag === 'BUTTON' || this.getAttribute('role') === 'button')) {
+                            e.preventDefault(); this.click();
+                        }
                     }
                 });
             });
