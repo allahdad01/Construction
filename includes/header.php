@@ -440,6 +440,12 @@ date_default_timezone_set($company_timezone);
                         <span><?php echo __('settings'); ?></span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
+                    </a>
+                </li>
                 
             <?php elseif ($is_employee): ?>
                 <!-- Employee Menu -->
@@ -471,6 +477,12 @@ date_default_timezone_set($company_timezone);
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
                         <i class="fas fa-user"></i>
                         <span><?php echo __('profile'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                     </a>
                 </li>
                 
