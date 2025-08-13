@@ -277,694 +277,724 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     </style>
     <link rel="manifest" href="/constract360/construction/public/manifest.json">
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
-</head>
-<body data-theme="<?php echo $theme_mode; ?>">
-    <!-- Sidebar -->
-    <nav class="sidebar <?php echo $sidebar_style; ?>" id="sidebar">
-        <div class="sidebar-header">
-            <?php if ($platform_logo): ?>
-                <img src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
-            <?php endif; ?>
-            <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
-        </div>
-        
-        <ul class="sidebar-nav">
-            <li class="nav-item">
-                <?php
-                $dashboardUrl = '/constract360/construction/public/dashboard/';
-                if ($is_super_admin) {
-                    $dashboardUrl = '/constract360/construction/public/super-admin/';
-                } elseif ($is_company_admin) {
-                    $dashboardUrl = '/constract360/construction/public/admin/dashboard/';
-                } elseif ($is_employee) {
-                    $dashboardUrl = '/constract360/construction/public/employee/dashboard/';
-                }
-                ?>
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span><?php echo __('dashboard'); ?></span>
-                </a>
-            </li>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/constract360/construction/public/assets/icons/icon-192.png">
+  </head>
+  <body data-theme="<?php echo $theme_mode; ?>">
+      <!-- Sidebar -->
+      <div id="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar <?php echo htmlspecialchars($sidebar_style); ?>">
+            <div class="sidebar-header">
+                <?php if ($platform_logo): ?>
+                    <img src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
+                <?php endif; ?>
+                <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
+            </div>
             
-            <?php if ($is_super_admin): ?>
-                <!-- Super Admin Menu -->
+            <ul class="sidebar-nav">
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/companies/">
-                        <i class="fas fa-building"></i>
-                        <span><?php echo __('companies'); ?></span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
-                        <i class="fas fa-language"></i>
-                        <span><?php echo __('languages'); ?></span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
-                        <i class="fas fa-receipt"></i>
-                        <span><?php echo __('expenses'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span><?php echo __('payments'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
-                        <i class="fas fa-tags"></i>
-                        <span><?php echo __('pricing_plans'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/tutorials/">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/backups/">
-                        <i class="fas fa-database"></i>
-                        <span>Backups</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
-                        <i class="fas fa-file-alt"></i>
-                        <span><?php echo __('pages') ?? 'Pages'; ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
-                        <i class="fas fa-chart-bar"></i>
-                        <span><?php echo __('reports'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/settings/">
-                        <i class="fas fa-cogs"></i>
-                        <span><?php echo __('platform_settings'); ?></span>
+                    <?php
+                    $dashboardUrl = '/constract360/construction/public/dashboard/';
+                    if ($is_super_admin) {
+                        $dashboardUrl = '/constract360/construction/public/super-admin/';
+                    } elseif ($is_company_admin) {
+                        $dashboardUrl = '/constract360/construction/public/admin/dashboard/';
+                    } elseif ($is_employee) {
+                        $dashboardUrl = '/constract360/construction/public/employee/dashboard/';
+                    }
+                    ?>
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span><?php echo __('dashboard'); ?></span>
                     </a>
                 </li>
                 
-            <?php elseif ($is_company_admin): ?>
-                <!-- Company Admin Menu -->
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
-                        <i class="fas fa-users"></i>
-                        <span><?php echo __('employees'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
-                        <i class="fas fa-truck"></i>
-                        <span><?php echo __('machines'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
-                        <i class="fas fa-file-contract"></i>
-                        <span><?php echo __('contracts'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
-                        <i class="fas fa-parking"></i>
-                        <span><?php echo __('parking'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <span><?php echo __('area_rentals'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
-                        <i class="fas fa-receipt"></i>
-                        <span><?php echo __('expenses'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span><?php echo __('salary_payments'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
-                        <i class="fas fa-clock"></i>
-                        <span><?php echo __('attendance'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
-                        <i class="fas fa-chart-bar"></i>
-                        <span><?php echo __('reports'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
-                        <i class="fas fa-user-cog"></i>
-                        <span><?php echo __('users'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>">
-                        <i class="fas fa-cog"></i>
-                        <span><?php echo __('settings'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
-                    </a>
-                </li>
-                
-            <?php elseif ($is_employee): ?>
-                <!-- Employee Menu -->
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
-                        <i class="fas fa-clock"></i>
-                        <span><?php echo __('attendance'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
-                        <i class="fas fa-money-bill"></i>
-                        <span><?php echo __('salary'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
-                        <i class="fas fa-calendar-times"></i>
-                        <span><?php echo __('leave'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
-                        <i class="fas fa-file-contract"></i>
-                        <span><?php echo __('contracts'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
-                        <i class="fas fa-user"></i>
-                        <span><?php echo __('profile'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
-                    </a>
-                </li>
-                
-            <?php elseif ($is_renter): ?>
-                <!-- Renter Menu -->
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
-                        <i class="fas fa-list"></i>
-                        <span><?php echo __('rentals'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
-                        <i class="fas fa-money-bill"></i>
-                        <span><?php echo __('payments'); ?></span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
-                        <i class="fas fa-user"></i>
-                        <span><?php echo __('profile'); ?></span>
-                    </a>
-                </li>
-            <?php endif; ?>
-            
+                <?php if ($is_super_admin): ?>
+                    <!-- Super Admin Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/companies/">
+                            <i class="fas fa-building"></i>
+                            <span><?php echo __('companies'); ?></span>
+                        </a>
+                    </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="/constract360/construction/public/logout.php">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span><?php echo __('logout'); ?></span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
+                            <i class="fas fa-language"></i>
+                            <span><?php echo __('languages'); ?></span>
+                        </a>
+                    </li>
 
-    <!-- Main Content -->
-    <div class="main-content" id="main-content">
-        <!-- Top Navigation -->
-        <nav class="top-navbar">
-            <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
-                    </div>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
+                            <i class="fas fa-receipt"></i>
+                            <span><?php echo __('expenses'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span><?php echo __('payments'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
+                            <i class="fas fa-tags"></i>
+                            <span><?php echo __('pricing_plans'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/tutorials/">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/backups/">
+                            <i class="fas fa-database"></i>
+                            <span>Backups</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
+                            <i class="fas fa-file-alt"></i>
+                            <span><?php echo __('pages') ?? 'Pages'; ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
+                            <i class="fas fa-chart-bar"></i>
+                            <span><?php echo __('reports'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/settings/">
+                            <i class="fas fa-cogs"></i>
+                            <span><?php echo __('platform_settings'); ?></span>
+                        </a>
+                    </li>
                     
-                    <div class="d-flex align-items-center">
-                        <?php if ($is_company_admin || $is_employee): ?>
-                        <!-- Notifications (tenant admins and employees) -->
-                        <div class="dropdown me-3">
-                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
-                                <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
-                                <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
-                                <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
-                                    <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
-                                </a></li>
-                            </ul>
+                <?php elseif ($is_company_admin): ?>
+                    <!-- Company Admin Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
+                            <i class="fas fa-users"></i>
+                            <span><?php echo __('employees'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
+                            <i class="fas fa-truck"></i>
+                            <span><?php echo __('machines'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
+                            <i class="fas fa-file-contract"></i>
+                            <span><?php echo __('contracts'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
+                            <i class="fas fa-parking"></i>
+                            <span><?php echo __('parking'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span><?php echo __('area_rentals'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
+                            <i class="fas fa-receipt"></i>
+                            <span><?php echo __('expenses'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span><?php echo __('salary_payments'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
+                            <i class="fas fa-clock"></i>
+                            <span><?php echo __('attendance'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
+                            <i class="fas fa-chart-bar"></i>
+                            <span><?php echo __('reports'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
+                            <i class="fas fa-user-cog"></i>
+                            <span><?php echo __('users'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>">
+                            <i class="fas fa-cog"></i>
+                            <span><?php echo __('settings'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
+                        </a>
+                    </li>
+                    
+                <?php elseif ($is_employee): ?>
+                    <!-- Employee Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
+                            <i class="fas fa-clock"></i>
+                            <span><?php echo __('attendance'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
+                            <i class="fas fa-money-bill"></i>
+                            <span><?php echo __('salary'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
+                            <i class="fas fa-calendar-times"></i>
+                            <span><?php echo __('leave'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
+                            <i class="fas fa-file-contract"></i>
+                            <span><?php echo __('contracts'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
+                            <i class="fas fa-user"></i>
+                            <span><?php echo __('profile'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
+                        </a>
+                    </li>
+                    
+                <?php elseif ($is_renter): ?>
+                    <!-- Renter Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
+                            <i class="fas fa-list"></i>
+                            <span><?php echo __('rentals'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
+                            <i class="fas fa-money-bill"></i>
+                            <span><?php echo __('payments'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                            <i class="fas fa-user"></i>
+                            <span><?php echo __('profile'); ?></span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/constract360/construction/public/logout.php">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span><?php echo __('logout'); ?></span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <!-- Top Navigation -->
+            <nav class="top-navbar">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
                         </div>
-                        <?php endif; ?>
-                        <!-- User Dropdown -->
-                        <div class="dropdown">
-                            <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <div class="user-avatar">
-                                    <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
-                                </div>
-                                <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
-                                <i class="fas fa-chevron-down ms-2"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                <?php if (!$is_employee): ?>
-                                <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                <?php endif; ?>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
-                                <?php
-                                $available_languages = getAvailableLanguages();
-                                $current_language = getCompanyLanguage();
-                                foreach ($available_languages as $lang):
-                                    $is_active = ($current_language['id'] == $lang['id']);
-                                ?>
-                                <li>
-                                    <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
-                                       href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
-                                        <i class="fas fa-language me-2"></i>
-                                        <?php echo htmlspecialchars($lang['language_name_native']); ?>
-                                        <?php if ($is_active): ?>
-                                            <i class="fas fa-check ms-auto"></i>
-                                        <?php endif; ?>
-                                    </a>
-                                </li>
-                                <?php endforeach; ?>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/constract360/construction/public/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                            </ul>
+                        
+                        <div class="d-flex align-items-center">
+                            <?php if ($is_company_admin || $is_employee): ?>
+                            <!-- Notifications (tenant admins and employees) -->
+                            <div class="dropdown me-3">
+                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
+                                    <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
+                                    <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
+                                        <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
+                                    </a></li>
+                                </ul>
+                            </div>
+                            <?php endif; ?>
+                            <!-- PWA Install Button (desktop capable) -->
+                            <button id="installAppBtn" class="btn btn-sm btn-outline-light d-none me-2"><i class="fas fa-download"></i> <?php echo __('install_app') ?? 'Install'; ?></button>
+                            <!-- User Dropdown -->
+                            <div class="dropdown">
+                                <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar">
+                                        <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
+                                    </div>
+                                    <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <?php if (!$is_employee): ?>
+                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
+                                    <?php
+                                    $available_languages = getAvailableLanguages();
+                                    $current_language = getCompanyLanguage();
+                                    foreach ($available_languages as $lang):
+                                        $is_active = ($current_language['id'] == $lang['id']);
+                                    ?>
+                                    <li>
+                                        <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
+                                           href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
+                                            <i class="fas fa-language me-2"></i>
+                                            <?php echo htmlspecialchars($lang['language_name_native']); ?>
+                                            <?php if ($is_active): ?>
+                                                <i class="fas fa-check ms-auto"></i>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                    <?php endforeach; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
 
-        <!-- Page Content -->
-        <div class="container-fluid p-4">
-        
-        <script>
-        // Auto theme handler for 'auto' mode
-        (function(){
-          var mode = '<?php echo $theme_mode; ?>';
-          if (mode === 'auto') {
-            function applyAutoTheme(){
-              document.body.setAttribute('data-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            <!-- Page Content -->
+            <div class="container-fluid p-4">
+            
+            <script>
+            // Auto theme handler for 'auto' mode
+            (function(){
+              var mode = '<?php echo $theme_mode; ?>';
+              if (mode === 'auto') {
+                function applyAutoTheme(){
+                  document.body.setAttribute('data-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                }
+                applyAutoTheme();
+                try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyAutoTheme); } catch(e) {}
+              }
+            })();
+            </script>
+            <script>
+            // Define API base URL (absolute to avoid nested path issues)
+            const apiBaseUrl = '/constract360/construction/public/api/';
+            
+            // Load notifications from API
+            function loadNotifications() {
+                fetch(apiBaseUrl + 'get-notifications.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateNotificationBadge(data.unread_count);
+                            updateNotificationList(data.notifications);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading notifications:', error);
+                    });
             }
-            applyAutoTheme();
-            try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyAutoTheme); } catch(e) {}
-          }
-        })();
-        </script>
-        <script>
-        // Define API base URL (absolute to avoid nested path issues)
-        const apiBaseUrl = '/constract360/construction/public/api/';
-        
-        // Load notifications from API
-        function loadNotifications() {
-            fetch(apiBaseUrl + 'get-notifications.php')
+
+            // Update notification badge
+            function updateNotificationBadge(count) {
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'inline' : 'none';
+                }
+            }
+
+            // Update notification list
+            function updateNotificationList(notifications) {
+                const list = document.getElementById('notificationList');
+                if (!list) return;
+
+                // Clear existing notifications (keep header and footer)
+                const header = list.querySelector('.dropdown-header').parentElement;
+                const footer = list.querySelector('.dropdown-divider').parentElement;
+                const markAllLink = list.querySelector('a[onclick="markAllAsRead()"]').parentElement;
+                
+                list.innerHTML = '';
+                list.appendChild(header);
+                
+                if (notifications.length === 0) {
+                    const noNotifications = document.createElement('li');
+                    noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
+                    list.appendChild(noNotifications);
+                } else {
+                    notifications.forEach(notification => {
+                        const item = document.createElement('li');
+                        const icon = getNotificationIcon(notification.type);
+                        const timeAgo = getTimeAgo(notification.created_at);
+                        
+                        item.innerHTML = `
+                            <a class="dropdown-item ${notification.is_read ? 'text-muted' : ''}" href="#" onclick="markNotificationRead(${notification.id})">
+                                <i class="${icon} me-2"></i>
+                                <div>
+                                    <div class="fw-bold">${notification.title}</div>
+                                    <small class="text-muted">${notification.message}</small>
+                                    <br><small class="text-muted">${timeAgo}</small>
+                                </div>
+                            </a>
+                        `;
+                        list.appendChild(item);
+                    });
+                }
+                
+                list.appendChild(footer);
+                list.appendChild(markAllLink);
+            }
+
+            // Get notification icon based on type
+            function getNotificationIcon(type) {
+                switch (type) {
+                    case 'success': return 'fas fa-check-circle text-success';
+                    case 'warning': return 'fas fa-exclamation-triangle text-warning';
+                    case 'error': return 'fas fa-times-circle text-danger';
+                    default: return 'fas fa-info-circle text-info';
+                }
+            }
+
+            // Get time ago
+            function getTimeAgo(timestamp) {
+                const now = new Date();
+                const created = new Date(timestamp);
+                const diffMs = now - created;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                return `${diffDays}d ago`;
+            }
+
+            // Mark specific notification as read
+            function markNotificationRead(notificationId) {
+                const formData = new FormData();
+                formData.append('notification_id', notificationId);
+                formData.append('action', 'mark_read');
+
+                fetch(apiBaseUrl + 'mark-notification-read.php', {
+                    method: 'POST',
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         updateNotificationBadge(data.unread_count);
-                        updateNotificationList(data.notifications);
+                        loadNotifications(); // Reload to update the list
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading notifications:', error);
-                });
-        }
-
-        // Update notification badge
-        function updateNotificationBadge(count) {
-            const badge = document.getElementById('notificationBadge');
-            if (badge) {
-                badge.textContent = count;
-                badge.style.display = count > 0 ? 'inline' : 'none';
-            }
-        }
-
-        // Update notification list
-        function updateNotificationList(notifications) {
-            const list = document.getElementById('notificationList');
-            if (!list) return;
-
-            // Clear existing notifications (keep header and footer)
-            const header = list.querySelector('.dropdown-header').parentElement;
-            const footer = list.querySelector('.dropdown-divider').parentElement;
-            const markAllLink = list.querySelector('a[onclick="markAllAsRead()"]').parentElement;
-            
-            list.innerHTML = '';
-            list.appendChild(header);
-            
-            if (notifications.length === 0) {
-                const noNotifications = document.createElement('li');
-                noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
-                list.appendChild(noNotifications);
-            } else {
-                notifications.forEach(notification => {
-                    const item = document.createElement('li');
-                    const icon = getNotificationIcon(notification.type);
-                    const timeAgo = getTimeAgo(notification.created_at);
-                    
-                    item.innerHTML = `
-                        <a class="dropdown-item ${notification.is_read ? 'text-muted' : ''}" href="#" onclick="markNotificationRead(${notification.id})">
-                            <i class="${icon} me-2"></i>
-                            <div>
-                                <div class="fw-bold">${notification.title}</div>
-                                <small class="text-muted">${notification.message}</small>
-                                <br><small class="text-muted">${timeAgo}</small>
-                            </div>
-                        </a>
-                    `;
-                    list.appendChild(item);
+                    console.error('Error marking notification as read:', error);
                 });
             }
-            
-            list.appendChild(footer);
-            list.appendChild(markAllLink);
-        }
 
-        // Get notification icon based on type
-        function getNotificationIcon(type) {
-            switch (type) {
-                case 'success': return 'fas fa-check-circle text-success';
-                case 'warning': return 'fas fa-exclamation-triangle text-warning';
-                case 'error': return 'fas fa-times-circle text-danger';
-                default: return 'fas fa-info-circle text-info';
-            }
-        }
+            function markAllAsRead() {
+                const formData = new FormData();
+                formData.append('action', 'mark_all_read');
 
-        // Get time ago
-        function getTimeAgo(timestamp) {
-            const now = new Date();
-            const created = new Date(timestamp);
-            const diffMs = now - created;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            return `${diffDays}d ago`;
-        }
-
-        // Mark specific notification as read
-        function markNotificationRead(notificationId) {
-            const formData = new FormData();
-            formData.append('notification_id', notificationId);
-            formData.append('action', 'mark_read');
-
-            fetch(apiBaseUrl + 'mark-notification-read.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateNotificationBadge(data.unread_count);
-                    loadNotifications(); // Reload to update the list
-                }
-            })
-            .catch(error => {
-                console.error('Error marking notification as read:', error);
-            });
-        }
-
-        function markAllAsRead() {
-            const formData = new FormData();
-            formData.append('action', 'mark_all_read');
-
-            fetch(apiBaseUrl + 'mark-notification-read.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateNotificationBadge(0);
-                    loadNotifications(); // Reload to update the list
-                    
-                    // Show success message
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                    toast.innerHTML = `
-                        <i class="fas fa-check-circle me-2"></i>
-                        <?php echo __('all_notifications_marked_as_read'); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.body.appendChild(toast);
-                    
-                    // Auto-remove after 3 seconds
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 3000);
-                }
-            })
-            .catch(error => {
-                console.error('Error marking all notifications as read:', error);
-            });
-        }
-
-        // Load notifications when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNotifications();
-        });
-
-        // Refresh notifications every 30 seconds
-        setInterval(loadNotifications, 30000);
-
-        // Enhanced language switching function
-        function changeLanguage(languageCode) {
-            // Show loading indicator
-            const loadingToast = document.createElement('div');
-            loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
-            loadingToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-            loadingToast.innerHTML = `
-                <i class="fas fa-spinner fa-spin me-2"></i>
-                <?php echo __('changing_language'); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(loadingToast);
-
-            // Make API call to change language
-            fetch('/constract360/construction/public/api/change-language.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    language: languageCode
+                fetch(apiBaseUrl + 'mark-notification-read.php', {
+                    method: 'POST',
+                    body: formData
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Remove loading indicator
-                loadingToast.remove();
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateNotificationBadge(0);
+                        loadNotifications(); // Reload to update the list
+                        
+                        // Show success message
+                        const toast = document.createElement('div');
+                        toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                        toast.innerHTML = `
+                            <i class="fas fa-check-circle me-2"></i>
+                            <?php echo __('all_notifications_marked_as_read'); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(toast);
+                        
+                        // Auto-remove after 3 seconds
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking all notifications as read:', error);
+                });
+            }
 
-                if (data.success) {
-                    // Show success message
-                    const successToast = document.createElement('div');
-                    successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                    successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                    successToast.innerHTML = `
-                        <i class="fas fa-check-circle me-2"></i>
-                        ${data.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.body.appendChild(successToast);
+            // Load notifications when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                loadNotifications();
+            });
 
-                    // Reload page to apply language changes
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+
+            // Enhanced language switching function
+            function changeLanguage(languageCode) {
+                // Show loading indicator
+                const loadingToast = document.createElement('div');
+                loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+                loadingToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                loadingToast.innerHTML = `
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    <?php echo __('changing_language'); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(loadingToast);
+
+                // Make API call to change language
+                fetch('/constract360/construction/public/api/change-language.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        language: languageCode
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove loading indicator
+                    loadingToast.remove();
+
+                    if (data.success) {
+                        // Show success message
+                        const successToast = document.createElement('div');
+                        successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                        successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                        successToast.innerHTML = `
+                            <i class="fas fa-check-circle me-2"></i>
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(successToast);
+
+                        // Reload page to apply language changes
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        // Show error message
+                        const errorToast = document.createElement('div');
+                        errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                        errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                        errorToast.innerHTML = `
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(errorToast);
+                    }
+                })
+                .catch(error => {
+                    // Remove loading indicator
+                    loadingToast.remove();
+
                     // Show error message
                     const errorToast = document.createElement('div');
                     errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
                     errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
                     errorToast.innerHTML = `
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        ${data.message}
+                        <?php echo __('failed_to_change_language'); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
                     document.body.appendChild(errorToast);
-                }
-            })
-            .catch(error => {
-                // Remove loading indicator
-                loadingToast.remove();
-
-                // Show error message
-                const errorToast = document.createElement('div');
-                errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                errorToast.innerHTML = `
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <?php echo __('failed_to_change_language'); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                document.body.appendChild(errorToast);
-            });
-        }
-        </script>
-        <script>
-        // Improve dropdown positioning
-        document.addEventListener('DOMContentLoaded', function() {
-            function adjustDropdownPosition() {
-                if (window.innerWidth <= 768) {
-                    const dropdowns = document.querySelectorAll('.dropdown-menu');
-                    dropdowns.forEach(dropdown => {
-                        const toggle = dropdown.previousElementSibling;
-                        if (toggle) {
-                            const toggleRect = toggle.getBoundingClientRect();
-                            dropdown.style.position = 'fixed';
-                            dropdown.style.top = `${toggleRect.bottom + 10}px`;
-                            dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
-                            dropdown.style.transform = 'none';
-                        }
-                    });
-                } else {
-                    // Reset desktop dropdown styles
-                    const dropdowns = document.querySelectorAll('.dropdown-menu');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.style.position = 'absolute';
-                        dropdown.style.top = '100%';
-                        dropdown.style.right = '0';
-                        dropdown.style.transform = '';
-                    });
-                }
+                });
             }
+            </script>
+            <script>
+            // Improve dropdown positioning
+            document.addEventListener('DOMContentLoaded', function() {
+                function adjustDropdownPosition() {
+                    if (window.innerWidth <= 768) {
+                        const dropdowns = document.querySelectorAll('.dropdown-menu');
+                        dropdowns.forEach(dropdown => {
+                            const toggle = dropdown.previousElementSibling;
+                            if (toggle) {
+                                const toggleRect = toggle.getBoundingClientRect();
+                                dropdown.style.position = 'fixed';
+                                dropdown.style.top = `${toggleRect.bottom + 10}px`;
+                                dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
+                                dropdown.style.transform = 'none';
+                            }
+                        });
+                    } else {
+                        // Reset desktop dropdown styles
+                        const dropdowns = document.querySelectorAll('.dropdown-menu');
+                        dropdowns.forEach(dropdown => {
+                            dropdown.style.position = 'absolute';
+                            dropdown.style.top = '100%';
+                            dropdown.style.right = '0';
+                            dropdown.style.transform = '';
+                        });
+                    }
+                }
 
-            // Adjust on load and resize
-            adjustDropdownPosition();
-            window.addEventListener('resize', adjustDropdownPosition);
+                // Adjust on load and resize
+                adjustDropdownPosition();
+                window.addEventListener('resize', adjustDropdownPosition);
 
-            // Adjust when dropdowns are shown
-            const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('shown.bs.dropdown', adjustDropdownPosition);
+                // Adjust when dropdowns are shown
+                const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+                dropdownToggles.forEach(toggle => {
+                    toggle.addEventListener('shown.bs.dropdown', adjustDropdownPosition);
+                });
             });
-        });
-        </script>
-        <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
-  <source src="/constract360/construction/public/assets/sounds/notify.mp3" type="audio/mpeg">
-</audio>
-<script>
-let __lastUnreadCount = null;
-function maybeNotifyClient(newCount, newestItem){
-  try {
-    if (typeof newCount === 'number') {
-      if (__lastUnreadCount !== null && newCount > __lastUnreadCount) {
-        // Play sound if enabled
-        const audio = document.getElementById('notifAudio');
-        if (audio && !audio.muted) { audio.currentTime = 0; audio.play().catch(()=>{}); }
-        // In-page notification (Web Notifications API)
-        if (Notification && Notification.permission === 'granted' && newestItem) {
-          new Notification(newestItem.title || 'Notification', { body: newestItem.message || '' });
+            </script>
+            <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
+      <source src="/constract360/construction/public/assets/sounds/notify.mp3" type="audio/mpeg">
+    </audio>
+    <script>
+    let __lastUnreadCount = null;
+    function maybeNotifyClient(newCount, newestItem){
+      try {
+        if (typeof newCount === 'number') {
+          if (__lastUnreadCount !== null && newCount > __lastUnreadCount) {
+            // Play sound if enabled
+            const audio = document.getElementById('notifAudio');
+            if (audio && !audio.muted) { audio.currentTime = 0; audio.play().catch(()=>{}); }
+            // In-page notification (Web Notifications API)
+            if (Notification && Notification.permission === 'granted' && newestItem) {
+              new Notification(newestItem.title || 'Notification', { body: newestItem.message || '' });
+            }
+            // Ask SW to show system notification (works when page is backgrounded)
+            if (navigator.serviceWorker && navigator.serviceWorker.controller && newestItem) {
+              navigator.serviceWorker.controller.postMessage({
+                type: 'SHOW_NOTIFICATION',
+                title: newestItem.title || 'Notification',
+                body: newestItem.message || '',
+                url: '/constract360/construction/public/'
+              });
+            }
+          }
+          __lastUnreadCount = newCount;
         }
-        // Ask SW to show system notification (works when page is backgrounded)
-        if (navigator.serviceWorker && navigator.serviceWorker.controller && newestItem) {
-          navigator.serviceWorker.controller.postMessage({
-            type: 'SHOW_NOTIFICATION',
-            title: newestItem.title || 'Notification',
-            body: newestItem.message || '',
-            url: '/constract360/construction/public/'
-          });
-        }
-      }
-      __lastUnreadCount = newCount;
+      } catch(e) {}
     }
-  } catch(e) {}
-}
 
-// Request permission once on load if push setting is on
-try {
-  if (window.Notification && Notification.permission === 'default') {
-    Notification.requestPermission().catch(()=>{});
-  }
-} catch(e){}
-</script>
-<script>
-// Override loadNotifications to capture newest item and count
-const __origLoadNotifications = loadNotifications;
-function loadNotifications(){
-  fetch(apiBaseUrl + 'get-notifications.php')
-    .then(r=>r.json())
-    .then(data=>{
-      if (data && data.success){
-        updateNotificationBadge(data.unread_count);
-        updateNotificationList(data.notifications || []);
-        const newest = (data.notifications||[])[0] || null;
-        maybeNotifyClient(parseInt(data.unread_count||0,10), newest);
+    // Request permission once on load if push setting is on
+    try {
+      if (window.Notification && Notification.permission === 'default') {
+        Notification.requestPermission().catch(()=>{});
       }
-    })
-    .catch(err=>{ console.error('Error loading notifications:', err); });
-}
-</script>
-<script>
-const isCompanyAdmin = <?php echo $is_company_admin ? 'true' : 'false'; ?>;
-const isEmployee = <?php echo $is_employee ? 'true' : 'false'; ?>;
-// Register service worker for out-of-browser notifications
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
-}
-</script>
-<script>
-// VAPID subscription for tenant admins
-(async function initVapid(){
-  if (!isCompanyAdmin || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const res = await fetch(apiBaseUrl + 'push-vapid-public.php');
-    const data = await res.json();
-    if (!data.success) return;
-    const vapidPublicKey = data.publicKey;
-    function urlB64ToUint8Array(base64String) {
-      const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-      const rawData = atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-      return outputArray;
+    } catch(e){}
+    </script>
+    <script>
+    // Override loadNotifications to capture newest item and count
+    const __origLoadNotifications = loadNotifications;
+    function loadNotifications(){
+      fetch(apiBaseUrl + 'get-notifications.php')
+        .then(r=>r.json())
+        .then(data=>{
+          if (data && data.success){
+            updateNotificationBadge(data.unread_count);
+            updateNotificationList(data.notifications || []);
+            const newest = (data.notifications||[])[0] || null;
+            maybeNotifyClient(parseInt(data.unread_count||0,10), newest);
+          }
+        })
+        .catch(err=>{ console.error('Error loading notifications:', err); });
     }
-    const existing = await reg.pushManager.getSubscription();
-    if (!existing) {
-      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(vapidPublicKey) });
-      await fetch(apiBaseUrl + 'push-subscribe.php', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(sub) });
+    </script>
+    <script>
+    const isCompanyAdmin = <?php echo $is_company_admin ? 'true' : 'false'; ?>;
+    const isEmployee = <?php echo $is_employee ? 'true' : 'false'; ?>;
+    // Register service worker for out-of-browser notifications
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
     }
-  } catch(e) { console.warn('VAPID init failed', e); }
-})();
-</script>
+    // PWA Install flow
+    (function(){
+      let deferredPrompt = null;
+      const installBtn = document.getElementById('installAppBtn');
+      function hideInstall(){ if (installBtn) installBtn.classList.add('d-none'); }
+      function showInstall(){ if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) installBtn.classList.remove('d-none'); }
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstall();
+      });
+      window.addEventListener('appinstalled', () => { hideInstall(); deferredPrompt = null; });
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          try { await deferredPrompt.userChoice; } catch(e){}
+          deferredPrompt = null; hideInstall();
+        });
+      }
+      // On load, hide if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches) hideInstall();
+    })();
+    </script>
+    <script>
+    // VAPID subscription for tenant admins
+    (async function initVapid(){
+      if (!isCompanyAdmin || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const res = await fetch(apiBaseUrl + 'push-vapid-public.php');
+        const data = await res.json();
+        if (!data.success) return;
+        const vapidPublicKey = data.publicKey;
+        function urlB64ToUint8Array(base64String) {
+          const padding = '='.repeat((4 - base64String.length % 4) % 4);
+          const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+          const rawData = atob(base64);
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+          return outputArray;
+        }
+        const existing = await reg.pushManager.getSubscription();
+        if (!existing) {
+          const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(vapidPublicKey) });
+          await fetch(apiBaseUrl + 'push-subscribe.php', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(sub) });
+        }
+      } catch(e) { console.warn('VAPID init failed', e); }
+    })();
+    </script>
