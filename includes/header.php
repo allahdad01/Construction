@@ -65,22 +65,7 @@ $accent_color = getSystemSettingLocal($conn, 'accent_color', '#F17300');
 $theme_mode = getSystemSettingLocal($conn, 'theme_mode', 'light');
 $sidebar_style = getSystemSettingLocal($conn, 'sidebar_style', 'default');
 $platform_favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
-
-// Get company settings
-function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
-    $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
-    $stmt->execute([$company_id, $key]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['setting_value'] : $default;
-}
-
-$company_currency_id = getCompanySettingLocal($conn, $company_id, 'currency_id', '1');
-$company_date_format_id = getCompanySettingLocal($conn, $company_id, 'date_format_id', '1');
-$company_language_id = getCompanySettingLocal($conn, $company_id, 'default_language_id', '1');
-$company_timezone = getCompanySettingLocal($conn, $company_id, 'timezone', 'UTC');
-
-// Set timezone
-date_default_timezone_set($company_timezone);
+$notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_sound', '1');
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="<?php echo isRTL() ? 'rtl' : 'ltr'; ?>">
@@ -891,3 +876,49 @@ date_default_timezone_set($company_timezone);
             });
         });
         </script>
+        <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
+  <source src="/constract360/construction/public/assets/sounds/notify.mp3" type="audio/mpeg">
+</audio>
+<script>
+let __lastUnreadCount = null;
+function maybeNotifyClient(newCount, newestItem){
+  try {
+    if (typeof newCount === 'number') {
+      if (__lastUnreadCount !== null && newCount > __lastUnreadCount) {
+        // Play sound if enabled
+        const audio = document.getElementById('notifAudio');
+        if (audio && !audio.muted) { audio.currentTime = 0; audio.play().catch(()=>{}); }
+        // In-page notification (Web Notifications API)
+        if (Notification && Notification.permission === 'granted' && newestItem) {
+          new Notification(newestItem.title || 'Notification', { body: newestItem.message || '' });
+        }
+      }
+      __lastUnreadCount = newCount;
+    }
+  } catch(e) {}
+}
+
+// Request permission once on load if push setting is on
+try {
+  if (window.Notification && Notification.permission === 'default') {
+    Notification.requestPermission().catch(()=>{});
+  }
+} catch(e){}
+</script>
+<script>
+// Override loadNotifications to capture newest item and count
+const __origLoadNotifications = loadNotifications;
+function loadNotifications(){
+  fetch(apiBaseUrl + 'get-notifications.php')
+    .then(r=>r.json())
+    .then(data=>{
+      if (data && data.success){
+        updateNotificationBadge(data.unread_count);
+        updateNotificationList(data.notifications || []);
+        const newest = (data.notifications||[])[0] || null;
+        maybeNotifyClient(parseInt(data.unread_count||0,10), newest);
+      }
+    })
+    .catch(err=>{ console.error('Error loading notifications:', err); });
+}
+</script>

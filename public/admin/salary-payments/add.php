@@ -1,6 +1,7 @@
 <?php
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
+require_once '../../../config/notifications.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -117,6 +118,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Commit transaction
         $conn->commit();
+
+        // Notify tenant users
+        try {
+            notifyCompanyUsers($conn, (int)$company_id, 'Salary Payment Added', 'Payment ' . $payment_code . ' has been recorded.', 'success');
+        } catch (Throwable $nt) {}
 
         $success = __('salary_payment_added_successfully') . '! ' . __('payment_code') . ': ' . $payment_code;
 
