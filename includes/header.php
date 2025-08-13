@@ -275,6 +275,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
       .top-navbar { padding: 0.75rem 1rem; }
     }
     </style>
+    <link rel="manifest" href="/constract360/construction/public/manifest.json">
+    <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
 </head>
 <body data-theme="<?php echo $theme_mode; ?>">
     <!-- Sidebar -->

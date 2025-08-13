@@ -21,6 +21,12 @@
             .app-footer .footer-left strong{word-break:break-word; overflow-wrap:anywhere; display:block}
             .app-footer .footer-left,.app-footer .footer-right{min-width:0;}
             @media (max-width:768px){ .app-footer .footer-inner{flex-direction:column; text-align:center} }
+            .mobile-touch-bar{position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--gray-200); display:none; z-index:1030}
+            .mobile-touch-bar .btn{flex:1; border:0; background:transparent; color:var(--gray-800); padding:10px 0}
+            .mobile-touch-bar .btn.active{color:var(--accent-color)}
+            .mobile-touch-bar .btn i{display:block; font-size:18px}
+            .mobile-touch-bar .btn span{display:block; font-size:11px}
+            @media (max-width:768px){ .mobile-touch-bar{display:flex} body{padding-bottom:56px} }
             </style>
             <footer class="app-footer">
               <div class="container-fluid footer-inner">
@@ -38,6 +44,27 @@
                 </div>
               </div>
             </footer>
+            <div class="mobile-touch-bar d-md-none">
+              <?php
+                $is_admin = $is_company_admin ?? false;
+                $homeUrl = $is_super_admin ? '/constract360/construction/public/super-admin/' : ($is_admin ? '/constract360/construction/public/admin/dashboard/' : '/constract360/construction/public/dashboard/');
+                $contractsUrl = $is_admin ? '/constract360/construction/public/admin/contracts/' : '/constract360/construction/public/employee/contracts/';
+                $reportsUrl = $is_super_admin ? '/constract360/construction/public/super-admin/reports/' : '/constract360/construction/public/reports/';
+                $settingsUrl = $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : '/constract360/construction/public/settings/';
+              ?>
+              <a class="btn text-center" href="<?php echo $homeUrl; ?>">
+                <i class="fas fa-home"></i><span><?php echo __('home') ?? 'Home'; ?></span>
+              </a>
+              <a class="btn text-center" href="<?php echo $contractsUrl; ?>">
+                <i class="fas fa-file-contract"></i><span><?php echo __('contracts') ?? 'Contracts'; ?></span>
+              </a>
+              <a class="btn text-center" href="<?php echo $reportsUrl; ?>">
+                <i class="fas fa-chart-pie"></i><span><?php echo __('reports') ?? 'Reports'; ?></span>
+              </a>
+              <a class="btn text-center" href="<?php echo $settingsUrl; ?>">
+                <i class="fas fa-cog"></i><span><?php echo __('settings') ?? 'Settings'; ?></span>
+              </a>
+            </div>
             <!-- End of Footer -->
         </div>
         <!-- End of Content Wrapper -->
