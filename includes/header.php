@@ -792,7 +792,7 @@ date_default_timezone_set($company_timezone);
             document.body.appendChild(loadingToast);
 
             // Make API call to change language
-            fetch('/constract360/construction/api/change-language.php', {
+            fetch('/constract360/construction/public/api/change-language.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
