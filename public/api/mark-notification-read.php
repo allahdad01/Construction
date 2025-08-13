@@ -33,14 +33,19 @@ try {
         if ($notificationId <= 0) { throw new Exception('Invalid notification'); }
         $stmt = $conn->prepare('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?');
         $stmt->execute([$notificationId, $userId]);
-        echo json_encode(['success' => true]);
     } elseif ($action === 'mark_all_read') {
         $stmt = $conn->prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0');
         $stmt->execute([$userId]);
-        echo json_encode(['success' => true]);
     } else {
         throw new Exception('Unknown action');
     }
+
+    // Return latest unread count
+    $cstmt = $conn->prepare('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0');
+    $cstmt->execute([$userId]);
+    $unread = (int)$cstmt->fetchColumn();
+
+    echo json_encode(['success' => true, 'unread_count' => $unread]);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
