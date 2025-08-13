@@ -41,8 +41,8 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-file-alt"></i> Pages</h1>
-    <a href="edit.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Page</a>
+    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-file-alt"></i> <?php echo __('pages'); ?></h1>
+    <a href="edit.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <?php echo __('add_page'); ?></a>
   </div>
 
   <?php if ($msg): ?><div class="alert alert-success"><?php echo htmlspecialchars($msg); ?></div><?php endif; ?>
@@ -52,13 +52,13 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <div class="table-responsive">
         <table class="table table-striped datatable" id="pagesTable">
           <thead><tr>
-            <th>Title</th>
-            <th>Slug</th>
-            <th>Category</th>
-            <th>Footer</th>
-            <th>Status</th>
-            <th>Updated</th>
-            <th>Actions</th>
+            <th><?php echo __('title'); ?></th>
+            <th><?php echo __('slug'); ?></th>
+            <th><?php echo __('category'); ?></th>
+            <th><?php echo __('footer'); ?></th>
+            <th><?php echo __('status'); ?></th>
+            <th><?php echo __('updated'); ?></th>
+            <th><?php echo __('actions'); ?></th>
           </tr></thead>
           <tbody>
           <?php foreach ($pages as $p): ?>
@@ -66,13 +66,13 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td class="searchable" data-title="<?php echo htmlspecialchars($p['title']); ?>"><?php echo htmlspecialchars($p['title']); ?></td>
               <td><?php echo htmlspecialchars($p['slug']); ?></td>
               <td><?php echo htmlspecialchars($p['category'] ?: ''); ?></td>
-              <td><?php echo ((int)$p['show_in_footer'] ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>'); ?></td>
+              <td><?php echo ((int)$p['show_in_footer'] ? '<span class="badge bg-success">'.__('yes').'</span>' : '<span class="badge bg-secondary">'.__('no').'</span>'); ?></td>
               <td><?php echo htmlspecialchars($p['status']); ?></td>
               <td><?php echo htmlspecialchars($p['updated_at']); ?></td>
               <td>
-                <a class="btn btn-sm btn-outline-primary" href="/constract360/construction/public/pages/page.php?slug=<?php echo urlencode($p['slug']); ?>" target="_blank">View</a>
-                <a class="btn btn-sm btn-primary" href="edit.php?id=<?php echo (int)$p['id']; ?>">Edit</a>
-                <a class="btn btn-sm btn-outline-danger" href="?delete=<?php echo (int)$p['id']; ?>" onclick="return confirm('Delete this page?');">Delete</a>
+                <a class="btn btn-sm btn-outline-primary" href="/constract360/construction/public/pages/page.php?slug=<?php echo urlencode($p['slug']); ?>" target="_blank"><?php echo __('view'); ?></a>
+                <a class="btn btn-sm btn-primary" href="edit.php?id=<?php echo (int)$p['id']; ?>"><?php echo __('edit'); ?></a>
+                <a class="btn btn-sm btn-outline-danger" href="?delete=<?php echo (int)$p['id']; ?>" onclick="return confirm('<?php echo __('delete_this_page'); ?>');"><?php echo __('delete'); ?></a>
               </td>
             </tr>
           <?php endforeach; ?>

@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><?php echo $id ? 'Edit Tutorial' : 'Add Tutorial'; ?></h1>
-    <a href="index.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1 class="h3 mb-0 text-gray-800"><?php echo $id ? __('edit_tutorial') : __('add_tutorial'); ?></h1>
+    <a href="index.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back'); ?></a>
   </div>
   <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <form method="POST" enctype="multipart/form-data">
         <div class="row">
           <div class="col-md-4">
-            <label class="form-label">Language</label>
+            <label class="form-label"><?php echo __('language'); ?></label>
             <select class="form-control" name="language_code">
               <?php foreach ($langs as $lg): ?>
                 <option value="<?php echo htmlspecialchars($lg['language_code']); ?>" <?php echo $tutorial['language_code']===$lg['language_code']?'selected':''; ?>><?php echo htmlspecialchars($lg['language_name_native']); ?></option>
@@ -80,54 +80,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Task *</label>
+            <label class="form-label"><?php echo __('task'); ?> *</label>
             <input class="form-control" name="task_name" required value="<?php echo htmlspecialchars($tutorial['task_name']); ?>" placeholder="e.g., salary-payments, contracts, reports">
           </div>
           <div class="col-md-4">
-            <label class="form-label">Status</label>
+            <label class="form-label"><?php echo __('status'); ?></label>
             <select class="form-control" name="status">
-              <option value="published" <?php echo $tutorial['status']==='published'?'selected':''; ?>>Published</option>
-              <option value="draft" <?php echo $tutorial['status']==='draft'?'selected':''; ?>>Draft</option>
+              <option value="published" <?php echo $tutorial['status']==='published'?'selected':''; ?>><?php echo __('published'); ?></option>
+              <option value="draft" <?php echo $tutorial['status']==='draft'?'selected':''; ?>><?php echo __('draft'); ?></option>
             </select>
           </div>
         </div>
 
         <div class="row mt-3">
           <div class="col-md-6">
-            <label class="form-label">Title *</label>
+            <label class="form-label"><?php echo __('title'); ?> *</label>
             <input class="form-control" name="title" required value="<?php echo htmlspecialchars($tutorial['title']); ?>">
           </div>
           <div class="col-md-6">
-            <label class="form-label">Type</label>
+            <label class="form-label"><?php echo __('type'); ?></label>
             <select class="form-control" name="type" id="type">
-              <option value="video" <?php echo $tutorial['type']==='video'?'selected':''; ?>>Video (embed or upload)</option>
-              <option value="pdf" <?php echo $tutorial['type']==='pdf'?'selected':''; ?>>PDF</option>
-              <option value="text" <?php echo $tutorial['type']==='text'?'selected':''; ?>>Text</option>
+              <option value="video" <?php echo $tutorial['type']==='video'?'selected':''; ?>><?php echo __('video'); ?> (<?php echo __('embed_or_upload'); ?>)</option>
+              <option value="pdf" <?php echo $tutorial['type']==='pdf'?'selected':''; ?>><?php echo __('pdf'); ?></option>
+              <option value="text" <?php echo $tutorial['type']==='text'?'selected':''; ?>><?php echo __('text'); ?></option>
             </select>
           </div>
         </div>
 
         <div class="row mt-3">
           <div class="col-md-6">
-            <label class="form-label">Embed URL (YouTube/Vimeo)</label>
+            <label class="form-label"><?php echo __('embed_url'); ?> (<?php echo __('youtube_vimeo'); ?>)</label>
             <input class="form-control" name="embed_url" placeholder="https://..." value="<?php echo htmlspecialchars($tutorial['embed_url']); ?>">
           </div>
           <div class="col-md-6">
-            <label class="form-label">Upload File (MP4 or PDF)</label>
+            <label class="form-label"><?php echo __('upload_file'); ?> (<?php echo __('mp4_or_pdf'); ?>)</label>
             <input type="file" class="form-control" name="file_upload" accept=".pdf,video/mp4,video/webm,video/ogg">
             <?php if (!empty($tutorial['file_path'])): ?>
-              <small class="text-muted">Current: <a href="/constract360/construction/<?php echo htmlspecialchars($tutorial['file_path']); ?>" target="_blank">Open</a></small>
+              <small class="text-muted"><?php echo __('current'); ?>: <a href="/constract360/construction/<?php echo htmlspecialchars($tutorial['file_path']); ?>" target="_blank"><?php echo __('open'); ?></a></small>
             <?php endif; ?>
           </div>
         </div>
 
         <div class="mt-3">
-          <label class="form-label">Text Content</label>
+          <label class="form-label"><?php echo __('text_content'); ?></label>
           <textarea class="form-control" name="content_text" rows="10" placeholder="Markdown or plain text accepted."><?php echo htmlspecialchars($tutorial['content_text']); ?></textarea>
         </div>
 
         <div class="text-end mt-3">
-          <button class="btn btn-primary" type="submit"><i class="fas fa-save me-1"></i> Save Tutorial</button>
+          <button class="btn btn-primary" type="submit"><i class="fas fa-save me-1"></i> <?php echo __('save_tutorial'); ?></button>
         </div>
       </form>
     </div>

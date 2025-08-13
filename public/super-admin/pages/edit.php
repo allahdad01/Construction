@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><?php echo $id ? 'Edit Page' : 'Add Page'; ?></h1>
-    <a href="index.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1 class="h3 mb-0 text-gray-800"><?php echo $id ? __('edit_page') : __('add_page'); ?></h1>
+    <a href="index.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back'); ?></a>
   </div>
 
   <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
@@ -58,13 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
-              <label class="form-label">Title *</label>
+              <label class="form-label"><?php echo __('title'); ?> *</label>
               <input type="text" class="form-control" name="title" required value="<?php echo htmlspecialchars($page['title']); ?>">
             </div>
           </div>
           <div class="col-md-6">
             <div class="mb-3">
-              <label class="form-label">Slug *</label>
+              <label class="form-label"><?php echo __('slug'); ?> *</label>
               <input type="text" class="form-control" name="slug" required value="<?php echo htmlspecialchars($page['slug']); ?>">
             </div>
           </div>
@@ -73,38 +73,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row">
           <div class="col-md-4">
             <div class="mb-3">
-              <label class="form-label">Category</label>
+              <label class="form-label"><?php echo __('category'); ?></label>
               <select class="form-control" name="category">
-                <option value="legal" <?php echo $page['category']==='legal'?'selected':''; ?>>Legal</option>
-                <option value="company" <?php echo $page['category']==='company'?'selected':''; ?>>Company</option>
-                <option value="help" <?php echo $page['category']==='help'?'selected':''; ?>>Help</option>
+                <option value="legal" <?php echo $page['category']==='legal'?'selected':''; ?>><?php echo __('legal'); ?></option>
+                <option value="company" <?php echo $page['category']==='company'?'selected':''; ?>><?php echo __('company'); ?></option>
+                <option value="help" <?php echo $page['category']==='help'?'selected':''; ?>><?php echo __('help'); ?></option>
               </select>
             </div>
           </div>
           <div class="col-md-4">
             <div class="mb-3">
-              <label class="form-label">Status</label>
+              <label class="form-label"><?php echo __('status'); ?></label>
               <select class="form-control" name="status">
-                <option value="published" <?php echo $page['status']==='published'?'selected':''; ?>>Published</option>
-                <option value="draft" <?php echo $page['status']==='draft'?'selected':''; ?>>Draft</option>
+                <option value="published" <?php echo $page['status']==='published'?'selected':''; ?>><?php echo __('published'); ?></option>
+                <option value="draft" <?php echo $page['status']==='draft'?'selected':''; ?>><?php echo __('draft'); ?></option>
               </select>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-check mt-4">
               <input class="form-check-input" type="checkbox" name="show_in_footer" id="show_in_footer" <?php echo ((int)$page['show_in_footer'] ? 'checked' : ''); ?>>
-              <label class="form-check-label" for="show_in_footer">Show in Footer</label>
+              <label class="form-check-label" for="show_in_footer"><?php echo __('show_in_footer'); ?></label>
             </div>
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Content</label>
+          <label class="form-label"><?php echo __('content'); ?></label>
           <textarea class="form-control" name="content" rows="12"><?php echo htmlspecialchars($page['content']); ?></textarea>
         </div>
 
         <div class="text-end">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> <?php echo __('save'); ?></button>
         </div>
       </form>
     </div>

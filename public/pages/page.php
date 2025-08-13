@@ -38,7 +38,7 @@ $favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
   <div class="topbar py-3 mb-4">
     <div class="container d-flex justify-content-between align-items-center">
       <strong><?php echo htmlspecialchars($platform_name); ?></strong>
-      <a class="btn btn-light btn-sm" href="/constract360/construction/public/">Home</a>
+      <a class="btn btn-light btn-sm" href="/constract360/construction/public/"><?php echo __('home'); ?></a>
     </div>
   </div>
   <div class="container">

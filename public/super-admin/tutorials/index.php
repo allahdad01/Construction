@@ -49,8 +49,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-chalkboard-teacher"></i> Tutorials</h1>
-    <a href="add.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Tutorial</a>
+    <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-chalkboard-teacher"></i> <?php echo __('tutorials'); ?></h1>
+    <a href="add.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <?php echo __('add_tutorial'); ?></a>
   </div>
   <?php if ($msg): ?><div class="alert alert-success"><?php echo htmlspecialchars($msg); ?></div><?php endif; ?>
 
@@ -60,13 +60,13 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="table table-striped datatable">
           <thead>
             <tr>
-              <th>Language</th>
-              <th>Task</th>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Updated</th>
-              <th>Actions</th>
+              <th><?php echo __('language'); ?></th>
+              <th><?php echo __('task'); ?></th>
+              <th><?php echo __('title'); ?></th>
+              <th><?php echo __('type'); ?></th>
+              <th><?php echo __('status'); ?></th>
+              <th><?php echo __('updated'); ?></th>
+              <th><?php echo __('actions'); ?></th>
             </tr>
           </thead>
           <tbody>
@@ -79,8 +79,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td><?php echo htmlspecialchars($r['status']); ?></td>
               <td><?php echo htmlspecialchars($r['updated_at']); ?></td>
               <td>
-                <a href="edit.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                <a href="delete.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this tutorial?');">Delete</a>
+                <a href="edit.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-primary"><?php echo __('edit'); ?></a>
+                <a href="delete.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('<?php echo __('delete_this_tutorial'); ?>');"><?php echo __('delete'); ?></a>
               </td>
             </tr>
           <?php endforeach; ?>
