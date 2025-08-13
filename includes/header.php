@@ -360,6 +360,12 @@ date_default_timezone_set($company_timezone);
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/backups/">
+                        <i class="fas fa-database"></i>
+                        <span>Backups</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
                         <i class="fas fa-file-alt"></i>
                         <span><?php echo __('pages') ?? 'Pages'; ?></span>
