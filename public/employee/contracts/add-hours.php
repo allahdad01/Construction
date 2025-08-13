@@ -3,9 +3,10 @@ require_once '../../../config/config.php';
 require_once '../../../config/database.php';
 require_once '../../../config/currency_helper.php';
 require_once '../../../includes/header.php';
-
 requireAuth();
 requireAnyRole(['driver']);
+
+require_once '../../../config/notifications.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -82,6 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ins->execute([$company_id, $contract_id, ($selected_machine_id ?: $assigned_machine_ids[0]), $employee['id'], $date, $hours_worked, $notes]);
                 $success = 'Hours added successfully';
                 $_POST = [];
+
+                // Notify tenant admins that hours were added
+                try {
+                    $title = 'Hours Added';
+                    $msg = 'Driver ' . ($employee['name'] ?? ('#'.$employee['id'])) . ' added ' . number_format($hours_worked, 2) . ' hours on ' . $date . ' for contract ' . ($contract['contract_code'] ?? ('#'.$contract_id)) . '.';
+                    notifyCompanyUsers($conn, (int)$company_id, $title, $msg, 'info');
+                } catch (Throwable $nt) {}
             } catch (Exception $e) { $error = 'Failed to add hours: ' . $e->getMessage(); }
         }
     }
