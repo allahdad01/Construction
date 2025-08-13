@@ -939,3 +939,30 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
 }
 </script>
+<script>
+// VAPID subscription for tenant admins
+(async function initVapid(){
+  if (!isCompanyAdmin || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const res = await fetch(apiBaseUrl + 'push-vapid-public.php');
+    const data = await res.json();
+    if (!data.success) return;
+    const vapidPublicKey = data.publicKey;
+    // Convert base64url to Uint8Array
+    function urlB64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+      return outputArray;
+    }
+    const existing = await reg.pushManager.getSubscription();
+    if (!existing) {
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(vapidPublicKey) });
+      await fetch(apiBaseUrl + 'push-subscribe.php', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(sub) });
+    }
+  } catch(e) { console.warn('VAPID init failed', e); }
+})();
+</script>
