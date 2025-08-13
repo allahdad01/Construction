@@ -260,9 +260,28 @@ $languages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <a href="import.php" class="list-group-item list-group-item-action">
                             <i class="fas fa-upload"></i> <?php echo __('import_translations'); ?>
                         </a>
-                        <a href="export.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-download"></i> <?php echo __('export_translations'); ?>
-                        </a>
+                        <div class="list-group-item">
+                            <form class="row g-2 align-items-end" method="get" action="export.php" target="_blank">
+                                <div class="col-sm-6">
+                                    <label class="form-label mb-0"><?php echo __('language'); ?></label>
+                                    <select class="form-control" name="language_id" required>
+                                        <?php foreach ($languages as $l): ?>
+                                            <option value="<?php echo (int)$l['id']; ?>"><?php echo htmlspecialchars($l['language_name_native'] . ' (' . $l['language_code'] . ')'); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="form-label mb-0">Format</label>
+                                    <select class="form-control" name="format">
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-download"></i> <?php echo __('export_translations'); ?></button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
