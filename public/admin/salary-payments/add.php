@@ -2,6 +2,7 @@
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
 require_once '../../../config/notifications.php';
+require_once '../../../config/mailer.php';
 
 // Check if user is authenticated and has appropriate role
 requireAuth();
@@ -119,10 +120,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $conn->commit();
 
-        // Notify tenant users
+        // Notify tenant admins
         try {
             notifyCompanyUsers($conn, (int)$company_id, 'Salary Payment Added', 'Payment ' . $payment_code . ' has been recorded.', 'success');
         } catch (Throwable $nt) {}
+
+        // Notify the employee (in-app) and send email (if configured)
+        try {
+            $empStmt = $conn->prepare('SELECT e.id, e.name, e.user_id, u.email FROM employees e LEFT JOIN users u ON e.user_id = u.id WHERE e.id = ? AND e.company_id = ?');
+            $empStmt->execute([ (int)$_POST['employee_id'], (int)$company_id ]);
+            $emp = $empStmt->fetch(PDO::FETCH_ASSOC);
+            if ($emp) {
+                $employeeUserId = (int)($emp['user_id'] ?? 0);
+                $employeeEmail = trim((string)($emp['email'] ?? ''));
+                $amount = (float)$_POST['amount_paid'];
+                $currency = $_POST['currency'] ?? 'USD';
+                $title = 'Salary Paid';
+                $message = 'Your salary payment has been processed. Code: ' . $payment_code . ', Amount: ' . number_format($amount, 2) . ' ' . $currency . ', Date: ' . $payment_date . '.';
+                if ($employeeUserId > 0) {
+                    notifyUser($conn, $employeeUserId, $title, $message, 'success');
+                }
+                if (!empty($employeeEmail)) {
+                    $html = '<p>Dear ' . htmlspecialchars($emp['name'] ?? 'Employee') . ',</p>'
+                          . '<p>Your salary payment has been processed with the following details:</p>'
+                          . '<ul>'
+                          . '<li><strong>Payment Code:</strong> ' . htmlspecialchars($payment_code) . '</li>'
+                          . '<li><strong>Amount Paid:</strong> ' . htmlspecialchars(number_format($amount, 2)) . ' ' . htmlspecialchars($currency) . '</li>'
+                          . '<li><strong>Payment Date:</strong> ' . htmlspecialchars($payment_date) . '</li>'
+                          . '</ul>'
+                          . '<p>If you have any questions, please contact your administrator.</p>';
+                    $err = null;
+                    // Ignore result; do not block on email failure
+                    sendCompanyEmail($conn, (int)$company_id, $employeeEmail, 'Salary Paid - ' . $payment_code, $html, null, $err);
+                }
+            }
+        } catch (Throwable $te) {}
 
         $success = __('salary_payment_added_successfully') . '! ' . __('payment_code') . ': ' . $payment_code;
 
