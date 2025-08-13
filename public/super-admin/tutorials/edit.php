@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label">Language</label>
             <select class="form-control" name="language_code">
               <?php foreach ($langs as $lg): ?>
-                <option value="<?php echo htmlspecialchars($lg['language_code']); ?>" <?php echo $tutorial['language_code']===$lg['language_code']?'selected':''; ?><?php echo htmlspecialchars($lg['language_name_native']); ?></option>
+                <option value="<?php echo htmlspecialchars($lg['language_code']); ?>" <?php echo $tutorial['language_code']===$lg['language_code']?'selected':''; ?>><?php echo htmlspecialchars($lg['language_name_native']); ?></option>
               <?php endforeach; ?>
             </select>
           </div>
