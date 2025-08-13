@@ -34,8 +34,16 @@
                   <strong><?php echo htmlspecialchars(($platform_name ?? APP_NAME) . ''); ?></strong>
                 </div>
                 <div class="footer-links">
+                  <?php if (!empty($is_super_admin) && $is_super_admin): ?>
+                  <a href="/constract360/construction/public/super-admin/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="/constract360/construction/public/super-admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <?php elseif (!empty($is_company_admin) && $is_company_admin): ?>
+                  <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="/constract360/construction/public/admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <?php else: ?>
                   <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
                   <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <?php endif; ?>
                   <a href="/constract360/construction/public/pages/page.php?slug=help-center"><?php echo __('help_support') ?? 'Help'; ?></a>
                   <a href="/constract360/construction/public/pages/page.php?slug=privacy-policy"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
                 </div>
