@@ -1,0 +1,122 @@
+<?php
+require_once '../../../config/config.php';
+require_once '../../../config/database.php';
+require_once '../../../config/currency_helper.php';
+requireAuth();
+requireAnyRole(['company_admin','super_admin']);
+
+$db = new Database();
+$conn = $db->getConnection();
+$company_id = getCurrentCompanyId();
+
+// Load settings
+function cs(PDO $c, $cid, $key, $def=''){
+  $s=$c->prepare('SELECT setting_value FROM company_settings WHERE company_id=? AND setting_key=?');
+  $s->execute([$cid,$key]);
+  $r=$s->fetch(PDO::FETCH_ASSOC); return $r ? $r['setting_value'] : $def;
+}
+$land = [
+  'enabled' => (int)cs($conn,$company_id,'land_rent_enabled','0'),
+  'type' => cs($conn,$company_id,'land_rent_type','monthly'),
+  'amount' => (float)cs($conn,$company_id,'land_rent_amount','0'),
+  'currency' => cs($conn,$company_id,'land_rent_currency','USD'),
+  'start_date' => cs($conn,$company_id,'land_rent_start_date',date('Y-m-01')),
+  'advance_paid' => (float)cs($conn,$company_id,'land_rent_advance_paid','0'),
+  'extra_paid' => (float)cs($conn,$company_id,'land_rent_extra_paid','0'),
+];
+
+// Compute paid from land_rent_payments (fallback to settings if unavailable)
+$paid = 0.0;
+try {
+  $stmtPaid = $conn->prepare("SELECT COALESCE(SUM(amount),0) FROM land_rent_payments WHERE company_id = ?");
+  $stmtPaid->execute([$company_id]);
+  $paid = (float)$stmtPaid->fetchColumn();
+  if ($paid <= 0) { $paid = (float)$land['advance_paid'] + (float)$land['extra_paid']; }
+} catch (Exception $e) {
+  $paid = (float)$land['advance_paid'] + (float)$land['extra_paid'];
+}
+
+$days=0;$months=0;$owed=0.0;$remain=0.0;$daily=0.0;
+try{ $st=new DateTime($land['start_date']); $td=new DateTime(date('Y-m-d')); if($td>=$st){ $di=$st->diff($td); $days=(int)$di->days; $months = (int)$di->m + ($di->y*12); $daily = ($land['type']==='yearly')?($land['amount']/365.0):($land['amount']/30.0); $owed=$daily*$days; $remain=max(0.0,$owed-$paid);} }catch(Exception $e){}
+
+// Fetch individual payments for table
+$payments = [];
+try {
+  $ps = $conn->prepare("SELECT payment_date, amount, currency, method, reference, notes FROM land_rent_payments WHERE company_id = ? ORDER BY payment_date ASC, id ASC");
+  $ps->execute([$company_id]);
+  $payments = $ps->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) { $payments = []; }
+?>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title><?php echo __('land_rent_statement'); ?></title>
+<style>
+ body{font-family:Arial,Helvetica,sans-serif;margin:20px;color:#222}
+ h2{margin:0 0 10px 0}
+ .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+ table{width:100%;border-collapse:collapse}
+ th,td{border:1px solid #ddd;padding:8px;font-size:13px}
+ th{background:#f7f7fb;text-align:left}
+ .right{text-align:right}
+ .muted{color:#666}
+ .actions{margin-bottom:12px}
+ .btn{display:inline-block;padding:8px 12px;border:1px solid #444;border-radius:4px;text-decoration:none;color:#222}
+ .btn-primary{background:#111;color:#fff;border-color:#111}
+ @media print{.actions{display:none}}
+</style>
+</head>
+<body>
+<div class="actions">
+  <a href="javascript:window.print()" class="btn btn-primary"><?php echo __('print'); ?></a>
+  <a href="index.php" class="btn"><?php echo __('back'); ?></a>
+</div>
+<h2><?php echo __('land_rent_statement'); ?></h2>
+<div class="muted"><?php echo __('generated'); ?>: <?php echo date('Y-m-d H:i'); ?></div>
+
+<table class="mt-2">
+  <tr><th style="width:30%">Status</th><td><?php echo $land['enabled']? __('rented') : __('not_rented'); ?></td></tr>
+  <tr><th><?php echo __('type'); ?></th><td><?php echo ucfirst($land['type']); ?></td></tr>
+  <tr><th><?php echo __('amount'); ?></th><td><?php echo formatCurrencyAmount((float)$land['amount'], $land['currency']); ?> <?php echo $land['type']==='yearly'?'year':'month'; ?></td></tr>
+  <tr><th><?php echo __('start_date'); ?></th><td><?php echo htmlspecialchars($land['start_date']); ?></td></tr>
+</table>
+
+<h3><?php echo __('summary'); ?></h3>
+<table>
+  <tr><th><?php echo __('duration'); ?></th><td><?php echo number_format($days); ?> <?php echo __('days'); ?> (<?php echo number_format($months); ?> <?php echo __('months'); ?>)</td></tr>
+  <tr><th><?php echo __('owed_until_today'); ?></th><td><?php echo formatCurrencyAmount($owed, $land['currency']); ?></td></tr>
+  <tr><th><?php echo __('paid_to_date'); ?></th><td><?php echo formatCurrencyAmount($paid, $land['currency']); ?></td></tr>
+  <tr><th><?php echo __('remaining'); ?></th><td><?php echo formatCurrencyAmount($remain, $land['currency']); ?></td></tr>
+</table>
+
+<h3><?php echo __('payments'); ?></h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:15%"><?php echo __('date'); ?></th>
+      <th style="width:20%" class="right"><?php echo __('amount'); ?></th>
+      <th style="width:10%"><?php echo __('currency'); ?></th>
+      <th style="width:15%"><?php echo __('method'); ?></th>
+      <th style="width:20%"><?php echo __('reference'); ?></th>
+      <th><?php echo __('notes'); ?></th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (empty($payments)): ?>
+      <tr><td colspan="6" class="muted"><?php echo __('no_payments_recorded'); ?></td></tr>
+    <?php else: foreach ($payments as $p): ?>
+      <tr>
+        <td><?php echo htmlspecialchars($p['payment_date']); ?></td>
+        <td class="right"><?php echo formatCurrencyAmount((float)$p['amount'], $p['currency'] ?: $land['currency']); ?></td>
+        <td><?php echo htmlspecialchars($p['currency'] ?: $land['currency']); ?></td>
+        <td><?php echo htmlspecialchars($p['method'] ?? ''); ?></td>
+        <td><?php echo htmlspecialchars($p['reference'] ?? ''); ?></td>
+        <td><?php echo htmlspecialchars($p['notes'] ?? ''); ?></td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
+
+</body>
+</html>

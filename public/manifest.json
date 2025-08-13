@@ -1,0 +1,23 @@
+{
+  "name": "Construct360 SaaS Platform",
+  "short_name": "Construct360",
+  "start_url": "/constract360/construction/public/",
+  "scope": "/constract360/construction/public/",
+  "display": "standalone",
+  "background_color": "#243447",
+  "theme_color": "#F17300",
+  "icons": [
+    {
+      "src": "uploads/logos/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "uploads/logos/icon-152.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

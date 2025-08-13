@@ -1,0 +1,609 @@
+<?php
+require_once '../../../config/config.php';
+require_once '../../../config/database.php';
+require_once '../../../config/currency_helper.php';
+
+// Check if user is authenticated and has appropriate role
+requireAuth();
+requireAnyRole(['company_admin', 'super_admin']);
+
+$db = new Database();
+$conn = $db->getConnection();
+$company_id = getCurrentCompanyId();
+
+$error = '';
+$success = '';
+
+// Get rental ID from URL
+$rental_id = $_GET['id'] ?? null;
+
+if (!$rental_id) {
+    header('Location: index.php');
+    exit;
+}
+
+// Get rental details
+$stmt = $conn->prepare("
+    SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category
+    FROM parking_rentals pr
+    JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+    WHERE pr.id = ? AND pr.company_id = ?
+");
+$stmt->execute([$rental_id, $company_id]);
+$rental = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$rental) {
+    header('Location: index.php');
+    exit;
+}
+
+// Now include header after all potential redirects
+require_once '../../../includes/header.php';
+
+// Check if rental is ended and has no payments
+$is_ended_without_payments = ($rental['status'] === 'ended' && empty($rental['total_amount']));
+
+// Get parking space details
+$stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
+$stmt->execute([$rental['parking_space_id'], $company_id]);
+$space = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get payment history for this rental
+$stmt = $conn->prepare("
+    SELECT * FROM parking_payments 
+    WHERE rental_id = ? AND company_id = ? 
+    ORDER BY payment_date DESC
+");
+$stmt->execute([$rental_id, $company_id]);
+$payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate total paid and current amount for ongoing rentals
+$total_paid = array_sum(array_column($payments, 'amount'));
+
+// Calculate current amount for ongoing rentals
+$current_date = new DateTime();
+$start_date = new DateTime($rental['start_date']);
+$end_date = !empty($rental['end_date']) ? new DateTime($rental['end_date']) : null;
+
+if ($end_date && $end_date > $start_date) {
+    // Fixed rental period (ended rental)
+    $total_amount = $rental['total_amount'] ?? 0;
+    $current_amount = $total_amount;
+    $remaining_amount = max(0, $total_amount - $total_paid);
+} else {
+    // Ongoing rental - calculate current amount based on days
+    $current_days = $start_date->diff($current_date)->days;
+    $daily_rate = $rental['monthly_rate'] / 30;
+    $current_amount = $current_days * $daily_rate;
+    $total_amount = $current_amount; // For ongoing rentals, total = current
+    $remaining_amount = max(0, $current_amount - $total_paid);
+}
+
+// For ended rentals without total_amount, calculate based on actual days
+if ($rental['status'] === 'ended' && empty($rental['total_amount']) && $end_date) {
+    $actual_days = $start_date->diff($end_date)->days;
+    $daily_rate = $rental['monthly_rate'] / 30;
+    $total_amount = $actual_days * $daily_rate;
+    $current_amount = $total_amount;
+    $remaining_amount = max(0, $total_amount - $total_paid);
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Validate required fields
+        $required_fields = ['payment_amount', 'payment_method', 'payment_date'];
+        foreach ($required_fields as $field) {
+            if (empty($_POST[$field])) {
+                throw new Exception("Field '$field' is required.");
+            }
+        }
+
+        // Validate payment amount
+        $payment_amount = (float)$_POST['payment_amount'];
+        if ($payment_amount <= 0) {
+            throw new Exception("Payment amount must be greater than zero.");
+        }
+
+        if ($payment_amount > $remaining_amount) {
+            throw new Exception("Payment amount cannot exceed remaining amount.");
+        }
+
+        // Generate payment code
+        $payment_code = 'PAY-' . strtoupper(uniqid());
+
+        // Start transaction
+        $conn->beginTransaction();
+
+        // Create payment record
+        $stmt = $conn->prepare("
+            INSERT INTO parking_payments (
+                company_id, rental_id, payment_code, amount, currency,
+                payment_method, payment_date, reference_number, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
+
+        $stmt->execute([
+            $company_id,
+            $rental_id,
+            $payment_code,
+            $payment_amount,
+            $rental['currency'] ?? 'USD',
+            $_POST['payment_method'],
+            $_POST['payment_date'],
+            $_POST['reference_number'] ?? null,
+            $_POST['notes'] ?? null
+        ]);
+
+        $conn->commit();
+        
+        $success = "Payment recorded successfully!";
+        
+        // Refresh payment data
+        $stmt = $conn->prepare("
+            SELECT * FROM parking_payments 
+            WHERE rental_id = ? AND company_id = ? 
+            ORDER BY payment_date DESC
+        ");
+        $stmt->execute([$rental_id, $company_id]);
+        $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Recalculate totals
+        $total_paid = array_sum(array_column($payments, 'amount'));
+        
+        // Recalculate based on rental type
+        if ($end_date && $end_date > $start_date) {
+            // Fixed rental period
+            $total_amount = $rental['total_amount'] ?? 0;
+            $current_amount = $total_amount;
+            $remaining_amount = max(0, $total_amount - $total_paid);
+        } else {
+            // Ongoing rental - recalculate current amount
+            $current_days = $start_date->diff($current_date)->days;
+            $daily_rate = $rental['monthly_rate'] / 30;
+            $current_amount = $current_days * $daily_rate;
+            $total_amount = $current_amount;
+            $remaining_amount = max(0, $current_amount - $total_paid);
+        }
+
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $error = $e->getMessage();
+    }
+}
+?>
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card"></i> <?php echo __('parking_rental_payment'); ?>
+        </h1>
+        <div>
+            <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_rental'); ?>
+            </a>
+        </div>
+    </div>
+
+    <?php if ($error): ?>
+        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+
+    <!-- Payment Summary -->
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_summary'); ?></h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <?php if ($end_date && $end_date > $start_date): ?>
+                                <h4 class="text-primary"><?php echo formatCurrencyAmount($total_amount, $rental['currency'] ?? 'USD'); ?></h4>
+                                <small class="text-muted"><?php echo __('total_amount'); ?></small>
+                            <?php else: ?>
+                                <h4 class="text-primary"><?php echo formatCurrencyAmount($current_amount, $rental['currency'] ?? 'USD'); ?></h4>
+                                <small class="text-muted"><?php echo __('current_amount'); ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success"><?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?></h4>
+                            <small class="text-muted"><?php echo __('total_paid'); ?></small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h4 class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>">
+                            <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
+                        </h4>
+                        <small class="text-muted"><?php echo __('remaining_amount'); ?></small>
+                        <?php if ($remaining_amount <= 0): ?>
+                            <br><span class="badge bg-success"><?php echo __('fully_paid'); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!$end_date || $end_date <= $start_date): ?>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-info">
+                                <i class="fas fa-info-circle"></i> 
+                                <?php echo __('ongoing_rental'); ?> - <?php echo __('amount_increases_daily'); ?> (<?php echo $current_days; ?> <?php echo __('days_so_far'); ?>)
+                            </small>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($rental['status'] === 'ended' && $remaining_amount > 0): ?>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-warning">
+                                <i class="fas fa-clock"></i> 
+                                <?php echo __('late_payment_for_ended_rental'); ?> (<?php echo __('ended_on'); ?> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?>)
+                            </small>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('record_payment'); ?></h6>
+                </div>
+                <div class="card-body">
+                    <?php if ($remaining_amount > 0): ?>
+                        <form method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="payment_amount" class="form-label"><?php echo __('payment_amount'); ?> *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <?php 
+                                                $currency = $rental['currency'] ?? 'USD';
+                                                echo $currency === 'AFN' ? '؋' : ($currency === 'EUR' ? '€' : '$'); 
+                                                ?>
+                                            </span>
+                                            <input type="number" step="0.01" class="form-control" id="payment_amount" name="payment_amount" 
+                                                   value="<?php echo $remaining_amount; ?>" max="<?php echo $remaining_amount; ?>" required>
+                                        </div>
+                                        <small class="text-muted"><?php echo __('maximum'); ?>: <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
+                                        <input type="date" class="form-control" id="payment_date" name="payment_date" 
+                                               value="<?php echo date('Y-m-d'); ?>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?> *</label>
+                                        <select class="form-control" id="payment_method" name="payment_method" required>
+                                            <option value=""><?php echo __('select_payment_method'); ?></option>
+                                            <option value="cash"><?php echo __('cash'); ?></option>
+                                            <option value="bank_transfer"><?php echo __('bank_transfer'); ?></option>
+                                            <option value="credit_card"><?php echo __('credit_card'); ?></option>
+                                            <option value="debit_card"><?php echo __('debit_card'); ?></option>
+                                            <option value="mobile_payment"><?php echo __('mobile_payment'); ?></option>
+                                            <option value="check"><?php echo __('check'); ?></option>
+                                            <option value="other"><?php echo __('other'); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="reference_number" class="form-label"><?php echo __('reference_number'); ?></label>
+                                        <input type="text" class="form-control" id="reference_number" name="reference_number" 
+                                               placeholder="Transaction ID, Check #, etc."
+                                               style="text-transform: none;" autocomplete="off" spellcheck="false">
+                                        <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_reference_numbers'); ?></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notes" class="form-label"><?php echo __('payment_notes'); ?></label>
+                                <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                          placeholder="Additional payment details..."
+                                          style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"></textarea>
+                                <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_payment_notes'); ?></small>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="view-rental.php?id=<?php echo $rental_id; ?>" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> <?php echo __('record_payment'); ?>
+                                </button>
+                            </div>
+                        </form>
+                    <?php else: ?>
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success"><?php echo __('fully_paid'); ?>!</h5>
+                            <p class="text-muted"><?php echo __('this_rental_has_been_fully_paid'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('payment_history'); ?></h6>
+        </div>
+        <div class="card-body">
+            <?php if (empty($payments)): ?>
+                <div class="text-center py-4">
+                    <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                    <p class="text-muted"><?php echo __('no_payments_recorded_yet'); ?></p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th><?php echo __('payment_code'); ?></th>
+                                <th><?php echo __('date'); ?></th>
+                                <th><?php echo __('amount'); ?></th>
+                                <th><?php echo __('method'); ?></th>
+                                <th><?php echo __('reference'); ?></th>
+                                <th><?php echo __('notes'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($payments as $payment): ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($payment['payment_code']); ?></strong>
+                                </td>
+                                <td><?php echo date('M j, Y', strtotime($payment['payment_date'])); ?></td>
+                                <td>
+                                    <strong><?php echo formatCurrencyAmount($payment['amount'], $payment['currency'] ?? 'USD'); ?></strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <?php echo ucfirst(str_replace('_', ' ', $payment['payment_method'])); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($payment['reference_number'])): ?>
+                                        <?php echo htmlspecialchars($payment['reference_number']); ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($payment['notes'])): ?>
+                                        <?php echo htmlspecialchars($payment['notes']); ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Rental Information -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('rental_information'); ?></h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                    <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>
+                    <?php if (!empty($rental['end_date'])): ?>
+                        <p><strong><?php echo __('end_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['end_date'])); ?></p>
+                    <?php endif; ?>
+                    <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                    <?php if ($rental['status'] === 'ended'): ?>
+                        <p><strong><?php echo __('status'); ?>:</strong> 
+                            <span class="badge bg-secondary"><?php echo __('ended'); ?></span>
+                            <?php if ($remaining_amount > 0): ?>
+                                <span class="badge bg-warning"><?php echo __('pending_payment'); ?></span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DataTable initialization
+$(document).ready(function() {
+    $('#paymentsTable').DataTable({
+        "order": [[1, "desc"]],
+        "pageLength": 10
+    });
+});
+
+// Space handling with vanilla JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Payment page space handling initialized');
+    
+    // Function to enable spaces in input fields
+    function enableSpacesInInput(input) {
+        if (input) {
+            console.log('Enabling spaces for input:', input.id);
+            
+            // Remove any existing event listeners that might block spaces
+            input.removeEventListener('keydown', null);
+            input.removeEventListener('keypress', null);
+            input.removeEventListener('keyup', null);
+            
+            // Add space handling
+            input.addEventListener('keydown', function(e) {
+                console.log('Key pressed:', e.key, 'KeyCode:', e.keyCode);
+                
+                // Explicitly allow space key
+                if (e.key === ' ' || e.keyCode === 32) {
+                    console.log('Space key detected, preventing default');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Manually insert space
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    this.value = value.substring(0, start) + ' ' + value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    
+                    console.log('Space inserted manually');
+                    return false;
+                }
+            });
+            
+            // Ensure the input is properly configured
+            input.setAttribute('type', 'text');
+            input.style.textTransform = 'none';
+            input.style.letterSpacing = 'normal';
+            
+            console.log('Space handling enabled for:', input.id);
+        } else {
+            console.log('Input not found');
+        }
+    }
+    
+    // Function to enable spaces in textarea
+    function enableSpacesInTextarea(textarea) {
+        if (textarea) {
+            console.log('Enabling spaces for textarea:', textarea.id);
+            
+            // Remove any existing event listeners that might block spaces
+            textarea.removeEventListener('keydown', null);
+            textarea.removeEventListener('keypress', null);
+            textarea.removeEventListener('keyup', null);
+            
+            // Add space handling
+            textarea.addEventListener('keydown', function(e) {
+                console.log('Textarea key pressed:', e.key, 'KeyCode:', e.keyCode);
+                
+                // Explicitly allow space key
+                if (e.key === ' ' || e.keyCode === 32) {
+                    console.log('Space key detected in textarea, preventing default');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Manually insert space
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    this.value = value.substring(0, start) + ' ' + value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    
+                    console.log('Space inserted manually in textarea');
+                    return false;
+                }
+            });
+            
+            // Ensure the textarea is properly configured
+            textarea.style.textTransform = 'none';
+            textarea.style.letterSpacing = 'normal';
+            
+            console.log('Space handling enabled for textarea:', textarea.id);
+        } else {
+            console.log('Textarea not found');
+        }
+    }
+    
+    // Enable spaces in input fields
+    const referenceNumberInput = document.getElementById('reference_number');
+    enableSpacesInInput(referenceNumberInput);
+    
+    // Enable spaces in textarea
+    const notesTextarea = document.getElementById('notes');
+    enableSpacesInTextarea(notesTextarea);
+    
+    // Additional check after a short delay
+    setTimeout(function() {
+        console.log('Checking elements after delay...');
+        const refInput = document.getElementById('reference_number');
+        const notesArea = document.getElementById('notes');
+        
+        if (refInput) {
+            console.log('Reference input found:', refInput.value);
+        } else {
+            console.log('Reference input not found');
+        }
+        
+        if (notesArea) {
+            console.log('Notes textarea found:', notesArea.value);
+        } else {
+            console.log('Notes textarea not found');
+        }
+    }, 1000);
+    
+    // Check if form is visible (for remaining amount > 0)
+    const paymentForm = document.querySelector('form');
+    if (paymentForm) {
+        console.log('Payment form found');
+        const formNotes = paymentForm.querySelector('#notes');
+        if (formNotes) {
+            console.log('Notes field found in form');
+            // Re-apply space handling to the form notes field
+            enableSpacesInTextarea(formNotes);
+        } else {
+            console.log('Notes field not found in form');
+        }
+    } else {
+        console.log('Payment form not found - rental might be fully paid');
+    }
+    
+    // More aggressive approach - check for notes field multiple times
+    let checkCount = 0;
+    const maxChecks = 10;
+    const checkInterval = setInterval(function() {
+        checkCount++;
+        console.log('Checking for notes field, attempt:', checkCount);
+        
+        const notesField = document.getElementById('notes');
+        if (notesField) {
+            console.log('Notes field found on attempt', checkCount);
+            enableSpacesInTextarea(notesField);
+            clearInterval(checkInterval);
+        } else if (checkCount >= maxChecks) {
+            console.log('Notes field not found after', maxChecks, 'attempts');
+            clearInterval(checkInterval);
+        }
+    }, 500);
+    
+    // Also check for any textarea with id containing 'notes'
+    const allTextareas = document.querySelectorAll('textarea');
+    console.log('Found', allTextareas.length, 'textareas on page');
+    allTextareas.forEach(function(textarea, index) {
+        console.log('Textarea', index, ':', textarea.id, textarea.name);
+        if (textarea.id === 'notes' || textarea.name === 'notes') {
+            console.log('Found notes textarea, applying space handling');
+            enableSpacesInTextarea(textarea);
+        }
+    });
+});
+</script>
+
+<?php require_once '../../../includes/footer.php'; ?>
