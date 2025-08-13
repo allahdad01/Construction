@@ -56,6 +56,14 @@ function getSystemSettingLocal($conn, $key, $default = '') {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['setting_value'] : $default;
 }
+if (!function_exists('getCompanySettingLocal')) {
+    function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
+        $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
+        $stmt->execute([$company_id, $key]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['setting_value'] : $default;
+    }
+}
 
 $platform_name = getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform');
 $platform_logo = getSystemSettingLocal($conn, 'platform_logo', '');
