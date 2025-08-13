@@ -619,8 +619,8 @@ date_default_timezone_set($company_timezone);
         })();
         </script>
         <script>
-        // Define API base URL
-        const apiBaseUrl = '<?php echo rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); ?>/../api/';
+        // Define API base URL (absolute to avoid nested path issues)
+        const apiBaseUrl = '/constract360/construction/public/api/';
         
         // Load notifications from API
         function loadNotifications() {
