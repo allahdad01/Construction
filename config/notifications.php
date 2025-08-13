@@ -24,8 +24,8 @@ if (!function_exists('notifyUser')) {
 if (!function_exists('notifyCompanyUsers')) {
     function notifyCompanyUsers(PDO $conn, int $companyId, string $title, string $message, string $type = 'info'): void {
         ensureNotificationsTable($conn);
-        // Fetch active users in the tenant
-        $usersStmt = $conn->prepare('SELECT id FROM users WHERE company_id = ? AND is_active = 1');
+        // Only tenant admins should receive notifications
+        $usersStmt = $conn->prepare("SELECT id FROM users WHERE company_id = ? AND is_active = 1 AND role = 'company_admin'");
         $usersStmt->execute([$companyId]);
         $userIds = $usersStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
         if (empty($userIds)) { return; }

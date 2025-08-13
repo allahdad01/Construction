@@ -529,11 +529,12 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                     </div>
                     
                     <div class="d-flex align-items-center">
-                        <!-- Notifications -->
+                        <?php if ($is_company_admin): ?>
+                        <!-- Notifications (tenant admins only) -->
                         <div class="dropdown me-3">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
                                 <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger rounded-pill" id="notificationBadge">0</span>
+                                <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
                                 <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
@@ -544,7 +545,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                 </a></li>
                             </ul>
                         </div>
-                        
+                        <?php endif; ?>
                         <!-- User Dropdown -->
                         <div class="dropdown">
                             <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -892,6 +893,15 @@ function maybeNotifyClient(newCount, newestItem){
         if (Notification && Notification.permission === 'granted' && newestItem) {
           new Notification(newestItem.title || 'Notification', { body: newestItem.message || '' });
         }
+        // Ask SW to show system notification (works when page is backgrounded)
+        if (navigator.serviceWorker && navigator.serviceWorker.controller && newestItem) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            title: newestItem.title || 'Notification',
+            body: newestItem.message || '',
+            url: '/constract360/construction/public/'
+          });
+        }
       }
       __lastUnreadCount = newCount;
     }
@@ -920,5 +930,12 @@ function loadNotifications(){
       }
     })
     .catch(err=>{ console.error('Error loading notifications:', err); });
+}
+</script>
+<script>
+const isCompanyAdmin = <?php echo $is_company_admin ? 'true' : 'false'; ?>;
+// Register service worker for out-of-browser notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
 }
 </script>
