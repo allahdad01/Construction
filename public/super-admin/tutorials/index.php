@@ -50,7 +50,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-chalkboard-teacher"></i> Tutorials</h1>
-    <a href="edit.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Tutorial</a>
+    <a href="add.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Tutorial</a>
   </div>
   <?php if ($msg): ?><div class="alert alert-success"><?php echo htmlspecialchars($msg); ?></div><?php endif; ?>
 
@@ -80,7 +80,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td><?php echo htmlspecialchars($r['updated_at']); ?></td>
               <td>
                 <a href="edit.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                <a href="?delete=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this tutorial?');">Delete</a>
+                <a href="delete.php?id=<?php echo (int)$r['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this tutorial?');">Delete</a>
               </td>
             </tr>
           <?php endforeach; ?>
