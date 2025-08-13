@@ -341,18 +341,24 @@ date_default_timezone_set($company_timezone);
                         <span><?php echo __('expenses'); ?></span>
                     </a>
                 </li>
-                                    <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span><?php echo __('payments'); ?></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
-                            <i class="fas fa-tags"></i>
-                            <span><?php echo __('pricing_plans'); ?></span>
-                        </a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span><?php echo __('payments'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
+                        <i class="fas fa-tags"></i>
+                        <span><?php echo __('pricing_plans'); ?></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
+                        <i class="fas fa-file-alt"></i>
+                        <span><?php echo __('pages') ?? 'Pages'; ?></span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
                         <i class="fas fa-chart-bar"></i>
