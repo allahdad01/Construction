@@ -73,17 +73,7 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
     <div class="row"><div class="col-12"><h1 class="h3 mb-4"><?php echo __('tenant_dashboard'); ?></h1></div></div>
 
-    <!-- Quick Access Buttons -->
-    <div class="row g-3 mb-3">
-        <div class="col-6 col-md-3"><a href="../employees/" class="btn btn-outline-primary w-100"><i class="fas fa-users me-1"></i> <?php echo __('employees'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../contracts/" class="btn btn-outline-primary w-100"><i class="fas fa-file-contract me-1"></i> <?php echo __('contracts'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../salary-payments/" class="btn btn-outline-primary w-100"><i class="fas fa-money-bill-wave me-1"></i> <?php echo __('salary_payments'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../expenses/" class="btn btn-outline-primary w-100"><i class="fas fa-wallet me-1"></i> <?php echo __('expenses'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../machines/" class="btn btn-outline-primary w-100"><i class="fas fa-truck me-1"></i> <?php echo __('machines'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../reports/" class="btn btn-outline-primary w-100"><i class="fas fa-chart-pie me-1"></i> <?php echo __('reports'); ?></a></div>
-        <div class="col-6 col-md-3"><a href="../settings/" class="btn btn-outline-secondary w-100"><i class="fas fa-cog me-1"></i> <?php echo __('settings'); ?></a></div>
-    </div>
-
+    
     <!-- Statistics Cards -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
