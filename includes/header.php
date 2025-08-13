@@ -434,7 +434,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/settings/">
+                    <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/settings/">
                         <i class="fas fa-cog"></i>
                         <span><?php echo __('settings'); ?></span>
                     </a>
@@ -560,7 +560,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
                                 <?php if (!$is_employee): ?>
-                                <li><a class="dropdown-item" href="/constract360/construction/public/settings/"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                 <?php endif; ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
