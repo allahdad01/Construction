@@ -47,23 +47,37 @@
             <div class="mobile-touch-bar d-md-none">
               <?php
                 $is_admin = $is_company_admin ?? false;
-                $homeUrl = $is_super_admin ? '/constract360/construction/public/super-admin/' : ($is_admin ? '/constract360/construction/public/admin/dashboard/' : '/constract360/construction/public/dashboard/');
-                $contractsUrl = $is_admin ? '/constract360/construction/public/admin/contracts/' : '/constract360/construction/public/employee/contracts/';
-                $reportsUrl = $is_super_admin ? '/constract360/construction/public/super-admin/reports/' : '/constract360/construction/public/reports/';
-                $settingsUrl = $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : '/constract360/construction/public/settings/';
+                if ($is_super_admin) {
+                    $buttons = [
+                        ['href'=>'/constract360/construction/public/super-admin/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>'/constract360/construction/public/super-admin/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
+                        ['href'=>'/constract360/construction/public/super-admin/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
+                    ];
+                } elseif ($is_admin) {
+                    $buttons = [
+                        ['href'=>'/constract360/construction/public/admin/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>'/constract360/construction/public/admin/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
+                        ['href'=>'/constract360/construction/public/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
+                        ['href'=>'/constract360/construction/public/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
+                    ];
+                } elseif ($is_employee ?? false) {
+                    $buttons = [
+                        ['href'=>'/constract360/construction/public/employee/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>'/constract360/construction/public/employee/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
+                        ['href'=>'/constract360/construction/public/employee/salary/','icon'=>'fa-money-bill-wave','label'=>__('salary') ?? 'Salary'],
+                        ['href'=>'/constract360/construction/public/profile/','icon'=>'fa-user','label'=>__('profile') ?? 'Profile'],
+                    ];
+                } else {
+                    $buttons = [
+                        ['href'=>'/constract360/construction/public/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                    ];
+                }
               ?>
-              <a class="btn text-center" href="<?php echo $homeUrl; ?>">
-                <i class="fas fa-home"></i><span><?php echo __('home') ?? 'Home'; ?></span>
+              <?php foreach ($buttons as $b): ?>
+              <a class="btn text-center" href="<?php echo $b['href']; ?>">
+                <i class="fas <?php echo $b['icon']; ?>"></i><span><?php echo htmlspecialchars($b['label']); ?></span>
               </a>
-              <a class="btn text-center" href="<?php echo $contractsUrl; ?>">
-                <i class="fas fa-file-contract"></i><span><?php echo __('contracts') ?? 'Contracts'; ?></span>
-              </a>
-              <a class="btn text-center" href="<?php echo $reportsUrl; ?>">
-                <i class="fas fa-chart-pie"></i><span><?php echo __('reports') ?? 'Reports'; ?></span>
-              </a>
-              <a class="btn text-center" href="<?php echo $settingsUrl; ?>">
-                <i class="fas fa-cog"></i><span><?php echo __('settings') ?? 'Settings'; ?></span>
-              </a>
+              <?php endforeach; ?>
             </div>
             <!-- End of Footer -->
         </div>
