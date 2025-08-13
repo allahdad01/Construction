@@ -45,8 +45,8 @@ self.addEventListener('message', event => {
     const title = data.title || 'Notification';
     const options = {
       body: data.body || '',
-      icon: '/constract360/construction/public/assets/icons/icon-192.png',
-      badge: '/constract360/construction/public/assets/icons/badge-72.png',
+      icon: 'https://via.placeholder.com/192.png',
+      badge: 'https://via.placeholder.com/72.png',
       data: { url: data.url || '/constract360/construction/public/' }
     };
     event.waitUntil(self.registration.showNotification(title, options));

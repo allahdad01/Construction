@@ -279,7 +279,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="/constract360/construction/public/assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192.png">
   </head>
   <body data-theme="<?php echo $theme_mode; ?>">
       <!-- Sidebar -->
