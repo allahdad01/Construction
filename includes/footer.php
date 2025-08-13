@@ -39,7 +39,7 @@
                   <a href="/constract360/construction/public/super-admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
                   <?php elseif (!empty($is_company_admin) && $is_company_admin): ?>
                   <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
-                  <a href="/constract360/construction/public/admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
                   <?php else: ?>
                   <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
                   <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
@@ -68,7 +68,7 @@
                         ['href'=>'/constract360/construction/public/admin/employees/','icon'=>'fa-users','label'=>__('employees') ?? 'Employees'],
                         ['href'=>'/constract360/construction/public/admin/salary-payments/','icon'=>'fa-money-bill-wave','label'=>__('salary_payments') ?? 'Salary'],
                         ['href'=>'/constract360/construction/public/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
-                        ['href'=>'/constract360/construction/public/admin/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
+                        ['href'=>'/constract360/construction/public/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
                     ];
                 } elseif ($is_employee ?? false) {
                     $buttons = [
