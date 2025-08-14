@@ -90,8 +90,8 @@ if ($employee) {
                 <?php if (!$isAssistant): ?>
                 <td class="text-end"><?php echo formatCurrencyAmount((float)($it['rate_amount'] ?? 0), $it['currency'] ?? 'USD'); ?></td>
                 <td class="text-end">
-                  <a href="/constract360/construction/public/employee/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> <?php echo __('add_hours'); ?></a>
-                  <a href="/constract360/construction/public/employee/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> <?php echo __('timesheet'); ?></a>
+                  <a href="<?php echo $base_url; ?>employee/contracts/add-hours.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> <?php echo __('add_hours'); ?></a>
+                  <a href="<?php echo $base_url; ?>employee/contracts/timesheet.php?contract_id=<?php echo (int)$it['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> <?php echo __('timesheet'); ?></a>
                 </td>
                 <?php endif; ?>
               </tr>

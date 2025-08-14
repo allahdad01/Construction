@@ -161,7 +161,7 @@ if ($language_id) {
             <i class="fas fa-language"></i> <?php echo __('manage_translations'); ?>
         </h1>
         <div>
-            <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/languages/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
             </a>
         </div>

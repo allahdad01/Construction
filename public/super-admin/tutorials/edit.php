@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label"><?php echo __('upload_file'); ?> (<?php echo __('mp4_or_pdf'); ?>)</label>
             <input type="file" class="form-control" name="file_upload" accept=".pdf,video/mp4,video/webm,video/ogg">
             <?php if (!empty($tutorial['file_path'])): ?>
-              <small class="text-muted"><?php echo __('current'); ?>: <a href="/constract360/construction/<?php echo htmlspecialchars($tutorial['file_path']); ?>" target="_blank"><?php echo __('open'); ?></a></small>
+              <small class="text-muted"><?php echo __('current'); ?>: <a href="<?php echo $base_url; ?><?php echo htmlspecialchars($tutorial['file_path']); ?>" target="_blank"><?php echo __('open'); ?></a></small>
             <?php endif; ?>
           </div>
         </div>

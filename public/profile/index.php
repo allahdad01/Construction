@@ -12,13 +12,13 @@ $current_user = getCurrentUser();
 $company_id = getCurrentCompanyId();
 
 // Compute role-aware back URL
-$back_url = '/constract360/construction/public/dashboard/';
+$back_url = $base_url.'dashboard/';
 if (isSuperAdmin()) {
-    $back_url = '/constract360/construction/public/super-admin/';
+    $back_url = $base_url.'super-admin/';
 } elseif (isCompanyAdmin()) {
-    $back_url = '/constract360/construction/public/admin/dashboard/';
+    $back_url = $base_url.'admin/dashboard/';
 } elseif (isEmployee()) {
-    $back_url = '/constract360/construction/public/employee/dashboard/';
+    $back_url = $base_url.'employee/dashboard/';
 }
 
 $error = '';

@@ -74,8 +74,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($platform_favicon)): ?>
-    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
-    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="shortcut icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
     <?php endif; ?>
     
     <!-- Bootstrap CSS -->
@@ -275,11 +275,11 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
       .top-navbar { padding: 0.75rem 1rem; }
     }
     </style>
-    <link rel="manifest" href="/constract360/construction/public/manifest.json">
+    <link rel="manifest" href="<?php echo $base_url; ?>manifest.json">
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192.png">
+    <link rel="apple-touch-icon" href="<?php echo $base_url; ?>uploads/logos/icon-192.png">
   </head>
   <body data-theme="<?php echo $theme_mode; ?>">
       <!-- Sidebar -->
@@ -288,7 +288,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
         <nav id="sidebar" class="sidebar <?php echo htmlspecialchars($sidebar_style); ?>">
             <div class="sidebar-header">
                 <?php if ($platform_logo): ?>
-                    <img src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
+                    <img src="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_logo)); ?>" alt="Logo" class="sidebar-logo">
                 <?php endif; ?>
                 <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
             </div>
@@ -296,13 +296,13 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             <ul class="sidebar-nav">
                 <li class="nav-item">
                     <?php
-                    $dashboardUrl = '/constract360/construction/public/dashboard/';
+                    $dashboardUrl = $base_url.'dashboard/';
                     if ($is_super_admin) {
-                        $dashboardUrl = '/constract360/construction/public/super-admin/';
+                        $dashboardUrl = $base_url.'super-admin/';
                     } elseif ($is_company_admin) {
-                        $dashboardUrl = '/constract360/construction/public/admin/dashboard/';
+                        $dashboardUrl = $base_url.'admin/dashboard/';
                     } elseif ($is_employee) {
-                        $dashboardUrl = '/constract360/construction/public/employee/dashboard/';
+                        $dashboardUrl = $base_url.'employee/dashboard/';
                     }
                     ?>
                     <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
@@ -314,63 +314,63 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php if ($is_super_admin): ?>
                     <!-- Super Admin Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/companies/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/companies/">
                             <i class="fas fa-building"></i>
                             <span><?php echo __('companies'); ?></span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/languages/">
                             <i class="fas fa-language"></i>
                             <span><?php echo __('languages'); ?></span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/expenses/">
                             <i class="fas fa-receipt"></i>
                             <span><?php echo __('expenses'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/payments/">
                             <i class="fas fa-money-bill-wave"></i>
                             <span><?php echo __('payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/pricing/">
                             <i class="fas fa-tags"></i>
                             <span><?php echo __('pricing_plans'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/backups/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/backups/">
                             <i class="fas fa-database"></i>
                             <span>Backups</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/pages/">
                             <i class="fas fa-file-alt"></i>
                             <span><?php echo __('pages') ?? 'Pages'; ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/reports/">
                             <i class="fas fa-chart-bar"></i>
                             <span><?php echo __('reports'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/settings/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/settings/">
                             <i class="fas fa-cogs"></i>
                             <span><?php echo __('platform_settings'); ?></span>
                         </a>
@@ -379,73 +379,73 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_company_admin): ?>
                     <!-- Company Admin Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/employees/">
                             <i class="fas fa-users"></i>
                             <span><?php echo __('employees'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/machines/">
                             <i class="fas fa-truck"></i>
                             <span><?php echo __('machines'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/contracts/">
                             <i class="fas fa-file-contract"></i>
                             <span><?php echo __('contracts'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/parking/">
                             <i class="fas fa-parking"></i>
                             <span><?php echo __('parking'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/area-rentals/">
                             <i class="fas fa-map-marked-alt"></i>
                             <span><?php echo __('area_rentals'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/expenses/">
                             <i class="fas fa-receipt"></i>
                             <span><?php echo __('expenses'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/salary-payments/">
                             <i class="fas fa-money-bill-wave"></i>
                             <span><?php echo __('salary_payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/attendance/">
                             <i class="fas fa-clock"></i>
                             <span><?php echo __('attendance'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>reports/">
                             <i class="fas fa-chart-bar"></i>
                             <span><?php echo __('reports'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>users/">
                             <i class="fas fa-user-cog"></i>
                             <span><?php echo __('users'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/settings/' : '/constract360/construction/public/settings/'); ?>">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'settings/' : $base_url.'settings/'); ?>">
                             <i class="fas fa-cog"></i>
                             <span><?php echo __('settings'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
@@ -454,37 +454,37 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_employee): ?>
                     <!-- Employee Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/attendance/">
                             <i class="fas fa-clock"></i>
                             <span><?php echo __('attendance'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/salary/">
                             <i class="fas fa-money-bill"></i>
                             <span><?php echo __('salary'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/leave/">
                             <i class="fas fa-calendar-times"></i>
                             <span><?php echo __('leave'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/contracts/">
                             <i class="fas fa-file-contract"></i>
                             <span><?php echo __('contracts'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>profile/">
                             <i class="fas fa-user"></i>
                             <span><?php echo __('profile'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
@@ -493,19 +493,19 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_renter): ?>
                     <!-- Renter Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>rentals/">
                             <i class="fas fa-list"></i>
                             <span><?php echo __('rentals'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>payments/">
                             <i class="fas fa-money-bill"></i>
                             <span><?php echo __('payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>profile/">
                             <i class="fas fa-user"></i>
                             <span><?php echo __('profile'); ?></span>
                         </a>
@@ -514,7 +514,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/constract360/construction/public/logout.php">
+                    <a class="nav-link" href="<?php echo $base_url; ?>logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span><?php echo __('logout'); ?></span>
                     </a>
@@ -565,9 +565,9 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                     <i class="fas fa-chevron-down ms-2"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
                                     <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'admin/settings/' : $base_url.'settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                     <?php endif; ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
@@ -589,7 +589,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                     </li>
                                     <?php endforeach; ?>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -615,7 +615,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             </script>
             <script>
             // Define API base URL (absolute to avoid nested path issues)
-            const apiBaseUrl = '/constract360/construction/public/api/';
+            const apiBaseUrl = '<?php echo $base_url; ?>api/';
             
             // Load notifications from API
             function loadNotifications() {
@@ -787,7 +787,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 document.body.appendChild(loadingToast);
 
                 // Make API call to change language
-                fetch('/constract360/construction/public/api/change-language.php', {
+                fetch('<?php echo $base_url; ?>api/change-language.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -887,7 +887,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             });
             </script>
             <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
-      <source src="/constract360/construction/public/assets/sounds/notify.mp3" type="audio/mpeg">
+      <source src="<?php echo $base_url; ?>assets/sounds/notify.mp3" type="audio/mpeg">
     </audio>
     <script>
     let __lastUnreadCount = null;
@@ -908,7 +908,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 type: 'SHOW_NOTIFICATION',
                 title: newestItem.title || 'Notification',
                 body: newestItem.message || '',
-                url: '/constract360/construction/public/'
+                url: '<?php echo $base_url; ?>'
               });
             }
           }
@@ -946,7 +946,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     const isEmployee = <?php echo $is_employee ? 'true' : 'false'; ?>;
     // Register service worker for out-of-browser notifications
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
+      navigator.serviceWorker.register('<?php echo $base_url; ?>sw.js').catch(()=>{});
     }
     // PWA Install flow
     (function(){

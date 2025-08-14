@@ -13,7 +13,7 @@ $conn = $db->getConnection();
 $company_id = (int)($_GET['company_id'] ?? 0);
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 

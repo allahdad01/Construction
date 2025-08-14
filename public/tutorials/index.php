@@ -69,11 +69,11 @@ if ($lang) {
                 <?php if (!empty($t['embed_url'])): ?>
                   <div class="ratio ratio-16x9 mb-2"><iframe src="<?php echo htmlspecialchars($t['embed_url']); ?>" allowfullscreen></iframe></div>
                 <?php elseif (!empty($t['file_path'])): ?>
-                  <video class="w-100 mb-2" controls src="/constract360/construction/<?php echo htmlspecialchars($t['file_path']); ?>"></video>
+                  <video class="w-100 mb-2" controls src="<?php echo $base_url; ?>public/<?php echo htmlspecialchars($t['file_path']); ?>"></video>
                 <?php endif; ?>
               <?php elseif ($t['type']==='pdf'): ?>
                 <?php if (!empty($t['file_path'])): ?>
-                  <a class="btn btn-outline-primary btn-sm" target="_blank" href="/constract360/construction/<?php echo htmlspecialchars($t['file_path']); ?>"><i class="fas fa-file-pdf me-1"></i> <?php echo __('open_pdf'); ?></a>
+                  <a class="btn btn-outline-primary btn-sm" target="_blank" href="<?php echo $base_url; ?>public/<?php echo htmlspecialchars($t['file_path']); ?>"><i class="fas fa-file-pdf me-1"></i> <?php echo __('open_pdf'); ?></a>
                 <?php endif; ?>
               <?php elseif ($t['type']==='text'): ?>
                 <div class="border rounded p-2" style="max-height:180px; overflow:auto; white-space:pre-wrap"><?php echo nl2br(htmlspecialchars($t['content_text'])); ?></div>

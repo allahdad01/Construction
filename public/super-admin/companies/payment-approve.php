@@ -13,7 +13,7 @@ $payment_id = (int)($_GET['id'] ?? 0);
 $company_id = (int)($_GET['company_id'] ?? 0);
 
 if (!$payment_id || !$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$payment_id, $company_id]);
 $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$payment) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 

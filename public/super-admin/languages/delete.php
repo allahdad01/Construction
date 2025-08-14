@@ -12,7 +12,7 @@ $conn = $db->getConnection();
 $language_id = (int)($_GET['id'] ?? 0);
 
 if (!$language_id) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
@@ -22,13 +22,13 @@ $stmt->execute([$language_id]);
 $language = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$language) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
 // Check if it's the default language
 if ($language['is_default']) {
-    header('Location: /constract360/construction/public/super-admin/languages/?error=Cannot delete the default language');
+    header('Location: '.$base_url.'super-admin/languages/?error=Cannot delete the default language');
     exit;
 }
 
@@ -49,14 +49,14 @@ try {
     $conn->commit();
     
     // Redirect with success message
-    header('Location: /constract360/construction/public/super-admin/languages/?success=Language deleted successfully');
+    header('Location: '.$base_url.'super-admin/languages/?success=Language deleted successfully');
     exit;
 } catch (Exception $e) {
     // Rollback transaction on error
     $conn->rollBack();
     
     // Redirect with error message
-    header('Location: /constract360/construction/public/super-admin/languages/?error=Error deleting language: ' . $e->getMessage());
+    header('Location: '.$base_url.'super-admin/languages/?error=Error deleting language: ' . $e->getMessage());
     exit;
 }
 ?>

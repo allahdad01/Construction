@@ -14,7 +14,7 @@ $user_id = (int)($_GET['id'] ?? 0);
 $company_id = (int)($_GET['company_id'] ?? 0);
 
 if (!$user_id || !$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -24,7 +24,7 @@ $stmt->execute([$user_id, $company_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 

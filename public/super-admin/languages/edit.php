@@ -15,7 +15,7 @@ $error = '';
 $success = '';
 
 if (!$language_id) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
@@ -25,7 +25,7 @@ $stmt->execute([$language_id]);
 $language = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$language) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fas fa-edit"></i> <?php echo __('edit_language'); ?>
         </h1>
         <div>
-            <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/languages/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_languages'); ?>
             </a>
         </div>
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> <?php echo __('update_language'); ?>
                         </button>
-                        <a href="/constract360/construction/public/super-admin/languages/" class="btn btn-secondary">
+                        <a href="<?php echo $base_url; ?>super-admin/languages/" class="btn btn-secondary">
                             <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                         </a>
                     </div>

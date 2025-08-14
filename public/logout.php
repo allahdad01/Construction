@@ -30,6 +30,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redirect to login page
-header('Location: /constract360/construction/public/login.php');
+header('Location: '.$base_url.'login.php');
 exit();
 ?>

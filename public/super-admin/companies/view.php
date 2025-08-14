@@ -13,7 +13,7 @@ $conn = $db->getConnection();
 $company_id = (int)($_GET['id'] ?? 0);
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -65,10 +65,10 @@ $recent_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <i class="fas fa-building"></i> <?php echo __('company_details'); ?>
         </h1>
         <div>
-            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/edit.php?id=<?php echo $company['id']; ?>" class="btn btn-warning btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/edit.php?id=<?php echo $company['id']; ?>" class="btn btn-warning btn-sm">
                 <i class="fas fa-edit"></i> <?php echo __('edit_company'); ?>
             </a>
         </div>

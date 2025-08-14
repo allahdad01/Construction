@@ -28,7 +28,7 @@ $favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo htmlspecialchars($page['title']); ?> - <?php echo htmlspecialchars($platform_name); ?></title>
-  <?php if ($favicon): ?><link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>"><?php endif; ?>
+  <?php if ($favicon): ?><link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($favicon); ?>"><?php endif; ?>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .topbar{background: linear-gradient(135deg, <?php echo $primary_color; ?>, <?php echo $accent_color; ?>); color:#fff}
@@ -38,7 +38,7 @@ $favicon = getSystemSettingLocal($conn, 'platform_favicon', '');
   <div class="topbar py-3 mb-4">
     <div class="container d-flex justify-content-between align-items-center">
       <strong><?php echo htmlspecialchars($platform_name); ?></strong>
-      <a class="btn btn-light btn-sm" href="/constract360/construction/public/"><?php echo __('home'); ?></a>
+      <a class="btn btn-light btn-sm" href="<?php echo $base_url; ?>"><?php echo __('home'); ?></a>
     </div>
   </div>
   <div class="container">

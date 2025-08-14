@@ -600,7 +600,7 @@ $current_settings = [
                                         <div class="mb-3">
                                             <label class="form-label"><?php echo __('current_logo'); ?></label>
                                             <div class="border rounded p-3 text-center">
-                                                <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" 
+                                                <img src="<?php echo $base_url; ?>public/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" 
                                                      alt="Current Logo" style="max-height: 60px; max-width: 200px;">
                                             </div>
                                             <div class="mt-2">
@@ -666,7 +666,7 @@ $current_settings = [
                                         <div class="mb-3">
                                             <label class="form-label">Current Favicon</label>
                                             <div class="border rounded p-3 text-center">
-                                                <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>" alt="Favicon" style="height:32px;width:32px;">
+                                                <img src="<?php echo $base_url; ?>public/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>" alt="Favicon" style="height:32px;width:32px;">
                                             </div>
                                         </div>
                                         <?php endif; ?>
@@ -953,7 +953,7 @@ $current_settings = [
                                 btn.addEventListener('click', async function(){
                                     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
                                     try {
-                                        const res = await fetch('/constract360/construction/public/api/test-push.php');
+                                        const res = await fetch('<?php echo $base_url; ?>api/test-push.php');
                                         const data = await res.json();
                                         if (data.success) {
                                             alert('Test push sent. Check your device notifications.');

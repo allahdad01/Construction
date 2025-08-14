@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800"><?php echo __('edit_contract_payment'); ?></h1>
         <div>
-            <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_timesheet'); ?>
             </a>
         </div>
@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="/constract360/construction/public/admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
+                    <a href="<?php echo $base_url; ?>admin/contracts/timesheet.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-secondary">
                         <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                     </a>
                     <button type="submit" class="btn btn-primary">

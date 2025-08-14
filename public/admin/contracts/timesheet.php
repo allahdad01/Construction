@@ -486,11 +486,11 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="/constract360/construction/public/admin/contracts/edit-hours.php?id=<?php echo $wh['id']; ?>" 
+                                            <a href="<?php echo $base_url; ?>admin/contracts/edit-hours.php?id=<?php echo $wh['id']; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="/constract360/construction/public/admin/contracts/delete-hours.php?id=<?php echo $wh['id']; ?>" 
+                                            <a href="<?php echo $base_url; ?>admin/contracts/delete-hours.php?id=<?php echo $wh['id']; ?>" 
                                                class="btn btn-sm btn-danger" title="Delete"
                                                onclick="return confirmDelete('Are you sure you want to delete this entry?')">
                                                 <i class="fas fa-trash"></i>
@@ -567,11 +567,11 @@ $current_month_amount = $monthly_data[$current_month]['amount'] ?? 0;
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="/constract360/construction/public/admin/contracts/edit-payment.php?id=<?php echo $payment['id']; ?>" 
+                                            <a href="<?php echo $base_url; ?>admin/contracts/edit-payment.php?id=<?php echo $payment['id']; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="/constract360/construction/public/admin/contracts/delete-payment.php?id=<?php echo $payment['id']; ?>" 
+                                            <a href="<?php echo $base_url; ?>admin/contracts/delete-payment.php?id=<?php echo $payment['id']; ?>" 
                                                class="btn btn-sm btn-danger" title="Delete"
                                                onclick="return confirmDelete('Are you sure you want to delete this payment?')">
                                                 <i class="fas fa-trash"></i>

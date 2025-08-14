@@ -15,7 +15,7 @@ $error = '';
 $success = '';
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -25,7 +25,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -110,10 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fas fa-edit"></i> <?php echo __('edit_company'); ?>
         </h1>
         <div>
-            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
                 <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
@@ -269,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> <?php echo __('update_company'); ?>
                         </button>
-                        <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary">
+                        <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-secondary">
                             <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
                         </a>
                     </div>

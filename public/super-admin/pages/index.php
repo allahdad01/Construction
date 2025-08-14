@@ -70,7 +70,7 @@ $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td><?php echo htmlspecialchars($p['status']); ?></td>
               <td><?php echo htmlspecialchars($p['updated_at']); ?></td>
               <td>
-                <a class="btn btn-sm btn-outline-primary" href="/constract360/construction/public/pages/page.php?slug=<?php echo urlencode($p['slug']); ?>" target="_blank"><?php echo __('view'); ?></a>
+                <a class="btn btn-sm btn-outline-primary" href="<?php echo $base_url; ?>pages/page.php?slug=<?php echo urlencode($p['slug']); ?>" target="_blank"><?php echo __('view'); ?></a>
                 <a class="btn btn-sm btn-primary" href="edit.php?id=<?php echo (int)$p['id']; ?>"><?php echo __('edit'); ?></a>
                 <a class="btn btn-sm btn-outline-danger" href="?delete=<?php echo (int)$p['id']; ?>" onclick="return confirm('<?php echo __('delete_this_page'); ?>');"><?php echo __('delete'); ?></a>
               </td>

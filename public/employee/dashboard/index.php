@@ -105,9 +105,9 @@ $remaining = max(0.0, $expectedPay - $paidThisMonth);
       <div class="card">
         <div class="card-header"><strong><?php echo __('quick_actions'); ?></strong></div>
         <div class="card-body">
-          <a href="/constract360/construction/public/employee/attendance/" class="btn btn-primary w-100 mb-2"><i class="fas fa-clock"></i> <?php echo __('view_attendance'); ?></a>
-          <a href="/constract360/construction/public/employee/salary/" class="btn btn-success w-100 mb-2"><i class="fas fa-money-bill-wave"></i> <?php echo __('view_salary'); ?></a>
-          <a href="/constract360/construction/public/employee/contracts/" class="btn btn-info w-100"><i class="fas fa-file-contract"></i> <?php echo __('assigned_contracts'); ?></a>
+          <a href="<?php echo $base_url; ?>employee/attendance/" class="btn btn-primary w-100 mb-2"><i class="fas fa-clock"></i> <?php echo __('view_attendance'); ?></a>
+          <a href="<?php echo $base_url; ?>employee/salary/" class="btn btn-success w-100 mb-2"><i class="fas fa-money-bill-wave"></i> <?php echo __('view_salary'); ?></a>
+          <a href="<?php echo $base_url; ?>employee/contracts/" class="btn btn-info w-100"><i class="fas fa-file-contract"></i> <?php echo __('assigned_contracts'); ?></a>
         </div>
       </div>
     </div>

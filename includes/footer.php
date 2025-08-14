@@ -35,17 +35,17 @@
                 </div>
                 <div class="footer-links">
                   <?php if (!empty($is_super_admin) && $is_super_admin): ?>
-                  <a href="/constract360/construction/public/super-admin/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
-                  <a href="/constract360/construction/public/super-admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <a href="<?php echo $base_url; ?>super-admin/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="<?php echo $base_url; ?>super-admin/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
                   <?php elseif (!empty($is_company_admin) && $is_company_admin): ?>
-                  <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
-                  <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <a href="<?php echo $base_url; ?>reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="<?php echo $base_url; ?>settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
                   <?php else: ?>
-                  <a href="/constract360/construction/public/reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
-                  <a href="/constract360/construction/public/settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
+                  <a href="<?php echo $base_url; ?>reports/"><?php echo __('reports') ?? 'Reports'; ?></a>
+                  <a href="<?php echo $base_url; ?>settings/"><?php echo __('settings') ?? 'Settings'; ?></a>
                   <?php endif; ?>
-                  <a href="/constract360/construction/public/pages/page.php?slug=help-center"><?php echo __('help_support') ?? 'Help'; ?></a>
-                  <a href="/constract360/construction/public/pages/page.php?slug=privacy-policy"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
+                  <a href="<?php echo $base_url; ?>pages/page.php?slug=help-center"><?php echo __('help_support') ?? 'Help'; ?></a>
+                  <a href="<?php echo $base_url; ?>pages/page.php?slug=privacy-policy"><?php echo __('privacy_policy') ?? 'Privacy'; ?></a>
                 </div>
                 <div class="footer-right">
                   <small>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(($platform_name ?? APP_NAME)); ?></small>
@@ -57,29 +57,29 @@
                 $is_admin = $is_company_admin ?? false;
                 if ($is_super_admin) {
                     $buttons = [
-                        ['href'=>'/constract360/construction/public/super-admin/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
-                        ['href'=>'/constract360/construction/public/super-admin/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
-                        ['href'=>'/constract360/construction/public/super-admin/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
+                        ['href'=>$base_url.'super-admin/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>$base_url.'super-admin/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
+                        ['href'=>$base_url.'super-admin/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
                     ];
                 } elseif ($is_admin) {
                     $buttons = [
-                        ['href'=>'/constract360/construction/public/admin/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
-                        ['href'=>'/constract360/construction/public/admin/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
-                        ['href'=>'/constract360/construction/public/admin/employees/','icon'=>'fa-users','label'=>__('employees') ?? 'Employees'],
-                        ['href'=>'/constract360/construction/public/admin/salary-payments/','icon'=>'fa-money-bill-wave','label'=>__('salary_payments') ?? 'Salary'],
-                        ['href'=>'/constract360/construction/public/reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
-                        ['href'=>'/constract360/construction/public/settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
+                        ['href'=>$base_url.'admin/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>$base_url.'admin/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
+                        ['href'=>$base_url.'admin/employees/','icon'=>'fa-users','label'=>__('employees') ?? 'Employees'],
+                        ['href'=>$base_url.'admin/salary-payments/','icon'=>'fa-money-bill-wave','label'=>__('salary_payments') ?? 'Salary'],
+                        ['href'=>$base_url.'reports/','icon'=>'fa-chart-pie','label'=>__('reports') ?? 'Reports'],
+                        ['href'=>$base_url.'settings/','icon'=>'fa-cog','label'=>__('settings') ?? 'Settings'],
                     ];
                 } elseif ($is_employee ?? false) {
                     $buttons = [
-                        ['href'=>'/constract360/construction/public/employee/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
-                        ['href'=>'/constract360/construction/public/employee/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
-                        ['href'=>'/constract360/construction/public/employee/salary/','icon'=>'fa-money-bill-wave','label'=>__('salary') ?? 'Salary'],
-                        ['href'=>'/constract360/construction/public/profile/','icon'=>'fa-user','label'=>__('profile') ?? 'Profile'],
+                        ['href'=>$base_url.'employee/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>$base_url.'employee/contracts/','icon'=>'fa-file-contract','label'=>__('contracts') ?? 'Contracts'],
+                        ['href'=>$base_url.'employee/salary/','icon'=>'fa-money-bill-wave','label'=>__('salary') ?? 'Salary'],
+                        ['href'=>$base_url.'profile/','icon'=>'fa-user','label'=>__('profile') ?? 'Profile'],
                     ];
                 } else {
                     $buttons = [
-                        ['href'=>'/constract360/construction/public/dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
+                        ['href'=>$base_url.'dashboard/','icon'=>'fa-home','label'=>__('home') ?? 'Home'],
                     ];
                 }
               ?>
@@ -113,7 +113,7 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="/constract360/construction/public/logout.php">Logout</a>
+                    <a class="btn btn-primary" href="<?php echo $base_url; ?>logout.php">Logout</a>
                 </div>
             </div>
         </div>

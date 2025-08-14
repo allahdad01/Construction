@@ -52,8 +52,8 @@ $current_settings = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo __('construction_saas_platform_title'); ?></title>
     <?php if (!empty($current_settings['platform_favicon'])): ?>
-    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
-    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
+    <link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
+    <link rel="shortcut icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
     <?php endif; ?>
     
     <!-- Manifest for PWA -->
@@ -780,11 +780,11 @@ $current_settings = [
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: var(--construction-blue); backdrop-filter: blur(10px);">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
-                <?php if (!empty($current_settings['platform_logo'])): ?>
-                    <img src="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_logo']); ?>" alt="Logo" style="height: 30px; margin-right: 10px;">
-                <?php else: ?>
-                    <i class="fas fa-hard-hat me-2"></i>
-                <?php endif; ?>
+            <?php if (!empty($current_settings['platform_logo'])): ?>
+                <img src="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $current_settings['platform_logo'])); ?>" alt="Logo" style="height: 30px; margin-right: 10px;">
+            <?php else: ?>
+                <i class="fas fa-hard-hat me-2"></i>
+            <?php endif; ?>
                 <?php echo htmlspecialchars($current_settings['platform_name'] ?? 'Construction SaaS'); ?>
             </a>
             
@@ -1381,30 +1381,30 @@ $current_settings = [
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="mb-3"><?php echo __('company'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=about-us" class="text-muted text-decoration-none"><?php echo __('about_us'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=careers" class="text-muted text-decoration-none"><?php echo __('careers'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=contact" class="text-muted text-decoration-none"><?php echo __('contact'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=support" class="text-muted text-decoration-none"><?php echo __('support'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=about-us" class="text-muted text-decoration-none"><?php echo __('about_us'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=careers" class="text-muted text-decoration-none"><?php echo __('careers'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=contact" class="text-muted text-decoration-none"><?php echo __('contact'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=support" class="text-muted text-decoration-none"><?php echo __('support'); ?></a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="mb-3"><?php echo __('resources'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=documentation" class="text-muted text-decoration-none"><?php echo __('documentation'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=api-reference" class="text-muted text-decoration-none"><?php echo __('api_reference'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=blog" class="text-muted text-decoration-none"><?php echo __('blog'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=help-center" class="text-muted text-decoration-none"><?php echo __('help_center'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=documentation" class="text-muted text-decoration-none"><?php echo __('documentation'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=api-reference" class="text-muted text-decoration-none"><?php echo __('api_reference'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=blog" class="text-muted text-decoration-none"><?php echo __('blog'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=help-center" class="text-muted text-decoration-none"><?php echo __('help_center'); ?></a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="mb-3"><?php echo __('legal'); ?></h6>
                     <ul class="list-unstyled">
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=privacy-policy" class="text-muted text-decoration-none"><?php echo __('privacy_policy'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=terms-of-service" class="text-muted text-decoration-none"><?php echo __('terms_of_service'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=cookie-policy" class="text-muted text-decoration-none"><?php echo __('cookie_policy'); ?></a></li>
-                        <li><a href="/constract360/construction/public/pages/page.php?slug=gdpr" class="text-muted text-decoration-none"><?php echo __('gdpr'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=privacy-policy" class="text-muted text-decoration-none"><?php echo __('privacy_policy'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=terms-of-service" class="text-muted text-decoration-none"><?php echo __('terms_of_service'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=cookie-policy" class="text-muted text-decoration-none"><?php echo __('cookie_policy'); ?></a></li>
+                        <li><a href="<?php echo $base_url; ?>pages/page.php?slug=gdpr" class="text-muted text-decoration-none"><?php echo __('gdpr'); ?></a></li>
                     </ul>
                 </div>
             </div>

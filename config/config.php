@@ -4,6 +4,25 @@
  * Construction Company Multi-Tenant SaaS Platform
  */
 
+// Detect protocol (http or https)
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
+    || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+
+// Get host (localhost or live domain)
+$host = $_SERVER['HTTP_HOST'];
+
+// Get current script directory
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+
+// Automatically find `/public` in the path and set base up to it
+$publicPos = strpos($scriptDir, '/public');
+if ($publicPos !== false) {
+    $scriptDir = substr($scriptDir, 0, $publicPos + strlen('/public'));
+}
+
+// Final base URL
+$base_url = rtrim($protocol . $host . $scriptDir, '/') . '/';
+
 // Session Configuration - MUST BE FIRST BEFORE ANY OUTPUT
 if (session_status() === PHP_SESSION_NONE) {
     // Session settings
@@ -142,7 +161,7 @@ function checkSessionTimeout() {
     if (isset($_SESSION['last_activity'])) {
         if ((time() - $_SESSION['last_activity']) > $timeout) {
             session_destroy();
-            header('Location: /construct360/construction/public/login.php');
+            header('Location: '.$GLOBALS['BASE_URL'].'login.php');
             exit;
         }
     }
@@ -156,7 +175,7 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: /construct360/construction/public/login.php');
+        header('Location: '.$GLOBALS['BASE_URL'].'login.php');
         exit();
     }
     checkSessionTimeout();
@@ -919,4 +938,5 @@ function getCompanySettingLocal($conn, $company_id, $key, $default = null) {
     
     return $result ? $result['setting_value'] : $default;
 }
+
 ?>

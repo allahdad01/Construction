@@ -17,7 +17,7 @@ $is_super_admin = isSuperAdmin();
 $company_id = getCurrentCompanyId();
 
 if (!in_array($report_type, ['overview', 'financial', 'employee', 'contract', 'machine'])) {
-    header('Location: /constract360/construction/public/reports/');
+    header('Location: '.$base_url.'reports/');
     exit;
 }
 

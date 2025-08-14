@@ -13,7 +13,7 @@ $conn = $db->getConnection();
 $company_id = (int)($_GET['company_id'] ?? 0);
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -143,13 +143,13 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
             <i class="fas fa-money-bill"></i> Company Payments - <?php echo htmlspecialchars($company['company_name']); ?>
         </h1>
         <div class="d-flex">
-            <a href="/constract360/construction/public/super-admin/companies/payment-add.php?company_id=<?php echo $company_id; ?>" class="btn btn-primary btn-sm me-2">
+            <a href="<?php echo $base_url; ?>super-admin/companies/payment-add.php?company_id=<?php echo $company_id; ?>" class="btn btn-primary btn-sm me-2">
                 <i class="fas fa-plus"></i> <?php echo __('add_payment'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm me-2">
+            <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-secondary btn-sm me-2">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
                 <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
@@ -393,21 +393,21 @@ $pending_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="/constract360/construction/public/super-admin/companies/payment-view.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                            <a href="<?php echo $base_url; ?>super-admin/companies/payment-view.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-info" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="/constract360/construction/public/super-admin/companies/payment-edit.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                            <a href="<?php echo $base_url; ?>super-admin/companies/payment-edit.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="/constract360/construction/public/super-admin/companies/payment-delete.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                            <a href="<?php echo $base_url; ?>super-admin/companies/payment-delete.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-danger" title="Delete"
                                                onclick="return confirmDelete('Are you sure you want to delete this payment?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                             <?php if ($payment['payment_status'] === 'pending'): ?>
-                                                <a href="/constract360/construction/public/super-admin/companies/payment-approve.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                                <a href="<?php echo $base_url; ?>super-admin/companies/payment-approve.php?id=<?php echo $payment['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                    class="btn btn-sm btn-success" title="Approve"
                                                    onclick="return confirmDelete('Are you sure you want to approve this payment?')">
                                                     <i class="fas fa-check"></i>

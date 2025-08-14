@@ -13,7 +13,7 @@ $conn = $db->getConnection();
 $company_id = (int)($_GET['company_id'] ?? 0);
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -95,13 +95,13 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
             <i class="fas fa-users"></i> <?php echo __('company_users'); ?> - <?php echo htmlspecialchars($company['company_name']); ?>
         </h1>
         <div>
-            <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> <?php echo __('back_to_companies'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/user-add.php?company_id=<?php echo $company['id']; ?>" class="btn btn-success btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/user-add.php?company_id=<?php echo $company['id']; ?>" class="btn btn-success btn-sm">
                 <i class="fas fa-plus"></i> <?php echo __('add_user'); ?>
             </a>
-            <a href="/constract360/construction/public/super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
+            <a href="<?php echo $base_url; ?>super-admin/companies/view.php?id=<?php echo $company['id']; ?>" class="btn btn-info btn-sm">
                 <i class="fas fa-eye"></i> <?php echo __('view_company'); ?>
             </a>
         </div>
@@ -266,22 +266,22 @@ $admin_users = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
                                     <td><?php echo formatDate($user['created_at']); ?></td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="/constract360/construction/public/super-admin/companies/user-view.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                            <a href="<?php echo $base_url; ?>super-admin/companies/user-view.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-info" title="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="/constract360/construction/public/super-admin/companies/user-edit.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                            <a href="<?php echo $base_url; ?>super-admin/companies/user-edit.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($user['status'] === 'active'): ?>
-                                                <a href="/constract360/construction/public/super-admin/companies/user-suspend.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                                <a href="<?php echo $base_url; ?>super-admin/companies/user-suspend.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                    class="btn btn-sm btn-danger" title="Suspend"
                                                    onclick="return confirmDelete('Are you sure you want to suspend this user?')">
                                                     <i class="fas fa-pause"></i>
                                                 </a>
                                             <?php else: ?>
-                                                <a href="/constract360/construction/public/super-admin/companies/user-activate.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
+                                                <a href="<?php echo $base_url; ?>super-admin/companies/user-activate.php?id=<?php echo $user['id']; ?>&company_id=<?php echo $company_id; ?>" 
                                                    class="btn btn-sm btn-success" title="Activate"
                                                    onclick="return confirmDelete('Are you sure you want to activate this user?')">
                                                     <i class="fas fa-play"></i>

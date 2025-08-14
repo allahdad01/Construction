@@ -305,7 +305,7 @@ body.modal-open { padding-right: 0 !important; }
 function exportReport(report_type, format) {
     const start_date = document.getElementById('start_date').value || '<?php echo date('Y-m-01'); ?>';
     const end_date = document.getElementById('end_date').value || '<?php echo date('Y-m-d'); ?>';
-    const base = '/constract360/construction/public/reports/exports/';
+    const base = '<?php echo $base_url; ?>reports/exports/';
     let file = 'overview_export.php';
     switch (report_type) {
         case 'financial': file = 'financial_export.php'; break;

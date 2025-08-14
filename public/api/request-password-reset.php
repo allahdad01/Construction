@@ -54,9 +54,10 @@ try {
     $ins->execute([$user['id'], $token, $expires]);
 
     // Compose email
-    $resetUrl = sprintf('%s://%s/constract360/construction/public/reset-password.php?token=%s',
+    $resetUrl = sprintf('%s://%s%sreset-password.php?token=%s',
         (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http',
         $_SERVER['HTTP_HOST'],
+        $base_url,
         $token
     );
     $html = '<p>We received a request to reset your password.</p>' .

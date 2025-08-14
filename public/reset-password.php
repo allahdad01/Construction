@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset Password</title>
+  <title><?php echo __('reset_password'); ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -49,23 +49,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card shadow-sm">
-        <div class="card-header"><strong>Reset Password</strong></div>
+        <div class="card-header"><strong><?php echo __('reset_password'); ?></strong></div>
         <div class="card-body">
           <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
           <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
           <form method="POST">
             <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
             <div class="mb-3">
-              <label class="form-label">New Password</label>
+              <label class="form-label"><?php echo __('new_password'); ?></label>
               <input type="password" class="form-control" name="password" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Confirm Password</label>
+              <label class="form-label"><?php echo __('confirm_password'); ?></label>
               <input type="password" class="form-control" name="confirm_password" required>
             </div>
             <div class="d-flex justify-content-between">
-              <a class="btn btn-secondary" href="/constract360/construction/public/login.php">Back to Login</a>
-              <button type="submit" class="btn btn-primary">Reset Password</button>
+              <a class="btn btn-secondary" href="<?php echo $base_url; ?>login.php"><?php echo __('back_to_login'); ?></a>
+              <button type="submit" class="btn btn-primary"><?php echo __('reset_password'); ?></button>
             </div>
           </form>
         </div>

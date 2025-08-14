@@ -174,8 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - <?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($favicon)): ?>
-    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
-    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($favicon); ?>">
+    <link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($favicon); ?>">
+    <link rel="shortcut icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($favicon); ?>">
     <?php endif; ?>
     <link rel="manifest" href="manifest.json">
     
@@ -283,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-5">
                 <div class="login-sidebar">
                     <?php if (!empty($platform_logo)): ?>
-                        <img class="brand-logo" src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo">
+                        <img class="brand-logo" src="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_logo)); ?>" alt="Logo">
                     <?php else: ?>
                         <div class="icon-large"><i class="fas fa-hard-hat"></i></div>
                     <?php endif; ?>
@@ -352,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php if (!empty($contact_email)): ?>
                                 <a href="mailto:<?php echo htmlspecialchars($contact_email); ?>" class="text-decoration-none">Contact your administrator</a>
                             <?php else: ?>
-                                <a href="/constract360/construction/public/contact.php" class="text-decoration-none">Contact your administrator</a>
+                                <a href="<?php echo $base_url; ?>contact.php" class="text-decoration-none">Contact your administrator</a>
                             <?php endif; ?>
                         </p>
                     </div>

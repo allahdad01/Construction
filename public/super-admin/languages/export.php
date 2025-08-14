@@ -13,7 +13,7 @@ $language_id = (int)($_GET['language_id'] ?? 0);
 $format = $_GET['format'] ?? 'csv';
 
 if (!$language_id) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
@@ -23,7 +23,7 @@ $stmt->execute([$language_id]);
 $language = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$language) {
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 
@@ -72,7 +72,7 @@ if ($format === 'csv') {
     exit;
 } else {
     // Invalid format
-    header('Location: /constract360/construction/public/super-admin/languages/');
+    header('Location: '.$base_url.'super-admin/languages/');
     exit;
 }
 ?>

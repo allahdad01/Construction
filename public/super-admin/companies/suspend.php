@@ -12,7 +12,7 @@ $conn = $db->getConnection();
 $company_id = (int)($_GET['id'] ?? 0);
 
 if (!$company_id) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -22,7 +22,7 @@ $stmt->execute([$company_id]);
 $company = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$company) {
-    header('Location: /constract360/construction/public/super-admin/companies/');
+    header('Location: '.$base_url.'super-admin/companies/');
     exit;
 }
 
@@ -35,11 +35,11 @@ try {
     // Log the action (you can add a logs table if needed)
     
     // Redirect with success message
-    header('Location: /constract360/construction/public/super-admin/companies/?success=Company suspended successfully');
+    header('Location: '.$base_url.'super-admin/companies/?success=Company suspended successfully');
     exit;
 } catch (Exception $e) {
     // Redirect with error message
-    header('Location: /constract360/construction/public/super-admin/companies/?error=Error suspending company: ' . $e->getMessage());
+    header('Location: '.$base_url.'super-admin/companies/?error=Error suspending company: ' . $e->getMessage());
     exit;
 }
 ?>

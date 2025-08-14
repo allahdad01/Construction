@@ -55,10 +55,10 @@ require_once '../../../includes/header.php';
                         </div>
                     </div>
                     <div class="mt-4">
-                        <a href="/constract360/construction/public/super-admin/companies/" class="btn btn-primary">
+                        <a href="<?php echo $base_url; ?>super-admin/companies/" class="btn btn-primary">
                             <i class="fas fa-building"></i> <?php echo __('manage_companies'); ?>
                         </a>
-                        <a href="/constract360/construction/public/super-admin/" class="btn btn-secondary">
+                        <a href="<?php echo $base_url; ?>super-admin/" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> <?php echo __('back_to_dashboard'); ?>
                         </a>
                     </div>

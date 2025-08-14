@@ -49,7 +49,7 @@ foreach ($working_hours as $wh) { $total_hours += (float)$wh['hours_worked']; $t
       <?php if (!$isAssistant): ?>
       <a href="add-hours.php?contract_id=<?php echo $contract_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <?php echo __('add_hours'); ?></a>
       <?php endif; ?>
-      <a href="/constract360/construction/public/employee/contracts/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back_to_contracts'); ?></a>
+      <a href="<?php echo $base_url; ?>employee/contracts/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> <?php echo __('back_to_contracts'); ?></a>
     </div>
   </div>
 
