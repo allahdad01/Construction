@@ -56,12 +56,7 @@ function getSystemSettingLocal($conn, $key, $default = '') {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['setting_value'] : $default;
 }
-function getCompanySettingLocal($conn, $company_id, $key, $default = '') {
-    $stmt = $conn->prepare("SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = ?");
-    $stmt->execute([$company_id, $key]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['setting_value'] : $default;
-}
+
 $platform_name = getSystemSettingLocal($conn, 'platform_name', 'Construction SaaS Platform');
 $platform_logo = getSystemSettingLocal($conn, 'platform_logo', '');
 $primary_color = getSystemSettingLocal($conn, 'primary_color', '#243447');
@@ -284,7 +279,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://simplepwa.com/icons/android-chrome-192x192.png">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192.png">
   </head>
   <body data-theme="<?php echo $theme_mode; ?>">
       <!-- Sidebar -->
@@ -444,7 +439,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : '/constract360/construction/public/settings/'; ?>">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/settings/' : '/constract360/construction/public/settings/'); ?>">
                             <i class="fas fa-cog"></i>
                             <span><?php echo __('settings'); ?></span>
                         </a>
@@ -572,7 +567,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
                                     <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : '/constract360/construction/public/settings/'; ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                     <?php endif; ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
@@ -980,13 +975,12 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <script>
     // VAPID subscription for tenant admins
     (async function initVapid(){
-      if (!(isCompanyAdmin || isEmployee) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      if (!isCompanyAdmin || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
       try {
         const reg = await navigator.serviceWorker.ready;
-            const res = await fetch(apiBaseUrl + 'push-vapid-public.php');
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data.success || !data.publicKey) return;
+        const res = await fetch(apiBaseUrl + 'push-vapid-public.php');
+        const data = await res.json();
+        if (!data.success) return;
         const vapidPublicKey = data.publicKey;
         function urlB64ToUint8Array(base64String) {
           const padding = '='.repeat((4 - base64String.length % 4) % 4);

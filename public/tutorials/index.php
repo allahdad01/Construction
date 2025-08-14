@@ -38,7 +38,7 @@ if ($lang) {
         <select class="form-control" name="lang" onchange="this.form.submit()">
           <option value=""><?php echo __('select_language'); ?></option>
           <?php foreach ($langs as $lc): ?>
-            <option value="<?php echo htmlspecialchars($lc); ?>" <?php echo $lang===$lc?'selected':''; ?>><?php echo htmlspecialchars($lc); ?></option>
+            <option value="<?php echo htmlspecialchars($lc); ?>" <?php echo $lang===$lc?'selected':''; ?>><?php echo htmlspecialchars(getLanguageName($lc)); ?></option>
           <?php endforeach; ?>
         </select>
       </div>

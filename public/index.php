@@ -56,6 +56,9 @@ $current_settings = [
     <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($current_settings['platform_favicon']); ?>">
     <?php endif; ?>
     
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -1702,5 +1705,19 @@ $current_settings = [
         window.addEventListener('scroll', scrollAnimations);
         scrollAnimations(); // Run once on page load
     </script>
+    <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
 </body>
 </html>

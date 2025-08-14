@@ -142,7 +142,7 @@ function checkSessionTimeout() {
     if (isset($_SESSION['last_activity'])) {
         if ((time() - $_SESSION['last_activity']) > $timeout) {
             session_destroy();
-            header('Location: /constract360/construction/public/login.php');
+            header('Location: /construct360/construction/public/login.php');
             exit;
         }
     }
@@ -156,7 +156,7 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: /constract360/construction/public/login.php');
+        header('Location: /construct360/construction/public/login.php');
         exit();
     }
     checkSessionTimeout();
@@ -903,4 +903,20 @@ function getMissingTranslations($language_id) {
 
 // Include currency helper functions
 require_once __DIR__ . '/currency_helper.php';
+
+function getCompanySettingLocal($conn, $company_id, $key, $default = null) {
+    if (!$conn || !$company_id) {
+        return $default;
+    }
+    
+    $stmt = $conn->prepare("
+        SELECT setting_value 
+        FROM company_settings 
+        WHERE company_id = ? AND setting_key = ?
+    ");
+    $stmt->execute([$company_id, $key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result ? $result['setting_value'] : $default;
+}
 ?>
