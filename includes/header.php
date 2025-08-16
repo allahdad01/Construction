@@ -90,6 +90,9 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Bootstrap JavaScript Bundle (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <!-- Custom CSS -->
     <style>
         :root {
@@ -145,10 +148,45 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             font-weight: 700;
             text-decoration: none;
             transition: var(--transition);
+            display: flex !important;
+            align-items: center !important;
+            margin-right: 0 !important;
+            color: white !important;
+        }
+        
+        .navbar-brand:hover {
+            color: rgba(255, 255, 255, 0.8) !important;
         }
 
         .navbar-brand:hover {
             transform: translateY(-1px);
+        }
+
+        /* Sidebar toggle icon styling */
+        #sidebarToggle, #mobileSidebarToggle {
+            transition: var(--transition);
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: white !important;
+        }
+        
+        /* Ensure sidebar toggle is properly sized */
+        #sidebarToggle i, #mobileSidebarToggle i {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        #sidebarToggle:hover, #mobileSidebarToggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        
+        #sidebarToggle:focus, #mobileSidebarToggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
         }
 
         .nav-link {
@@ -176,6 +214,16 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             height: 2px;
             background-color: white;
             border-radius: 1px;
+        }
+        
+        /* Navbar toggler styling */
+        .navbar-toggler {
+            border: none !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
         }
 
         /* Dropdown Enhancements */
@@ -213,11 +261,94 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             background-color: var(--primary-color);
             color: white;
         }
+        
+        .dropdown-item {
+            color: var(--gray-700) !important;
+            padding: 0.5rem 1rem !important;
+            border: none !important;
+            background: transparent !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
 
         .dropdown-header {
             color: var(--primary-color);
             font-weight: 600;
             padding: 0.75rem 1.5rem 0.5rem;
+            background-color: var(--gray-100) !important;
+            border-bottom: 1px solid var(--gray-200) !important;
+        }
+        
+        .dropdown-divider {
+            border-top: 1px solid var(--gray-200) !important;
+            margin: 0.5rem 0 !important;
+        }
+
+        /* Ensure dropdowns work properly */
+        .dropdown-menu {
+            z-index: 1050 !important;
+            border: none !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            background-color: white !important;
+            color: var(--gray-700) !important;
+            border-radius: var(--border-radius) !important;
+            overflow: hidden !important;
+        }
+        
+        .dropdown-menu.show {
+            display: block !important;
+        }
+
+        .dropdown-menu-end {
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        /* Mobile dropdown improvements */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: fixed !important;
+                top: auto !important;
+                left: auto !important;
+                right: 10px !important;
+                width: calc(100vw - 20px) !important;
+                max-width: 300px !important;
+                margin: 0 !important;
+                transform: none !important;
+                z-index: 1060 !important;
+                max-height: 60vh !important;
+                overflow-y: auto !important;
+            }
+            
+            .dropdown-menu.show {
+                display: block !important;
+            }
+            
+            /* Ensure dropdown items are properly sized on mobile */
+            .dropdown-item {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Ensure dropdown headers are properly sized on mobile */
+            .dropdown-header {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+
+        .dropdown-toggle::after {
+            display: inline-block !important;
+            margin-left: 0.255em !important;
+            vertical-align: 0.255em !important;
+            content: "" !important;
+            border-top: 0.3em solid !important;
+            border-right: 0.3em solid transparent !important;
+            border-bottom: 0 !important;
+            border-left: 0.3em solid transparent !important;
         }
 
         /* Avatar Styles */
@@ -231,6 +362,19 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
             border: 2px solid rgba(255, 255, 255, 0.3);
             transition: var(--transition);
+            flex-shrink: 0;
+        }
+        
+        /* Mobile avatar adjustments */
+        @media (max-width: 768px) {
+            .avatar-circle {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .avatar-text {
+                font-size: 0.8rem;
+            }
         }
 
         .avatar-circle:hover {
@@ -266,6 +410,20 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             display: flex;
             align-items: center;
             justify-content: center;
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            transform: translate(50%, -50%) !important;
+            z-index: 1061 !important;
+        }
+        
+        /* Ensure notification badge is visible on mobile */
+        @media (max-width: 768px) {
+            #notificationBadge {
+                font-size: 0.6rem;
+                min-width: 16px;
+                height: 16px;
+            }
         }
 
         /* Language Switcher */
@@ -277,6 +435,34 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             background: rgba(255, 255, 255, 0.9) !important;
             color: var(--primary-color) !important;
             font-weight: 700;
+        }
+        
+        /* Mobile language switcher adjustments */
+        @media (max-width: 768px) {
+            .language-switcher .nav-link span {
+                display: none !important;
+            }
+            
+            .language-switcher .badge {
+                margin-left: 0 !important;
+            }
+            
+            /* Mobile notifications adjustments */
+            .nav-link.position-relative {
+                padding: 0.5rem !important;
+            }
+            
+            /* Mobile user profile adjustments */
+            .nav-link .d-none.d-lg-block {
+                display: none !important;
+            }
+        }
+        
+        /* Badge styling */
+        .badge {
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            padding: 0.25rem 0.5rem !important;
         }
 
         /* Responsive Design */
@@ -297,6 +483,47 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 border-radius: var(--border-radius);
                 margin-top: 1rem;
                 padding: 1rem;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            /* Ensure navbar content is properly spaced */
+            .navbar-nav {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .navbar-nav .nav-item {
+                margin: 0 !important;
+            }
+            
+            /* Mobile navbar improvements */
+            .navbar {
+                padding: 0.5rem 1rem !important;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem !important;
+            }
+            
+            .navbar-brand span {
+                font-size: 1.1rem !important;
+            }
+            
+            /* Mobile sidebar toggle positioning */
+            #mobileSidebarToggle {
+                order: -1;
+                margin-right: 0.5rem !important;
+            }
+            
+            /* Ensure mobile sidebar toggle is visible */
+            .d-flex.align-items-center {
+                gap: 0.5rem;
+            }
+            
+            /* Ensure navbar is properly responsive */
+            .navbar-expand-lg .navbar-collapse {
+                flex-basis: auto !important;
             }
         }
 
@@ -313,6 +540,9 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             transition: var(--transition);
             box-shadow: var(--box-shadow-lg);
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+            font-family: var(--font-family);
         }
 
         /* Collapsed Sidebar State */
@@ -344,10 +574,18 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
         .main-content {
             margin-left: 280px;
             transition: var(--transition);
+            min-height: 100vh;
+            background-color: var(--gray-100);
+            padding: 1rem;
         }
 
         .main-content.expanded {
             margin-left: 70px;
+        }
+        
+        /* Ensure smooth transitions */
+        .main-content, .sidebar {
+            transition: all 0.3s ease-in-out;
         }
 
         /* Responsive Sidebar */
@@ -355,6 +593,12 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             .sidebar {
                 transform: translateX(-100%);
                 width: 280px;
+                z-index: 1040;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                transition: transform 0.3s ease-in-out;
             }
 
             .sidebar.show {
@@ -363,73 +607,297 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
 
             .main-content {
                 margin-left: 0;
+                padding: 0.5rem;
             }
 
             .main-content.expanded {
                 margin-left: 0;
             }
+            
+            /* Add overlay when sidebar is open on mobile */
+            .sidebar.show::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: -1;
+                animation: fadeIn 0.3s ease-in-out;
+            }
         }
         .sidebar.collapsed { width: 70px; }
-        .sidebar-header { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
-        .sidebar-logo { height: 40px; width: auto; margin-bottom: 0.5rem; }
-        .sidebar-brand { font-size: 1.25rem; font-weight: 700; color: white; text-decoration: none; margin: 0; }
-        .sidebar-nav { padding: 1rem 0; }
-        .nav-item { margin: 0.25rem 0; }
-        .nav-link { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: var(--transition); border-radius: 0.375rem; margin: 0 0.5rem; }
-        .nav-link:hover { color: white; background-color: rgba(255, 255, 255, 0.1); transform: translateX(4px); }
-        .nav-link.active { color: white; background-color: rgba(255, 255, 255, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .nav-link i { width: 20px; margin-right: 0.75rem; font-size: 1rem; }
-        .sidebar.collapsed .nav-link span { display: none; }
-        .sidebar.collapsed .nav-link i { margin-right: 0; font-size: 1.25rem; }
+        .sidebar-header { 
+            padding: 1.5rem 1rem; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            text-align: center; 
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        .sidebar-logo { 
+            height: 40px; 
+            width: auto; 
+            margin-bottom: 0.5rem; 
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-brand { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            color: white; 
+            text-decoration: none; 
+            margin: 0; 
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.025em;
+        }
+        .sidebar-nav { 
+            padding: 1rem 0; 
+            margin: 0;
+            list-style: none;
+        }
+        .nav-item { 
+            margin: 0.25rem 0; 
+            list-style: none;
+            padding: 0;
+        }
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.75rem 1.5rem; 
+            color: rgba(255, 255, 255, 0.8); 
+            text-decoration: none; 
+            transition: var(--transition); 
+            border-radius: 0.375rem; 
+            margin: 0 0.5rem; 
+            position: relative;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+        }
+        .nav-link:hover { 
+            color: white; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            transform: translateX(4px); 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link.active { 
+            color: white; 
+            background-color: rgba(255, 255, 255, 0.2); 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+        .nav-link i { 
+            width: 20px; 
+            margin-right: 0.75rem; 
+            font-size: 1rem; 
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .sidebar.collapsed .nav-link span { 
+            display: none; 
+        }
+        .sidebar.collapsed .nav-link i { 
+            margin-right: 0; 
+            font-size: 1.25rem; 
+        }
+        
+        /* Ensure sidebar collapsed state works properly */
+        .sidebar.collapsed .sidebar-header {
+            padding: 1rem 0.5rem;
+        }
+        
+        .sidebar.collapsed .sidebar-brand {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-logo {
+            margin-bottom: 0;
+        }
+        
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 1rem 0.5rem;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.25rem;
+        }
 
         /* Sidebar style variants */
-        .sidebar.compact { width: 220px; }
-        .sidebar.compact .nav-link { padding: 0.5rem 1rem; }
-        .sidebar.compact .sidebar-header { padding: 1rem; }
-        .sidebar.minimal { width: 200px; background: #ffffff; color: var(--gray-800); border-right: 1px solid var(--gray-200); box-shadow: none; }
-        .sidebar.minimal .nav-link { color: var(--gray-700); }
-        .sidebar.minimal .nav-link:hover, .sidebar.minimal .nav-link.active { color: var(--primary-color); background: var(--gray-100); }
-        .sidebar.modern { background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); }
+        .sidebar.compact { 
+            width: 220px; 
+        }
+        .sidebar.compact .nav-link { 
+            padding: 0.5rem 1rem; 
+        }
+        .sidebar.compact .sidebar-header { 
+            padding: 1rem; 
+        }
+        .sidebar.minimal { 
+            width: 200px; 
+            background: #ffffff; 
+            color: var(--gray-800); 
+            border-right: 1px solid var(--gray-200); 
+            box-shadow: none; 
+        }
+        .sidebar.minimal .nav-link { 
+            color: var(--gray-700); 
+        }
+        .sidebar.minimal .nav-link:hover, 
+        .sidebar.minimal .nav-link.active { 
+            color: var(--primary-color); 
+            background: var(--gray-100); 
+        }
+        .sidebar.modern { 
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); 
+        }
 
-        /* Main Content */
-        .main-content { margin-left: 280px; min-height: 100vh; transition: var(--transition); background-color: var(--gray-100); }
-        .main-content.expanded { margin-left: 70px; }
+        /* Main Content - consolidated */
+        /* .main-content rules are defined above */
         /* Adjust main-content for sidebar variants (desktop) */
         @media (min-width: 769px) {
-          .sidebar.compact + .main-content { margin-left: 220px; }
-          .sidebar.minimal + .main-content { margin-left: 200px; }
+          .sidebar.compact + .main-content { 
+              margin-left: 220px; 
+          }
+          .sidebar.minimal + .main-content { 
+              margin-left: 200px; 
+          }
+        }
+        
+        /* Ensure main content is properly positioned */
+        .main-content {
+            position: relative;
+            z-index: 1;
         }
 
         /* Top Navigation */
-        .top-navbar { background: white; box-shadow: var(--box-shadow); padding: 1rem 2rem; position: sticky; top: 0; z-index: 1020; width: 100%; max-width: 100%; overflow-x: hidden; }
-        .navbar-brand { font-weight: 700; color: var(--primary-color); text-decoration: none; }
-        .navbar-nav { align-items: center; }
-        .nav-link { color: var(--gray-600); text-decoration: none; padding: 0.5rem 1rem; border-radius: var(--border-radius); transition: var(--transition); }
-        .nav-link:hover { color: var(--primary-color); background-color: var(--gray-100); }
+        .top-navbar { 
+            background: white; 
+            box-shadow: var(--box-shadow); 
+            padding: 1rem 2rem; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1020; 
+            width: 100%; 
+            max-width: 100%; 
+            overflow-x: hidden; 
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--primary-color); 
+            text-decoration: none; 
+        }
+        .navbar-nav { 
+            align-items: center; 
+        }
+        .nav-link { 
+            color: var(--gray-600); 
+            text-decoration: none; 
+            padding: 0.5rem 1rem; 
+            border-radius: var(--border-radius); 
+            transition: var(--transition); 
+        }
+        .nav-link:hover { 
+            color: var(--primary-color); 
+            background-color: var(--gray-100); 
+        }
 
         /* User Dropdown */
-        .user-dropdown { position: relative; }
-        .dropdown { position: relative; }
-        .dropdown-menu { position: absolute; top: 100%; left: auto; right: 0; margin-top: 0.5rem; max-height: 80vh; overflow-y: auto; z-index: 1050; }
+        .user-dropdown { 
+            position: relative; 
+        }
+        .dropdown { 
+            position: relative; 
+        }
+        .dropdown-menu { 
+            position: absolute; 
+            top: 100%; 
+            left: auto; 
+            right: 0; 
+            margin-top: 0.5rem; 
+            max-height: 80vh; 
+            overflow-y: auto; 
+            z-index: 1050; 
+        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); width: 280px; position: fixed; top: 60px; bottom: 0; left: 0; z-index: 1020; max-width: 100%; height: calc(100vh - 60px); overflow-y: auto; }
-            .sidebar.show { transform: translateX(0); }
-            .sidebar.collapsed { width: 0; transform: translateX(-100%); overflow: hidden; }
-            .main-content { margin-left: 0; padding-top: 60px; }
-            .top-navbar { padding: 0.5rem 1rem; position: fixed; width: 100%; left: 0; right: 0; top: 0; z-index: 1030; height: 60px; display: flex; align-items: center; background-color: white; overflow: visible; }
-            .top-navbar .container-fluid { width: 100%; padding: 0; overflow: visible; }
-            .top-navbar .d-flex { width: 100%; justify-content: space-between !important; align-items: center; overflow: visible; }
-            .dropdown-menu { position: fixed !important; top: 60px !important; left: auto !important; right: 10px !important; width: calc(100% - 20px); max-width: 300px; transform: none !important; border-radius: var(--border-radius); box-shadow: var(--box-shadow-lg); z-index: 1050 !important; }
-            .top-navbar .dropdown { position: static; }
+            .sidebar { 
+                transform: translateX(-100%); 
+                width: 280px; 
+                position: fixed; 
+                top: 60px; 
+                bottom: 0; 
+                left: 0; 
+                z-index: 1020; 
+                max-width: 100%; 
+                height: calc(100vh - 60px); 
+                overflow-y: auto; 
+            }
+            .sidebar.show { 
+                transform: translateX(0); 
+            }
+            .sidebar.collapsed { 
+                width: 0; 
+                transform: translateX(-100%); 
+                overflow: hidden; 
+            }
+            .main-content { 
+                margin-left: 0; 
+                padding-top: 60px; 
+            }
+            .top-navbar { 
+                padding: 0.5rem 1rem; 
+                position: fixed; 
+                width: 100%; 
+                left: 0; 
+                right: 0; 
+                top: 0; 
+                z-index: 1030; 
+                height: 60px; 
+                display: flex; 
+                align-items: center; 
+                background-color: white; 
+                overflow: visible; 
+            }
+            .top-navbar .container-fluid { 
+                width: 100%; 
+                padding: 0; 
+                overflow: visible; 
+            }
+            .top-navbar .d-flex { 
+                width: 100%; 
+                justify-content: space-between !important; 
+                align-items: center; 
+                overflow: visible; 
+            }
+            .dropdown-menu { 
+                position: fixed !important; 
+                top: 60px !important; 
+                left: auto !important; 
+                right: 10px !important; 
+                width: calc(100% - 20px); 
+                max-width: 300px; 
+                transform: none !important; 
+                border-radius: var(--border-radius); 
+                box-shadow: var(--box-shadow-lg); 
+                z-index: 1050 !important; 
+            }
+            .top-navbar .dropdown { 
+                position: static; 
+            }
         }
 
         /* Ensure dropdowns are fully visible */
-        .dropdown-menu { max-height: 80vh; overflow-y: auto; }
+        .dropdown-menu { 
+            max-height: 80vh; 
+            overflow-y: auto; 
+        }
 
         /* Prevent navbar from becoming scrollable */
-        .top-navbar, .top-navbar .container-fluid, .top-navbar .d-flex { overflow: visible !important; }
+        .top-navbar, .top-navbar .container-fluid, .top-navbar .d-flex { 
+            overflow: visible !important; 
+        }
 
         /* Dark Mode Support */
         [data-theme="dark"] {
@@ -444,44 +912,140 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             --gray-900: #f5f5f5;
             --white-color: #1a1a1a;
         }
+        
+        /* Ensure dark mode works properly */
+        [data-theme="dark"] .dropdown-menu {
+            background-color: var(--gray-800) !important;
+            color: var(--gray-200) !important;
+            border: 1px solid var(--gray-600) !important;
+        }
+        
+        [data-theme="dark"] .dropdown-item {
+            color: var(--gray-200) !important;
+        }
+        
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: var(--gray-700) !important;
+            color: white !important;
+        }
 
         /* Loading Animation */
-        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading { 
+            display: inline-block; 
+            width: 20px; 
+            height: 20px; 
+            border: 3px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 50%; 
+            border-top-color: #fff; 
+            animation: spin 1s ease-in-out infinite; 
+        }
+        @keyframes spin { 
+            to { 
+                transform: rotate(360deg); 
+            } 
+        }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--gray-200); }
-        ::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
+        ::-webkit-scrollbar { 
+            width: 8px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: var(--gray-200); 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--gray-400); 
+            border-radius: 4px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: var(--gray-500); 
+        }
 
         /* Global modal and chart stability fixes */
-        .modal, .modal-backdrop { position: fixed; }
-        body.modal-open { padding-right: 0 !important; }
-        .card .card-body { position: relative; }
-        canvas { display: block; }
-        .chart-area, .chart-pie { min-height: 220px; }
+        .modal, .modal-backdrop { 
+            position: fixed; 
+        }
+        body.modal-open { 
+            padding-right: 0 !important; 
+        }
+        .card .card-body { 
+            position: relative; 
+        }
+        canvas { 
+            display: block; 
+        }
+        .chart-area, .chart-pie { 
+            min-height: 220px; 
+        }
 
         /* Fixed chart utility for donut/compact charts inside side cards */
-        .fixed-chart { position: relative; width: 100%; height: 260px; overflow: hidden; }
-        .fixed-chart > canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+        .fixed-chart { 
+            position: relative; 
+            width: 100%; 
+            height: 260px; 
+            overflow: hidden; 
+        }
+        .fixed-chart > canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100% !important; 
+            height: 100% !important; 
+        }
 
         /* Utility: stack multi-currency amounts neatly */
-        .stacked-amounts > div { line-height: 1.2; }
-        .stacked-amounts > div.small { font-size: 0.85rem; opacity: 0.85; }
+        .stacked-amounts > div { 
+            line-height: 1.2; 
+        }
+        .stacked-amounts > div.small { 
+            font-size: 0.85rem; 
+            opacity: 0.85; 
+        }
 
         /* Utility Classes */
-        .text-gradient { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .bg-gradient-primary { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); }
-        .bg-gradient-success { background: linear-gradient(135deg, var(--success-color), #20c997); }
-        .bg-gradient-warning { background: linear-gradient(135deg, var(--warning-color), #fd7e14); }
-        .bg-gradient-danger { background: linear-gradient(135deg, var(--danger-color), #e74c3c); }
+        .text-gradient { 
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+        }
+        .bg-gradient-primary { 
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); 
+        }
+        .bg-gradient-success { 
+            background: linear-gradient(135deg, var(--success-color), #20c997); 
+        }
+        .bg-gradient-warning { 
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14); 
+        }
+        .bg-gradient-danger { 
+            background: linear-gradient(135deg, var(--danger-color), #e74c3c); 
+        }
 
         /* Animation Classes */
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .slide-in { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        .fade-in { 
+            animation: fadeIn 0.5s ease-in-out; 
+        }
+        @keyframes fadeIn { 
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            } 
+        }
+        .slide-in { 
+            animation: slideIn 0.3s ease-out; 
+        }
+        @keyframes slideIn { 
+            from { 
+                transform: translateX(-100%); 
+            } 
+            to { 
+                transform: translateX(0); 
+            } 
+        }
     </style>
     <style>
     /* Mobile adjustments without off-canvas overlay */
@@ -753,18 +1317,14 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <div class="container-fluid">
                     <!-- Brand/Logo -->
                     <a class="navbar-brand d-flex align-items-center" href="<?php echo $base_url; ?>dashboard/">
-                        <?php if (!empty($platform_logo)): ?>
-                            <img src="<?php echo $base_url . htmlspecialchars($platform_logo); ?>" alt="<?php echo htmlspecialchars($platform_name); ?>" height="40" class="me-3">
-                        <?php else: ?>
-                            <i class="fas fa-building fa-2x me-3 text-white"></i>
-                        <?php endif; ?>
-                        <span class="fw-bold fs-4"><?php echo htmlspecialchars($platform_name); ?></span>
+                        <i class="fas fa-bars fa-2x me-3 text-white" id="sidebarToggle" style="cursor: pointer;" title="Toggle Sidebar"></i>
+                        <span class="fw-bold fs-4">Menu</span>
                     </a>
 
                     <!-- Mobile Toggle Buttons -->
                     <div class="d-flex align-items-center">
-                        <!-- Sidebar Toggle for Mobile -->
-                        <button class="btn btn-link text-white d-lg-none me-2" id="sidebarToggle" type="button">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button class="btn btn-link text-white d-lg-none me-2" id="mobileSidebarToggle" type="button">
                             <i class="fas fa-bars fa-lg"></i>
                         </button>
                         
@@ -894,7 +1454,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             </nav>
 
             <!-- Page Content -->
-            <div class="container-fluid p-4">
+            <div class="container-fluid p-4" id="main-content">
             
             <script>
             // Auto theme handler for 'auto' mode
@@ -908,6 +1468,29 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyAutoTheme); } catch(e) {}
               }
             })();
+
+            // Ensure Bootstrap dropdowns are working
+            document.addEventListener('DOMContentLoaded', function() {
+                // Test if Bootstrap is loaded
+                if (typeof bootstrap !== 'undefined') {
+                    console.log('Bootstrap loaded successfully');
+                    
+                    // Initialize all dropdowns
+                    const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+                    console.log('Found dropdown elements:', dropdownElementList.length);
+                    
+                    dropdownElementList.forEach(function (dropdownToggleEl) {
+                        try {
+                            new bootstrap.Dropdown(dropdownToggleEl);
+                            console.log('Dropdown initialized for:', dropdownToggleEl);
+                        } catch (error) {
+                            console.error('Error initializing dropdown:', error);
+                        }
+                    });
+                } else {
+                    console.error('Bootstrap not loaded');
+                }
+            });
             </script>
             <script>
             // Define API base URL (absolute to avoid nested path issues)
@@ -1153,9 +1736,11 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             // Sidebar toggle functionality
             document.addEventListener('DOMContentLoaded', function() {
                 const sidebarToggle = document.getElementById('sidebarToggle');
+                const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
                 const sidebar = document.querySelector('.sidebar');
                 const mainContent = document.getElementById('main-content');
                 
+                // Desktop sidebar toggle
                 if (sidebarToggle && sidebar) {
                     sidebarToggle.addEventListener('click', function() {
                         sidebar.classList.toggle('collapsed');
@@ -1173,28 +1758,39 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                     }
                 }
                 
-                // Improve dropdown positioning
+                // Mobile sidebar toggle
+                if (mobileSidebarToggle && sidebar) {
+                    mobileSidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.toggle('show');
+                    });
+                    
+                    // Close sidebar when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!sidebar.contains(e.target) && !mobileSidebarToggle.contains(e.target)) {
+                            sidebar.classList.remove('show');
+                        }
+                    });
+                }
+                
+                // Simple dropdown positioning fix for mobile
                 function adjustDropdownPosition() {
                     if (window.innerWidth <= 768) {
                         const dropdowns = document.querySelectorAll('.dropdown-menu');
                         dropdowns.forEach(dropdown => {
+                            // Ensure dropdowns are properly positioned on mobile
+                            dropdown.style.position = 'fixed';
+                            dropdown.style.zIndex = '1050';
+                            
+                            // Position dropdowns relative to their toggle button
                             const toggle = dropdown.previousElementSibling;
                             if (toggle) {
                                 const toggleRect = toggle.getBoundingClientRect();
-                                dropdown.style.position = 'fixed';
                                 dropdown.style.top = `${toggleRect.bottom + 10}px`;
-                                dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
-                                dropdown.style.transform = 'none';
+                                dropdown.style.right = '10px';
+                                dropdown.style.left = 'auto';
+                                dropdown.style.width = 'calc(100vw - 20px)';
+                                dropdown.style.maxWidth = '300px';
                             }
-                        });
-                    } else {
-                        // Reset desktop dropdown styles
-                        const dropdowns = document.querySelectorAll('.dropdown-menu');
-                        dropdowns.forEach(dropdown => {
-                            dropdown.style.position = 'absolute';
-                            dropdown.style.top = '100%';
-                            dropdown.style.right = '0';
-                            dropdown.style.transform = '';
                         });
                     }
                 }
@@ -1202,12 +1798,6 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 // Adjust on load and resize
                 adjustDropdownPosition();
                 window.addEventListener('resize', adjustDropdownPosition);
-
-                // Adjust when dropdowns are shown
-                const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-                dropdownToggles.forEach(toggle => {
-                    toggle.addEventListener('shown.bs.dropdown', adjustDropdownPosition);
-                });
             });
             </script>
             <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
