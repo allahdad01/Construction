@@ -5,6 +5,9 @@ $base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'confi
 require_once $base_path . 'config.php';
 require_once $base_path . 'database.php';
 
+// Set cache control headers for all dynamic pages
+setAutoCacheHeaders();
+
 // Handle language switching
 if (isset($_GET['change_language']) && isAuthenticated()) {
     $new_language_id = (int)$_GET['change_language'];
