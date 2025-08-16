@@ -733,12 +733,13 @@ function getAvailableLanguages() {
 }
 
 function updateCompanyLanguage($company_id, $language_id) {
-    global $conn;
-    
     // Don't update if no company_id
     if (!$company_id) {
         return false;
     }
+    
+    $db = new Database();
+    $conn = $db->getConnection();
     
     // Use INSERT ... ON DUPLICATE KEY UPDATE for key-value structure
     $stmt = $conn->prepare("
@@ -747,7 +748,14 @@ function updateCompanyLanguage($company_id, $language_id) {
         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
     ");
     
-    return $stmt->execute([$company_id, $language_id]);
+    $success = $stmt->execute([$company_id, $language_id]);
+    
+    // Also update the session language
+    if ($success) {
+        $_SESSION['current_language'] = $language_id;
+    }
+    
+    return $success;
 }
 
 function getLanguageDirection($company_id = null) {

@@ -5,9 +5,6 @@ $base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'confi
 require_once $base_path . 'config.php';
 require_once $base_path . 'database.php';
 
-// Set cache control headers for all dynamic pages
-setAutoCacheHeaders();
-
 // Handle language switching
 if (isset($_GET['change_language']) && isAuthenticated()) {
     $new_language_id = (int)$_GET['change_language'];
@@ -77,8 +74,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($platform_favicon)): ?>
-    <link rel="icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
-    <link rel="shortcut icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
+    <link rel="icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="shortcut icon" href="/constract360/construction/<?php echo htmlspecialchars($platform_favicon); ?>">
     <?php endif; ?>
     
     <!-- Bootstrap CSS -->
@@ -89,9 +86,6 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap JavaScript Bundle (includes Popper.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom CSS -->
     <style>
@@ -137,396 +131,6 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             padding: 0;
         }
 
-        /* Enhanced Header Styles */
-        .navbar {
-            padding: 0.75rem 1rem;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            text-decoration: none;
-            transition: var(--transition);
-            display: flex !important;
-            align-items: center !important;
-            margin-right: 0 !important;
-            color: white !important;
-        }
-        
-        .navbar-brand:hover {
-            color: rgba(255, 255, 255, 0.8) !important;
-        }
-
-        .navbar-brand:hover {
-            transform: translateY(-1px);
-        }
-
-        /* Sidebar toggle icon styling */
-        #sidebarToggle, #mobileSidebarToggle {
-            transition: var(--transition);
-            padding: 0.5rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: white !important;
-        }
-        
-        /* Ensure sidebar toggle is properly sized */
-        #sidebarToggle i, #mobileSidebarToggle i {
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-
-        #sidebarToggle:hover, #mobileSidebarToggle:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: scale(1.1);
-        }
-        
-        #sidebarToggle:focus, #mobileSidebarToggle:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: white !important;
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 2px;
-            background-color: white;
-            border-radius: 1px;
-        }
-        
-        /* Navbar toggler styling */
-        .navbar-toggler {
-            border: none !important;
-            padding: 0.25rem 0.5rem !important;
-        }
-        
-        .navbar-toggler:focus {
-            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
-        }
-
-        /* Dropdown Enhancements */
-        .dropdown-menu {
-            border: none;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--box-shadow-xl);
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-        }
-
-        .dropdown-menu-dark {
-            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
-            color: white;
-        }
-
-        .dropdown-item {
-            padding: 0.75rem 1.5rem;
-            color: var(--gray-700);
-            transition: var(--transition);
-            border-radius: 0;
-        }
-
-        .dropdown-menu-dark .dropdown-item {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .dropdown-item:hover, .dropdown-item:focus {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .dropdown-item.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .dropdown-item {
-            color: var(--gray-700) !important;
-            padding: 0.5rem 1rem !important;
-            border: none !important;
-            background: transparent !important;
-        }
-        
-        .dropdown-item:hover {
-            background-color: var(--primary-color) !important;
-            color: white !important;
-        }
-
-        .dropdown-header {
-            color: var(--primary-color);
-            font-weight: 600;
-            padding: 0.75rem 1.5rem 0.5rem;
-            background-color: var(--gray-100) !important;
-            border-bottom: 1px solid var(--gray-200) !important;
-        }
-        
-        .dropdown-divider {
-            border-top: 1px solid var(--gray-200) !important;
-            margin: 0.5rem 0 !important;
-        }
-
-        /* Ensure dropdowns work properly */
-        .dropdown-menu {
-            z-index: 1050 !important;
-            border: none !important;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-            background-color: white !important;
-            color: var(--gray-700) !important;
-            border-radius: var(--border-radius) !important;
-            overflow: hidden !important;
-        }
-        
-        .dropdown-menu.show {
-            display: block !important;
-        }
-
-        .dropdown-menu-end {
-            right: 0 !important;
-            left: auto !important;
-        }
-        
-        /* Mobile dropdown improvements */
-        @media (max-width: 768px) {
-            .dropdown-menu {
-                position: fixed !important;
-                top: auto !important;
-                left: auto !important;
-                right: 10px !important;
-                width: calc(100vw - 20px) !important;
-                max-width: 300px !important;
-                margin: 0 !important;
-                transform: none !important;
-                z-index: 1060 !important;
-                max-height: 60vh !important;
-                overflow-y: auto !important;
-            }
-            
-            .dropdown-menu.show {
-                display: block !important;
-            }
-            
-            /* Ensure dropdown items are properly sized on mobile */
-            .dropdown-item {
-                padding: 0.75rem 1rem !important;
-                font-size: 0.9rem !important;
-            }
-            
-            /* Ensure dropdown headers are properly sized on mobile */
-            .dropdown-header {
-                padding: 0.5rem 1rem !important;
-                font-size: 0.85rem !important;
-            }
-        }
-
-        .dropdown-toggle::after {
-            display: inline-block !important;
-            margin-left: 0.255em !important;
-            vertical-align: 0.255em !important;
-            content: "" !important;
-            border-top: 0.3em solid !important;
-            border-right: 0.3em solid transparent !important;
-            border-bottom: 0 !important;
-            border-left: 0.3em solid transparent !important;
-        }
-
-        /* Avatar Styles */
-        .avatar-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: var(--transition);
-            flex-shrink: 0;
-        }
-        
-        /* Mobile avatar adjustments */
-        @media (max-width: 768px) {
-            .avatar-circle {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .avatar-text {
-                font-size: 0.8rem;
-            }
-        }
-
-        .avatar-circle:hover {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.6);
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .avatar-text {
-            color: white;
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.5rem;
-        }
-
-        /* Notification Badge */
-        #notificationBadge {
-            font-size: 0.7rem;
-            min-width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute !important;
-            top: 0 !important;
-            right: 0 !important;
-            transform: translate(50%, -50%) !important;
-            z-index: 1061 !important;
-        }
-        
-        /* Ensure notification badge is visible on mobile */
-        @media (max-width: 768px) {
-            #notificationBadge {
-                font-size: 0.6rem;
-                min-width: 16px;
-                height: 16px;
-            }
-        }
-
-        /* Language Switcher */
-        .language-switcher .dropdown-toggle::after {
-            display: none;
-        }
-
-        .language-switcher .badge {
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: var(--primary-color) !important;
-            font-weight: 700;
-        }
-        
-        /* Mobile language switcher adjustments */
-        @media (max-width: 768px) {
-            .language-switcher .nav-link span {
-                display: none !important;
-            }
-            
-            .language-switcher .badge {
-                margin-left: 0 !important;
-            }
-            
-            /* Mobile notifications adjustments */
-            .nav-link.position-relative {
-                padding: 0.5rem !important;
-            }
-            
-            /* Mobile user profile adjustments */
-            .nav-link .d-none.d-lg-block {
-                display: none !important;
-            }
-        }
-        
-        /* Badge styling */
-        .badge {
-            font-size: 0.75rem !important;
-            font-weight: 600 !important;
-            padding: 0.25rem 0.5rem !important;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 991.98px) {
-            .navbar-nav .nav-link {
-                padding: 0.75rem 1rem !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .dropdown-menu {
-                border: none;
-                background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(10px);
-            }
-
-            .navbar-collapse {
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: var(--border-radius);
-                margin-top: 1rem;
-                padding: 1rem;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            /* Ensure navbar content is properly spaced */
-            .navbar-nav {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .navbar-nav .nav-item {
-                margin: 0 !important;
-            }
-            
-            /* Mobile navbar improvements */
-            .navbar {
-                padding: 0.5rem 1rem !important;
-            }
-            
-            .navbar-brand {
-                font-size: 1.1rem !important;
-            }
-            
-            .navbar-brand span {
-                font-size: 1.1rem !important;
-            }
-            
-            /* Mobile sidebar toggle positioning */
-            #mobileSidebarToggle {
-                order: -1;
-                margin-right: 0.5rem !important;
-            }
-            
-            /* Ensure mobile sidebar toggle is visible */
-            .d-flex.align-items-center {
-                gap: 0.5rem;
-            }
-            
-            /* Ensure navbar is properly responsive */
-            .navbar-expand-lg .navbar-collapse {
-                flex-basis: auto !important;
-            }
-        }
-
         /* Modern Sidebar (default) */
         .sidebar {
             position: fixed;
@@ -540,364 +144,68 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             transition: var(--transition);
             box-shadow: var(--box-shadow-lg);
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-            font-family: var(--font-family);
-        }
-
-        /* Collapsed Sidebar State */
-        .sidebar.collapsed {
-            width: 70px;
-        }
-
-        .sidebar.collapsed .sidebar-brand,
-        .sidebar.collapsed .sidebar-nav .nav-text,
-        .sidebar.collapsed .sidebar-footer {
-            display: none;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-item {
-            text-align: center;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-link {
-            padding: 1rem 0.5rem;
-            justify-content: center;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-link i {
-            margin: 0;
-            font-size: 1.2rem;
-        }
-
-        /* Main Content Adjustment */
-        .main-content {
-            margin-left: 280px;
-            transition: var(--transition);
-            min-height: 100vh;
-            background-color: var(--gray-100);
-            padding: 1rem;
-        }
-
-        .main-content.expanded {
-            margin-left: 70px;
-        }
-        
-        /* Ensure smooth transitions */
-        .main-content, .sidebar {
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* Responsive Sidebar */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
-                z-index: 1040;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                transition: transform 0.3s ease-in-out;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 0.5rem;
-            }
-
-            .main-content.expanded {
-                margin-left: 0;
-            }
-            
-            /* Add overlay when sidebar is open on mobile */
-            .sidebar.show::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: -1;
-                animation: fadeIn 0.3s ease-in-out;
-            }
         }
         .sidebar.collapsed { width: 70px; }
-        .sidebar-header { 
-            padding: 1.5rem 1rem; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
-            text-align: center; 
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-        .sidebar-logo { 
-            height: 40px; 
-            width: auto; 
-            margin-bottom: 0.5rem; 
-            border-radius: var(--border-radius);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar-brand { 
-            font-size: 1.25rem; 
-            font-weight: 700; 
-            color: white; 
-            text-decoration: none; 
-            margin: 0; 
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-            letter-spacing: 0.025em;
-        }
-        .sidebar-nav { 
-            padding: 1rem 0; 
-            margin: 0;
-            list-style: none;
-        }
-        .nav-item { 
-            margin: 0.25rem 0; 
-            list-style: none;
-            padding: 0;
-        }
-        .nav-link { 
-            display: flex; 
-            align-items: center; 
-            padding: 0.75rem 1.5rem; 
-            color: rgba(255, 255, 255, 0.8); 
-            text-decoration: none; 
-            transition: var(--transition); 
-            border-radius: 0.375rem; 
-            margin: 0 0.5rem; 
-            position: relative;
-            font-weight: 500;
-            letter-spacing: 0.025em;
-        }
-        .nav-link:hover { 
-            color: white; 
-            background-color: rgba(255, 255, 255, 0.1); 
-            transform: translateX(4px); 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .nav-link.active { 
-            color: white; 
-            background-color: rgba(255, 255, 255, 0.2); 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-        }
-        .nav-link i { 
-            width: 20px; 
-            margin-right: 0.75rem; 
-            font-size: 1rem; 
-            flex-shrink: 0;
-            text-align: center;
-        }
-        .sidebar.collapsed .nav-link span { 
-            display: none; 
-        }
-        .sidebar.collapsed .nav-link i { 
-            margin-right: 0; 
-            font-size: 1.25rem; 
-        }
-        
-        /* Ensure sidebar collapsed state works properly */
-        .sidebar.collapsed .sidebar-header {
-            padding: 1rem 0.5rem;
-        }
-        
-        .sidebar.collapsed .sidebar-brand {
-            display: none;
-        }
-        
-        .sidebar.collapsed .sidebar-logo {
-            margin-bottom: 0;
-        }
-        
-        .sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 1rem 0.5rem;
-        }
-        
-        .sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.25rem;
-        }
+        .sidebar-header { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        .sidebar-logo { height: 40px; width: auto; margin-bottom: 0.5rem; }
+        .sidebar-brand { font-size: 1.25rem; font-weight: 700; color: white; text-decoration: none; margin: 0; }
+        .sidebar-nav { padding: 1rem 0; }
+        .nav-item { margin: 0.25rem 0; }
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: var(--transition); border-radius: 0.375rem; margin: 0 0.5rem; }
+        .nav-link:hover { color: white; background-color: rgba(255, 255, 255, 0.1); transform: translateX(4px); }
+        .nav-link.active { color: white; background-color: rgba(255, 255, 255, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .nav-link i { width: 20px; margin-right: 0.75rem; font-size: 1rem; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        .sidebar.collapsed .nav-link i { margin-right: 0; font-size: 1.25rem; }
 
         /* Sidebar style variants */
-        .sidebar.compact { 
-            width: 220px; 
-        }
-        .sidebar.compact .nav-link { 
-            padding: 0.5rem 1rem; 
-        }
-        .sidebar.compact .sidebar-header { 
-            padding: 1rem; 
-        }
-        .sidebar.minimal { 
-            width: 200px; 
-            background: #ffffff; 
-            color: var(--gray-800); 
-            border-right: 1px solid var(--gray-200); 
-            box-shadow: none; 
-        }
-        .sidebar.minimal .nav-link { 
-            color: var(--gray-700); 
-        }
-        .sidebar.minimal .nav-link:hover, 
-        .sidebar.minimal .nav-link.active { 
-            color: var(--primary-color); 
-            background: var(--gray-100); 
-        }
-        .sidebar.modern { 
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); 
-        }
+        .sidebar.compact { width: 220px; }
+        .sidebar.compact .nav-link { padding: 0.5rem 1rem; }
+        .sidebar.compact .sidebar-header { padding: 1rem; }
+        .sidebar.minimal { width: 200px; background: #ffffff; color: var(--gray-800); border-right: 1px solid var(--gray-200); box-shadow: none; }
+        .sidebar.minimal .nav-link { color: var(--gray-700); }
+        .sidebar.minimal .nav-link:hover, .sidebar.minimal .nav-link.active { color: var(--primary-color); background: var(--gray-100); }
+        .sidebar.modern { background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); }
 
-        /* Main Content - consolidated */
-        /* .main-content rules are defined above */
+        /* Main Content */
+        .main-content { margin-left: 280px; min-height: 100vh; transition: var(--transition); background-color: var(--gray-100); }
+        .main-content.expanded { margin-left: 70px; }
         /* Adjust main-content for sidebar variants (desktop) */
         @media (min-width: 769px) {
-          .sidebar.compact + .main-content { 
-              margin-left: 220px; 
-          }
-          .sidebar.minimal + .main-content { 
-              margin-left: 200px; 
-          }
-        }
-        
-        /* Ensure main content is properly positioned */
-        .main-content {
-            position: relative;
-            z-index: 1;
+          .sidebar.compact + .main-content { margin-left: 220px; }
+          .sidebar.minimal + .main-content { margin-left: 200px; }
         }
 
         /* Top Navigation */
-        .top-navbar { 
-            background: white; 
-            box-shadow: var(--box-shadow); 
-            padding: 1rem 2rem; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1020; 
-            width: 100%; 
-            max-width: 100%; 
-            overflow-x: hidden; 
-        }
-        .navbar-brand { 
-            font-weight: 700; 
-            color: var(--primary-color); 
-            text-decoration: none; 
-        }
-        .navbar-nav { 
-            align-items: center; 
-        }
-        .nav-link { 
-            color: var(--gray-600); 
-            text-decoration: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: var(--border-radius); 
-            transition: var(--transition); 
-        }
-        .nav-link:hover { 
-            color: var(--primary-color); 
-            background-color: var(--gray-100); 
-        }
+        .top-navbar { background: white; box-shadow: var(--box-shadow); padding: 1rem 2rem; position: sticky; top: 0; z-index: 1020; width: 100%; max-width: 100%; overflow-x: hidden; }
+        .navbar-brand { font-weight: 700; color: var(--primary-color); text-decoration: none; }
+        .navbar-nav { align-items: center; }
+        .nav-link { color: var(--gray-600); text-decoration: none; padding: 0.5rem 1rem; border-radius: var(--border-radius); transition: var(--transition); }
+        .nav-link:hover { color: var(--primary-color); background-color: var(--gray-100); }
 
         /* User Dropdown */
-        .user-dropdown { 
-            position: relative; 
-        }
-        .dropdown { 
-            position: relative; 
-        }
-        .dropdown-menu { 
-            position: absolute; 
-            top: 100%; 
-            left: auto; 
-            right: 0; 
-            margin-top: 0.5rem; 
-            max-height: 80vh; 
-            overflow-y: auto; 
-            z-index: 1050; 
-        }
+        .user-dropdown { position: relative; }
+        .dropdown { position: relative; }
+        .dropdown-menu { position: absolute; top: 100%; left: auto; right: 0; margin-top: 0.5rem; max-height: 80vh; overflow-y: auto; z-index: 1050; }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar { 
-                transform: translateX(-100%); 
-                width: 280px; 
-                position: fixed; 
-                top: 60px; 
-                bottom: 0; 
-                left: 0; 
-                z-index: 1020; 
-                max-width: 100%; 
-                height: calc(100vh - 60px); 
-                overflow-y: auto; 
-            }
-            .sidebar.show { 
-                transform: translateX(0); 
-            }
-            .sidebar.collapsed { 
-                width: 0; 
-                transform: translateX(-100%); 
-                overflow: hidden; 
-            }
-            .main-content { 
-                margin-left: 0; 
-                padding-top: 60px; 
-            }
-            .top-navbar { 
-                padding: 0.5rem 1rem; 
-                position: fixed; 
-                width: 100%; 
-                left: 0; 
-                right: 0; 
-                top: 0; 
-                z-index: 1030; 
-                height: 60px; 
-                display: flex; 
-                align-items: center; 
-                background-color: white; 
-                overflow: visible; 
-            }
-            .top-navbar .container-fluid { 
-                width: 100%; 
-                padding: 0; 
-                overflow: visible; 
-            }
-            .top-navbar .d-flex { 
-                width: 100%; 
-                justify-content: space-between !important; 
-                align-items: center; 
-                overflow: visible; 
-            }
-            .dropdown-menu { 
-                position: fixed !important; 
-                top: 60px !important; 
-                left: auto !important; 
-                right: 10px !important; 
-                width: calc(100% - 20px); 
-                max-width: 300px; 
-                transform: none !important; 
-                border-radius: var(--border-radius); 
-                box-shadow: var(--box-shadow-lg); 
-                z-index: 1050 !important; 
-            }
-            .top-navbar .dropdown { 
-                position: static; 
-            }
+            .sidebar { transform: translateX(-100%); width: 280px; position: fixed; top: 60px; bottom: 0; left: 0; z-index: 1020; max-width: 100%; height: calc(100vh - 60px); overflow-y: auto; }
+            .sidebar.show { transform: translateX(0); }
+            .sidebar.collapsed { width: 0; transform: translateX(-100%); overflow: hidden; }
+            .main-content { margin-left: 0; padding-top: 60px; }
+            .top-navbar { padding: 0.5rem 1rem; position: fixed; width: 100%; left: 0; right: 0; top: 0; z-index: 1030; height: 60px; display: flex; align-items: center; background-color: white; overflow: visible; }
+            .top-navbar .container-fluid { width: 100%; padding: 0; overflow: visible; }
+            .top-navbar .d-flex { width: 100%; justify-content: space-between !important; align-items: center; overflow: visible; }
+            .dropdown-menu { position: fixed !important; top: 60px !important; left: auto !important; right: 10px !important; width: calc(100% - 20px); max-width: 300px; transform: none !important; border-radius: var(--border-radius); box-shadow: var(--box-shadow-lg); z-index: 1050 !important; }
+            .top-navbar .dropdown { position: static; }
         }
 
         /* Ensure dropdowns are fully visible */
-        .dropdown-menu { 
-            max-height: 80vh; 
-            overflow-y: auto; 
-        }
+        .dropdown-menu { max-height: 80vh; overflow-y: auto; }
 
         /* Prevent navbar from becoming scrollable */
-        .top-navbar, .top-navbar .container-fluid, .top-navbar .d-flex { 
-            overflow: visible !important; 
-        }
+        .top-navbar, .top-navbar .container-fluid, .top-navbar .d-flex { overflow: visible !important; }
 
         /* Dark Mode Support */
         [data-theme="dark"] {
@@ -912,140 +220,44 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             --gray-900: #f5f5f5;
             --white-color: #1a1a1a;
         }
-        
-        /* Ensure dark mode works properly */
-        [data-theme="dark"] .dropdown-menu {
-            background-color: var(--gray-800) !important;
-            color: var(--gray-200) !important;
-            border: 1px solid var(--gray-600) !important;
-        }
-        
-        [data-theme="dark"] .dropdown-item {
-            color: var(--gray-200) !important;
-        }
-        
-        [data-theme="dark"] .dropdown-item:hover {
-            background-color: var(--gray-700) !important;
-            color: white !important;
-        }
 
         /* Loading Animation */
-        .loading { 
-            display: inline-block; 
-            width: 20px; 
-            height: 20px; 
-            border: 3px solid rgba(255, 255, 255, 0.3); 
-            border-radius: 50%; 
-            border-top-color: #fff; 
-            animation: spin 1s ease-in-out infinite; 
-        }
-        @keyframes spin { 
-            to { 
-                transform: rotate(360deg); 
-            } 
-        }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { 
-            width: 8px; 
-        }
-        ::-webkit-scrollbar-track { 
-            background: var(--gray-200); 
-        }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--gray-400); 
-            border-radius: 4px; 
-        }
-        ::-webkit-scrollbar-thumb:hover { 
-            background: var(--gray-500); 
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--gray-200); }
+        ::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
 
         /* Global modal and chart stability fixes */
-        .modal, .modal-backdrop { 
-            position: fixed; 
-        }
-        body.modal-open { 
-            padding-right: 0 !important; 
-        }
-        .card .card-body { 
-            position: relative; 
-        }
-        canvas { 
-            display: block; 
-        }
-        .chart-area, .chart-pie { 
-            min-height: 220px; 
-        }
+        .modal, .modal-backdrop { position: fixed; }
+        body.modal-open { padding-right: 0 !important; }
+        .card .card-body { position: relative; }
+        canvas { display: block; }
+        .chart-area, .chart-pie { min-height: 220px; }
 
         /* Fixed chart utility for donut/compact charts inside side cards */
-        .fixed-chart { 
-            position: relative; 
-            width: 100%; 
-            height: 260px; 
-            overflow: hidden; 
-        }
-        .fixed-chart > canvas { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100% !important; 
-            height: 100% !important; 
-        }
+        .fixed-chart { position: relative; width: 100%; height: 260px; overflow: hidden; }
+        .fixed-chart > canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
 
         /* Utility: stack multi-currency amounts neatly */
-        .stacked-amounts > div { 
-            line-height: 1.2; 
-        }
-        .stacked-amounts > div.small { 
-            font-size: 0.85rem; 
-            opacity: 0.85; 
-        }
+        .stacked-amounts > div { line-height: 1.2; }
+        .stacked-amounts > div.small { font-size: 0.85rem; opacity: 0.85; }
 
         /* Utility Classes */
-        .text-gradient { 
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text; 
-        }
-        .bg-gradient-primary { 
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); 
-        }
-        .bg-gradient-success { 
-            background: linear-gradient(135deg, var(--success-color), #20c997); 
-        }
-        .bg-gradient-warning { 
-            background: linear-gradient(135deg, var(--warning-color), #fd7e14); 
-        }
-        .bg-gradient-danger { 
-            background: linear-gradient(135deg, var(--danger-color), #e74c3c); 
-        }
+        .text-gradient { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bg-gradient-primary { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); }
+        .bg-gradient-success { background: linear-gradient(135deg, var(--success-color), #20c997); }
+        .bg-gradient-warning { background: linear-gradient(135deg, var(--warning-color), #fd7e14); }
+        .bg-gradient-danger { background: linear-gradient(135deg, var(--danger-color), #e74c3c); }
 
         /* Animation Classes */
-        .fade-in { 
-            animation: fadeIn 0.5s ease-in-out; 
-        }
-        @keyframes fadeIn { 
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            } 
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            } 
-        }
-        .slide-in { 
-            animation: slideIn 0.3s ease-out; 
-        }
-        @keyframes slideIn { 
-            from { 
-                transform: translateX(-100%); 
-            } 
-            to { 
-                transform: translateX(0); 
-            } 
-        }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     </style>
     <style>
     /* Mobile adjustments without off-canvas overlay */
@@ -1063,11 +275,11 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
       .top-navbar { padding: 0.75rem 1rem; }
     }
     </style>
-    <link rel="manifest" href="<?php echo $base_url; ?>manifest.json">
+    <link rel="manifest" href="/constract360/construction/public/manifest.json">
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="<?php echo $base_url; ?>uploads/logos/icon-192.png">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192.png">
   </head>
   <body data-theme="<?php echo $theme_mode; ?>">
       <!-- Sidebar -->
@@ -1076,7 +288,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
         <nav id="sidebar" class="sidebar <?php echo htmlspecialchars($sidebar_style); ?>">
             <div class="sidebar-header">
                 <?php if ($platform_logo): ?>
-                    <img src="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_logo)); ?>" alt="Logo" class="sidebar-logo">
+                    <img src="/constract360/construction/<?php echo htmlspecialchars($platform_logo); ?>" alt="Logo" class="sidebar-logo">
                 <?php endif; ?>
                 <h1 class="sidebar-brand"><?php echo htmlspecialchars($platform_name); ?></h1>
             </div>
@@ -1084,13 +296,13 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             <ul class="sidebar-nav">
                 <li class="nav-item">
                     <?php
-                    $dashboardUrl = $base_url.'dashboard/';
+                    $dashboardUrl = '/constract360/construction/public/dashboard/';
                     if ($is_super_admin) {
-                        $dashboardUrl = $base_url.'super-admin/';
+                        $dashboardUrl = '/constract360/construction/public/super-admin/';
                     } elseif ($is_company_admin) {
-                        $dashboardUrl = $base_url.'admin/dashboard/';
+                        $dashboardUrl = '/constract360/construction/public/admin/dashboard/';
                     } elseif ($is_employee) {
-                        $dashboardUrl = $base_url.'employee/dashboard/';
+                        $dashboardUrl = '/constract360/construction/public/employee/dashboard/';
                     }
                     ?>
                     <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
@@ -1102,63 +314,63 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php if ($is_super_admin): ?>
                     <!-- Super Admin Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/companies/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'companies') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/companies/">
                             <i class="fas fa-building"></i>
                             <span><?php echo __('companies'); ?></span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/languages/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'languages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/languages/">
                             <i class="fas fa-language"></i>
                             <span><?php echo __('languages'); ?></span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/expenses/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/expenses/">
                             <i class="fas fa-receipt"></i>
                             <span><?php echo __('expenses'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/payments/">
                             <i class="fas fa-money-bill-wave"></i>
                             <span><?php echo __('payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/pricing/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pricing') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pricing/">
                             <i class="fas fa-tags"></i>
                             <span><?php echo __('pricing_plans'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/backups/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'backups') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/backups/">
                             <i class="fas fa-database"></i>
                             <span>Backups</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/pages/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'pages') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/pages/">
                             <i class="fas fa-file-alt"></i>
                             <span><?php echo __('pages') ?? 'Pages'; ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/reports/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/reports/">
                             <i class="fas fa-chart-bar"></i>
                             <span><?php echo __('reports'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>super-admin/settings/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/super-admin/settings/">
                             <i class="fas fa-cogs"></i>
                             <span><?php echo __('platform_settings'); ?></span>
                         </a>
@@ -1167,73 +379,85 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_company_admin): ?>
                     <!-- Company Admin Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/employees/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'employees') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/employees/">
                             <i class="fas fa-users"></i>
                             <span><?php echo __('employees'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/machines/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'machines') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/machines/">
                             <i class="fas fa-truck"></i>
                             <span><?php echo __('machines'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/contracts/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'projects') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/projects/">
+                            <i class="fas fa-project-diagram"></i>
+                            <span><?php echo __('projects'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/contracts/">
                             <i class="fas fa-file-contract"></i>
                             <span><?php echo __('contracts'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/parking/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'parking') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/parking/">
                             <i class="fas fa-parking"></i>
                             <span><?php echo __('parking'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/area-rentals/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rental-areas') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/rental-areas/">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span><?php echo __('rental_areas'); ?></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/area-rentals/">
                             <i class="fas fa-map-marked-alt"></i>
                             <span><?php echo __('area_rentals'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/expenses/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'expenses') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/expenses/">
                             <i class="fas fa-receipt"></i>
                             <span><?php echo __('expenses'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/salary-payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary-payments') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/salary-payments/">
                             <i class="fas fa-money-bill-wave"></i>
                             <span><?php echo __('salary_payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/attendance/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/admin/attendance/">
                             <i class="fas fa-clock"></i>
                             <span><?php echo __('attendance'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>reports/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'reports') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/reports/">
                             <i class="fas fa-chart-bar"></i>
                             <span><?php echo __('reports'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>users/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'users') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/users/">
                             <i class="fas fa-user-cog"></i>
                             <span><?php echo __('users'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'settings/' : $base_url.'settings/'); ?>">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/settings/' : '/constract360/construction/public/settings/'); ?>">
                             <i class="fas fa-cog"></i>
                             <span><?php echo __('settings'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
@@ -1242,37 +466,37 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_employee): ?>
                     <!-- Employee Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/attendance/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'attendance') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/attendance/">
                             <i class="fas fa-clock"></i>
                             <span><?php echo __('attendance'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/salary/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'salary') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/salary/">
                             <i class="fas fa-money-bill"></i>
                             <span><?php echo __('salary'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/leave/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'leave') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/leave/">
                             <i class="fas fa-calendar-times"></i>
                             <span><?php echo __('leave'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/contracts/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/employee/contracts/">
                             <i class="fas fa-file-contract"></i>
                             <span><?php echo __('contracts'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>profile/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/profile/">
                             <i class="fas fa-user"></i>
                             <span><?php echo __('profile'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>tutorials/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'tutorials') !== false ? 'active' : ''; ?>" href="/constract360/construction/public/tutorials/">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span><?php echo __('tutorials') ?? 'Tutorials'; ?></span>
                         </a>
@@ -1281,19 +505,19 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 <?php elseif ($is_renter): ?>
                     <!-- Renter Menu -->
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>rentals/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rentals') !== false ? 'active' : ''; ?>" href="../rentals/">
                             <i class="fas fa-list"></i>
                             <span><?php echo __('rentals'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>payments/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'payments') !== false ? 'active' : ''; ?>" href="../payments/">
                             <i class="fas fa-money-bill"></i>
                             <span><?php echo __('payments'); ?></span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>profile/">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'profile') !== false ? 'active' : ''; ?>" href="../profile/">
                             <i class="fas fa-user"></i>
                             <span><?php echo __('profile'); ?></span>
                         </a>
@@ -1302,7 +526,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $base_url; ?>logout.php">
+                    <a class="nav-link" href="/constract360/construction/public/logout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span><?php echo __('logout'); ?></span>
                     </a>
@@ -1312,75 +536,53 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
 
         <!-- Main Content -->
         <div class="main-content" id="main-content">
-            <!-- Top Navigation Bar -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow-sm" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;">
+            <!-- Top Navigation -->
+            <nav class="top-navbar">
                 <div class="container-fluid">
-                    <!-- Brand/Logo -->
-                    <a class="navbar-brand d-flex align-items-center" href="<?php echo $base_url; ?>dashboard/">
-                        <i class="fas fa-bars fa-2x me-3 text-white" id="sidebarToggle" style="cursor: pointer;" title="Toggle Sidebar"></i>
-                        <span class="fw-bold fs-4">Menu</span>
-                    </a>
-
-                    <!-- Mobile Toggle Buttons -->
-                    <div class="d-flex align-items-center">
-                        <!-- Mobile Sidebar Toggle -->
-                        <button class="btn btn-link text-white d-lg-none me-2" id="mobileSidebarToggle" type="button">
-                            <i class="fas fa-bars fa-lg"></i>
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
+                        </div>
                         
-                        <!-- Mobile Navigation Toggle -->
-                        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                    </div>
-
-                    <!-- Navigation Content -->
-                    <div class="collapse navbar-collapse" id="navbarContent">
-                        <!-- Left Side Navigation -->
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/dashboard/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>dashboard/">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('dashboard'); ?></span>
+                        <div class="d-flex align-items-center">
+                            <?php if ($is_company_admin || $is_employee): ?>
+                            <!-- Notifications (tenant admins and employees) -->
+                            <div class="dropdown me-3">
+                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
                                 </a>
-                            </li>
-                            
-                            <?php if (isCompanyAdmin() || isSuperAdmin()): ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-users me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('management'); ?></span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/employees/"><i class="fas fa-user-tie me-2"></i><?php echo __('employees'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/machines/"><i class="fas fa-cogs me-2"></i><?php echo __('machines'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/contracts/"><i class="fas fa-file-contract me-2"></i><?php echo __('contracts'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/expenses/"><i class="fas fa-receipt me-2"></i><?php echo __('expenses'); ?></a></li>
+                                <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
+                                    <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
+                                    <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
+                                        <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
+                                    </a></li>
                                 </ul>
-                            </li>
+                            </div>
                             <?php endif; ?>
-                            
-                            <?php if (isEmployee()): ?>
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/employee/contracts/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/contracts/">
-                                    <i class="fas fa-file-contract me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('my_contracts'); ?></span>
+                            <!-- PWA Install Button (desktop capable) -->
+                            <button id="installAppBtn" class="btn btn-sm btn-outline-light d-none me-2"><i class="fas fa-download"></i> <?php echo __('install_app') ?? 'Install'; ?></button>
+                            <!-- User Dropdown -->
+                            <div class="dropdown">
+                                <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar">
+                                        <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
+                                    </div>
+                                    <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
                                 </a>
-                            </li>
-                            <?php endif; ?>
-                        </ul>
-
-                        <!-- Right Side Navigation -->
-                        <ul class="navbar-nav ms-auto align-items-center">
-                            <!-- Language Switcher -->
-                            <li class="nav-item dropdown me-3">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-globe me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('language'); ?></span>
-                                    <span class="badge bg-light text-dark ms-2"><?php echo getCompanyLanguage()['language_code'] ?? 'EN'; ?></span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 200px;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-language me-2"></i><?php echo __('select_language'); ?></h6></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <?php if (!$is_employee): ?>
+                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
                                     <?php
                                     $available_languages = getAvailableLanguages();
                                     $current_language = getCompanyLanguage();
@@ -1388,73 +590,27 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                         $is_active = ($current_language['id'] == $lang['id']);
                                     ?>
                                     <li>
-                                        <a class="dropdown-item d-flex align-items-center justify-content-between <?php echo $is_active ? 'active bg-primary text-white' : ''; ?>" 
-                                           href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-flag me-2"></i>
-                                                <span><?php echo htmlspecialchars($lang['language_name_native']); ?></span>
-                                                <small class="text-muted ms-2">(<?php echo htmlspecialchars($lang['language_name']); ?>)</small>
-                                            </div>
+                                        <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
+                                           href="#" onclick="changeLanguage('<?php echo $lang['id']; ?>')">
+                                            <i class="fas fa-language me-2"></i>
+                                            <?php echo htmlspecialchars($lang['language_name_native']); ?>
                                             <?php if ($is_active): ?>
-                                                <i class="fas fa-check-circle"></i>
+                                                <i class="fas fa-check ms-auto"></i>
                                             <?php endif; ?>
                                         </a>
                                     </li>
                                     <?php endforeach; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/constract360/construction/public/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                                 </ul>
-                            </li>
-
-                            <!-- Notifications -->
-                            <li class="nav-item dropdown me-3">
-                                <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-bell fa-lg"></i>
-                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="width: 350px; max-height: 400px; overflow-y: auto;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-bell me-2"></i><?php echo __('notifications'); ?></h6></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <div id="notificationList">
-                                        <li><div class="dropdown-item text-center"><small class="text-muted"><?php echo __('loading_notifications'); ?></small></div></li>
-                                    </div>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-center text-primary" href="#" onclick="markAllAsRead()"><i class="fas fa-check-double me-2"></i><?php echo __('mark_all_as_read'); ?></a></li>
-                                </ul>
-                            </li>
-
-                            <!-- User Profile Dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                    <div class="avatar-circle me-2">
-                                        <?php if (!empty($current_user['profile_image'])): ?>
-                                            <img src="<?php echo $base_url . htmlspecialchars($current_user['profile_image']); ?>" alt="Profile" class="avatar-img">
-                                        <?php else: ?>
-                                            <span class="avatar-text"><?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="d-none d-lg-block text-start">
-                                        <div class="fw-bold text-white"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></div>
-                                        <small class="text-light"><?php echo ucfirst($current_user['role']); ?></small>
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 220px;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-user me-2"></i><?php echo __('user_profile'); ?></h6></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>profile/"><i class="fas fa-user-edit me-2"></i><?php echo __('edit_profile'); ?></a></li>
-                                    <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'admin/settings/' : $base_url.'settings/'); ?>"><i class="fas fa-cog me-2"></i><?php echo __('settings'); ?></a></li>
-                                    <?php endif; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>clear-cache.php"><i class="fas fa-broom me-2"></i><?php echo __('clear_cache'); ?></a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="<?php echo $base_url; ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i><?php echo __('logout'); ?></a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
 
             <!-- Page Content -->
-            <div class="container-fluid p-4" id="main-content">
+            <div class="container-fluid p-4">
             
             <script>
             // Auto theme handler for 'auto' mode
@@ -1468,33 +624,10 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyAutoTheme); } catch(e) {}
               }
             })();
-
-            // Ensure Bootstrap dropdowns are working
-            document.addEventListener('DOMContentLoaded', function() {
-                // Test if Bootstrap is loaded
-                if (typeof bootstrap !== 'undefined') {
-                    console.log('Bootstrap loaded successfully');
-                    
-                    // Initialize all dropdowns
-                    const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-                    console.log('Found dropdown elements:', dropdownElementList.length);
-                    
-                    dropdownElementList.forEach(function (dropdownToggleEl) {
-                        try {
-                            new bootstrap.Dropdown(dropdownToggleEl);
-                            console.log('Dropdown initialized for:', dropdownToggleEl);
-                        } catch (error) {
-                            console.error('Error initializing dropdown:', error);
-                        }
-                    });
-                } else {
-                    console.error('Bootstrap not loaded');
-                }
-            });
             </script>
             <script>
             // Define API base URL (absolute to avoid nested path issues)
-            const apiBaseUrl = '<?php echo $base_url; ?>api/';
+            const apiBaseUrl = '/constract360/construction/public/api/';
             
             // Load notifications from API
             function loadNotifications() {
@@ -1653,7 +786,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             setInterval(loadNotifications, 30000);
 
             // Enhanced language switching function
-            function changeLanguage(languageCode) {
+            function changeLanguage(languageId) {
                 // Show loading indicator
                 const loadingToast = document.createElement('div');
                 loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
@@ -1665,132 +798,38 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 `;
                 document.body.appendChild(loadingToast);
 
-                // Make API call to change language
-                fetch('<?php echo $base_url; ?>api/change-language.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        language: languageCode
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Remove loading indicator
-                    loadingToast.remove();
-
-                    if (data.success) {
-                        // Show success message
-                        const successToast = document.createElement('div');
-                        successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                        successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                        successToast.innerHTML = `
-                            <i class="fas fa-check-circle me-2"></i>
-                            ${data.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.body.appendChild(successToast);
-
-                        // Update the language badge immediately
-                        const languageBadge = document.querySelector('.navbar-nav .badge');
-                        if (languageBadge) {
-                            languageBadge.textContent = languageCode.toUpperCase();
-                        }
-
-                        // Reload page to apply language changes
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Show error message
-                        const errorToast = document.createElement('div');
-                        errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                        errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                        errorToast.innerHTML = `
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            ${data.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.body.appendChild(errorToast);
-                    }
-                })
-                .catch(error => {
-                    // Remove loading indicator
-                    loadingToast.remove();
-
-                    // Show error message
-                    const errorToast = document.createElement('div');
-                    errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                    errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                    errorToast.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <?php echo __('failed_to_change_language'); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.body.appendChild(errorToast);
-                });
+                // Add the language change parameter to the current URL
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('change_language', languageId);
+                
+                // Redirect to the new URL which will trigger the language change
+                window.location.href = currentUrl.toString();
             }
             </script>
             <script>
-            // Sidebar toggle functionality
+            // Improve dropdown positioning
             document.addEventListener('DOMContentLoaded', function() {
-                const sidebarToggle = document.getElementById('sidebarToggle');
-                const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-                const sidebar = document.querySelector('.sidebar');
-                const mainContent = document.getElementById('main-content');
-                
-                // Desktop sidebar toggle
-                if (sidebarToggle && sidebar) {
-                    sidebarToggle.addEventListener('click', function() {
-                        sidebar.classList.toggle('collapsed');
-                        mainContent.classList.toggle('expanded');
-                        
-                        // Store state in localStorage
-                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-                    });
-                    
-                    // Restore sidebar state from localStorage
-                    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                    if (sidebarCollapsed) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
-                    }
-                }
-                
-                // Mobile sidebar toggle
-                if (mobileSidebarToggle && sidebar) {
-                    mobileSidebarToggle.addEventListener('click', function() {
-                        sidebar.classList.toggle('show');
-                    });
-                    
-                    // Close sidebar when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (!sidebar.contains(e.target) && !mobileSidebarToggle.contains(e.target)) {
-                            sidebar.classList.remove('show');
-                        }
-                    });
-                }
-                
-                // Simple dropdown positioning fix for mobile
                 function adjustDropdownPosition() {
                     if (window.innerWidth <= 768) {
                         const dropdowns = document.querySelectorAll('.dropdown-menu');
                         dropdowns.forEach(dropdown => {
-                            // Ensure dropdowns are properly positioned on mobile
-                            dropdown.style.position = 'fixed';
-                            dropdown.style.zIndex = '1050';
-                            
-                            // Position dropdowns relative to their toggle button
                             const toggle = dropdown.previousElementSibling;
                             if (toggle) {
                                 const toggleRect = toggle.getBoundingClientRect();
+                                dropdown.style.position = 'fixed';
                                 dropdown.style.top = `${toggleRect.bottom + 10}px`;
-                                dropdown.style.right = '10px';
-                                dropdown.style.left = 'auto';
-                                dropdown.style.width = 'calc(100vw - 20px)';
-                                dropdown.style.maxWidth = '300px';
+                                dropdown.style.right = `${Math.max(10, window.innerWidth - toggleRect.right - 10)}px`;
+                                dropdown.style.transform = 'none';
                             }
+                        });
+                    } else {
+                        // Reset desktop dropdown styles
+                        const dropdowns = document.querySelectorAll('.dropdown-menu');
+                        dropdowns.forEach(dropdown => {
+                            dropdown.style.position = 'absolute';
+                            dropdown.style.top = '100%';
+                            dropdown.style.right = '0';
+                            dropdown.style.transform = '';
                         });
                     }
                 }
@@ -1798,10 +837,16 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 // Adjust on load and resize
                 adjustDropdownPosition();
                 window.addEventListener('resize', adjustDropdownPosition);
+
+                // Adjust when dropdowns are shown
+                const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+                dropdownToggles.forEach(toggle => {
+                    toggle.addEventListener('shown.bs.dropdown', adjustDropdownPosition);
+                });
             });
             </script>
             <audio id="notifAudio" preload="auto" <?php echo $notification_sound_enabled ? '' : 'muted'; ?>>
-      <source src="<?php echo $base_url; ?>assets/sounds/notify.mp3" type="audio/mpeg">
+      <source src="/constract360/construction/public/assets/sounds/notify.mp3" type="audio/mpeg">
     </audio>
     <script>
     let __lastUnreadCount = null;
@@ -1822,7 +867,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 type: 'SHOW_NOTIFICATION',
                 title: newestItem.title || 'Notification',
                 body: newestItem.message || '',
-                url: '<?php echo $base_url; ?>'
+                url: '/constract360/construction/public/'
               });
             }
           }
@@ -1860,7 +905,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     const isEmployee = <?php echo $is_employee ? 'true' : 'false'; ?>;
     // Register service worker for out-of-browser notifications
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('<?php echo $base_url; ?>sw.js').catch(()=>{});
+      navigator.serviceWorker.register('/constract360/construction/public/sw.js').catch(()=>{});
     }
     // PWA Install flow
     (function(){
