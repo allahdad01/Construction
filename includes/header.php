@@ -77,8 +77,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($platform_favicon)): ?>
-    <link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
-    <link rel="shortcut icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
+    <link rel="shortcut icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
     <?php endif; ?>
     
     <!-- Bootstrap CSS -->
