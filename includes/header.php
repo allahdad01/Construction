@@ -5,6 +5,9 @@ $base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'confi
 require_once $base_path . 'config.php';
 require_once $base_path . 'database.php';
 
+// Set cache control headers for all dynamic pages
+setAutoCacheHeaders();
+
 // Handle language switching
 if (isset($_GET['change_language']) && isAuthenticated()) {
     $new_language_id = (int)$_GET['change_language'];
@@ -74,8 +77,8 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($platform_name); ?></title>
     <?php if (!empty($platform_favicon)): ?>
-    <link rel="icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
-    <link rel="shortcut icon" href="<?php echo $base_url; ?><?php echo htmlspecialchars($platform_favicon); ?>">
+    <link rel="icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
+    <link rel="shortcut icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_favicon)); ?>">
     <?php endif; ?>
     
     <!-- Bootstrap CSS -->
@@ -131,6 +134,172 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             padding: 0;
         }
 
+        /* Enhanced Header Styles */
+        .navbar {
+            padding: 0.75rem 1rem;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-1px);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+        }
+
+        /* Dropdown Enhancements */
+        .dropdown-menu {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--box-shadow-xl);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-menu-dark {
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
+            color: white;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--gray-700);
+            transition: var(--transition);
+            border-radius: 0;
+        }
+
+        .dropdown-menu-dark .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dropdown-item:hover, .dropdown-item:focus {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .dropdown-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .dropdown-header {
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem 0.5rem;
+        }
+
+        /* Avatar Styles */
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .avatar-text {
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        /* Badge Styles */
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+        }
+
+        /* Notification Badge */
+        #notificationBadge {
+            font-size: 0.7rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Language Switcher */
+        .language-switcher .dropdown-toggle::after {
+            display: none;
+        }
+
+        .language-switcher .badge {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: var(--primary-color) !important;
+            font-weight: 700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 991.98px) {
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .dropdown-menu {
+                border: none;
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+            }
+
+            .navbar-collapse {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: var(--border-radius);
+                margin-top: 1rem;
+                padding: 1rem;
+            }
+        }
+
         /* Modern Sidebar (default) */
         .sidebar {
             position: fixed;
@@ -144,6 +313,61 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             transition: var(--transition);
             box-shadow: var(--box-shadow-lg);
             overflow-y: auto;
+        }
+
+        /* Collapsed Sidebar State */
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar.collapsed .sidebar-brand,
+        .sidebar.collapsed .sidebar-nav .nav-text,
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-item {
+            text-align: center;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-link {
+            padding: 1rem 0.5rem;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .sidebar-nav .nav-link i {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        /* Main Content Adjustment */
+        .main-content {
+            margin-left: 280px;
+            transition: var(--transition);
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        /* Responsive Sidebar */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .main-content.expanded {
+                margin-left: 0;
+            }
         }
         .sidebar.collapsed { width: 70px; }
         .sidebar-header { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
@@ -524,53 +748,79 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
 
         <!-- Main Content -->
         <div class="main-content" id="main-content">
-            <!-- Top Navigation -->
-            <nav class="top-navbar">
+            <!-- Top Navigation Bar -->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow-sm" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;">
                 <div class="container-fluid">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
-                                <i class="fas fa-bars"></i>
-                            </button>
-                            <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
-                        </div>
+                    <!-- Brand/Logo -->
+                    <a class="navbar-brand d-flex align-items-center" href="<?php echo $base_url; ?>dashboard/">
+                        <?php if (!empty($platform_logo)): ?>
+                            <img src="<?php echo $base_url . htmlspecialchars($platform_logo); ?>" alt="<?php echo htmlspecialchars($platform_name); ?>" height="40" class="me-3">
+                        <?php else: ?>
+                            <i class="fas fa-building fa-2x me-3 text-white"></i>
+                        <?php endif; ?>
+                        <span class="fw-bold fs-4"><?php echo htmlspecialchars($platform_name); ?></span>
+                    </a>
+
+                    <!-- Mobile Toggle Buttons -->
+                    <div class="d-flex align-items-center">
+                        <!-- Sidebar Toggle for Mobile -->
+                        <button class="btn btn-link text-white d-lg-none me-2" id="sidebarToggle" type="button">
+                            <i class="fas fa-bars fa-lg"></i>
+                        </button>
                         
-                        <div class="d-flex align-items-center">
-                            <?php if ($is_company_admin || $is_employee): ?>
-                            <!-- Notifications (tenant admins and employees) -->
-                            <div class="dropdown me-3">
-                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
+                        <!-- Mobile Navigation Toggle -->
+                        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+
+                    <!-- Navigation Content -->
+                    <div class="collapse navbar-collapse" id="navbarContent">
+                        <!-- Left Side Navigation -->
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/dashboard/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>dashboard/">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    <span class="d-none d-lg-inline"><?php echo __('dashboard'); ?></span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
-                                    <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
-                                    <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
-                                        <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
-                                    </a></li>
+                            </li>
+                            
+                            <?php if (isCompanyAdmin() || isSuperAdmin()): ?>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-users me-2"></i>
+                                    <span class="d-none d-lg-inline"><?php echo __('management'); ?></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/employees/"><i class="fas fa-user-tie me-2"></i><?php echo __('employees'); ?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/machines/"><i class="fas fa-cogs me-2"></i><?php echo __('machines'); ?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/contracts/"><i class="fas fa-file-contract me-2"></i><?php echo __('contracts'); ?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/expenses/"><i class="fas fa-receipt me-2"></i><?php echo __('expenses'); ?></a></li>
                                 </ul>
-                            </div>
+                            </li>
                             <?php endif; ?>
-                            <!-- PWA Install Button (desktop capable) -->
-                            <button id="installAppBtn" class="btn btn-sm btn-outline-light d-none me-2"><i class="fas fa-download"></i> <?php echo __('install_app') ?? 'Install'; ?></button>
-                            <!-- User Dropdown -->
-                            <div class="dropdown">
-                                <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <div class="user-avatar">
-                                        <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
-                                    </div>
-                                    <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
-                                    <i class="fas fa-chevron-down ms-2"></i>
+                            
+                            <?php if (isEmployee()): ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/employee/contracts/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/contracts/">
+                                    <i class="fas fa-file-contract me-2"></i>
+                                    <span class="d-none d-lg-inline"><?php echo __('my_contracts'); ?></span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                    <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'admin/settings/' : $base_url.'settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                    <?php endif; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
+                            </li>
+                            <?php endif; ?>
+                        </ul>
+
+                        <!-- Right Side Navigation -->
+                        <ul class="navbar-nav ms-auto align-items-center">
+                            <!-- Language Switcher -->
+                            <li class="nav-item dropdown me-3">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-globe me-2"></i>
+                                    <span class="d-none d-lg-inline"><?php echo __('language'); ?></span>
+                                    <span class="badge bg-light text-dark ms-2"><?php echo getCompanyLanguage()['language_code'] ?? 'EN'; ?></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 200px;">
+                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-language me-2"></i><?php echo __('select_language'); ?></h6></li>
                                     <?php
                                     $available_languages = getAvailableLanguages();
                                     $current_language = getCompanyLanguage();
@@ -578,21 +828,67 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                         $is_active = ($current_language['id'] == $lang['id']);
                                     ?>
                                     <li>
-                                        <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
+                                        <a class="dropdown-item d-flex align-items-center justify-content-between <?php echo $is_active ? 'active bg-primary text-white' : ''; ?>" 
                                            href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
-                                            <i class="fas fa-language me-2"></i>
-                                            <?php echo htmlspecialchars($lang['language_name_native']); ?>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-flag me-2"></i>
+                                                <span><?php echo htmlspecialchars($lang['language_name_native']); ?></span>
+                                                <small class="text-muted ms-2">(<?php echo htmlspecialchars($lang['language_name']); ?>)</small>
+                                            </div>
                                             <?php if ($is_active): ?>
-                                                <i class="fas fa-check ms-auto"></i>
+                                                <i class="fas fa-check-circle"></i>
                                             <?php endif; ?>
                                         </a>
                                     </li>
                                     <?php endforeach; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                                 </ul>
-                            </div>
-                        </div>
+                            </li>
+
+                            <!-- Notifications -->
+                            <li class="nav-item dropdown me-3">
+                                <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell fa-lg"></i>
+                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-bell me-2"></i><?php echo __('notifications'); ?></h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <div id="notificationList">
+                                        <li><div class="dropdown-item text-center"><small class="text-muted"><?php echo __('loading_notifications'); ?></small></div></li>
+                                    </div>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-center text-primary" href="#" onclick="markAllAsRead()"><i class="fas fa-check-double me-2"></i><?php echo __('mark_all_as_read'); ?></a></li>
+                                </ul>
+                            </li>
+
+                            <!-- User Profile Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="avatar-circle me-2">
+                                        <?php if (!empty($current_user['profile_image'])): ?>
+                                            <img src="<?php echo $base_url . htmlspecialchars($current_user['profile_image']); ?>" alt="Profile" class="avatar-img">
+                                        <?php else: ?>
+                                            <span class="avatar-text"><?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="d-none d-lg-block text-start">
+                                        <div class="fw-bold text-white"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></div>
+                                        <small class="text-light"><?php echo ucfirst($current_user['role']); ?></small>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 220px;">
+                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-user me-2"></i><?php echo __('user_profile'); ?></h6></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>profile/"><i class="fas fa-user-edit me-2"></i><?php echo __('edit_profile'); ?></a></li>
+                                    <?php if (!$is_employee): ?>
+                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'admin/settings/' : $base_url.'settings/'); ?>"><i class="fas fa-cog me-2"></i><?php echo __('settings'); ?></a></li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>clear-cache.php"><i class="fas fa-broom me-2"></i><?php echo __('clear_cache'); ?></a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="<?php echo $base_url; ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i><?php echo __('logout'); ?></a></li>
+                                </ul>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -813,10 +1109,16 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                         `;
                         document.body.appendChild(successToast);
 
+                        // Update the language badge immediately
+                        const languageBadge = document.querySelector('.navbar-nav .badge');
+                        if (languageBadge) {
+                            languageBadge.textContent = languageCode.toUpperCase();
+                        }
+
                         // Reload page to apply language changes
                         setTimeout(() => {
                             window.location.reload();
-                        }, 1000);
+                        }, 1500);
                     } else {
                         // Show error message
                         const errorToast = document.createElement('div');
@@ -848,8 +1150,30 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             }
             </script>
             <script>
-            // Improve dropdown positioning
+            // Sidebar toggle functionality
             document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.getElementById('main-content');
+                
+                if (sidebarToggle && sidebar) {
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.toggle('collapsed');
+                        mainContent.classList.toggle('expanded');
+                        
+                        // Store state in localStorage
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    });
+                    
+                    // Restore sidebar state from localStorage
+                    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                    if (sidebarCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
+                }
+                
+                // Improve dropdown positioning
                 function adjustDropdownPosition() {
                     if (window.innerWidth <= 768) {
                         const dropdowns = document.querySelectorAll('.dropdown-menu');

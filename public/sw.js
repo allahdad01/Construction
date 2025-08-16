@@ -7,6 +7,19 @@ const OFFLINE_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
+// Don't cache dynamic content
+const DYNAMIC_PATTERNS = [
+  /\.php$/,
+  /\/api\//,
+  /\/dashboard\//,
+  /\/users\//,
+  /\/admin\//,
+  /\/employee\//,
+  /\/super-admin\//,
+  /\/reports\//,
+  /\/settings\/
+];
+
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
@@ -22,14 +35,33 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  
+  // Check if this is dynamic content that shouldn't be cached
+  const isDynamicContent = DYNAMIC_PATTERNS.some(pattern => 
+    pattern.test(req.url) || req.url.includes('?')
+  );
+  
   event.respondWith((async () => {
+    // For dynamic content, always fetch fresh from network
+    if (isDynamicContent) {
+      try {
+        const res = await fetch(req);
+        return res;
+      } catch (e) {
+        // Fallback to offline root if network fails
+        return caches.match(BASE_URL);
+      }
+    }
+    
+    // For static content, use cache-first strategy
     const cache = await caches.open(CACHE_NAME);
     const cached = await cache.match(req);
     if (cached) return cached;
+    
     try {
       const res = await fetch(req);
-      // Cache basic same-origin GETs
-      if (req.url.startsWith(self.location.origin) && res && res.status === 200 && res.type === 'basic') {
+      // Only cache static assets, not dynamic content
+      if (res && res.status === 200 && !isDynamicContent) {
         cache.put(req, res.clone());
       }
       return res;

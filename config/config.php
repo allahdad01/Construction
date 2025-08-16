@@ -45,6 +45,9 @@ if (file_exists(__DIR__ . '/../.env')) {
     }
 }
 
+// Load cache control utilities
+require_once __DIR__ . '/../includes/cache_control.php';
+
 // Application Configuration
 define('APP_NAME', 'Construction SaaS Platform');
 define('APP_VERSION', '1.0.0');
