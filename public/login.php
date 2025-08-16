@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-sidebar {
             background: linear-gradient(145deg, var(--primary-color) 0%, <?php echo htmlspecialchars($accent_color); ?> 100%);
             color: white;
-            padding: 3rem 2.25rem;
+            padding: 5rem 2.25rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
         }
 
-        .brand-logo { height: 64px; width: auto; margin-bottom: 1rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
+        .brand-logo { height: 170px; width: auto; margin-bottom: 1rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
         .tagline { opacity: 0.9; max-width: 380px; }
 
         .login-form { padding: 3rem 2.25rem; display: flex; flex-direction: column; justify-content: center; animation: fadeIn 0.6s ease; }
