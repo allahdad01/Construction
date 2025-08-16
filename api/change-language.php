@@ -34,20 +34,28 @@ try {
         throw new Exception(__('invalid_language'));
     }
     
-    // Use the enhanced changeLanguage function
-    // For public pages (like landing page), we don't have a company_id
+    // Update session language immediately
+    $_SESSION['current_language'] = $language['id'];
+    
+    // If user is logged in and has a company, update company settings
     if (isset($_SESSION['user_id']) && isset($_SESSION['company_id'])) {
-        changeLanguage($language['id']);
-    } else {
-        // For public pages, just update session
-        $_SESSION['current_language'] = $language['id'];
+        $company_id = $_SESSION['company_id'];
+        
+        // Update company language setting
+        $stmt = $conn->prepare("
+            INSERT INTO company_settings (company_id, setting_key, setting_value) 
+            VALUES (?, 'default_language_id', ?)
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+        ");
+        $stmt->execute([$company_id, $language['id']]);
     }
     
     echo json_encode([
         'success' => true,
         'message' => __('language_changed_successfully'),
         'language' => $language_code,
-        'language_name' => $language['language_name_native']
+        'language_name' => $language['language_name_native'],
+        'language_id' => $language['id']
     ]);
     
 } catch (Exception $e) {
