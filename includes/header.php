@@ -537,52 +537,105 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
         <!-- Main Content -->
         <div class="main-content" id="main-content">
             <!-- Top Navigation -->
-            <nav class="top-navbar">
-                <div class="container-fluid">
-                    <div class="d-flex justify-content-between align-items-center">
+            <nav class="top-navbar shadow-sm">
+                <div class="container-fluid px-4">
+                    <div class="d-flex justify-content-between align-items-center py-3">
                         <div class="d-flex align-items-center">
-                            <button class="btn btn-link d-md-none sidebarToggle" id="sidebarToggle">
-                                <i class="fas fa-bars"></i>
+                            <button class="btn btn-icon d-md-none sidebarToggle me-2" id="sidebarToggle">
+                                <i class="fas fa-bars text-primary"></i>
                             </button>
-                            <h4 class="mb-0 ms-3"><?php echo $page_title ?? 'Dashboard'; ?></h4>
+                            <h4 class="mb-0 ms-2 text-primary fw-semibold"><?php echo $page_title ?? 'Dashboard'; ?></h4>
                         </div>
                         
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center gap-3">
                             <?php if ($is_company_admin || $is_employee): ?>
-                            <!-- Notifications (tenant admins and employees) -->
-                            <div class="dropdown me-3">
-                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="badge bg-danger rounded-pill" id="notificationBadge" style="display:none">0</span>
+                            <!-- Notifications -->
+                            <div class="dropdown">
+                                <a class="nav-link position-relative p-2 rounded-circle bg-light-hover" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                                    <i class="fas fa-bell text-muted"></i>
+                                    <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger rounded-circle" id="notificationBadge" style="display:none">0</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
-                                    <li><h6 class="dropdown-header"><?php echo __('notifications'); ?></h6></li>
-                                    <li><div class="dropdown-item text-center"><small class="text-muted">Loading...</small></div></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-center" href="#" onclick="markAllAsRead()">
-                                        <small class="text-muted"><?php echo __('mark_all_as_read'); ?></small>
-                                    </a></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 overflow-hidden" id="notificationList" style="width: 380px;">
+                                    <li class="px-3 py-2 bg-light border-bottom">
+                                        <h6 class="mb-0 fw-semibold"><?php echo __('notifications'); ?></h6>
+                                    </li>
+                                    <li class="notification-items" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="dropdown-item text-center py-3"><small class="text-muted">Loading...</small></div>
+                                    </li>
+                                    <li class="p-2 bg-light border-top">
+                                        <a class="btn btn-link btn-sm text-primary w-100" href="#" onclick="markAllAsRead()">
+                                            <i class="fas fa-check-double me-1"></i> <?php echo __('mark_all_as_read'); ?>
+                                        </a>
+                                    </li>
                                 </ul>
+
+                                <style>
+                                .notification-items {
+                                    scrollbar-width: thin;
+                                    scrollbar-color: rgba(0,0,0,.2) transparent;
+                                }
+                                .notification-items::-webkit-scrollbar {
+                                    width: 6px;
+                                }
+                                .notification-items::-webkit-scrollbar-track {
+                                    background: transparent;
+                                }
+                                .notification-items::-webkit-scrollbar-thumb {
+                                    background-color: rgba(0,0,0,.2);
+                                    border-radius: 3px;
+                                }
+                                .notification-item-content {
+                                    word-wrap: break-word;
+                                    overflow-wrap: break-word;
+                                    word-break: break-word;
+                                    hyphens: auto;
+                                    max-width: 100%;
+                                }
+                                .notification-text {
+                                    white-space: normal;
+                                    overflow-wrap: break-word;
+                                    word-wrap: break-word;
+                                    word-break: break-word;
+                                    max-width: 300px;
+                                }
+                                .dropdown-item {
+                                    white-space: normal;
+                                }
+                                </style>
                             </div>
                             <?php endif; ?>
-                            <!-- PWA Install Button (desktop capable) -->
-                            <button id="installAppBtn" class="btn btn-sm btn-outline-light d-none me-2"><i class="fas fa-download"></i> <?php echo __('install_app') ?? 'Install'; ?></button>
+                            <!-- PWA Install Button -->
+                            <button id="installAppBtn" class="btn btn-sm btn-primary d-none">
+                                <i class="fas fa-download me-1"></i> <?php echo __('install_app') ?? 'Install'; ?>
+                            </button>
                             <!-- User Dropdown -->
                             <div class="dropdown">
-                                <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <div class="user-avatar">
+                                <a class="user-dropdown-toggle d-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 14px;">
                                         <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
                                     </div>
-                                    <span class="d-none d-md-inline"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
-                                    <i class="fas fa-chevron-down ms-2"></i>
+                                    <span class="d-none d-md-inline text-body fw-medium"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                                    <i class="fas fa-chevron-down text-muted fs-12"></i>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2" style="width: 260px;">
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light" href="/constract360/construction/public/profile/">
+                                            <i class="fas fa-user text-primary"></i>
+                                            <span>Profile</span>
+                                        </a>
+                                    </li>
                                     <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light" href="<?php echo $is_super_admin ? '/constract360/construction/public/super-admin/settings/' : ($is_company_admin ? '/constract360/construction/public/admin/settings/' : '/constract360/construction/public/settings/'); ?>">
+                                            <i class="fas fa-cog text-primary"></i>
+                                            <span>Settings</span>
+                                        </a>
+                                    </li>
                                     <?php endif; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header"><?php echo __('language'); ?></h6></li>
+                                    <li><hr class="dropdown-divider mx-3 my-2"></li>
+                                    <li>
+                                        <h6 class="dropdown-header px-3 text-uppercase text-muted fs-12 fw-semibold"><?php echo __('language'); ?></h6>
+                                    </li>
                                     <?php
                                     $available_languages = getAvailableLanguages();
                                     $current_language = getCompanyLanguage();
@@ -590,24 +643,74 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                         $is_active = ($current_language['id'] == $lang['id']);
                                     ?>
                                     <li>
-                                        <a class="dropdown-item <?php echo $is_active ? 'active' : ''; ?>" 
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light <?php echo $is_active ? 'active' : ''; ?>" 
                                            href="#" onclick="changeLanguage('<?php echo $lang['id']; ?>')">
-                                            <i class="fas fa-language me-2"></i>
-                                            <?php echo htmlspecialchars($lang['language_name_native']); ?>
+                                            <i class="fas fa-language <?php echo $is_active ? 'text-primary' : 'text-muted'; ?>"></i>
+                                            <span><?php echo htmlspecialchars($lang['language_name_native']); ?></span>
                                             <?php if ($is_active): ?>
-                                                <i class="fas fa-check ms-auto"></i>
+                                                <i class="fas fa-check ms-auto text-primary"></i>
                                             <?php endif; ?>
                                         </a>
                                     </li>
                                     <?php endforeach; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/constract360/construction/public/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                    <li><hr class="dropdown-divider mx-3 my-2"></li>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 text-danger hover-bg-light" href="/constract360/construction/public/logout.php">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            <span>Logout</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </nav>
+
+            <style>
+            .top-navbar {
+                background: #fff;
+                border-bottom: 1px solid rgba(0,0,0,.05);
+            }
+            
+            .btn-icon {
+                padding: 8px;
+                border-radius: 8px;
+                color: var(--bs-primary);
+                border: none;
+                background: rgba(var(--bs-primary-rgb), 0.1);
+            }
+            
+            .btn-icon:hover {
+                background: rgba(var(--bs-primary-rgb), 0.15);
+            }
+            
+            .bg-light-hover:hover {
+                background-color: rgba(0,0,0,.05) !important;
+            }
+            
+            .notification-badge {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .hover-bg-light:hover {
+                background-color: rgba(0,0,0,.03) !important;
+            }
+            
+            .fs-12 {
+                font-size: 12px;
+            }
+            
+            .dropdown-menu {
+                margin-top: 10px;
+            }
+            
+            .dropdown-item.active {
+                background-color: rgba(var(--bs-primary-rgb), 0.1);
+                color: var(--bs-primary);
+            }
+            </style>
 
             <!-- Page Content -->
             <div class="container-fluid p-4">
@@ -658,40 +761,44 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 const list = document.getElementById('notificationList');
                 if (!list) return;
 
-                // Clear existing notifications (keep header and footer)
-                const header = list.querySelector('.dropdown-header').parentElement;
-                const footer = list.querySelector('.dropdown-divider').parentElement;
-                const markAllLink = list.querySelector('a[onclick="markAllAsRead()"]').parentElement;
+                // Find the notification items container
+                const itemsContainer = list.querySelector('.notification-items');
+                if (!itemsContainer) return;
                 
-                list.innerHTML = '';
-                list.appendChild(header);
+                // Clear existing notifications
+                itemsContainer.innerHTML = '';
                 
                 if (notifications.length === 0) {
-                    const noNotifications = document.createElement('li');
-                    noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
-                    list.appendChild(noNotifications);
+                    itemsContainer.innerHTML = '<div class="dropdown-item text-center py-3"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
                 } else {
                     notifications.forEach(notification => {
-                        const item = document.createElement('li');
                         const icon = getNotificationIcon(notification.type);
                         const timeAgo = getTimeAgo(notification.created_at);
                         
-                        item.innerHTML = `
-                            <a class="dropdown-item ${notification.is_read ? 'text-muted' : ''}" href="#" onclick="markNotificationRead(${notification.id})">
-                                <i class="${icon} me-2"></i>
-                                <div>
-                                    <div class="fw-bold">${notification.title}</div>
-                                    <small class="text-muted">${notification.message}</small>
-                                    <br><small class="text-muted">${timeAgo}</small>
+                        const itemHtml = `
+                            <div class="dropdown-item p-3 border-bottom ${notification.is_read ? 'bg-light' : ''}" role="button" onclick="markNotificationRead(${notification.id})">
+                                <div class="d-flex gap-2">
+                                    <div class="flex-shrink-0" style="padding-top: 3px;">
+                                        <i class="${icon}"></i>
+                                    </div>
+                                    <div class="notification-item-content flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-start gap-2 mb-1">
+                                            <div class="notification-text ${notification.is_read ? 'text-muted' : 'text-body fw-medium'}">${notification.title}</div>
+                                            ${!notification.is_read ? '<span class="flex-shrink-0 badge bg-primary rounded-pill">New</span>' : ''}
+                                        </div>
+                                        <div class="notification-text">
+                                            <small class="text-muted">${notification.message}</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small class="text-muted">${timeAgo}</small>
+                                        </div>
+                                    </div>
                                 </div>
-                            </a>
+                            </div>
                         `;
-                        list.appendChild(item);
+                        itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
                     });
                 }
-                
-                list.appendChild(footer);
-                list.appendChild(markAllLink);
             }
 
             // Get notification icon based on type
