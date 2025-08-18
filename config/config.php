@@ -48,12 +48,28 @@ if (file_exists(__DIR__ . '/../.env')) {
 // Load cache control utilities
 require_once __DIR__ . '/../includes/cache_control.php';
 
+// Load database configuration
+require_once __DIR__ . '/database.php';
+
 // Application Configuration
 define('APP_NAME', 'Construction SaaS Platform');
 define('APP_VERSION', '1.0.0');
 define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
 define('APP_DEBUG', $_ENV['APP_DEBUG'] ?? 'true');
 define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost');
+
+// Initialize global database connection
+try {
+    $database = new Database();
+    $conn = $database->getConnection();
+} catch (Exception $e) {
+    // Don't show detailed database errors in production
+    if (APP_DEBUG === 'true') {
+        die("Database connection failed: " . $e->getMessage());
+    } else {
+        die("Database connection failed. Please check your configuration.");
+    }
+}
 
 // Database Configuration
 define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
