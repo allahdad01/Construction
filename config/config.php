@@ -645,6 +645,17 @@ function getCompanyLanguage($company_id = null) {
     
     // If no company_id (public pages), use session or default to English
     if (!$company_id) {
+        // First try language code from session
+        if (isset($_SESSION['current_language_code'])) {
+            $stmt = $conn->prepare("SELECT * FROM languages WHERE language_code = ?");
+            $stmt->execute([$_SESSION['current_language_code']]);
+            $language = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($language) {
+                return $language;
+            }
+        }
+        
+        // Fallback to language ID
         $session_language = $_SESSION['current_language'] ?? 1;
         $stmt = $conn->prepare("SELECT * FROM languages WHERE id = ?");
         $stmt->execute([$session_language]);
