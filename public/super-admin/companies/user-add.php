@@ -69,18 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn->beginTransaction();
 
-            // Generate user code
-            $user_code = 'USR' . strtoupper(uniqid());
-
             // Insert user
             $stmt = $conn->prepare("
-                INSERT INTO users (user_code, first_name, last_name, email, username, phone, 
+                INSERT INTO users (first_name, last_name, email, username, phone, 
                                  password_hash, role, status, company_id, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW(), NOW())
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW(), NOW())
             ");
             
             $stmt->execute([
-                $user_code,
                 $first_name,
                 $last_name,
                 $email,
