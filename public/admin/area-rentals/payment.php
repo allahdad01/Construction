@@ -58,11 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'payment_date' => $_POST['payment_date'] ?? null,
                 'notes' => $_POST['notes'] ?? null,
                 'currency' => $_POST['currency'] ?? null,
+                'payment_code' => $_POST['payment_code'] ?? null
             ];
             $setParts = [];
             $params = [];
             foreach ($allowed as $col => $val) {
-                if (in_array($col, $payCols, true) && $val !== null) { $setParts[] = "$col = ?"; $params[] = $val; }
+                if (in_array($col, $payCols, true) && $val !== null) { 
+                    $setParts[] = "$col = ?"; 
+                    $params[] = $val; 
+                }
             }
             if (empty($setParts)) { throw new Exception('Nothing to update'); }
             $params[] = $pid; $params[] = $rental_id; if ($hasPaymentCompanyId) { $params[] = $company_id; }
@@ -88,14 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 $stmt = $conn->prepare("
     SELECT 
         ar.*,
-        ra.area_name,
-        ra.area_code,
-        ra.area_type,
-        ra.currency as area_currency,
         COALESCE(SUM(arp.amount), 0) as total_paid,
         COUNT(arp.id) as payment_count
     FROM area_rentals ar
-    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
     LEFT JOIN area_rental_payments arp ON ar.id = arp.area_rental_id
     WHERE ar.id = ? AND ar.company_id = ?
     GROUP BY ar.id
@@ -108,10 +107,65 @@ if (!$rental) {
     exit;
 }
 
-// Calculate amounts
-$total_amount = $rental['monthly_rate'];
-$total_paid = $rental['total_paid'] ?? 0;
-$remaining_amount = $total_amount - $total_paid;
+// Detailed rental information debugging
+$debug_rental_info = [
+    'ID' => $rental['id'],
+    'Rental Code' => $rental['rental_code'],
+    'Start Date' => $rental['start_date'],
+    'End Date' => $rental['end_date'] ?? 'Not Set',
+    'Monthly Rate' => $rental['monthly_rate'],
+    'Currency' => $rental['currency'] ?? 'Not Set',
+    'Status' => $rental['status'] ?? 'Not Set'
+];
+
+// Log detailed rental information
+error_log("Rental Details: " . json_encode($debug_rental_info));
+
+// Debugging date information
+error_log("Rental Start Date: " . $rental['start_date']);
+error_log("Today's Date: " . date('Y-m-d'));
+error_log("Rental End Date: " . ($rental['end_date'] ?? 'Not set'));
+
+// Duration computation
+$startDt = new DateTime($rental['start_date']);
+$endDt = $rental['end_date'] ? new DateTime($rental['end_date']) : new DateTime();
+$diff = $startDt->diff($endDt);
+$parts = [];
+if ($diff->y) { $parts[] = $diff->y . ' ' . ($diff->y === 1 ? 'year' : 'years'); }
+if ($diff->m) { $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'month' : 'months'); }
+if ($diff->d || empty($parts)) { $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'day' : 'days'); }
+$duration_text = implode(', ', $parts);
+$range_text = date('M j, Y', strtotime($rental['start_date'])) . ' to ' . ($rental['end_date'] ? date('M j, Y', strtotime($rental['end_date'])) : 'present');
+
+// Days elapsed (inclusive)
+$asOfDate = new DateTime();
+$interval = $startDt->diff($asOfDate);
+$days_elapsed = $interval->invert === 1 ? 0 : ($interval->days + 1);
+
+// Effective daily rate (fallback to monthly/30)
+$daily_rate_effective = (float)($rental['daily_rate'] ?? 0);
+if ($daily_rate_effective <= 0) {
+    $daily_rate_effective = ((float)($rental['monthly_rate'] ?? 0)) / 30.0;
+}
+
+// Compute total paid from payments table (by rental currency)
+$__payCols = [];
+try { $__payCols = array_map(function($r){ return $r['Field']; }, $conn->query("SHOW COLUMNS FROM area_rental_payments")->fetchAll(PDO::FETCH_ASSOC)); } catch (Exception $e) { $__payCols = []; }
+$__hasPayCompany = in_array('company_id', $__payCols, true);
+$sumSql = "SELECT COALESCE(SUM(amount), 0) FROM area_rental_payments WHERE area_rental_id = ?" . ($__hasPayCompany ? " AND company_id = ?" : "") . " AND COALESCE(currency, ?) = ?";
+$sumStmt = $conn->prepare($sumSql);
+$sumParams = [$rental_id]; if ($__hasPayCompany) { $sumParams[] = $company_id; } $sumParams[] = $rental['currency'] ?? 'USD'; $sumParams[] = $rental['currency'] ?? 'USD';
+$sumStmt->execute($sumParams);
+$amount_paid_so_far = (float)$sumStmt->fetchColumn();
+
+// Owed until as-of date and outstanding due
+$owed_until_date = $daily_rate_effective * max(0, $days_elapsed);
+$outstanding_due = max(0, $owed_until_date - $amount_paid_so_far);
+
+// Calculate total amount and remaining amount
+$total_amount = $owed_until_date;
+$total_paid = $amount_paid_so_far;
+$remaining_amount = max(0, $total_amount - $total_paid);
 
 // Handle form submission for new payment (create)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
@@ -134,9 +188,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
         // Start transaction
         $conn->beginTransaction();
 
+        // Generate unique payment code
+        $payment_code_prefix = 'PAY-' . date('Ymd') . '-';
+        
+        // Find the last payment code for today
+        $last_code_stmt = $conn->prepare("
+            SELECT payment_code 
+            FROM area_rental_payments 
+            WHERE payment_code LIKE ? 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ");
+        $last_code_stmt->execute([$payment_code_prefix . '%']);
+        $last_code = $last_code_stmt->fetchColumn();
+        
+        // Generate next payment code
+        if ($last_code) {
+            // Extract the last numeric part and increment
+            $last_number = (int)substr($last_code, -4);
+            $next_number = str_pad($last_number + 1, 4, '0', STR_PAD_LEFT);
+            $payment_code = $payment_code_prefix . $next_number;
+        } else {
+            // First payment today
+            $payment_code = $payment_code_prefix . '0001';
+        }
+
         // Insert payment record
-        $columns = ['area_rental_id','amount','payment_method','reference_number','payment_date','notes','currency'];
-        $placeholders = '?,?,?,?,?,?,?';
+        $columns = ['area_rental_id','amount','payment_method','reference_number','payment_date','notes','currency','payment_code'];
+        $placeholders = '?,?,?,?,?,?,?,?';
         $values = [
             $rental_id,
             $payment_amount,
@@ -144,9 +223,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
             trim($_POST['reference_number'] ?? ''),
             $_POST['payment_date'] ?? date('Y-m-d'),
             trim($_POST['notes'] ?? ''),
-            $rental['currency'] ?? 'USD'
+            $rental['currency'] ?? 'USD',
+            $payment_code
         ];
         if ($hasPaymentCompanyId) { $columns[] = 'company_id'; $placeholders .= ',?'; $values[] = $company_id; }
+        
         $sql = 'INSERT INTO area_rental_payments (' . implode(',', $columns) . ') VALUES (' . $placeholders . ')';
         $stmt = $conn->prepare($sql);
         $stmt->execute($values);
@@ -298,26 +379,38 @@ require_once '../../../includes/header.php';
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center mb-3">
-                                <h6 class="text-primary"><?php echo __('total_amount'); ?></h6>
+                                <h6 class="text-primary"><?php echo __('owed_until'); ?> <?php echo $asOfDate->format('M j, Y'); ?></h6>
                                 <h4 class="text-primary">
                                     <?php echo formatCurrencyAmount($total_amount, $rental['currency'] ?? 'USD'); ?>
                                 </h4>
+                                <div class="small text-muted"><?php echo htmlspecialchars($range_text); ?></div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
                             <div class="text-center mb-3">
-                                <h6 class="text-success"><?php echo __('total_paid'); ?></h6>
+                                <h6 class="text-success"><?php echo __('amount_paid'); ?></h6>
                                 <h4 class="text-success">
                                     <?php echo formatCurrencyAmount($total_paid, $rental['currency'] ?? 'USD'); ?>
                                 </h4>
                             </div>
-                        </div>
-                        <div class="col-md-4">
                             <div class="text-center mb-3">
-                                <h6 class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>"><?php echo __('remaining'); ?></h6>
+                                <h6 class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>"><?php echo __('outstanding_due'); ?></h6>
                                 <h4 class="text-<?php echo $remaining_amount > 0 ? 'warning' : 'success'; ?>">
                                     <?php echo formatCurrencyAmount($remaining_amount, $rental['currency'] ?? 'USD'); ?>
                                 </h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <h6 class="text-secondary"><?php echo __('rental_information'); ?></h6>
+                                <p><strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
+                                <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <h6 class="text-secondary"><?php echo __('payment_details'); ?></h6>
+                                <p><strong><?php echo __('currency'); ?>:</strong> <?php echo $rental['currency'] ?? 'USD'; ?></p>
+                                <p><strong><?php echo __('monthly_rate'); ?>:</strong> <?php echo formatCurrencyAmount($rental['monthly_rate'], $rental['currency'] ?? 'USD'); ?></p>
+                                <p><strong><?php echo __('payments'); ?>:</strong> <?php echo $rental['payment_count']; ?> <?php echo __('records'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -342,7 +435,6 @@ require_once '../../../includes/header.php';
                             <h6 class="text-secondary"><?php echo __('rental_information'); ?></h6>
                             <p><strong><?php echo __('code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
                             <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                            <p><strong><?php echo __('area'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-secondary"><?php echo __('payment_details'); ?></h6>
@@ -373,6 +465,7 @@ require_once '../../../includes/header.php';
                                 <thead>
                                     <tr>
                                         <th><?php echo __('date'); ?></th>
+                                        <th><?php echo __('payment_code'); ?></th>
                                         <th><?php echo __('amount'); ?></th>
                                         <th><?php echo __('method'); ?></th>
                                         <th><?php echo __('reference'); ?></th>
@@ -384,6 +477,9 @@ require_once '../../../includes/header.php';
                                     <?php foreach ($payments as $payment): ?>
                                     <tr>
                                         <td><?php echo date('M j, Y', strtotime($payment['payment_date'])); ?></td>
+                                        <td>
+                                            <code><?php echo htmlspecialchars($payment['payment_code'] ?? '-'); ?></code>
+                                        </td>
                                         <td>
                                             <strong class="text-success">
                                                 <?php echo formatCurrencyAmount($payment['amount'], $payment['currency'] ?? 'USD'); ?>
@@ -458,6 +554,10 @@ require_once '../../../includes/header.php';
         <input type="hidden" name="id" id="edit_id">
         <div class="modal-body">
           <div class="mb-2">
+            <label class="form-label"><?php echo __('payment_code'); ?></label>
+            <input type="text" class="form-control" name="payment_code" id="edit_payment_code" readonly>
+          </div>
+          <div class="mb-2">
             <label class="form-label"><?php echo __('amount'); ?></label>
             <input type="number" step="0.01" class="form-control" name="amount" id="edit_amount">
           </div>
@@ -504,6 +604,7 @@ async function viewPayment(id){
     const res = await fetch(`payment.php?id=<?php echo $rental_id; ?>&action=get&pid=${id}`);
     const d = await res.json();
     const html = `
+      <div><strong><?php echo __('payment_code'); ?>:</strong> ${(d.payment_code ?? '-')}</div>
       <div><strong><?php echo __('amount'); ?>:</strong> <?php echo getCurrencySymbol($rental['currency'] ?? 'USD'); ?>${(d.amount ?? 0)}</div>
       <div><strong><?php echo __('method'); ?>:</strong> ${(d.payment_method ?? '-')}</div>
       <div><strong><?php echo __('date'); ?>:</strong> ${(d.payment_date ?? '-')}</div>
@@ -521,6 +622,7 @@ async function editPayment(id){
     const res = await fetch(`payment.php?id=<?php echo $rental_id; ?>&action=get&pid=${id}`);
     const d = await res.json();
     document.getElementById('edit_id').value = d.id || id;
+    document.getElementById('edit_payment_code').value = d.payment_code || '';
     document.getElementById('edit_amount').value = d.amount || '';
     document.getElementById('edit_method').value = d.payment_method || 'cash';
     document.getElementById('edit_date').value = d.payment_date || '';

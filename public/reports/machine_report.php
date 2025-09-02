@@ -25,7 +25,7 @@ try {
                 c.company_name,
                 COUNT(DISTINCT ct.id) as active_contracts,
                 COALESCE(SUM(wh.hours_worked), 0) as total_hours,
-                COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings
+                COUNT(DISTINCT wh.date) as working_days
             FROM machines m
             JOIN companies c ON m.company_id = c.id
             LEFT JOIN contracts ct ON m.id = ct.machine_id AND ct.status = 'active'
@@ -37,10 +37,53 @@ try {
         $stmt->execute([$start_date, $end_date]);
         $machine_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Calculate earnings based on contract rates and working hours
+        foreach ($machine_data as &$machine) {
+            // Fetch contract details for this machine
+            $stmt = $conn->prepare("
+                SELECT 
+                    ct.id, 
+                    ct.rate_amount, 
+                    ct.currency,
+                    ct.working_hours_per_day,
+                    COUNT(DISTINCT wh.date) as contract_working_days
+                FROM contracts ct
+                LEFT JOIN working_hours wh ON ct.id = wh.contract_id 
+                    AND wh.date BETWEEN ? AND ?
+                WHERE ct.machine_id = ? AND ct.status = 'active'
+                GROUP BY ct.id
+            ");
+            $stmt->execute([$start_date, $end_date, $machine['id']]);
+            $contract_details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Calculate total earnings for this machine
+            $total_earnings = [];
+            foreach ($contract_details as $contract) {
+                // If no working hours, skip
+                if ($contract['contract_working_days'] == 0) continue;
+                
+                // Calculate daily rate
+                $daily_rate = $contract['rate_amount'];
+                $currency = $contract['currency'] ?? 'USD';
+                
+                // Calculate earnings based on working days
+                $earnings = $daily_rate * $contract['contract_working_days'];
+                
+                // Aggregate earnings by currency
+                if (!isset($total_earnings[$currency])) {
+                    $total_earnings[$currency] = 0;
+                }
+                $total_earnings[$currency] += $earnings;
+            }
+            
+            // Store earnings as an array of currency => amount
+            $machine['earnings'] = $total_earnings;
+        }
+        unset($machine);
     } else {
         // Company-specific machine data
         $stmt = $conn->prepare("
-                    SELECT 
+            SELECT 
             m.id,
             m.machine_code,
             m.name,
@@ -52,7 +95,6 @@ try {
             m.is_active,
             COUNT(DISTINCT ct.id) as active_contracts,
             COALESCE(SUM(wh.hours_worked), 0) as total_hours,
-            COALESCE(SUM(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day), 0) as earnings,
             COUNT(DISTINCT wh.date) as working_days
         FROM machines m
         LEFT JOIN contracts ct ON m.id = ct.machine_id AND ct.status = 'active'
@@ -63,6 +105,50 @@ try {
         ");
         $stmt->execute([$start_date, $end_date, $company_id]);
         $machine_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calculate earnings based on contract rates and working hours
+        foreach ($machine_data as &$machine) {
+            // Fetch contract details for this machine
+            $stmt = $conn->prepare("
+                SELECT 
+                    ct.id, 
+                    ct.rate_amount, 
+                    ct.currency,
+                    ct.working_hours_per_day,
+                    COUNT(DISTINCT wh.date) as contract_working_days
+                FROM contracts ct
+                LEFT JOIN working_hours wh ON ct.id = wh.contract_id 
+                    AND wh.date BETWEEN ? AND ?
+                WHERE ct.machine_id = ? AND ct.status = 'active'
+                GROUP BY ct.id
+            ");
+            $stmt->execute([$start_date, $end_date, $machine['id']]);
+            $contract_details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Calculate total earnings for this machine
+            $total_earnings = [];
+            foreach ($contract_details as $contract) {
+                // If no working hours, skip
+                if ($contract['contract_working_days'] == 0) continue;
+                
+                // Calculate daily rate
+                $daily_rate = $contract['rate_amount'];
+                $currency = $contract['currency'] ?? 'USD';
+                
+                // Calculate earnings based on working days
+                $earnings = $daily_rate * $contract['contract_working_days'];
+                
+                // Aggregate earnings by currency
+                if (!isset($total_earnings[$currency])) {
+                    $total_earnings[$currency] = 0;
+                }
+                $total_earnings[$currency] += $earnings;
+            }
+            
+            // Store earnings as an array of currency => amount
+            $machine['earnings'] = $total_earnings;
+        }
+        unset($machine);
     }
     
     // Get machine type statistics
@@ -71,8 +157,7 @@ try {
             type,
             COUNT(*) as count,
             AVG(year_manufactured) as avg_year,
-            SUM(COALESCE(wh.hours_worked, 0)) as total_hours,
-            SUM(COALESCE(wh.hours_worked * ct.rate_amount / ct.working_hours_per_day, 0)) as total_earnings
+            SUM(COALESCE(wh.hours_worked, 0)) as total_hours
         FROM machines m
         LEFT JOIN contracts ct ON m.id = ct.machine_id AND ct.status = 'active'
         LEFT JOIN working_hours wh ON ct.id = wh.contract_id AND wh.date BETWEEN ? AND ?
@@ -88,12 +173,125 @@ try {
     }
     $machine_types = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Calculate earnings for each machine type
+    foreach ($machine_types as &$type) {
+        // Fetch machines of this type
+        $stmt = $conn->prepare("
+            SELECT id FROM machines 
+            WHERE type = ? AND is_active = 1 
+            " . (!$is_super_admin ? "AND company_id = ?" : "")
+        );
+        
+        $params = !$is_super_admin 
+            ? [$type['type'], $company_id] 
+            : [$type['type']];
+        
+        $stmt->execute($params);
+        $machine_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Calculate total earnings for this type
+        $total_type_earnings = [];
+        foreach ($machine_ids as $machine_id) {
+            // Fetch contract details for this machine
+            $stmt = $conn->prepare("
+                SELECT 
+                    ct.id, 
+                    ct.rate_amount, 
+                    ct.currency,
+                    COUNT(DISTINCT wh.date) as contract_working_days
+                FROM contracts ct
+                LEFT JOIN working_hours wh ON ct.id = wh.contract_id 
+                    AND wh.date BETWEEN ? AND ?
+                WHERE ct.machine_id = ? AND ct.status = 'active'
+                GROUP BY ct.id
+            ");
+            $stmt->execute([$start_date, $end_date, $machine_id]);
+            $contract_details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Calculate total earnings for this machine
+            foreach ($contract_details as $contract) {
+                // If no working hours, skip
+                if ($contract['contract_working_days'] == 0) continue;
+                
+                // Calculate daily rate
+                $daily_rate = $contract['rate_amount'];
+                $currency = $contract['currency'] ?? 'USD';
+                
+                // Calculate earnings based on working days
+                $earnings = $daily_rate * $contract['contract_working_days'];
+                
+                // Aggregate earnings by currency
+                if (!isset($total_type_earnings[$currency])) {
+                    $total_type_earnings[$currency] = 0;
+                }
+                $total_type_earnings[$currency] += $earnings;
+            }
+        }
+        
+        $type['total_earnings'] = $total_type_earnings;
+    }
+    unset($type);
+    
     // Calculate summary statistics
     $total_machines = count($machine_data);
-    $total_earnings = array_sum(array_column($machine_data, 'earnings'));
+    
+    // Aggregate earnings across all currencies
+    $total_earnings = [];
+    foreach ($machine_data as $machine) {
+        if (empty($machine['earnings'])) continue;
+        
+        foreach ($machine['earnings'] as $currency => $amount) {
+            if (!isset($total_earnings[$currency])) {
+                $total_earnings[$currency] = 0;
+            }
+            // Ensure numeric value
+            $total_earnings[$currency] += is_numeric($amount) ? $amount : 0;
+        }
+    }
+    
+    // Safely handle earnings formatting
+    $formatted_total_earnings = [];
+    foreach ($total_earnings as $currency => $amount) {
+        $formatted_total_earnings[$currency] = is_numeric($amount) ? $amount : 0;
+    }
+    
+    $avg_earnings = [];
+    foreach ($total_earnings as $currency => $total) {
+        $avg_earnings[$currency] = $total_machines > 0 ? 
+            (is_numeric($total) ? $total / $total_machines : 0) : 0;
+    }
+    
     $total_hours = array_sum(array_column($machine_data, 'total_hours'));
-    $avg_earnings = $total_machines > 0 ? $total_earnings / $total_machines : 0;
     $avg_hours = $total_machines > 0 ? $total_hours / $total_machines : 0;
+    
+    // Prepare data for chart (use USD or first available currency)
+    $chart_earnings = [];
+    $chart_labels = [];
+    
+    foreach ($machine_data as $machine) {
+        $chart_labels[] = $machine['machine_code'];
+        
+        // Prefer USD, otherwise take the first available currency
+        $earnings = 0;
+        $currency = 'USD';
+        if (isset($machine['earnings']['USD'])) {
+            $earnings = $machine['earnings']['USD'];
+        } elseif (!empty($machine['earnings'])) {
+            $first_currency = key($machine['earnings']);
+            $earnings = $machine['earnings'][$first_currency];
+            $currency = $first_currency;
+        }
+        
+        // Ensure earnings is numeric
+        $chart_earnings[] = [
+            'amount' => is_numeric($earnings) ? $earnings : 0,
+            'currency' => $currency
+        ];
+    }
+    
+    // Limit to top 10 machines
+    $chart_labels = array_slice($chart_labels, 0, 10);
+    $chart_earnings = array_slice($chart_earnings, 0, 10);
     
 } catch (Exception $e) {
     $error = "Error loading machine data: " . $e->getMessage();
@@ -118,7 +316,13 @@ try {
                                 </tr>
                                 <tr>
                                     <td><strong><?php echo __('total_earnings'); ?></strong></td>
-                                    <td class="text-success"><?php echo formatCurrency($total_earnings); ?></td>
+                                    <td class="text-success">
+                                        <?php 
+                                        foreach ($formatted_total_earnings as $currency => $amount): 
+                                        ?>
+                                            <div><?php echo $currency . ': ' . formatCurrency($amount, null, null, $currency); ?></div>
+                                        <?php endforeach; ?>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><strong><?php echo __('total_working_hours'); ?></strong></td>
@@ -126,7 +330,13 @@ try {
                                 </tr>
                                 <tr>
                                     <td><strong><?php echo __('average_earnings_per_machine'); ?></strong></td>
-                                    <td><?php echo formatCurrency($avg_earnings); ?></td>
+                                    <td>
+                                        <?php 
+                                        foreach ($avg_earnings as $currency => $amount): 
+                                        ?>
+                                            <div><?php echo $currency . ': ' . formatCurrency($amount, null, null, $currency); ?></div>
+                                        <?php endforeach; ?>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><strong><?php echo __('average_hours_per_machine'); ?></strong></td>
@@ -164,7 +374,23 @@ try {
                                     <td><?php echo number_format($type['count']); ?></td>
                                     <td><?php echo number_format($type['avg_year'], 0); ?></td>
                                     <td><?php echo number_format($type['total_hours'], 1); ?></td>
-                                    <td class="text-success"><?php echo formatCurrency($type['total_earnings']); ?></td>
+                                    <td class="text-success">
+                                        <?php 
+                                        if (is_array($type['total_earnings'])) {
+                                            foreach ($type['total_earnings'] as $currency => $amount) {
+                                                // Ensure amount is numeric
+                                                $safe_amount = is_numeric($amount) ? $amount : 0;
+                                                echo $currency . ': ' . formatCurrency($safe_amount) . '<br>';
+                                            }
+                                        } else {
+                                            // Ensure amount is numeric
+                                            $safe_amount = is_numeric($type['total_earnings'] ?? 0) 
+                                                ? ($type['total_earnings'] ?? 0) 
+                                                : 0;
+                                            echo formatCurrency($safe_amount);
+                                        }
+                                        ?>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -205,7 +431,13 @@ try {
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span><?php echo __('total_earnings'); ?></span>
-                            <span><?php echo formatCurrency($total_earnings); ?></span>
+                            <span>
+                                <?php 
+                                foreach ($total_earnings as $currency => $amount): 
+                                ?>
+                                    <div><?php echo $currency . ': ' . formatCurrency($amount, null, null, $currency); ?></div>
+                                <?php endforeach; ?>
+                            </span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span><?php echo __('total_hours'); ?></span>
@@ -272,7 +504,23 @@ try {
                                     <?php if (!$is_super_admin): ?>
                                     <td><?php echo number_format($machine['working_days']); ?> <?php echo __('days'); ?></td>
                                     <?php endif; ?>
-                                    <td class="text-success"><?php echo formatCurrency($machine['earnings']); ?></td>
+                                    <td class="text-success">
+                                        <?php 
+                                        if (is_array($machine['earnings'])) {
+                                            foreach ($machine['earnings'] as $currency => $amount) {
+                                                // Ensure amount is numeric
+                                                $safe_amount = is_numeric($amount) ? $amount : 0;
+                                                echo $currency . ': ' . formatCurrency($safe_amount, null, null, $currency) . '<br>';
+                                            }
+                                        } else {
+                                            // Ensure amount is numeric
+                                            $safe_amount = is_numeric($machine['earnings'] ?? 0) 
+                                                ? ($machine['earnings'] ?? 0) 
+                                                : 0;
+                                            echo formatCurrency($safe_amount);
+                                        }
+                                        ?>
+                                    </td>
                                     <td>
                                         <?php
                                         $utilization = 0;
@@ -437,10 +685,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const machineChart = new Chart(machineCtx, {
         type: 'bar',
         data: {
-            labels: <?php echo json_encode(array_slice(array_column($machine_data, 'machine_code'), 0, 10)); ?>,
+            labels: <?php echo json_encode($chart_labels); ?>,
             datasets: [{
                 label: '<?php echo __('earnings'); ?>',
-                data: <?php echo json_encode(array_slice(array_column($machine_data, 'earnings'), 0, 10)); ?>,
+                data: <?php 
+                    $chart_amounts = array_column($chart_earnings, 'amount');
+                    $chart_currencies = array_column($chart_earnings, 'currency');
+                    echo json_encode($chart_amounts); 
+                ?>,
                 backgroundColor: 'rgba(78, 115, 223, 0.8)',
                 borderColor: 'rgb(78, 115, 223)',
                 borderWidth: 1
@@ -454,7 +706,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     ticks: {
                         beginAtZero: true,
                         callback: function(value) {
-                            return '$' + number_format(value);
+                            // Use the first currency from the chart data
+                            const currencies = <?php echo json_encode($chart_currencies); ?>;
+                            const currency = currencies[0] || 'USD';
+                            return currency + ' ' + number_format(value);
                         }
                     }
                 }]
@@ -462,7 +717,9 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltips: {
                 callbacks: {
                     label: function(tooltipItem, chart) {
-                        return '<?php echo __('earnings'); ?>: $' + number_format(tooltipItem.yLabel);
+                        const currencies = <?php echo json_encode($chart_currencies); ?>;
+                        const currency = currencies[tooltipItem.index] || 'USD';
+                        return '<?php echo __('earnings'); ?>: ' + currency + ' ' + number_format(tooltipItem.yLabel);
                     }
                 }
             }

@@ -106,24 +106,12 @@ $total_pages = ceil($total_records / $per_page);
 $stmt = $conn->prepare("
     SELECT 
         ar.*,
-        ra.area_name,
-        ra.area_code,
-        ra.area_type,
-        ra.area_size_sqm,
-        ra.has_electricity,
-        ra.has_water,
-        ra.has_security,
-        ra.has_parking,
-        ra.has_loading_dock,
-        ra.is_covered,
-        ra.currency as area_currency,
-        ra.monthly_rate as area_monthly_rate,
         COALESCE(SUM(arp.amount), 0) as total_paid,
         COUNT(arp.id) as payment_count,
         COUNT(arm.id) as maintenance_count,
         COUNT(arv.id) as visit_count
     FROM area_rentals ar
-    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
+
     LEFT JOIN area_rental_payments arp ON ar.id = arp.area_rental_id
     LEFT JOIN area_rental_maintenance arm ON ar.id = arm.area_rental_id
     LEFT JOIN area_rental_visits arv ON ar.id = arv.area_rental_id
@@ -183,15 +171,13 @@ $payment_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Get area type distribution by currency
 $stmt = $conn->prepare("
     SELECT 
-        ra.area_type,
         ar.currency,
         COUNT(*) as count,
         SUM(ar.monthly_rate) as total_revenue
     FROM area_rentals ar
-    JOIN rental_areas ra ON ar.rental_area_id = ra.id
     WHERE ar.company_id = ? AND ar.status = 'active'
-    GROUP BY ra.area_type, ar.currency
-    ORDER BY ra.area_type, total_revenue DESC
+    GROUP BY ar.currency
+    ORDER BY total_revenue DESC
 ");
 $stmt->execute([$company_id]);
 $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -209,9 +195,6 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="btn-group" role="group">
             <a href="add.php" class="btn btn-success">
                 <i class="fas fa-plus"></i> <?php echo __('add_new_rental'); ?>
-            </a>
-            <a href="../rental-areas/" class="btn btn-primary">
-                <i class="fas fa-map"></i> <?php echo __('manage_areas'); ?>
             </a>
         </div>
     </div>
@@ -345,48 +328,7 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-chart-pie"></i> <?php echo __('area_type_distribution'); ?>
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <?php if (!empty($area_type_stats)): ?>
-                        <?php 
-                        $grouped_area_stats = [];
-                        foreach ($area_type_stats as $area_stat) {
-                            $area_type = $area_stat['area_type'];
-                            if (!isset($grouped_area_stats[$area_type])) {
-                                $grouped_area_stats[$area_type] = [];
-                            }
-                            $grouped_area_stats[$area_type][] = $area_stat;
-                        }
-                        ?>
-                        <?php foreach ($grouped_area_stats as $area_type => $stats): ?>
-                            <div class="mb-3">
-                                <h6 class="text-primary mb-2">
-                                    <?php echo ucfirst($area_type); ?>
-                                </h6>
-                                <?php foreach ($stats as $stat): ?>
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-muted">
-                                            <?php echo $stat['count']; ?> <?php echo __('rental_s'); ?>
-                                        </span>
-                                        <span class="badge bg-<?php echo $stat['currency'] === 'USD' ? 'success' : ($stat['currency'] === 'AFN' ? 'warning' : 'info'); ?>">
-                                            <?php echo formatCurrencyAmount($stat['total_revenue'], $stat['currency']); ?>
-                                        </span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-muted mb-0"><?php echo __('no_active_rentals_by_area_type'); ?></p>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
+        
     </div>
     <?php endif; ?>
 
@@ -509,7 +451,6 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <thead>
                             <tr>
                                 <th><?php echo __('rental_details'); ?></th>
-                                <th><?php echo __('area_information'); ?></th>
                                 <th><?php echo __('financial'); ?></th>
                                 <th><?php echo __('status_dates'); ?></th>
                                 <th><?php echo __('actions'); ?></th>
@@ -529,33 +470,6 @@ $area_type_stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <span class="badge bg-<?php echo $rental['rental_type'] === 'commercial' ? 'primary' : ($rental['rental_type'] === 'residential' ? 'success' : 'warning'); ?>">
                                                     <?php echo ucfirst($rental['rental_type']); ?>
                                                 </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <strong><?php echo htmlspecialchars($rental['area_name']); ?></strong>
-                                            <small class="text-muted"><?php echo htmlspecialchars($rental['area_code']); ?></small>
-                                            <span class="badge bg-info"><?php echo ucfirst($rental['area_type']); ?></span>
-                                            <?php if (!empty($rental['area_size_sqm'])): ?>
-                                                <small class="text-muted"><?php echo number_format($rental['area_size_sqm'], 1); ?> sqm</small>
-                                            <?php endif; ?>
-                                            <div class="mt-1">
-                                                <?php if ($rental['has_electricity']): ?>
-                                                    <i class="fas fa-bolt text-success" title="Electricity"></i>
-                                                <?php endif; ?>
-                                                <?php if ($rental['has_water']): ?>
-                                                    <i class="fas fa-tint text-info" title="Water"></i>
-                                                <?php endif; ?>
-                                                <?php if ($rental['has_security']): ?>
-                                                    <i class="fas fa-shield-alt text-warning" title="Security"></i>
-                                                <?php endif; ?>
-                                                <?php if ($rental['has_parking']): ?>
-                                                    <i class="fas fa-car text-primary" title="Parking"></i>
-                                                <?php endif; ?>
-                                                <?php if ($rental['is_covered']): ?>
-                                                    <i class="fas fa-home text-secondary" title="Covered"></i>
-                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>

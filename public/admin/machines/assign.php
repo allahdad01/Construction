@@ -49,8 +49,35 @@ $stmt = $conn->prepare("SELECT id, name, employee_code, user_id FROM employees W
 $stmt->execute([$company_id]);
 $assistants = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
+// Load current active assignment
+$current_assignment = null;
+$stmt = $conn->prepare("SELECT * FROM machine_assignments 
+    WHERE company_id = ? AND machine_id = ? AND status = 'active' 
+    ORDER BY start_date DESC LIMIT 1");
+$stmt->execute([$company_id, $machine_id]);
+$current_assignment = $stmt->fetch(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Check if remove assignment is requested
+        if (isset($_POST['remove_assignment']) && $current_assignment) {
+            // Close the current active assignment
+            $stmt = $conn->prepare("UPDATE machine_assignments SET status='ended', end_date = ? WHERE id = ?");
+            $stmt->execute([date('Y-m-d'), $current_assignment['id']]);
+            
+            $success = 'Assignment removed successfully.';
+            
+            // Notify tenant admins
+            try {
+                $title = 'Driver Assignment Removed';
+                $msg = 'Driver assignment for machine ' . ($machine['machine_code'] ?? ('#'.$machine_id)) . ' has been removed.';
+                notifyCompanyUsers($conn, (int)$company_id, $title, $msg, 'warning');
+            } catch (Throwable $nt) {}
+            
+            echo "<script>setTimeout(function(){ window.location.href='view.php?id=" . (int)$machine_id . "'; }, 1500);</script>";
+            exit;
+        }
+        
         $driver_id = (int)($_POST['driver_employee_id'] ?? 0);
         $assistant_id = (int)($_POST['assistant_employee_id'] ?? 0) ?: null;
         $start_date = $_POST['start_date'] ?? date('Y-m-d');
@@ -104,7 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select class="form-control" name="driver_employee_id" required>
               <option value=""><?php echo __('select_driver'); ?></option>
               <?php foreach ($drivers as $d): ?>
-                <option value="<?php echo $d['id']; ?>"><?php echo htmlspecialchars($d['name'] . ' (' . $d['employee_code'] . ')'); ?></option>
+                <option value="<?php echo $d['id']; ?>" <?php echo ($current_assignment && $d['id'] == $current_assignment['driver_employee_id']) ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($d['name'] . ' (' . $d['employee_code'] . ')'); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -113,7 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select class="form-control" name="assistant_employee_id">
               <option value=""><?php echo __('none'); ?></option>
               <?php foreach ($assistants as $a): ?>
-                <option value="<?php echo $a['id']; ?>"><?php echo htmlspecialchars($a['name'] . ' (' . $a['employee_code'] . ')'); ?></option>
+                <option value="<?php echo $a['id']; ?>" <?php echo ($current_assignment && $a['id'] == $current_assignment['assistant_employee_id']) ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($a['name'] . ' (' . $a['employee_code'] . ')'); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -121,14 +152,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row mt-3">
           <div class="col-md-4">
             <label class="form-label"><?php echo __('start_date'); ?> *</label>
-            <input type="date" class="form-control" name="start_date" value="<?php echo date('Y-m-d'); ?>" required>
+            <input type="date" class="form-control" name="start_date" 
+                   value="<?php echo $current_assignment ? htmlspecialchars($current_assignment['start_date']) : date('Y-m-d'); ?>" 
+                   required>
           </div>
           <div class="col-md-8">
             <label class="form-label"><?php echo __('notes'); ?></label>
-            <input type="text" class="form-control" name="notes" placeholder="<?php echo __('optional'); ?>">
+            <input type="text" class="form-control" name="notes" 
+                   value="<?php echo $current_assignment ? htmlspecialchars($current_assignment['notes'] ?? '') : ''; ?>" 
+                   placeholder="<?php echo __('optional'); ?>">
           </div>
         </div>
         <div class="text-end mt-3">
+          <?php if ($current_assignment): ?>
+            <button type="submit" name="remove_assignment" value="1" class="btn btn-danger me-2" onclick="return confirm('Are you sure you want to remove the current assignment?');">
+              <i class="fas fa-trash"></i> <?php echo __('remove_assignment'); ?>
+            </button>
+          <?php endif; ?>
           <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <?php echo __('assign'); ?></button>
         </div>
       </form>

@@ -509,22 +509,64 @@ function getCompanyDateFormat($company_id = null) {
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['format_code' => 'gregorian', 'format_pattern' => 'Y-m-d'];
 }
 
-function formatCurrency($amount, $currency_id = null, $company_id = null) {
-    if ($amount === null || $amount === '') {
+function formatCurrency($amount, $currency_id = null, $company_id = null, $currency_code = null) {
+    // Handle various input types
+    if (is_array($amount)) {
+        // If an array is passed, try to extract a numeric value
+        $amount = array_filter($amount, 'is_numeric');
+        $amount = !empty($amount) ? array_shift($amount) : 0;
+    }
+
+    if ($amount === null || $amount === '' || !is_numeric($amount)) {
         return '';
     }
     
-    $currency = getCompanyCurrency($company_id);
-    $symbol = $currency['currency_symbol'];
+    // Convert to float to ensure numeric handling
+    $amount = floatval($amount);
+    
+    // If a specific currency code is provided, use it
+    if ($currency_code) {
+        // Fetch currency details by code
+        global $conn;
+        $stmt = $conn->prepare("SELECT * FROM currencies WHERE currency_code = ?");
+        $stmt->execute([$currency_code]);
+        $currency = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // If currency found, use its details
+        if ($currency) {
+            $symbol = $currency['currency_symbol'];
+        } else {
+            // Fallback to the provided currency code as symbol
+            $symbol = $currency_code;
+        }
+    } else {
+        // Use default company currency if no specific currency is provided
+        $currency = getCompanyCurrency($company_id);
+        $symbol = $currency['currency_symbol'];
+    }
+    
     $formatted = number_format($amount, 2);
     
+    // Specific handling for known currencies
+    $currency_specific_formats = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+        'AFN' => '؋',
+        'CAD' => 'CA$',
+        'AUD' => 'A$'
+    ];
+    
+    // Use predefined symbol if available, otherwise use database symbol
+    $display_symbol = $currency_specific_formats[$currency_code] ?? $symbol;
+    
     // Handle different currency symbol positions
-    if ($currency['currency_code'] === 'USD' || $currency['currency_code'] === 'CAD' || $currency['currency_code'] === 'AUD') {
-        return $symbol . $formatted;
-    } elseif ($currency['currency_code'] === 'EUR' || $currency['currency_code'] === 'GBP') {
-        return $formatted . ' ' . $symbol;
+    if (in_array($currency_code, ['USD', 'CAD', 'AUD', 'AFN'])) {
+        return $display_symbol . $formatted;
+    } elseif (in_array($currency_code, ['EUR', 'GBP'])) {
+        return $formatted . ' ' . $display_symbol;
     } else {
-        return $formatted . ' ' . $symbol;
+        return $formatted . ' ' . $display_symbol;
     }
 }
 

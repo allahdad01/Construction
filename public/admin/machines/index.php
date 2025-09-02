@@ -119,6 +119,36 @@ $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch current machine assignments
+$machine_assignments = [];
+$assignment_lookup = [];
+if (!empty($machines)) {
+    $machine_ids = array_column($machines, 'id');
+    $machine_id_placeholders = implode(',', array_fill(0, count($machine_ids), '?'));
+    
+    $stmt = $conn->prepare("
+        SELECT ma.machine_id, 
+               d.name AS driver_name, 
+               a.name AS assistant_name
+        FROM machine_assignments ma
+        LEFT JOIN employees d ON ma.driver_employee_id = d.id
+        LEFT JOIN employees a ON ma.assistant_employee_id = a.id
+        WHERE ma.company_id = ? AND ma.machine_id IN ($machine_id_placeholders) 
+        AND ma.status = 'active'
+        GROUP BY ma.machine_id
+        ORDER BY ma.start_date DESC
+    ");
+    
+    $params = array_merge([$company_id], $machine_ids);
+    $stmt->execute($params);
+    $machine_assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Create a lookup array for easy access
+    foreach ($machine_assignments as $assignment) {
+        $assignment_lookup[$assignment['machine_id']] = $assignment;
+    }
+}
+
 // Get statistics
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM machines WHERE company_id = ?");
 $stmt->execute([$company_id]);
@@ -331,6 +361,7 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                 <th><?php echo __('specifications'); ?></th>
                                 <th><?php echo __('value'); ?></th>
                                 <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('current_assignment'); ?></th>
                                 <th><?php echo __('actions'); ?></th>
                             </tr>
                         </thead>
@@ -394,6 +425,23 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                         </span>
                                     </td>
                                     <td>
+                                        <?php 
+                                        $assignment = $assignment_lookup[$machine['id']] ?? null;
+                                        if ($assignment): 
+                                        ?>
+                                            <div>
+                                                <strong><?php echo __('driver'); ?>:</strong> 
+                                                <?php echo htmlspecialchars($assignment['driver_name'] ?? 'N/A'); ?><br>
+                                                <?php if (!empty($assignment['assistant_name'])): ?>
+                                                    <strong><?php echo __('assistant'); ?>:</strong> 
+                                                    <?php echo htmlspecialchars($assignment['assistant_name']); ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="text-muted"><?php echo __('no_active_assignment'); ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <div class="btn-group" role="group">
                                             <a href="view.php?id=<?php echo $machine['id']; ?>" 
                                                class="btn btn-sm btn-info" title="View">
@@ -403,6 +451,11 @@ $machine_types = $stmt->fetchAll(PDO::FETCH_COLUMN);
                                                class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <a href="assign.php?machine_id=<?php echo $machine['id']; ?>" 
+                                               class="btn btn-primary btn-sm me-2" title="<?php echo __('assign_operators'); ?>">
+                                                <i class="fas fa-user-cog"></i> <?php echo __('assign_operators'); ?>
+                                            </a>
+                                            
                                             <a href="../contracts/index.php?machine_id=<?php echo $machine['id']; ?>" 
                                                class="btn btn-sm btn-success" title="Contracts">
                                                 <i class="fas fa-file-contract"></i>

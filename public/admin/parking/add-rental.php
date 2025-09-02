@@ -15,31 +15,19 @@ $company_id = getCurrentCompanyId();
 $error = '';
 $success = '';
 
-// Get parking space ID from URL
-$space_id = isset($_GET['space_id']) ? (int)$_GET['space_id'] : 0;
-
-// Get parking space details
-if ($space_id) {
-    $stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
-    $stmt->execute([$space_id, $company_id]);
-    $parking_space = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$parking_space) {
-        header("Location: index.php");
-        exit;
-    }
-} else {
-    // Get all available parking spaces
-    $stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE company_id = ? AND status = 'available' ORDER BY space_name");
-    $stmt->execute([$company_id]);
-    $available_spaces = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+// Remove any dependency on parking spaces
+echo '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Ensure DB allows NULL for parking_space_id in case column still exists
+        try {
+            $conn->exec("ALTER TABLE parking_rentals MODIFY COLUMN parking_space_id INT NULL");
+        } catch (Exception $e) {}
+
         // Validate required fields
-        $required_fields = ['parking_space_id', 'client_name', 'start_date', 'monthly_rate'];
+        $required_fields = ['client_name', 'start_date', 'monthly_rate'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
@@ -49,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validate dates
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'] ?? null;
-        
         if ($end_date && strtotime($end_date) <= strtotime($start_date)) {
             throw new Exception("End date must be after start date.");
         }
@@ -59,24 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Monthly rate must be a positive number.");
         }
 
-        // Get parking space details for validation
-        $stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
-        $stmt->execute([$_POST['parking_space_id'], $company_id]);
-        $selected_space = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$selected_space) {
-            throw new Exception("Invalid parking space selected.");
-        }
-
-        // Check if space is available
-        if ($selected_space['status'] !== 'available') {
-            throw new Exception("Selected parking space is not available.");
-        }
-
         // Generate rental code
         $rental_code = generateParkingRentalCode($company_id);
 
-        // Calculate total days and amount if end date is provided
+        // Calculate totals if end date is provided
         $total_days = null;
         $total_amount = null;
         if ($end_date) {
@@ -88,19 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction
         $conn->beginTransaction();
 
-        // Create parking rental record
+        // Insert rental without any parking space
         $stmt = $conn->prepare("
             INSERT INTO parking_rentals (
                 company_id, parking_space_id, rental_code, client_name, 
                 client_contact, vehicle_type, vehicle_registration,
                 start_date, end_date, monthly_rate, currency,
                 total_days, total_amount, status, notes, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())
+            ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())
         ");
 
         $stmt->execute([
             $company_id,
-            $_POST['parking_space_id'],
             $rental_code,
             $_POST['client_name'],
             $_POST['client_contact'] ?? '',
@@ -109,23 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $start_date,
             $end_date,
             $_POST['monthly_rate'],
-            $_POST['currency'] ?? $selected_space['currency'] ?? 'USD',
+            $_POST['currency'] ?? 'USD',
             $total_days,
             $total_amount,
             $_POST['notes'] ?? ''
         ]);
-
-        // Update parking space status if needed
-        $stmt = $conn->prepare("UPDATE parking_spaces SET status = 'occupied' WHERE id = ?");
-        $stmt->execute([$_POST['parking_space_id']]);
 
         // Commit transaction
         $conn->commit();
 
         $success = "Parking rental added successfully! Rental Code: $rental_code";
 
-        // Use JavaScript redirect
-        echo "<script>setTimeout(function(){ window.location.href = 'view.php?id={$_POST['parking_space_id']}'; }, 2000);</script>";
+        // Redirect to index
+        echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
 
     } catch (Exception $e) {
         if ($conn->inTransaction()) {
@@ -138,17 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Helper function to generate rental code
 function generateParkingRentalCode($company_id) {
     global $conn;
-    
-    // Get company code
     $stmt = $conn->prepare("SELECT company_code FROM companies WHERE id = ?");
     $stmt->execute([$company_id]);
     $company_code = $stmt->fetch(PDO::FETCH_ASSOC)['company_code'] ?? 'COMP';
-    
-    // Get next rental number
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM parking_rentals WHERE company_id = ?");
     $stmt->execute([$company_id]);
     $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
     $next_number = $count + 1;
     return strtoupper($company_code) . 'PKR' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
 }
@@ -160,7 +123,7 @@ function generateParkingRentalCode($company_id) {
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-plus-circle"></i> <?php echo __('add_parking_rental'); ?>
         </h1>
-        <a href="<?php echo $space_id ? "view.php?id=$space_id" : 'index.php'; ?>" class="btn btn-secondary">
+        <a href="index.php" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> <?php echo __('back'); ?>
         </a>
     </div>
@@ -183,45 +146,6 @@ function generateParkingRentalCode($company_id) {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="parking_space_id" class="form-label"><?php echo __('parking_space'); ?> *</label>
-                            <?php if ($space_id): ?>
-                                <input type="hidden" name="parking_space_id" value="<?php echo $space_id; ?>">
-                                <input type="text" class="form-control" readonly 
-                                       value="<?php echo htmlspecialchars($parking_space['space_name'] . ' (' . $parking_space['space_code'] . ')'); ?>">
-                                <small class="text-muted">
-                                    <?php 
-                                    $category_display = [
-                                        'machines' => '🏗️ ' . __('machines'),
-                                        'cars' => '🚗 ' . __('cars'), 
-                                        'trucks' => '🚛 ' . __('trucks'),
-                                        'vans' => '🚐 ' . __('vans'),
-                                        'motorcycles' => '🏍️ ' . __('motorcycles'),
-                                        'trailers' => '🚛 ' . __('trailers'),
-                                        'general' => '🅿️ ' . __('general')
-                                    ];
-                                    $category = $parking_space['vehicle_category'] ?? 'general';
-                                    echo $category_display[$category] ?? ucfirst($category);
-                                    echo ' • ' . ucfirst($parking_space['space_type'] ?? 'standard');
-                                    echo ' • Rate: ' . getCurrencySymbol($parking_space['currency'] ?? 'USD') . number_format($parking_space['monthly_rate'], 2) . '/month';
-                                    ?>
-                                </small>
-                            <?php else: ?>
-                                <select class="form-control" id="parking_space_id" name="parking_space_id" required>
-                                    <option value=""><?php echo __('select_parking_space'); ?></option>
-                                    <?php foreach ($available_spaces as $space): ?>
-                                        <option value="<?php echo $space['id']; ?>" 
-                                                data-rate="<?php echo $space['monthly_rate']; ?>"
-                                                data-currency="<?php echo $space['currency'] ?? 'USD'; ?>"
-                                                <?php echo (isset($_POST['parking_space_id']) && $_POST['parking_space_id'] == $space['id']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($space['space_name'] . ' (' . $space['space_code'] . ') - ' . getCurrencySymbol($space['currency'] ?? 'USD') . number_format($space['monthly_rate'], 2) . '/month'); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
                             <label for="client_name" class="form-label"><?php echo __('client_name'); ?> *</label>
                             <input type="text" class="form-control" id="client_name" name="client_name" 
                                    value="<?php echo htmlspecialchars($_POST['client_name'] ?? ''); ?>" 
@@ -229,9 +153,6 @@ function generateParkingRentalCode($company_id) {
                             <small class="form-text text-muted">You can use spaces in client names.</small>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="client_contact" class="form-label"><?php echo __('client_contact'); ?></label>
@@ -242,27 +163,18 @@ function generateParkingRentalCode($company_id) {
                             <small class="form-text text-muted">You can use spaces in contact information.</small>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="vehicle_type" class="form-label"><?php echo __('vehicle_type'); ?></label>
-                            <select class="form-control" id="vehicle_type" name="vehicle_type">
-                                <option value=""><?php echo __('select_vehicle_type'); ?></option>
-                                <option value="Excavator" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Excavator') ? 'selected' : ''; ?>><?php echo __('excavator'); ?></option>
-                                <option value="Bulldozer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Bulldozer') ? 'selected' : ''; ?>><?php echo __('bulldozer'); ?></option>
-                                <option value="Crane" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Crane') ? 'selected' : ''; ?>><?php echo __('crane'); ?></option>
-                                <option value="Dump Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Dump Truck') ? 'selected' : ''; ?>><?php echo __('dump_truck'); ?></option>
-                                <option value="Pickup Truck" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Pickup Truck') ? 'selected' : ''; ?>><?php echo __('pickup_truck'); ?></option>
-                                <option value="Van" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Van') ? 'selected' : ''; ?>><?php echo __('van'); ?></option>
-                                <option value="Car" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Car') ? 'selected' : ''; ?>><?php echo __('car'); ?></option>
-                                <option value="Motorcycle" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Motorcycle') ? 'selected' : ''; ?>><?php echo __('motorcycle'); ?></option>
-                                <option value="Trailer" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Trailer') ? 'selected' : ''; ?>><?php echo __('trailer'); ?></option>
-                                <option value="Other" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Other') ? 'selected' : ''; ?>><?php echo __('other'); ?></option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="vehicle_type" class="form-label"><?php echo __('vehicle_type'); ?></label>
+                            <input type="text" class="form-control" id="vehicle_type" name="vehicle_type" 
+                                   value="<?php echo htmlspecialchars($_POST['vehicle_type'] ?? ''); ?>"
+                                   style="text-transform: none;" autocomplete="off" spellcheck="false">
+                            <small class="form-text text-muted"><?php echo __('you_can_use_spaces_in_vehicle_types'); ?></small>
+                        </div>
+                    </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="vehicle_registration" class="form-label"><?php echo __('vehicle_registration'); ?>/<?php echo __('license_plate'); ?></label>
@@ -273,6 +185,9 @@ function generateParkingRentalCode($company_id) {
                             <small class="form-text text-muted">You can use spaces in registration numbers.</small>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="start_date" class="form-label"><?php echo __('start_date'); ?> *</label>
@@ -280,10 +195,7 @@ function generateParkingRentalCode($company_id) {
                                    value="<?php echo htmlspecialchars($_POST['start_date'] ?? date('Y-m-d')); ?>" required>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label for="end_date" class="form-label"><?php echo __('end_date'); ?> (<?php echo __('optional'); ?>)</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" 
@@ -291,13 +203,16 @@ function generateParkingRentalCode($company_id) {
                             <small class="text-muted"><?php echo __('leave_empty_for_ongoing_rental'); ?></small>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label for="monthly_rate" class="form-label"><?php echo __('monthly_rate'); ?> *</label>
                             <div class="input-group">
                                 <span class="input-group-text" id="currency-symbol">$</span>
                                 <input type="number" step="0.01" min="0" class="form-control" id="monthly_rate" name="monthly_rate" 
-                                       value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ($parking_space['monthly_rate'] ?? '')); ?>" required>
+                                       value="<?php echo htmlspecialchars($_POST['monthly_rate'] ?? ''); ?>" required>
                             </div>
                         </div>
                     </div>
@@ -305,21 +220,21 @@ function generateParkingRentalCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? $parking_space['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
+                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?> - <?php echo __('us_dollar'); ?> ($)</option>
+                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?> - <?php echo __('afghan_afghani'); ?> (؋)</option>
+                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('eur'); ?> - <?php echo __('euro'); ?> (€)</option>
+                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('gbp'); ?> - <?php echo __('british_pound'); ?> (£)</option>
                             </select>
                         </div>
                     </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="notes" class="form-label"><?php echo __('notes'); ?> & <?php echo __('special_instructions'); ?></label>
-                    <textarea class="form-control" id="notes" name="notes" rows="3" 
-                              placeholder="Any special instructions, parking rules, or additional information..."
-                              style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
-                    <small class="form-text text-muted">You can use spaces in notes and descriptions.</small>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label"><?php echo __('notes'); ?> & <?php echo __('special_instructions'); ?></label>
+                            <textarea class="form-control" id="notes" name="notes" rows="1" 
+                                      placeholder="Any special instructions, parking rules, or additional information..."
+                                      style="text-transform: none; resize: vertical;" autocomplete="off" spellcheck="false"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="text-end">
@@ -334,111 +249,69 @@ function generateParkingRentalCode($company_id) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const spaceSelect = document.getElementById('parking_space_id');
-    const monthlyRateInput = document.getElementById('monthly_rate');
     const currencySelect = document.getElementById('currency');
     const currencySymbol = document.getElementById('currency-symbol');
     const notesTextarea = document.getElementById('notes');
     const clientNameInput = document.getElementById('client_name');
     const clientContactInput = document.getElementById('client_contact');
     const vehicleRegistrationInput = document.getElementById('vehicle_registration');
-    
-    // Function to enable spaces in input fields
+
     function enableSpacesInInput(input) {
         if (input) {
-            // Remove any existing event listeners that might block spaces
             input.removeEventListener('keydown', null);
             input.removeEventListener('keypress', null);
             input.removeEventListener('keyup', null);
-            
-            // Add space handling
             input.addEventListener('keydown', function(e) {
-                // Explicitly allow space key
                 if (e.key === ' ' || e.keyCode === 32) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
-                    // Manually insert space
                     const start = this.selectionStart;
                     const end = this.selectionEnd;
                     const value = this.value;
                     this.value = value.substring(0, start) + ' ' + value.substring(end);
                     this.selectionStart = this.selectionEnd = start + 1;
-                    
                     return false;
                 }
             });
-            
-            // Ensure the input is properly configured
             input.setAttribute('type', 'text');
             input.style.textTransform = 'none';
             input.style.letterSpacing = 'normal';
         }
     }
-    
-    // Enable spaces in input fields
+
+    function updateCurrencySymbol() {
+        const currency = currencySelect.value;
+        const symbols = { 'USD': '$', 'AFN': '؋', 'EUR': '€', 'GBP': '£' };
+        currencySymbol.textContent = symbols[currency] || '$';
+    }
+
+    // Enable spaces
     enableSpacesInInput(clientNameInput);
     enableSpacesInInput(clientContactInput);
     enableSpacesInInput(vehicleRegistrationInput);
-    
-    // Enable spaces in textarea
+
+    // Notes textarea spaces
     if (notesTextarea) {
-        // Remove any existing event listeners that might block spaces
         notesTextarea.removeEventListener('keydown', null);
         notesTextarea.removeEventListener('keypress', null);
         notesTextarea.removeEventListener('keyup', null);
-        
-        // Add space handling
         notesTextarea.addEventListener('keydown', function(e) {
-            // Explicitly allow space key
             if (e.key === ' ' || e.keyCode === 32) {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                // Manually insert space
                 const start = this.selectionStart;
                 const end = this.selectionEnd;
                 const value = this.value;
                 this.value = value.substring(0, start) + ' ' + value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 1;
-                
                 return false;
             }
         });
-        
-        // Ensure the textarea is properly configured
         notesTextarea.style.textTransform = 'none';
         notesTextarea.style.letterSpacing = 'normal';
     }
-    
-    // Update currency symbol
-    function updateCurrencySymbol() {
-        const currency = currencySelect.value;
-        const symbols = {
-            'USD': '$',
-            'AFN': '؋',
-            'EUR': '€',
-            'GBP': '£'
-        };
-        currencySymbol.textContent = symbols[currency] || '$';
-    }
-    
-    // Handle parking space selection
-    if (spaceSelect) {
-        spaceSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.value) {
-                monthlyRateInput.value = selectedOption.dataset.rate || '';
-                currencySelect.value = selectedOption.dataset.currency || 'USD';
-                updateCurrencySymbol();
-            }
-        });
-    }
-    
-    // Update currency symbol when currency changes
+
     currencySelect.addEventListener('change', updateCurrencySymbol);
-    
-    // Set initial currency symbol
     updateCurrencySymbol();
 });
 </script>

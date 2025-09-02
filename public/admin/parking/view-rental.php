@@ -25,9 +25,9 @@ if (!$rental_id) {
 
 // Get rental details
 $stmt = $conn->prepare("
-    SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category
+    SELECT pr.*
     FROM parking_rentals pr
-    JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+    
     WHERE pr.id = ? AND pr.company_id = ?
 ");
 $stmt->execute([$rental_id, $company_id]);
@@ -38,10 +38,6 @@ if (!$rental) {
     exit;
 }
 
-// Get parking space details
-$stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
-$stmt->execute([$rental['parking_space_id'], $company_id]);
-$space = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
@@ -97,8 +93,8 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
             <a href="print-rental.php?id=<?php echo $rental_id; ?>" target="_blank" class="btn btn-outline-dark">
                 <i class="fas fa-print"></i> <?php echo __('print'); ?>
             </a>
-            <a href="view.php?id=<?php echo $rental['parking_space_id']; ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_space'); ?>
+            <a href="index.php" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> <?php echo __('back_to_parked_machines'); ?>
             </a>
         </div>
     </div>
@@ -199,33 +195,6 @@ $space = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
         
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><?php echo __('parking_space'); ?></h6>
-                </div>
-                <div class="card-body">
-                    <p><strong><?php echo __('space_code'); ?>:</strong> <?php echo htmlspecialchars($space['space_code']); ?></p>
-                    <p><strong><?php echo __('space_name'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
-                    <p><strong><?php echo __('category'); ?>:</strong> 
-                        <?php 
-                        $category_display = [
-                            'machines' => '🏗️ Construction Machines',
-                            'cars' => '🚗 Cars', 
-                            'trucks' => '🚛 Trucks',
-                            'vans' => '🚐 Vans',
-                            'motorcycles' => '🏍️ Motorcycles',
-                            'trailers' => '🚛 Trailers',
-                            'general' => '🅿️ General'
-                        ];
-                        $category = $space['vehicle_category'] ?? 'general';
-                        echo $category_display[$category] ?? ucfirst($category);
-                        ?>
-                    </p>
-                    <p><strong><?php echo __('created'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

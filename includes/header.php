@@ -390,12 +390,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                             <span><?php echo __('machines'); ?></span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'projects') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/projects/">
-                            <i class="fas fa-project-diagram"></i>
-                            <span><?php echo __('projects'); ?></span>
-                        </a>
-                    </li>
+                
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/contracts/">
                             <i class="fas fa-file-contract"></i>
@@ -408,12 +403,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                             <span><?php echo __('parking'); ?></span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'rental-areas') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/rental-areas/">
-                            <i class="fas fa-map-marked-alt"></i>
-                            <span><?php echo __('rental_areas'); ?></span>
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/area-rentals/">
                             <i class="fas fa-map-marked-alt"></i>

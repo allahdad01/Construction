@@ -1,4 +1,5 @@
 <?php
+//i have removed this for the time i need it again
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
 

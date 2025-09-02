@@ -27,22 +27,10 @@ if (!$rental_id) {
 $stmt = $conn->prepare("
     SELECT 
         ar.*,
-        ra.area_name,
-        ra.area_code,
-        ra.area_type,
-        ra.area_size_sqm,
-        ra.has_electricity,
-        ra.has_water,
-        ra.has_security,
-        ra.has_parking,
-        ra.has_loading_dock,
-        ra.is_covered,
-        ra.currency as area_currency,
-        ra.monthly_rate as area_monthly_rate,
         COALESCE(SUM(arp.amount), 0) as total_paid,
         COUNT(arp.id) as payment_count
     FROM area_rentals ar
-    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
+    
     LEFT JOIN area_rental_payments arp ON ar.id = arp.area_rental_id
     WHERE ar.id = ? AND ar.company_id = ?
     GROUP BY ar.id
@@ -55,27 +43,12 @@ if (!$rental) {
     exit;
 }
 
-// Get available rental areas (including current one)
-$stmt = $conn->prepare("
-    SELECT 
-        ra.*,
-        COUNT(ar.id) as active_rentals,
-        COALESCE(SUM(arp.amount), 0) as total_earnings
-    FROM rental_areas ra
-    LEFT JOIN area_rentals ar ON ra.id = ar.rental_area_id AND ar.status = 'active' AND ar.id != ?
-    LEFT JOIN area_rental_payments arp ON ar.id = arp.area_rental_id
-    WHERE ra.company_id = ? AND (ra.status = 'available' OR ra.id = ?)
-    GROUP BY ra.id
-    ORDER BY ra.area_name
-");
-$stmt->execute([$rental_id, $company_id, $rental['rental_area_id']]);
-$rental_areas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['rental_area_id', 'client_name', 'start_date', 'monthly_rate'];
+        $required_fields = ['client_name', 'start_date', 'monthly_rate'];
         foreach ($required_fields as $field) {
             if (empty(trim($_POST[$field]))) {
                 throw new Exception("Field '$field' is required.");
@@ -95,19 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("End date must be after start date.");
         }
 
-        // Get rental area details for validation
-        $stmt = $conn->prepare("SELECT * FROM rental_areas WHERE id = ? AND company_id = ?");
-        $stmt->execute([$_POST['rental_area_id'], $company_id]);
-        $selected_area = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$selected_area) {
-            throw new Exception("Invalid rental area selected.");
-        }
 
-        // Check if area is available (unless it's the current area)
-        if ($selected_area['id'] != $rental['rental_area_id'] && $selected_area['status'] !== 'available') {
-            throw new Exception("Selected rental area is not available.");
-        }
 
         // Calculate total days and amount if end date is provided
         $total_days = null;
@@ -125,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update area rental record with enhanced fields
         $stmt = $conn->prepare("
             UPDATE area_rentals SET 
-                rental_area_id = ?, client_name = ?, client_contact = ?, purpose = ?,
+                client_name = ?, client_contact = ?, purpose = ?,
                 rental_type = ?, business_type = ?, expected_income = ?, security_deposit = ?,
                 currency = ?, payment_frequency = ?, late_fee_percentage = ?, grace_period_days = ?,
                 auto_renewal = ?, renewal_notice_days = ?, special_conditions = ?, emergency_contact = ?,
@@ -137,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
         $stmt->execute([
-            $_POST['rental_area_id'],
             trim($_POST['client_name']),
             trim($_POST['client_contact'] ?? ''),
             trim($_POST['purpose'] ?? ''),
@@ -171,16 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $company_id
         ]);
 
-        // Handle area status changes
-        if ($_POST['rental_area_id'] != $rental['rental_area_id']) {
-            // Update old area status back to available
-            $stmt = $conn->prepare("UPDATE rental_areas SET status = 'available' WHERE id = ?");
-            $stmt->execute([$rental['rental_area_id']]);
-            
-            // Update new area status to in_use
-            $stmt = $conn->prepare("UPDATE rental_areas SET status = 'in_use' WHERE id = ?");
-            $stmt->execute([$_POST['rental_area_id']]);
-        }
 
         // Commit transaction
         $conn->commit();
@@ -238,77 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="card-body">
                     <form method="POST" id="areaRentalForm">
-                        <!-- Area Selection -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-map-marker-alt"></i> <?php echo __('select_rental_area'); ?>
-                                </h6>
-                                <?php if (empty($rental_areas)): ?>
-                                    <div class="alert alert-warning">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <?php echo __('no_available_rental_areas_found'); ?>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="row">
-                                        <?php foreach ($rental_areas as $area): ?>
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card h-100 border-<?php echo $area['area_type'] === 'commercial' ? 'primary' : ($area['area_type'] === 'industrial' ? 'warning' : 'success'); ?> <?php echo $area['id'] == $rental['rental_area_id'] ? 'border-success' : ''; ?>">
-                                                    <div class="card-body">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="radio" name="rental_area_id" 
-                                                                   id="area_<?php echo $area['id']; ?>" value="<?php echo $area['id']; ?>" 
-                                                                   data-rate="<?php echo $area['monthly_rate']; ?>" 
-                                                                   data-currency="<?php echo $area['currency'] ?? 'USD'; ?>"
-                                                                   data-type="<?php echo $area['area_type']; ?>"
-                                                                   <?php echo $area['id'] == $rental['rental_area_id'] ? 'checked' : ''; ?>
-                                                                   required>
-                                                            <label class="form-check-label" for="area_<?php echo $area['id']; ?>">
-                                                                <strong><?php echo htmlspecialchars($area['area_name']); ?></strong>
-                                                                <?php if ($area['id'] == $rental['rental_area_id']): ?>
-                                                                    <span class="badge bg-success"><?php echo __('current'); ?></span>
-                                                                <?php endif; ?>
-                                                                <br>
-                                                                <small class="text-muted"><?php echo htmlspecialchars($area['area_code']); ?></small>
-                                                                <br>
-                                                                <span class="badge bg-<?php echo $area['area_type'] === 'commercial' ? 'primary' : ($area['area_type'] === 'industrial' ? 'warning' : 'success'); ?>">
-                                                                    <?php echo ucfirst($area['area_type']); ?>
-                                                                </span>
-                                                                <br>
-                                                                <strong class="text-success">
-                                                                    <?php echo formatCurrencyAmount($area['monthly_rate'], $area['currency'] ?? 'USD'); ?>/month
-                                                                </strong>
-                                                                <?php if (!empty($area['area_size_sqm'])): ?>
-                                                                    <br>
-                                                                    <small class="text-muted"><?php echo number_format($area['area_size_sqm'], 1); ?> sqm</small>
-                                                                <?php endif; ?>
-                                                                <div class="mt-2">
-                                                                    <?php if ($area['has_electricity']): ?>
-                                                                        <i class="fas fa-bolt text-success" title="Electricity"></i>
-                                                                    <?php endif; ?>
-                                                                    <?php if ($area['has_water']): ?>
-                                                                        <i class="fas fa-tint text-info" title="Water"></i>
-                                                                    <?php endif; ?>
-                                                                    <?php if ($area['has_security']): ?>
-                                                                        <i class="fas fa-shield-alt text-warning" title="Security"></i>
-                                                                    <?php endif; ?>
-                                                                    <?php if ($area['has_parking']): ?>
-                                                                        <i class="fas fa-car text-primary" title="Parking"></i>
-                                                                    <?php endif; ?>
-                                                                    <?php if ($area['is_covered']): ?>
-                                                                        <i class="fas fa-home text-secondary" title="Covered"></i>
-                                                                    <?php endif; ?>
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
 
                         <!-- Client Information -->
                         <div class="row mb-4">
@@ -645,15 +524,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </span>
                     </div>
                     <div class="mb-3">
-                        <h6 class="text-secondary"><?php echo __('area_information'); ?></h6>
-                        <p class="mb-1"><strong><?php echo htmlspecialchars($rental['area_name']); ?></strong></p>
-                        <p class="text-muted mb-2"><?php echo htmlspecialchars($rental['area_code']); ?></p>
-                        <span class="badge bg-info"><?php echo ucfirst($rental['area_type']); ?></span>
-                        <?php if (!empty($rental['area_size_sqm'])): ?>
-                            <br><small class="text-muted"><?php echo number_format($rental['area_size_sqm'], 1); ?> sqm</small>
-                        <?php endif; ?>
-                    </div>
-                    <div class="mb-3">
                         <h6 class="text-secondary"><?php echo __('financial_summary'); ?></h6>
                         <div class="d-flex justify-content-between">
                             <span><?php echo __('monthly_rate'); ?>:</span>
@@ -758,7 +628,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle area selection
-    const areaRadios = document.querySelectorAll('input[name="rental_area_id"]');
     const monthlyRateInput = document.getElementById('monthly_rate');
     const rentalTypeSelect = document.getElementById('rental_type');
     
@@ -878,16 +747,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize calculator
     updateRentalCalculator();
     
-    // Form validation
-    const form = document.getElementById('areaRentalForm');
-    form.addEventListener('submit', function(e) {
-        const selectedArea = document.querySelector('input[name="rental_area_id"]:checked');
-        if (!selectedArea) {
-            e.preventDefault();
-            alert('<?php echo __('please_select_a_rental_area'); ?>');
-            return false;
-        }
-    });
 });
 </script>
 
