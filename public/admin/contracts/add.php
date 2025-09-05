@@ -207,8 +207,9 @@ function generateContractCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
-                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                            <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>    
+                            <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                
                             </select>
                         </div>
                     </div>
