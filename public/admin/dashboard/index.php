@@ -203,3 +203,86 @@ $recentActivities = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 <?php require_once '../../../includes/footer.php'; ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (isCompanyAdmin()): ?>
+    // Function to update employee statuses
+    function updateEmployeeStatuses() {
+        fetch('../update_employee_status.php', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            // Check if the response is OK (status in the range 200-299)
+            if (!response.ok) {
+                // Throw an error with status and statusText
+                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+            }
+            
+            // Try to parse JSON
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.reactivated_employees && data.reactivated_employees.length > 0) {
+                // Create a toast notification
+                const toastContainer = document.createElement('div');
+                toastContainer.classList.add('toast-container', 'position-fixed', 'bottom-0', 'end-0', 'p-3');
+                
+                const toast = document.createElement('div');
+                toast.classList.add('toast', 'show', 'bg-success', 'text-white');
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <strong class="me-auto"><i class="fas fa-sync"></i> Employee Status Update</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${data.message}
+                        <hr>
+                        <small>Reactivated ${data.reactivated_employees.length} employee(s)</small>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                document.body.appendChild(toastContainer);
+                
+                
+            }
+        })
+        .catch(error => {
+            console.error('Error updating employee statuses:', error);
+            
+            // Create an error toast
+            const toastContainer = document.createElement('div');
+            toastContainer.classList.add('toast-container', 'position-fixed', 'bottom-0', 'end-0', 'p-3');
+            
+            const toast = document.createElement('div');
+            toast.classList.add('toast', 'show', 'bg-danger', 'text-white');
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <strong class="me-auto"><i class="fas fa-exclamation-triangle"></i> Employee Status Update Error</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Unable to update employee statuses. 
+                    <hr>
+                    <small>${error.message}</small>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+
+            // Remove the toast after 5 seconds
+            setTimeout(() => {
+                toastContainer.remove();
+            }, 5000);
+        });
+    }
+
+    // Call the update function when dashboard loads
+    updateEmployeeStatuses();
+    <?php endif; ?>
+});
+</script>

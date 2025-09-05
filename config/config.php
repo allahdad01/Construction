@@ -180,7 +180,8 @@ function checkSessionTimeout() {
     if (isset($_SESSION['last_activity'])) {
         if ((time() - $_SESSION['last_activity']) > $timeout) {
             session_destroy();
-            header('Location: '.$GLOBALS['BASE_URL'].'login.php');
+            // Redirect to the public login page
+            header('Location: ' . rtrim($GLOBALS['base_url'], '/') . '/public/login.php');
             exit;
         }
     }
@@ -194,7 +195,8 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: '.$GLOBALS['BASE_URL'].'login.php');
+        // Redirect to the public login page
+        header('Location: ' . rtrim($GLOBALS['base_url'], '/') . '/public/login.php');
         exit();
     }
     checkSessionTimeout();
@@ -541,8 +543,8 @@ function formatCurrency($amount, $currency_id = null, $company_id = null, $curre
         }
     } else {
         // Use default company currency if no specific currency is provided
-        $currency = getCompanyCurrency($company_id);
-        $symbol = $currency['currency_symbol'];
+    $currency = getCompanyCurrency($company_id);
+    $symbol = $currency['currency_symbol'];
     }
     
     $formatted = number_format($amount, 2);

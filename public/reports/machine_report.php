@@ -83,7 +83,7 @@ try {
     } else {
         // Company-specific machine data
         $stmt = $conn->prepare("
-            SELECT 
+                    SELECT 
             m.id,
             m.machine_code,
             m.name,

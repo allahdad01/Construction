@@ -2,10 +2,16 @@
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
 
+
 // Check if user is authenticated and has appropriate role
 requireAuth();
 requireAnyRole(['company_admin', 'super_admin']);
 require_once '../../../includes/header.php';
+
+// Check for flash messages
+$flash_message = isset($_SESSION['flash_message']) ? $_SESSION['flash_message'] : null;
+// Clear the flash message after reading
+unset($_SESSION['flash_message']);
 
 
 $db = new Database();
@@ -205,6 +211,15 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
             <i class="fas fa-user-plus"></i> <?php echo __('add_employee'); ?>
         </a>
     </div>
+
+        <?php 
+        // Display flash message if exists
+        if ($flash_message): ?>
+            <div class="alert alert-<?php echo htmlspecialchars($flash_message['type']); ?> alert-dismissible fade show" role="alert">
+                <?php echo htmlspecialchars($flash_message['message']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
 
         <?php if ($error): ?>
         <div class="alert alert-danger">
@@ -480,6 +495,12 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <a href="manage_suspensions.php?employee_id=<?php echo $employee['id']; ?>"
+                                           class="btn btn-sm btn-outline-info manage-suspension-btn" 
+                                           
+                                           title="Manage Suspensions">
+                                            <i class="fas fa-pause-circle"></i>
+                                        </a>
                                         <a href="delete.php?id=<?php echo $employee['id']; ?>" 
                                            class="btn btn-sm btn-outline-danger" 
                                            onclick="return confirm('Are you sure you want to delete employee <?php echo htmlspecialchars($employee['name'], ENT_QUOTES, 'UTF-8'); ?>? This action cannot be undone.');"
@@ -529,7 +550,70 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<!-- Work Suspension Modal -->
+<div class="modal fade" id="workSuspensionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><?php echo __('work_suspensions'); ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="suspensionModalContent">
+                <!-- This will be dynamically populated via AJAX -->
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                    <p><?php echo __('loading_suspensions'); ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+// Global toast function
+function showToast(type, message) {
+    // Create toast container if not exists
+    const toastContainer = document.getElementById('toastContainer');
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.classList.add('toast', 'show', `bg-${type}`, 'text-white');
+    toast.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> 
+                ${type === 'success' ? 'Success' : 'Error'}
+            </strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+
+    // Add close functionality
+    const closeButton = toast.querySelector('.btn-close');
+    closeButton.addEventListener('click', () => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    });
+
+    // Add to container and auto-remove
+    toastContainer.appendChild(toast);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.classList.contains('show')) {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+    }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTable with proper destroy handling
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
@@ -556,6 +640,40 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // Function to load suspension details via AJAX
+    function loadSuspensionDetails(employeeId) {
+        const modalContent = document.getElementById('suspensionModalContent');
+        
+        fetch(`ajax_employee_suspensions.php?employee_id=${employeeId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                modalContent.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                modalContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <?php echo __('error_loading_suspensions'); ?>: ${error.message}
+                    </div>
+                `;
+            });
+    }
+
+    // Attach click event to all manage suspension buttons
+    const manageSuspensionButtons = document.querySelectorAll('.manage-suspension-btn');
+    manageSuspensionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const employeeId = this.dataset.employeeId;
+            loadSuspensionDetails(employeeId);
+        });
+    });
 });
 
 // Force delete function
@@ -618,3 +736,7 @@ function exportToPDF() {
 </script>
 
 <?php require_once '../../../includes/footer.php'; ?>
+
+<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+
