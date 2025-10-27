@@ -26,10 +26,7 @@ try {
 $error = '';
 $success = '';
 
-// Get available projects
-$stmt = $conn->prepare("SELECT id, project_code, name FROM projects WHERE company_id = ? AND status = 'active' ORDER BY name");
-$stmt->execute([$company_id]);
-$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Get available machines
 $stmt = $conn->prepare("SELECT id, machine_code, name, type FROM machines WHERE company_id = ? AND status = 'available' ORDER BY name");
@@ -40,7 +37,7 @@ $machines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Validate required fields
-        $required_fields = ['project_id', 'contract_type', 'rate_amount', 'start_date'];
+        $required_fields = ['contract_type', 'rate_amount', 'start_date'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 throw new Exception("Field '$field' is required.");
@@ -75,17 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $primary_machine_id = (int)$machine_ids[0];
         $stmt = $conn->prepare("
             INSERT INTO contracts (
-                company_id, contract_code, project_id, machine_id,
+                company_id, contract_code, machine_id,
                 contract_type, rate_amount, currency, total_hours_required,
                 total_days_required, working_hours_per_day, start_date, end_date,
                 status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
         ");
 
         $stmt->execute([
             $company_id,
             $contract_code,
-            $_POST['project_id'],
             $primary_machine_id,
             $_POST['contract_type'],
             $_POST['rate_amount'],
@@ -171,29 +167,7 @@ function generateContractCode($company_id) {
         <div class="card-body">
             <form method="POST">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="project_id" class="form-label"><?php echo __('project'); ?> *</label>
-                            <div class="input-group">
-                                <select class="form-control" id="project_id" name="project_id" required>
-                                    <option value=""><?php echo __('select_project'); ?></option>
-                                    <?php foreach ($projects as $project): ?>
-                                    <option value="<?php echo $project['id']; ?>" <?php echo (isset($_POST['project_id']) && $_POST['project_id'] == $project['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($project['project_code'] . ' - ' . $project['name']); ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <a href="../projects/add.php" class="btn btn-outline-primary" title="Add New Project">
-                                    <i class="fas fa-plus"></i> <?php echo __('add_project'); ?>
-                                </a>
-                            </div>
-                            <?php if (empty($projects)): ?>
-                                <small class="form-text text-muted">
-                                    <i class="fas fa-info-circle"></i> <?php echo __('no_active_projects_available'); ?> <a href="../projects/add.php"><?php echo __('create_one_first'); ?></a>.
-                                </small>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="machine_ids" class="form-label"><?php echo __('machine'); ?> *</label>
@@ -233,8 +207,9 @@ function generateContractCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?></label>
                             <select class="form-control" id="currency" name="currency">
-                                <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
-                                <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>
+                            <option value="AFN" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'AFN') ? 'selected' : ''; ?>><?php echo __('afn'); ?></option>    
+                            <option value="USD" <?php echo (isset($_POST['currency']) && $_POST['currency'] == 'USD') ? 'selected' : ''; ?>><?php echo __('usd'); ?></option>
+                                
                             </select>
                         </div>
                     </div>

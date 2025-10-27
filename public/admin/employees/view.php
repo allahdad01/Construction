@@ -168,6 +168,17 @@ try {
             $startDate = (new DateTime())->sub(new DateInterval('P' . $maxDays . 'D'));
         }
 
+        // Fetch work suspensions for this employee
+        $suspension_stmt = $conn->prepare("
+            SELECT suspension_start_date, suspension_end_date 
+            FROM employee_work_suspensions 
+            WHERE employee_id = ? AND company_id = ? 
+            
+            AND (suspension_end_date IS NULL OR suspension_end_date >= ?)
+        ");
+        $suspension_stmt->execute([$employee_id, $company_id, $startDate->format('Y-m-d')]);
+        $suspensions = $suspension_stmt->fetchAll(PDO::FETCH_ASSOC);
+
         // Load existing attendance in range
         $stmt = $conn->prepare("SELECT date, status FROM employee_attendance WHERE employee_id = ? AND company_id = ? AND date BETWEEN ? AND ?");
         $stmt->execute([$employee_id, $company_id, $startDate->format('Y-m-d'), $todayDate->format('Y-m-d')]);
@@ -182,15 +193,39 @@ try {
         $cursor = clone $startDate;
         while ($cursor <= $todayDate) {
             $d = $cursor->format('Y-m-d');
-            if (!isset($existingByDate[$d])) {
+            
+            // Check if the current date is within any suspension period
+            $is_suspended = false;
+            foreach ($suspensions as $suspension) {
+                $suspension_start = new DateTime($suspension['suspension_start_date']);
+                $suspension_end = $suspension['suspension_end_date'] ? new DateTime($suspension['suspension_end_date']) : $todayDate;
+                
+                if ($cursor >= $suspension_start && $cursor <= $suspension_end) {
+                    $is_suspended = true;
+                    break;
+                }
+            }
+
+            // Skip suspended days
+            if (!$is_suspended && !isset($existingByDate[$d])) {
                 $ins->execute([$company_id, $employee_id, $d]);
             }
+            
             $cursor->add(new DateInterval('P1D'));
         }
     }
 } catch (Exception $e) {
     // Do not block the page if autofill fails
 }
+
+// Fetch work suspensions
+$stmt = $conn->prepare("
+    SELECT * FROM employee_work_suspensions 
+    WHERE employee_id = ? AND company_id = ?
+    ORDER BY suspension_start_date DESC
+");
+$stmt->execute([$employee_id, $company_id]);
+$work_suspensions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get employee statistics from working_hours (projects they've worked on)
 $stmt = $conn->prepare("
@@ -222,11 +257,15 @@ $recent_contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $conn->prepare("
     SELECT 
         COUNT(*) as total_days,
-        COUNT(CASE WHEN status = 'present' THEN 1 END) as present_days,
-        COUNT(CASE WHEN status = 'absent' THEN 1 END) as absent_days,
-        COUNT(CASE WHEN status = 'leave' THEN 1 END) as leave_days
-    FROM employee_attendance 
-    WHERE employee_id = ?
+        COUNT(CASE WHEN ea.status = 'present' THEN 1 END) as present_days,
+        COUNT(CASE WHEN ea.status = 'absent' THEN 1 END) as absent_days,
+        COUNT(CASE WHEN ea.status = 'leave' THEN 1 END) as leave_days
+    FROM employee_attendance ea
+    LEFT JOIN employee_work_suspensions ews ON 
+        ea.employee_id = ews.employee_id AND 
+        ea.date BETWEEN ews.suspension_start_date AND COALESCE(ews.suspension_end_date, CURRENT_DATE)
+    WHERE ea.employee_id = ? AND 
+        (ews.id IS NULL)
 ");
 $stmt->execute([$employee_id]);
 $attendance_stats = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -244,7 +283,21 @@ $salary_payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Calculate salary statistics
 $total_paid = array_sum(array_filter(array_column($salary_payments, 'amount_paid'), 'is_numeric'));
 $current_month_salary = $employee['monthly_salary'] ?? 0;
-$days_worked_this_month = $attendance_stats['present_days'] ?? 0;
+
+// Calculate days worked, excluding suspension days
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as days_worked
+    FROM employee_attendance ea
+    LEFT JOIN employee_work_suspensions ews ON 
+        ea.employee_id = ews.employee_id AND 
+        ea.date BETWEEN ews.suspension_start_date AND COALESCE(ews.suspension_end_date, CURRENT_DATE)
+    WHERE ea.employee_id = ? 
+        AND ea.status = 'present'
+        AND (ews.id IS NULL)
+");
+$stmt->execute([$employee_id]);
+$days_worked_this_month = $stmt->fetchColumn();
+
 $salary_earned_this_month = $current_month_salary > 0 ? ($current_month_salary / 30) * $days_worked_this_month : 0;
 $salary_remaining = $salary_earned_this_month - $total_paid;
 $salary_currency = $employee['salary_currency'] ?? 'AFN';
@@ -655,6 +708,51 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                 </div>
             </div>
         </div>
+        <!-- Work Suspensions -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning"><?php echo __('work_suspensions'); ?></h6>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($work_suspensions)): ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-pause-circle fa-3x mb-3"></i>
+                            <p><?php echo __('no_work_suspensions_yet'); ?></p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($work_suspensions as $suspension): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-pause-circle text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0"><?php echo __('work_suspension'); ?></h6>
+                                <small class="text-muted">
+                                    <?php echo date('M j, Y', strtotime($suspension['suspension_start_date'])); ?> 
+                                    <?php if ($suspension['suspension_end_date']): ?>
+                                        - <?php echo date('M j, Y', strtotime($suspension['suspension_end_date'])); ?>
+                                    <?php else: ?>
+                                        (<?php echo __('ongoing'); ?>)
+                                    <?php endif; ?>
+                                </small>
+                                <?php if (!empty($suspension['reason'])): ?>
+                                    <br><small class="text-muted"><?php echo htmlspecialchars($suspension['reason']); ?></small>
+                                <?php endif; ?>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-<?php echo $suspension['status'] === 'active' ? 'warning' : 'secondary'; ?>">
+                                    <?php echo ucfirst($suspension['status']); ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Quick Actions -->
@@ -688,6 +786,12 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                             <a href="../contracts/?employee_id=<?php echo $employee_id; ?>" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-file-contract fa-2x mb-2"></i>
                                 <br><?php echo __('view_contracts'); ?>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#workSuspensionModal">
+                                <i class="fas fa-pause-circle fa-2x mb-2"></i>
+                                <br><?php echo __('manage_suspensions'); ?>
                             </a>
                         </div>
                     </div>
@@ -775,6 +879,66 @@ $salary_currency = $employee['salary_currency'] ?? 'AFN';
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Work Suspension Modal -->
+<div class="modal fade" id="workSuspensionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><?php echo __('work_suspensions'); ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th><?php echo __('start_date'); ?></th>
+                                <th><?php echo __('end_date'); ?></th>
+                                <th><?php echo __('reason'); ?></th>
+                                <th><?php echo __('status'); ?></th>
+                                <th><?php echo __('actions'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($work_suspensions as $suspension): ?>
+                            <tr>
+                                <td><?php echo date('M j, Y', strtotime($suspension['suspension_start_date'])); ?></td>
+                                <td>
+                                    <?php 
+                                    echo $suspension['suspension_end_date'] 
+                                        ? date('M j, Y', strtotime($suspension['suspension_end_date'])) 
+                                        : '<span class="badge bg-warning">' . __('ongoing') . '</span>'; 
+                                    ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($suspension['reason'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <span class="badge bg-<?php 
+                                        echo $suspension['status'] === 'active' ? 'warning' : 'secondary'; 
+                                    ?>">
+                                        <?php echo ucfirst($suspension['status']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="edit.php?id=<?php echo $employee_id; ?>&suspension_id=<?php echo $suspension['id']; ?>" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <a href="edit.php?id=<?php echo $employee_id; ?>#work-suspensions" class="btn btn-success">
+                        <i class="fas fa-plus"></i> <?php echo __('add_suspension'); ?>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

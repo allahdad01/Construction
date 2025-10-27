@@ -545,3 +545,55 @@ if (isSuperAdmin()) {
 </div>
 
 <?php require_once '../includes/footer.php'; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (isCompanyAdmin()): ?>
+    // Function to update employee statuses
+    function updateEmployeeStatuses() {
+        fetch('admin/update_employee_status.php', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.reactivated_employees && data.reactivated_employees.length > 0) {
+                // Create a toast notification
+                const toastContainer = document.createElement('div');
+                toastContainer.classList.add('toast-container', 'position-fixed', 'bottom-0', 'end-0', 'p-3');
+                
+                const toast = document.createElement('div');
+                toast.classList.add('toast', 'show', 'bg-success', 'text-white');
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <strong class="me-auto"><i class="fas fa-sync"></i> Employee Status Update</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${data.message}
+                        <hr>
+                        <small>Reactivated ${data.reactivated_employees.length} employee(s)</small>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                document.body.appendChild(toastContainer);
+                
+                // Optionally, reload the page or update statistics
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating employee statuses:', error);
+        });
+    }
+
+    // Call the update function when dashboard loads
+    updateEmployeeStatuses();
+    <?php endif; ?>
+});
+</script>

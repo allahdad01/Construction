@@ -48,12 +48,28 @@ if (file_exists(__DIR__ . '/../.env')) {
 // Load cache control utilities
 require_once __DIR__ . '/../includes/cache_control.php';
 
+// Load database configuration
+require_once __DIR__ . '/database.php';
+
 // Application Configuration
 define('APP_NAME', 'Construction SaaS Platform');
 define('APP_VERSION', '1.0.0');
 define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
 define('APP_DEBUG', $_ENV['APP_DEBUG'] ?? 'true');
 define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost');
+
+// Initialize global database connection
+try {
+    $database = new Database();
+    $conn = $database->getConnection();
+} catch (Exception $e) {
+    // Don't show detailed database errors in production
+    if (APP_DEBUG === 'true') {
+        die("Database connection failed: " . $e->getMessage());
+    } else {
+        die("Database connection failed. Please check your configuration.");
+    }
+}
 
 // Database Configuration
 define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
@@ -164,7 +180,8 @@ function checkSessionTimeout() {
     if (isset($_SESSION['last_activity'])) {
         if ((time() - $_SESSION['last_activity']) > $timeout) {
             session_destroy();
-            header('Location: '.$GLOBALS['BASE_URL'].'login.php');
+            // Redirect to the public login page
+            header('Location: ' . rtrim($GLOBALS['base_url'], '/') . '/public/login.php');
             exit;
         }
     }
@@ -178,7 +195,8 @@ function checkSessionTimeout() {
 
 function requireAuth() {
     if (!isAuthenticated()) {
-        header('Location: '.$GLOBALS['BASE_URL'].'login.php');
+        // Redirect to the public login page
+        header('Location: ' . rtrim($GLOBALS['base_url'], '/') . '/public/login.php');
         exit();
     }
     checkSessionTimeout();
@@ -493,22 +511,64 @@ function getCompanyDateFormat($company_id = null) {
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['format_code' => 'gregorian', 'format_pattern' => 'Y-m-d'];
 }
 
-function formatCurrency($amount, $currency_id = null, $company_id = null) {
-    if ($amount === null || $amount === '') {
+function formatCurrency($amount, $currency_id = null, $company_id = null, $currency_code = null) {
+    // Handle various input types
+    if (is_array($amount)) {
+        // If an array is passed, try to extract a numeric value
+        $amount = array_filter($amount, 'is_numeric');
+        $amount = !empty($amount) ? array_shift($amount) : 0;
+    }
+
+    if ($amount === null || $amount === '' || !is_numeric($amount)) {
         return '';
     }
     
+    // Convert to float to ensure numeric handling
+    $amount = floatval($amount);
+    
+    // If a specific currency code is provided, use it
+    if ($currency_code) {
+        // Fetch currency details by code
+        global $conn;
+        $stmt = $conn->prepare("SELECT * FROM currencies WHERE currency_code = ?");
+        $stmt->execute([$currency_code]);
+        $currency = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // If currency found, use its details
+        if ($currency) {
+            $symbol = $currency['currency_symbol'];
+        } else {
+            // Fallback to the provided currency code as symbol
+            $symbol = $currency_code;
+        }
+    } else {
+        // Use default company currency if no specific currency is provided
     $currency = getCompanyCurrency($company_id);
     $symbol = $currency['currency_symbol'];
+    }
+    
     $formatted = number_format($amount, 2);
     
+    // Specific handling for known currencies
+    $currency_specific_formats = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+        'AFN' => '؋',
+        'CAD' => 'CA$',
+        'AUD' => 'A$'
+    ];
+    
+    // Use predefined symbol if available, otherwise use database symbol
+    $display_symbol = $currency_specific_formats[$currency_code] ?? $symbol;
+    
     // Handle different currency symbol positions
-    if ($currency['currency_code'] === 'USD' || $currency['currency_code'] === 'CAD' || $currency['currency_code'] === 'AUD') {
-        return $symbol . $formatted;
-    } elseif ($currency['currency_code'] === 'EUR' || $currency['currency_code'] === 'GBP') {
-        return $formatted . ' ' . $symbol;
+    if (in_array($currency_code, ['USD', 'CAD', 'AUD', 'AFN'])) {
+        return $display_symbol . $formatted;
+    } elseif (in_array($currency_code, ['EUR', 'GBP'])) {
+        return $formatted . ' ' . $display_symbol;
     } else {
-        return $formatted . ' ' . $symbol;
+        return $formatted . ' ' . $display_symbol;
     }
 }
 
@@ -629,6 +689,17 @@ function getCompanyLanguage($company_id = null) {
     
     // If no company_id (public pages), use session or default to English
     if (!$company_id) {
+        // First try language code from session
+        if (isset($_SESSION['current_language_code'])) {
+            $stmt = $conn->prepare("SELECT * FROM languages WHERE language_code = ?");
+            $stmt->execute([$_SESSION['current_language_code']]);
+            $language = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($language) {
+                return $language;
+            }
+        }
+        
+        // Fallback to language ID
         $session_language = $_SESSION['current_language'] ?? 1;
         $stmt = $conn->prepare("SELECT * FROM languages WHERE id = ?");
         $stmt->execute([$session_language]);
@@ -733,12 +804,13 @@ function getAvailableLanguages() {
 }
 
 function updateCompanyLanguage($company_id, $language_id) {
-    global $conn;
-    
     // Don't update if no company_id
     if (!$company_id) {
         return false;
     }
+    
+    $db = new Database();
+    $conn = $db->getConnection();
     
     // Use INSERT ... ON DUPLICATE KEY UPDATE for key-value structure
     $stmt = $conn->prepare("
@@ -747,7 +819,14 @@ function updateCompanyLanguage($company_id, $language_id) {
         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
     ");
     
-    return $stmt->execute([$company_id, $language_id]);
+    $success = $stmt->execute([$company_id, $language_id]);
+    
+    // Also update the session language
+    if ($success) {
+        $_SESSION['current_language'] = $language_id;
+    }
+    
+    return $success;
 }
 
 function getLanguageDirection($company_id = null) {

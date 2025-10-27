@@ -1,4 +1,5 @@
 <?php
+//i have removed this space creation from the system until i need it again
 require_once '../../../config/config.php';
 require_once '../../../config/database.php';
 

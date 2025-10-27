@@ -14,7 +14,7 @@ $rental_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$rental_id) { http_response_code(400); echo 'Missing rental id'; exit; }
 
 // Fetch rental with space
-$stmt = $conn->prepare("SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category, ps.space_type, ps.size FROM parking_rentals pr JOIN parking_spaces ps ON pr.parking_space_id = ps.id WHERE pr.id = ? AND pr.company_id = ?");
+$stmt = $conn->prepare("SELECT pr.* FROM parking_rentals pr WHERE pr.id = ? AND pr.company_id = ?");
 $stmt->execute([$rental_id, $company_id]);
 $rental = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$rental) { http_response_code(404); echo 'Rental not found'; exit; }
@@ -100,7 +100,6 @@ $payments = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
       <div><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name'] ?? 'N/A'); ?></div>
       <div><strong><?php echo __('contact'); ?>:</strong> <?php echo htmlspecialchars($rental['client_contact'] ?? '-'); ?></div>
       <div><strong><?php echo __('vehicle'); ?>:</strong> <?php echo htmlspecialchars(trim(($rental['vehicle_type'] ?? '-') . ' ' . ($rental['vehicle_registration'] ?? ''))); ?></div>
-      <div><strong><?php echo __('space'); ?>:</strong> <?php echo htmlspecialchars($rental['space_name'] . ' (' . $rental['space_code'] . ')'); ?></div>
       <div><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></div>
       <div><strong><?php echo __('end_date'); ?>:</strong> <?php echo !empty($rental['end_date']) ? date('M j, Y', strtotime($rental['end_date'])) : 'Ongoing'; ?></div>
       <div><strong><?php echo __('days'); ?>:</strong> <?php echo (int)$days; ?></div>

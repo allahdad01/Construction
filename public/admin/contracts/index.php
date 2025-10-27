@@ -52,10 +52,9 @@ $total_records = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pages = ceil($total_records / $limit);
 
 // Get contracts with related data
-$sql = "SELECT c.*, p.name as project_name, m.name as machine_name, m.machine_code,
+$sql = "SELECT c.*, m.name as machine_name, m.machine_code,
                COALESCE(SUM(wh.hours_worked), 0) as total_hours_worked
         FROM contracts c
-        LEFT JOIN projects p ON c.project_id = p.id
         LEFT JOIN machines m ON c.machine_id = m.id
         LEFT JOIN working_hours wh ON c.id = wh.contract_id
         $where_clause
@@ -440,7 +439,6 @@ $chartDatasetsJson = json_encode($chart_datasets);
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?php echo htmlspecialchars($contract['project_name'] ?? 'N/A'); ?></strong>
                                             <br><small class="text-muted">
                                                 <?php echo htmlspecialchars($contract['machine_name'] ?? 'N/A'); ?>
                                                 (<?php echo htmlspecialchars($contract['machine_code'] ?? 'N/A'); ?>)

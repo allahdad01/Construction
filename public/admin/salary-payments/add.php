@@ -21,14 +21,94 @@ $stmt = $conn->prepare("SELECT e.id, e.employee_code, e.name, e.position, e.mont
 $stmt->execute([$company_id]);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Helper to fetch days worked in a specific month for an employee
-function getDaysWorkedInMonth($employeeId, $companyId, $month, $year) {
+// Helper to fetch total worked days for an employee
+function getTotalWorkedDays($employeeId, $companyId, $endDate = null) {
     global $conn;
-    $start = date('Y-m-01', strtotime($year . '-' . $month . '-01'));
-    $end = date('Y-m-t', strtotime($start));
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM employee_attendance WHERE company_id = ? AND employee_id = ? AND status = 'present' AND date BETWEEN ? AND ?");
-    $stmt->execute([$companyId, $employeeId, $start, $end]);
-    return (int)$stmt->fetchColumn();
+    
+    // If no end date provided, use today
+    $endDate = $endDate ?? date('Y-m-d');
+    
+    // Get employee details to check role and hire date
+    $stmt = $conn->prepare("SELECT position, hire_date FROM employees WHERE id = ? AND company_id = ?");
+    $stmt->execute([$employeeId, $companyId]);
+    $employee = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Start from hire date
+    $startDate = $employee['hire_date'] ?? date('Y-m-d');
+    
+    // Determine if it's a driver role
+    $isDriverRole = in_array(strtolower($employee['position'] ?? ''), ['driver', 'driver_assistant']);
+    
+    // Fetch all active suspensions for this employee
+    $stmt = $conn->prepare("
+        SELECT suspension_start_date, suspension_end_date 
+        FROM employee_work_suspensions 
+        WHERE employee_id = ? AND company_id = ? 
+        AND status = 'active' 
+        AND suspension_start_date <= ? 
+        AND (suspension_end_date IS NULL OR suspension_end_date >= ?)
+    ");
+    $stmt->execute([$employeeId, $companyId, $endDate, $startDate]);
+    $suspensions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetch attendance records
+    $stmt = $conn->prepare("
+        SELECT date, status 
+        FROM employee_attendance 
+        WHERE company_id = ? 
+        AND employee_id = ? 
+        AND date BETWEEN ? AND ? 
+        AND status = 'present'
+    ");
+    $stmt->execute([$companyId, $employeeId, $startDate, $endDate]);
+    $attendance = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Count worked days
+    $worked_days = 0;
+    foreach ($attendance as $record) {
+        $record_date = $record['date'];
+        
+        // Skip days during any suspension
+        $is_suspended = false;
+        foreach ($suspensions as $suspension) {
+            $suspension_start = $suspension['suspension_start_date'];
+            $suspension_end = $suspension['suspension_end_date'] ?? date('Y-m-d');
+            
+            if ($record_date >= $suspension_start && $record_date <= $suspension_end) {
+                $is_suspended = true;
+                break;
+            }
+        }
+        
+        if ($is_suspended) {
+            continue;
+        }
+        
+        $day_of_week = (int)date('w', strtotime($record_date));
+        
+        // For drivers, all days are working days
+        // For others, exclude weekends
+        $is_business_day = $isDriverRole || ($day_of_week !== 0 && $day_of_week !== 6);
+        
+        if ($is_business_day) {
+            $worked_days++;
+        }
+    }
+    
+    return $worked_days;
+}
+
+// Helper to get total paid amount for an employee
+function getTotalPaidAmount($employeeId, $companyId) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(amount_paid), 0) as total_paid 
+        FROM salary_payments 
+        WHERE employee_id = ? AND company_id = ? AND status = 'completed'
+    ");
+    $stmt->execute([$employeeId, $companyId]);
+    return $stmt->fetchColumn();
 }
 
 // Determine the target payroll month/year based on selected payment_date (defaults to today)
@@ -253,19 +333,26 @@ function generateSalaryPaymentCode($company_id) {
                                 <option value=""><?php echo __('select_employee'); ?></option>
                                 <?php foreach ($employees as $employee): ?>
                                 <?php 
-                                    // Expected based on CURRENT period for initial hint in option text (drivers by worked days)
-                                    $workedDaysCurrent = getDaysWorkedInMonth($employee['id'], $company_id, $periodMonth, $periodYear);
+                                    // Get total worked days since hire date
+                                    $totalWorkedDays = getTotalWorkedDays($employee['id'], $company_id);
+                                    
+                                    // Get total paid amount
+                                    $totalPaidAmount = getTotalPaidAmount($employee['id'], $company_id);
+                                    
+                                    // Calculate total expected salary based on worked days
                                     $isDriver = in_array($employee['position'], ['driver','driver_assistant']);
-                                    $displaySalary = $isDriver ? (($employee['monthly_salary'] / 30) * $workedDaysCurrent) : $employee['monthly_salary'];
-                                    $paidOthers = $paidByEmployee[(int)$employee['id']] ?? 0.0;
+                                    $totalExpectedSalary = $isDriver ? (($employee['monthly_salary'] / 30) * $totalWorkedDays) : $employee['monthly_salary'];
+                                    
+                                    // Calculate remaining amount
+                                    $remainingAmount = max(0, $totalExpectedSalary - $totalPaidAmount);
                                 ?>
                                 <option value="<?php echo $employee['id']; ?>" 
-                                        data-salary="<?php echo (float)$displaySalary; ?>"
-                                        data-worked-days="<?php echo (int)$workedDaysCurrent; ?>"
+                                        data-salary="<?php echo (float)$totalExpectedSalary; ?>"
+                                        data-worked-days="<?php echo (int)$totalWorkedDays; ?>"
                                         data-is-driver="<?php echo $isDriver ? '1':'0'; ?>"
-                                        data-paid-other="<?php echo (float)$paidOthers; ?>"
+                                        data-paid-other="<?php echo (float)$totalPaidAmount; ?>"
                                         <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $workedDaysCurrent . ' => ') : __('monthly') . ': ') . formatCurrency($displaySalary)); ?>
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $totalWorkedDays . ' => ') : __('monthly') . ': ') . formatCurrency($totalExpectedSalary)); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -292,10 +379,9 @@ function generateSalaryPaymentCode($company_id) {
                         <div class="mb-3">
                             <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
                             <select class="form-control" id="currency" name="currency" required>
-                                <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('USD'); ?>($)</option>
-                                <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('AFN'); ?> (؋)</option>
-                                <option value="EUR" <?php echo (($_POST['currency'] ?? '') == 'EUR') ? 'selected' : ''; ?>><?php echo __('EUR'); ?> (€)</option>
-                                <option value="GBP" <?php echo (($_POST['currency'] ?? '') == 'GBP') ? 'selected' : ''; ?>><?php echo __('GBP'); ?> (£)</option>
+                            <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('AFN'); ?> (؋)</option>
+                            <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('USD'); ?>($)</option>
+                                
                             </select>
                         </div>
                     </div>
@@ -378,4 +464,343 @@ function generateSalaryPaymentCode($company_id) {
   recalc();
 })();
 </script>
+<?php require_once '../../../includes/footer.php'; ?>
+
+        <div class="col-md-4">
+
+            <div class="card border-left-info shadow h-100 py-2">
+
+                <div class="card-body">
+
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+
+                        <?php echo __('expected'); ?> (<span id="summaryPeriod"><?php echo date('F Y', strtotime($periodStart)); ?></span>, <span id="summaryCurrency"><?php echo htmlspecialchars($_POST['currency'] ?? 'USD'); ?></span>)
+
+                    </div>
+
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="expectedDisplay">0.00</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card border-left-success shadow h-100 py-2">
+
+                <div class="card-body">
+
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><?php echo __('paid'); ?> (<?php echo __('others'); ?>)</div>
+
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="paidOtherDisplay">0.00</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card border-left-warning shadow h-100 py-2">
+
+                <div class="card-body">
+
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1"><?php echo __('remaining'); ?></div>
+
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="remainingDisplay">0.00</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Add Salary Payment Form -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+
+            <h6 class="m-0 font-weight-bold text-primary"><?php echo __('salary_payment_details'); ?></h6>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <input type="hidden" id="expected_total" value="0">
+
+                <input type="hidden" id="paid_excl_current" value="0">
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <div class="mb-3">
+
+                            <label for="employee_id" class="form-label"><?php echo __('employee'); ?> *</label>
+
+                            <select class="form-control" id="employee_id" name="employee_id" required>
+
+                                <option value=""><?php echo __('select_employee'); ?></option>
+
+                                <?php foreach ($employees as $employee): ?>
+
+                                <?php 
+
+                                    // Get total worked days since hire date
+                                    $totalWorkedDays = getTotalWorkedDays($employee['id'], $company_id);
+                                    
+                                    // Get total paid amount
+                                    $totalPaidAmount = getTotalPaidAmount($employee['id'], $company_id);
+                                    
+                                    // Calculate total expected salary based on worked days
+                                    $isDriver = in_array($employee['position'], ['driver','driver_assistant']);
+
+                                    $totalExpectedSalary = $isDriver ? (($employee['monthly_salary'] / 30) * $totalWorkedDays) : $employee['monthly_salary'];
+                                    
+                                    // Calculate remaining amount
+                                    $remainingAmount = max(0, $totalExpectedSalary - $totalPaidAmount);
+                                ?>
+
+                                <option value="<?php echo $employee['id']; ?>" 
+
+                                        data-salary="<?php echo (float)$totalExpectedSalary; ?>"
+                                        data-worked-days="<?php echo (int)$totalWorkedDays; ?>"
+                                        data-is-driver="<?php echo $isDriver ? '1':'0'; ?>"
+
+                                        data-paid-other="<?php echo (float)$totalPaidAmount; ?>"
+                                        <?php echo (isset($_POST['employee_id']) && $_POST['employee_id'] == $employee['id']) ? 'selected' : ''; ?>>
+
+                                    <?php echo htmlspecialchars($employee['employee_code'] . ' - ' . $employee['name'] . ' (' . $employee['position'] . ') - ' . ($isDriver ? (__('worked_days') . ': ' . $totalWorkedDays . ' => ') : __('monthly') . ': ') . formatCurrency($totalExpectedSalary)); ?>
+                                </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="mb-3">
+
+                            <label for="payment_date" class="form-label"><?php echo __('payment_date'); ?> *</label>
+
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" 
+
+                                   value="<?php echo htmlspecialchars($_POST['payment_date'] ?? date('Y-m-d')); ?>" required>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label for="amount_paid" class="form-label"><?php echo __('amount_paid'); ?> *</label>
+
+                            <input type="number" step="0.01" min="0" class="form-control" id="amount_paid" name="amount_paid" 
+
+                                   value="<?php echo htmlspecialchars($_POST['amount_paid'] ?? ''); ?>" required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label for="currency" class="form-label"><?php echo __('currency'); ?> *</label>
+
+                            <select class="form-control" id="currency" name="currency" required>
+
+                            <option value="AFN" <?php echo (($_POST['currency'] ?? '') == 'AFN') ? 'selected' : ''; ?>><?php echo __('AFN'); ?> (؋)</option>
+
+                            <option value="USD" <?php echo (($_POST['currency'] ?? 'USD') == 'USD') ? 'selected' : ''; ?>><?php echo __('USD'); ?>($)</option>
+
+                                
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label for="payment_method" class="form-label"><?php echo __('payment_method'); ?></label>
+
+                            <select class="form-control" id="payment_method" name="payment_method">
+
+                                <option value="cash" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'cash') ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
+
+                                <option value="bank_transfer" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'bank_transfer') ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
+
+                                <option value="check" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'check') ? 'selected' : ''; ?>><?php echo __('check'); ?></option>
+
+                                <option value="mobile_money" <?php echo (isset($_POST['payment_method']) && $_POST['payment_method'] == 'mobile_money') ? 'selected' : ''; ?>><?php echo __('mobile_money'); ?></option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-3">
+
+                    <label for="notes" class="form-label"><?php echo __('notes'); ?></label>
+
+                    <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
+
+                </div>
+
+
+
+                <div class="text-end">
+
+                    <button type="submit" class="btn btn-primary">
+
+                        <i class="fas fa-save"></i> <?php echo __('add_salary_payment'); ?>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+(function(){
+
+  const employeeSelect = document.getElementById('employee_id');
+
+  const amountInput = document.getElementById('amount_paid');
+
+  const expectedInput = document.getElementById('expected_total');
+
+  const paidOtherInput = document.getElementById('paid_excl_current');
+
+  const expectedDisplay = document.getElementById('expectedDisplay');
+
+  const paidOtherDisplay = document.getElementById('paidOtherDisplay');
+
+  const remainingDisplay = document.getElementById('remainingDisplay');
+
+  const summaryRow = document.getElementById('summaryRow');
+
+  const currencySel = document.getElementById('currency');
+
+  const summaryCurrency = document.getElementById('summaryCurrency');
+
+
+
+  function setSummaryVisibility(visible){
+
+    summaryRow.style.display = visible ? '' : 'none';
+
+  }
+
+
+
+  function recalc(){
+
+    const opt = employeeSelect.options[employeeSelect.selectedIndex];
+
+    if (!opt || !opt.value) { setSummaryVisibility(false); return; }
+
+    const expected = parseFloat(opt.getAttribute('data-salary')) || 0;
+
+    const paidOthers = parseFloat(opt.getAttribute('data-paid-other')) || 0;
+
+    expectedInput.value = expected.toFixed(2);
+
+    paidOtherInput.value = paidOthers.toFixed(2);
+
+    expectedDisplay.textContent = expected.toFixed(2);
+
+    paidOtherDisplay.textContent = paidOthers.toFixed(2);
+
+    const amt = parseFloat(amountInput.value || '0') || 0;
+
+    const remaining = Math.max(0, expected - paidOthers - amt);
+
+    remainingDisplay.textContent = remaining.toFixed(2);
+
+    summaryCurrency.textContent = currencySel.value;
+
+    setSummaryVisibility(true);
+
+    // Suggest remaining as placeholder; do not auto-fill the amount
+
+    amountInput.placeholder = Math.max(0, expected - paidOthers).toFixed(2);
+
+  }
+
+
+
+  if (employeeSelect) {
+
+    employeeSelect.addEventListener('change', recalc);
+
+  }
+
+  if (amountInput) {
+
+    amountInput.addEventListener('input', recalc);
+
+  }
+
+  if (currencySel) {
+
+    currencySel.addEventListener('change', function(){
+
+      summaryCurrency.textContent = currencySel.value;
+
+    });
+
+  }
+
+
+
+  // Initial state if a value is preselected
+
+  recalc();
+
+})();
+
+</script>
+
 <?php require_once '../../../includes/footer.php'; ?>

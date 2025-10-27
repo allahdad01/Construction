@@ -17,7 +17,7 @@ const DYNAMIC_PATTERNS = [
   /\/employee\//,
   /\/super-admin\//,
   /\/reports\//,
-  /\/settings\/
+  /\/settings\//
 ];
 
 self.addEventListener('install', event => {

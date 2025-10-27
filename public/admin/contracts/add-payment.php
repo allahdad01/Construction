@@ -317,9 +317,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </label>
                                     <select class="form-control" id="payment_method" name="payment_method" required>
                                         <option value=""><?php echo __('select_payment_method'); ?></option>
+                                        <option value="cash" <?php echo ($_POST['payment_method'] ?? '') === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
                                         <option value="bank_transfer" <?php echo ($_POST['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : ''; ?>><?php echo __('bank_transfer'); ?></option>
                                         <option value="credit_card" <?php echo ($_POST['payment_method'] ?? '') === 'credit_card' ? 'selected' : ''; ?>><?php echo __('credit_card'); ?></option>
-                                        <option value="cash" <?php echo ($_POST['payment_method'] ?? '') === 'cash' ? 'selected' : ''; ?>><?php echo __('cash'); ?></option>
+                                        
                                         <option value="check" <?php echo ($_POST['payment_method'] ?? '') === 'check' ? 'selected' : ''; ?>><?php echo __('check'); ?></option>
                                         <option value="paypal" <?php echo ($_POST['payment_method'] ?? '') === 'paypal' ? 'selected' : ''; ?>><?php echo __('paypal'); ?></option>
                                     </select>

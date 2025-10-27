@@ -61,6 +61,17 @@ try {
         $stmt->execute([$start_date, $end_date, $company_id]);
         $employee_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Calculate prorated earnings based on monthly salary and working days
+        foreach ($employee_data as &$employee) {
+            // Calculate the fraction of the month worked
+            $days_worked = $employee['working_days'] ?? 0;
+            $days_in_month = date('t', strtotime($start_date)); // Total days in the month
+            
+            // Prorate monthly salary based on days worked
+            $employee['earnings'] = ($employee['monthly_salary'] / $days_in_month) * $days_worked;
+        }
+        unset($employee);
+
         // Get attendance data
         $stmt = $conn->prepare("
                     SELECT 

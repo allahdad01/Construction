@@ -25,9 +25,9 @@ if (!$rental_id) {
 
 // Get rental details
 $stmt = $conn->prepare("
-    SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category
+    SELECT pr.*
     FROM parking_rentals pr
-    JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+    
     WHERE pr.id = ? AND pr.company_id = ?
 ");
 $stmt->execute([$rental_id, $company_id]);
@@ -37,11 +37,6 @@ if (!$rental) {
     header('Location: index.php');
     exit;
 }
-
-// Get parking space details
-$stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
-$stmt->execute([$rental['parking_space_id'], $company_id]);
-$space = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -105,9 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Refresh rental data
         $stmt = $conn->prepare("
-            SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category
+            SELECT pr.*
             FROM parking_rentals pr
-            JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+            
             WHERE pr.id = ? AND pr.company_id = ?
         ");
         $stmt->execute([$rental_id, $company_id]);
@@ -265,7 +260,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php echo ucfirst(htmlspecialchars($rental['status'])); ?>
                         </span>
                     </p>
-                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
                     <p><strong><?php echo __('created'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['created_at'])); ?></p>
                     <?php if (!empty($rental['total_amount'])): ?>
                         <p><strong><?php echo __('total_amount'); ?>:</strong> <?php echo formatCurrencyAmount($rental['total_amount'], $rental['currency'] ?? 'USD'); ?></p>

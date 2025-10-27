@@ -24,9 +24,9 @@ if (!$rental_id) {
 
 // Get rental details
 $stmt = $conn->prepare("
-    SELECT pr.*, ps.space_code, ps.space_name, ps.vehicle_category
+    SELECT pr.*
     FROM parking_rentals pr
-    JOIN parking_spaces ps ON pr.parking_space_id = ps.id
+    
     WHERE pr.id = ? AND pr.company_id = ?
 ");
 $stmt->execute([$rental_id, $company_id]);
@@ -43,10 +43,6 @@ require_once '../../../includes/header.php';
 // Check if rental is ended and has no payments
 $is_ended_without_payments = ($rental['status'] === 'ended' && empty($rental['total_amount']));
 
-// Get parking space details
-$stmt = $conn->prepare("SELECT * FROM parking_spaces WHERE id = ? AND company_id = ?");
-$stmt->execute([$rental['parking_space_id'], $company_id]);
-$space = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Get payment history for this rental
 $stmt = $conn->prepare("
@@ -412,7 +408,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-md-6">
                     <p><strong><?php echo __('rental_code'); ?>:</strong> <?php echo htmlspecialchars($rental['rental_code']); ?></p>
                     <p><strong><?php echo __('client'); ?>:</strong> <?php echo htmlspecialchars($rental['client_name']); ?></p>
-                    <p><strong><?php echo __('parking_space'); ?>:</strong> <?php echo htmlspecialchars($space['space_name']); ?></p>
                 </div>
                 <div class="col-md-6">
                     <p><strong><?php echo __('start_date'); ?>:</strong> <?php echo date('M j, Y', strtotime($rental['start_date'])); ?></p>

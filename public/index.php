@@ -1555,8 +1555,18 @@ $current_settings = [
             `;
             document.body.appendChild(loadingToast);
             
+            // Prepare language map for display
+            const languageMap = {
+                'en': 'English',
+                'da': 'دری',
+                'ps': 'پښتو'
+            };
+            
+            // Use provided langName or fallback to map or default
+            const displayName = langName || languageMap[lang] || 'English';
+            
             // Update the display immediately
-            currentLanguageSpan.textContent = langName || 'English';
+            currentLanguageSpan.textContent = displayName;
             
             // Store language preference
             localStorage.setItem('preferredLanguage', lang);

@@ -24,10 +24,27 @@ $displayName = trim(($e['first_name'] ?? '') . ' ' . ($e['last_name'] ?? '')) ?:
 // Attendance stats
 $att = ['total_days'=>0,'present_days'=>0,'absent_days'=>0,'leave_days'=>0];
 try {
-  $s=$conn->prepare("SELECT COUNT(*) total_days, COUNT(CASE WHEN status='present' THEN 1 END) present_days, COUNT(CASE WHEN status='absent' THEN 1 END) absent_days, COUNT(CASE WHEN status='leave' THEN 1 END) leave_days FROM employee_attendance WHERE employee_id=? AND company_id=?");
-  $s->execute([$employee_id,$company_id]);
+  // Get attendance with suspension days excluded
+  $s=$conn->prepare("
+    SELECT 
+      COUNT(*) total_days, 
+      COUNT(CASE WHEN ea.status = 'present' THEN 1 END) present_days, 
+      COUNT(CASE WHEN ea.status = 'absent' THEN 1 END) absent_days, 
+      COUNT(CASE WHEN ea.status = 'leave' THEN 1 END) leave_days 
+    FROM employee_attendance ea
+    LEFT JOIN employee_work_suspensions ews ON 
+        ea.employee_id = ews.employee_id AND 
+        ea.date BETWEEN ews.suspension_start_date AND COALESCE(ews.suspension_end_date, CURRENT_DATE)
+    WHERE ea.employee_id = ? AND ea.company_id = ? AND 
+        (ews.id IS NULL)
+  ");
+  
+  $s->execute([$employee_id, $company_id]);
   $att = $s->fetch(PDO::FETCH_ASSOC) ?: $att;
-} catch (Exception $ex) {}
+} catch (Exception $ex) {
+  // Log or handle the exception if needed
+  error_log("Attendance calculation error: " . $ex->getMessage());
+}
 
 // Worked hours & recent contracts
 $stats = ['total_contracts'=>0,'active_contracts'=>0,'total_hours_worked'=>0.0];
@@ -56,6 +73,8 @@ try {
 $totalPaid = 0.0; foreach ($payments as $p) { $totalPaid += (float)($p['amount_paid'] ?? 0); }
 $monthlySalary = (float)($e['monthly_salary'] ?? 0);
 $dailyRate = $monthlySalary/30.0;
+
+// Calculate days worked excluding suspension days
 $daysWorked = (int)($att['present_days'] ?? 0);
 $earnedThisMonth = $dailyRate * $daysWorked;
 $remaining = max(0.0, $earnedThisMonth - $totalPaid);
@@ -127,7 +146,7 @@ $remaining = max(0.0, $earnedThisMonth - $totalPaid);
     <div class="card-header"><?php echo __('attendance'); ?></div>
     <div class="card-body">
       <table>
-        <tr><th style="width:48%"><?php echo __('total_days'); ?></th><td><?php echo (int)($att['total_days'] ?? 0); ?></td></tr>
+        <tr><th style="width:48%"><?php echo __('total_days'); ?></th><td><?php echo (int)($att['present_days'] ?? 0); ?></td></tr>
         <tr><th><?php echo __('present'); ?></th><td><?php echo (int)($att['present_days'] ?? 0); ?></td></tr>
         <tr><th><?php echo __('leave'); ?></th><td><?php echo (int)($att['leave_days'] ?? 0); ?></td></tr>
         <tr><th><?php echo __('absent'); ?></th><td><?php echo (int)($att['absent_days'] ?? 0); ?></td></tr>

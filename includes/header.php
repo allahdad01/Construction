@@ -5,9 +5,6 @@ $base_path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'confi
 require_once $base_path . 'config.php';
 require_once $base_path . 'database.php';
 
-// Set cache control headers for all dynamic pages
-setAutoCacheHeaders();
-
 // Handle language switching
 if (isset($_GET['change_language']) && isAuthenticated()) {
     $new_language_id = (int)$_GET['change_language'];
@@ -134,172 +131,6 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             padding: 0;
         }
 
-        /* Enhanced Header Styles */
-        .navbar {
-            padding: 0.75rem 1rem;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .navbar-brand:hover {
-            transform: translateY(-1px);
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: white !important;
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 2px;
-            background-color: white;
-            border-radius: 1px;
-        }
-
-        /* Dropdown Enhancements */
-        .dropdown-menu {
-            border: none;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--box-shadow-xl);
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-        }
-
-        .dropdown-menu-dark {
-            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
-            color: white;
-        }
-
-        .dropdown-item {
-            padding: 0.75rem 1.5rem;
-            color: var(--gray-700);
-            transition: var(--transition);
-            border-radius: 0;
-        }
-
-        .dropdown-menu-dark .dropdown-item {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .dropdown-item:hover, .dropdown-item:focus {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .dropdown-item.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .dropdown-header {
-            color: var(--primary-color);
-            font-weight: 600;
-            padding: 0.75rem 1.5rem 0.5rem;
-        }
-
-        /* Avatar Styles */
-        .avatar-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: var(--transition);
-        }
-
-        .avatar-circle:hover {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.6);
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .avatar-text {
-            color: white;
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.5rem;
-        }
-
-        /* Notification Badge */
-        #notificationBadge {
-            font-size: 0.7rem;
-            min-width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Language Switcher */
-        .language-switcher .dropdown-toggle::after {
-            display: none;
-        }
-
-        .language-switcher .badge {
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: var(--primary-color) !important;
-            font-weight: 700;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 991.98px) {
-            .navbar-nav .nav-link {
-                padding: 0.75rem 1rem !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .dropdown-menu {
-                border: none;
-                background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(10px);
-            }
-
-            .navbar-collapse {
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: var(--border-radius);
-                margin-top: 1rem;
-                padding: 1rem;
-            }
-        }
-
         /* Modern Sidebar (default) */
         .sidebar {
             position: fixed;
@@ -313,61 +144,6 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             transition: var(--transition);
             box-shadow: var(--box-shadow-lg);
             overflow-y: auto;
-        }
-
-        /* Collapsed Sidebar State */
-        .sidebar.collapsed {
-            width: 70px;
-        }
-
-        .sidebar.collapsed .sidebar-brand,
-        .sidebar.collapsed .sidebar-nav .nav-text,
-        .sidebar.collapsed .sidebar-footer {
-            display: none;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-item {
-            text-align: center;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-link {
-            padding: 1rem 0.5rem;
-            justify-content: center;
-        }
-
-        .sidebar.collapsed .sidebar-nav .nav-link i {
-            margin: 0;
-            font-size: 1.2rem;
-        }
-
-        /* Main Content Adjustment */
-        .main-content {
-            margin-left: 280px;
-            transition: var(--transition);
-        }
-
-        .main-content.expanded {
-            margin-left: 70px;
-        }
-
-        /* Responsive Sidebar */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .main-content.expanded {
-                margin-left: 0;
-            }
         }
         .sidebar.collapsed { width: 70px; }
         .sidebar-header { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
@@ -484,26 +260,26 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     </style>
     <style>
-    /* Mobile adjustments without off-canvas overlay */
-    @media (max-width: 768px) {
-      .sidebar { 
-        width: 240px; 
-        transform: translateX(-100%); 
-        transition: transform 0.3s ease-in-out;
-      }
-      .sidebar.show { transform: translateX(0); }
-      .sidebar.collapsed { width: 0; transform: translateX(-100%); overflow: hidden; }
-      .sidebar.collapsed .nav-link span { display: none; }
-      .main-content { margin-left: 0 !important; }
-      .main-content.expanded { margin-left: 0 !important; }
-      .top-navbar { padding: 0.75rem 1rem; }
-    }
+        /* Mobile adjustments without off-canvas overlay */
+        @media (max-width: 768px) {
+        .sidebar { 
+            width: 240px; 
+            transform: translateX(-100%); 
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar.show { transform: translateX(0); }
+        .sidebar.collapsed { width: 0; transform: translateX(-100%); overflow: hidden; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        .main-content { margin-left: 0 !important; }
+        .main-content.expanded { margin-left: 0 !important; }
+        .top-navbar { padding: 0.75rem 1rem; }
+        }
     </style>
     <link rel="manifest" href="<?php echo $base_url; ?>manifest.json">
     <meta name="theme-color" content="<?php echo htmlspecialchars($accent_color); ?>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="<?php echo $base_url; ?>uploads/logos/icon-192.png">
+    <link rel="apple-touch-icon" href="<?php echo htmlspecialchars(str_replace('public/public/', 'public/', $base_url . $platform_logo)); ?>">
   </head>
   <body data-theme="<?php echo $theme_mode; ?>">
       <!-- Sidebar -->
@@ -520,13 +296,13 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             <ul class="sidebar-nav">
                 <li class="nav-item">
                     <?php
-                    $dashboardUrl = $base_url.'dashboard/';
+                    $dashboardUrl = $base_url . 'dashboard/';
                     if ($is_super_admin) {
-                        $dashboardUrl = $base_url.'super-admin/';
+                        $dashboardUrl = $base_url . 'super-admin/';
                     } elseif ($is_company_admin) {
-                        $dashboardUrl = $base_url.'admin/dashboard/';
+                        $dashboardUrl = $base_url . 'admin/dashboard/';
                     } elseif ($is_employee) {
-                        $dashboardUrl = $base_url.'employee/dashboard/';
+                        $dashboardUrl = $base_url . 'employee/dashboard/';
                     }
                     ?>
                     <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo $dashboardUrl; ?>">
@@ -614,6 +390,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                             <span><?php echo __('machines'); ?></span>
                         </a>
                     </li>
+                
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'contracts') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/contracts/">
                             <i class="fas fa-file-contract"></i>
@@ -626,6 +403,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                             <span><?php echo __('parking'); ?></span>
                         </a>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'area-rentals') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>admin/area-rentals/">
                             <i class="fas fa-map-marked-alt"></i>
@@ -663,7 +441,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'settings/' : $base_url.'settings/'); ?>">
+                        <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'settings') !== false ? 'active' : ''; ?>" href="<?php echo $is_super_admin ? $base_url . 'super-admin/settings/' : ($is_company_admin ? $base_url . 'settings/' : $base_url . 'settings/'); ?>">
                             <i class="fas fa-cog"></i>
                             <span><?php echo __('settings'); ?></span>
                         </a>
@@ -748,79 +526,106 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
 
         <!-- Main Content -->
         <div class="main-content" id="main-content">
-            <!-- Top Navigation Bar -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow-sm" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;">
-                <div class="container-fluid">
-                    <!-- Brand/Logo -->
-                    <a class="navbar-brand d-flex align-items-center" href="<?php echo $base_url; ?>dashboard/">
-                        <?php if (!empty($platform_logo)): ?>
-                            <img src="<?php echo $base_url . htmlspecialchars($platform_logo); ?>" alt="<?php echo htmlspecialchars($platform_name); ?>" height="40" class="me-3">
-                        <?php else: ?>
-                            <i class="fas fa-building fa-2x me-3 text-white"></i>
-                        <?php endif; ?>
-                        <span class="fw-bold fs-4"><?php echo htmlspecialchars($platform_name); ?></span>
-                    </a>
-
-                    <!-- Mobile Toggle Buttons -->
-                    <div class="d-flex align-items-center">
-                        <!-- Sidebar Toggle for Mobile -->
-                        <button class="btn btn-link text-white d-lg-none me-2" id="sidebarToggle" type="button">
-                            <i class="fas fa-bars fa-lg"></i>
-                        </button>
+            <!-- Top Navigation -->
+            <nav class="top-navbar shadow-sm">
+                <div class="container-fluid px-4">
+                    <div class="d-flex justify-content-between align-items-center py-3">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-icon d-md-none sidebarToggle me-2" id="sidebarToggle">
+                                <i class="fas fa-bars text-primary"></i>
+                            </button>
+                            <h4 class="mb-0 ms-2 text-primary fw-semibold"><?php echo $page_title ?? 'Dashboard'; ?></h4>
+                        </div>
                         
-                        <!-- Mobile Navigation Toggle -->
-                        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                    </div>
-
-                    <!-- Navigation Content -->
-                    <div class="collapse navbar-collapse" id="navbarContent">
-                        <!-- Left Side Navigation -->
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/dashboard/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>dashboard/">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('dashboard'); ?></span>
+                        <div class="d-flex align-items-center gap-3">
+                            <?php if ($is_company_admin || $is_employee): ?>
+                            <!-- Notifications -->
+                            <div class="dropdown">
+                                <a class="nav-link position-relative p-2 rounded-circle bg-light-hover" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                                    <i class="fas fa-bell text-muted"></i>
+                                    <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger rounded-circle" id="notificationBadge" style="display:none">0</span>
                                 </a>
-                            </li>
-                            
-                            <?php if (isCompanyAdmin() || isSuperAdmin()): ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-users me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('management'); ?></span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/employees/"><i class="fas fa-user-tie me-2"></i><?php echo __('employees'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/machines/"><i class="fas fa-cogs me-2"></i><?php echo __('machines'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/contracts/"><i class="fas fa-file-contract me-2"></i><?php echo __('contracts'); ?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>admin/expenses/"><i class="fas fa-receipt me-2"></i><?php echo __('expenses'); ?></a></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 overflow-hidden" id="notificationList" style="width: 380px;">
+                                    <li class="px-3 py-2 bg-light border-bottom">
+                                        <h6 class="mb-0 fw-semibold"><?php echo __('notifications'); ?></h6>
+                                    </li>
+                                    <li class="notification-items" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="dropdown-item text-center py-3"><small class="text-muted">Loading...</small></div>
+                                    </li>
+                                    <li class="p-2 bg-light border-top">
+                                        <a class="btn btn-link btn-sm text-primary w-100" href="#" onclick="markAllAsRead()">
+                                            <i class="fas fa-check-double me-1"></i> <?php echo __('mark_all_as_read'); ?>
+                                        </a>
+                                    </li>
                                 </ul>
-                            </li>
-                            <?php endif; ?>
-                            
-                            <?php if (isEmployee()): ?>
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], '/employee/contracts/') !== false ? 'active' : ''; ?>" href="<?php echo $base_url; ?>employee/contracts/">
-                                    <i class="fas fa-file-contract me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('my_contracts'); ?></span>
-                                </a>
-                            </li>
-                            <?php endif; ?>
-                        </ul>
 
-                        <!-- Right Side Navigation -->
-                        <ul class="navbar-nav ms-auto align-items-center">
-                            <!-- Language Switcher -->
-                            <li class="nav-item dropdown me-3">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-globe me-2"></i>
-                                    <span class="d-none d-lg-inline"><?php echo __('language'); ?></span>
-                                    <span class="badge bg-light text-dark ms-2"><?php echo getCompanyLanguage()['language_code'] ?? 'EN'; ?></span>
+                                <style>
+                                .notification-items {
+                                    scrollbar-width: thin;
+                                    scrollbar-color: rgba(0,0,0,.2) transparent;
+                                }
+                                .notification-items::-webkit-scrollbar {
+                                    width: 6px;
+                                }
+                                .notification-items::-webkit-scrollbar-track {
+                                    background: transparent;
+                                }
+                                .notification-items::-webkit-scrollbar-thumb {
+                                    background-color: rgba(0,0,0,.2);
+                                    border-radius: 3px;
+                                }
+                                .notification-item-content {
+                                    word-wrap: break-word;
+                                    overflow-wrap: break-word;
+                                    word-break: break-word;
+                                    hyphens: auto;
+                                    max-width: 100%;
+                                }
+                                .notification-text {
+                                    white-space: normal;
+                                    overflow-wrap: break-word;
+                                    word-wrap: break-word;
+                                    word-break: break-word;
+                                    max-width: 300px;
+                                }
+                                .dropdown-item {
+                                    white-space: normal;
+                                }
+                                </style>
+                            </div>
+                            <?php endif; ?>
+                            <!-- PWA Install Button -->
+                            <button id="installAppBtn" class="btn btn-sm btn-primary d-none">
+                                <i class="fas fa-download me-1"></i> <?php echo __('install_app') ?? 'Install'; ?>
+                            </button>
+                            <!-- User Dropdown -->
+                            <div class="dropdown">
+                                <a class="user-dropdown-toggle d-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 14px;">
+                                        <?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?>
+                                    </div>
+                                    <span class="d-none d-md-inline text-body fw-medium"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                                    <i class="fas fa-chevron-down text-muted fs-12"></i>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 200px;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-language me-2"></i><?php echo __('select_language'); ?></h6></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2" style="width: 260px;">
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light" href="<?php echo $base_url; ?>profile/">
+                                            <i class="fas fa-user text-primary"></i>
+                                            <span>Profile</span>
+                                        </a>
+                                    </li>
+                                    <?php if (!$is_employee): ?>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light" href="<?php echo $is_super_admin ? $base_url . 'super-admin/settings/' : ($is_company_admin ? $base_url . 'admin/settings/' : $base_url . 'settings/'); ?>">
+                                            <i class="fas fa-cog text-primary"></i>
+                                            <span>Settings</span>
+                                        </a>
+                                    </li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider mx-3 my-2"></li>
+                                    <li>
+                                        <h6 class="dropdown-header px-3 text-uppercase text-muted fs-12 fw-semibold"><?php echo __('language'); ?></h6>
+                                    </li>
                                     <?php
                                     $available_languages = getAvailableLanguages();
                                     $current_language = getCompanyLanguage();
@@ -828,70 +633,74 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                                         $is_active = ($current_language['id'] == $lang['id']);
                                     ?>
                                     <li>
-                                        <a class="dropdown-item d-flex align-items-center justify-content-between <?php echo $is_active ? 'active bg-primary text-white' : ''; ?>" 
-                                           href="#" onclick="changeLanguage('<?php echo $lang['language_code']; ?>')">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-flag me-2"></i>
-                                                <span><?php echo htmlspecialchars($lang['language_name_native']); ?></span>
-                                                <small class="text-muted ms-2">(<?php echo htmlspecialchars($lang['language_name']); ?>)</small>
-                                            </div>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 hover-bg-light <?php echo $is_active ? 'active' : ''; ?>" 
+                                           href="#" onclick="changeLanguage('<?php echo $lang['id']; ?>')">
+                                            <i class="fas fa-language <?php echo $is_active ? 'text-primary' : 'text-muted'; ?>"></i>
+                                            <span><?php echo htmlspecialchars($lang['language_name_native']); ?></span>
                                             <?php if ($is_active): ?>
-                                                <i class="fas fa-check-circle"></i>
+                                                <i class="fas fa-check ms-auto text-primary"></i>
                                             <?php endif; ?>
                                         </a>
                                     </li>
                                     <?php endforeach; ?>
+                                    <li><hr class="dropdown-divider mx-3 my-2"></li>
+                                    <li>
+                                        <a class="dropdown-item px-3 py-2 d-flex align-items-center gap-2 text-danger hover-bg-light" href="<?php echo $base_url; ?>logout.php">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            <span>Logout</span>
+                                        </a>
+                                    </li>
                                 </ul>
-                            </li>
-
-                            <!-- Notifications -->
-                            <li class="nav-item dropdown me-3">
-                                <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-bell fa-lg"></i>
-                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="width: 350px; max-height: 400px; overflow-y: auto;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-bell me-2"></i><?php echo __('notifications'); ?></h6></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <div id="notificationList">
-                                        <li><div class="dropdown-item text-center"><small class="text-muted"><?php echo __('loading_notifications'); ?></small></div></li>
-                                    </div>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-center text-primary" href="#" onclick="markAllAsRead()"><i class="fas fa-check-double me-2"></i><?php echo __('mark_all_as_read'); ?></a></li>
-                                </ul>
-                            </li>
-
-                            <!-- User Profile Dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                    <div class="avatar-circle me-2">
-                                        <?php if (!empty($current_user['profile_image'])): ?>
-                                            <img src="<?php echo $base_url . htmlspecialchars($current_user['profile_image']); ?>" alt="Profile" class="avatar-img">
-                                        <?php else: ?>
-                                            <span class="avatar-text"><?php echo strtoupper(substr($current_user['first_name'], 0, 1) . substr($current_user['last_name'], 0, 1)); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="d-none d-lg-block text-start">
-                                        <div class="fw-bold text-white"><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></div>
-                                        <small class="text-light"><?php echo ucfirst($current_user['role']); ?></small>
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="min-width: 220px;">
-                                    <li><h6 class="dropdown-header text-primary fw-bold"><i class="fas fa-user me-2"></i><?php echo __('user_profile'); ?></h6></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>profile/"><i class="fas fa-user-edit me-2"></i><?php echo __('edit_profile'); ?></a></li>
-                                    <?php if (!$is_employee): ?>
-                                    <li><a class="dropdown-item" href="<?php echo $is_super_admin ? $base_url.'super-admin/settings/' : ($is_company_admin ? $base_url.'admin/settings/' : $base_url.'settings/'); ?>"><i class="fas fa-cog me-2"></i><?php echo __('settings'); ?></a></li>
-                                    <?php endif; ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $base_url; ?>clear-cache.php"><i class="fas fa-broom me-2"></i><?php echo __('clear_cache'); ?></a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="<?php echo $base_url; ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i><?php echo __('logout'); ?></a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
+
+            <style>
+            .top-navbar {
+                background: #fff;
+                border-bottom: 1px solid rgba(0,0,0,.05);
+            }
+            
+            .btn-icon {
+                padding: 8px;
+                border-radius: 8px;
+                color: var(--bs-primary);
+                border: none;
+                background: rgba(var(--bs-primary-rgb), 0.1);
+            }
+            
+            .btn-icon:hover {
+                background: rgba(var(--bs-primary-rgb), 0.15);
+            }
+            
+            .bg-light-hover:hover {
+                background-color: rgba(0,0,0,.05) !important;
+            }
+            
+            .notification-badge {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .hover-bg-light:hover {
+                background-color: rgba(0,0,0,.03) !important;
+            }
+            
+            .fs-12 {
+                font-size: 12px;
+            }
+            
+            .dropdown-menu {
+                margin-top: 10px;
+            }
+            
+            .dropdown-item.active {
+                background-color: rgba(var(--bs-primary-rgb), 0.1);
+                color: var(--bs-primary);
+            }
+            </style>
 
             <!-- Page Content -->
             <div class="container-fluid p-4">
@@ -942,40 +751,44 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 const list = document.getElementById('notificationList');
                 if (!list) return;
 
-                // Clear existing notifications (keep header and footer)
-                const header = list.querySelector('.dropdown-header').parentElement;
-                const footer = list.querySelector('.dropdown-divider').parentElement;
-                const markAllLink = list.querySelector('a[onclick="markAllAsRead()"]').parentElement;
+                // Find the notification items container
+                const itemsContainer = list.querySelector('.notification-items');
+                if (!itemsContainer) return;
                 
-                list.innerHTML = '';
-                list.appendChild(header);
+                // Clear existing notifications
+                itemsContainer.innerHTML = '';
                 
                 if (notifications.length === 0) {
-                    const noNotifications = document.createElement('li');
-                    noNotifications.innerHTML = '<div class="dropdown-item text-center"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
-                    list.appendChild(noNotifications);
+                    itemsContainer.innerHTML = '<div class="dropdown-item text-center py-3"><small class="text-muted"><?php echo __('no_notifications'); ?></small></div>';
                 } else {
                     notifications.forEach(notification => {
-                        const item = document.createElement('li');
                         const icon = getNotificationIcon(notification.type);
                         const timeAgo = getTimeAgo(notification.created_at);
                         
-                        item.innerHTML = `
-                            <a class="dropdown-item ${notification.is_read ? 'text-muted' : ''}" href="#" onclick="markNotificationRead(${notification.id})">
-                                <i class="${icon} me-2"></i>
-                                <div>
-                                    <div class="fw-bold">${notification.title}</div>
-                                    <small class="text-muted">${notification.message}</small>
-                                    <br><small class="text-muted">${timeAgo}</small>
+                        const itemHtml = `
+                            <div class="dropdown-item p-3 border-bottom ${notification.is_read ? 'bg-light' : ''}" role="button" onclick="markNotificationRead(${notification.id})">
+                                <div class="d-flex gap-2">
+                                    <div class="flex-shrink-0" style="padding-top: 3px;">
+                                        <i class="${icon}"></i>
+                                    </div>
+                                    <div class="notification-item-content flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-start gap-2 mb-1">
+                                            <div class="notification-text ${notification.is_read ? 'text-muted' : 'text-body fw-medium'}">${notification.title}</div>
+                                            ${!notification.is_read ? '<span class="flex-shrink-0 badge bg-primary rounded-pill">New</span>' : ''}
+                                        </div>
+                                        <div class="notification-text">
+                                            <small class="text-muted">${notification.message}</small>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small class="text-muted">${timeAgo}</small>
+                                        </div>
+                                    </div>
                                 </div>
-                            </a>
+                            </div>
                         `;
-                        list.appendChild(item);
+                        itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
                     });
                 }
-                
-                list.appendChild(footer);
-                list.appendChild(markAllLink);
             }
 
             // Get notification icon based on type
@@ -1070,7 +883,7 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
             setInterval(loadNotifications, 30000);
 
             // Enhanced language switching function
-            function changeLanguage(languageCode) {
+            function changeLanguage(languageId) {
                 // Show loading indicator
                 const loadingToast = document.createElement('div');
                 loadingToast.className = 'alert alert-info alert-dismissible fade show position-fixed';
@@ -1082,98 +895,17 @@ $notification_sound_enabled = (int)getSystemSettingLocal($conn, 'notification_so
                 `;
                 document.body.appendChild(loadingToast);
 
-                // Make API call to change language
-                fetch('<?php echo $base_url; ?>api/change-language.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        language: languageCode
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Remove loading indicator
-                    loadingToast.remove();
-
-                    if (data.success) {
-                        // Show success message
-                        const successToast = document.createElement('div');
-                        successToast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                        successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                        successToast.innerHTML = `
-                            <i class="fas fa-check-circle me-2"></i>
-                            ${data.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.body.appendChild(successToast);
-
-                        // Update the language badge immediately
-                        const languageBadge = document.querySelector('.navbar-nav .badge');
-                        if (languageBadge) {
-                            languageBadge.textContent = languageCode.toUpperCase();
-                        }
-
-                        // Reload page to apply language changes
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Show error message
-                        const errorToast = document.createElement('div');
-                        errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                        errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                        errorToast.innerHTML = `
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            ${data.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.body.appendChild(errorToast);
-                    }
-                })
-                .catch(error => {
-                    // Remove loading indicator
-                    loadingToast.remove();
-
-                    // Show error message
-                    const errorToast = document.createElement('div');
-                    errorToast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-                    errorToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                    errorToast.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <?php echo __('failed_to_change_language'); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    document.body.appendChild(errorToast);
-                });
+                // Add the language change parameter to the current URL
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('change_language', languageId);
+                
+                // Redirect to the new URL which will trigger the language change
+                window.location.href = currentUrl.toString();
             }
             </script>
             <script>
-            // Sidebar toggle functionality
+            // Improve dropdown positioning
             document.addEventListener('DOMContentLoaded', function() {
-                const sidebarToggle = document.getElementById('sidebarToggle');
-                const sidebar = document.querySelector('.sidebar');
-                const mainContent = document.getElementById('main-content');
-                
-                if (sidebarToggle && sidebar) {
-                    sidebarToggle.addEventListener('click', function() {
-                        sidebar.classList.toggle('collapsed');
-                        mainContent.classList.toggle('expanded');
-                        
-                        // Store state in localStorage
-                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-                    });
-                    
-                    // Restore sidebar state from localStorage
-                    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                    if (sidebarCollapsed) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
-                    }
-                }
-                
-                // Improve dropdown positioning
                 function adjustDropdownPosition() {
                     if (window.innerWidth <= 768) {
                         const dropdowns = document.querySelectorAll('.dropdown-menu');

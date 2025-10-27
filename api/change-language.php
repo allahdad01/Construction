@@ -34,8 +34,9 @@ try {
         throw new Exception(__('invalid_language'));
     }
     
-    // Update session language immediately
+    // Update session with both language code and ID
     $_SESSION['current_language'] = $language['id'];
+    $_SESSION['current_language_code'] = $language_code;
     
     // If user is logged in and has a company, update company settings
     if (isset($_SESSION['user_id']) && isset($_SESSION['company_id'])) {

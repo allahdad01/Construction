@@ -25,17 +25,12 @@ if (!$rental_id) {
 // Get area rental details with area information
 $stmt = $conn->prepare("
     SELECT ar.*, 
-           ra.area_name,
-           ra.area_code,
-           ra.area_type,
-           ra.size,
            CASE 
                WHEN ar.end_date IS NULL THEN 'Ongoing'
                WHEN ar.end_date > CURDATE() THEN 'Active'
                ELSE 'Expired'
            END as rental_status
     FROM area_rentals ar 
-    LEFT JOIN rental_areas ra ON ar.rental_area_id = ra.id
     WHERE ar.id = ? AND ar.company_id = ?
 ");
 $stmt->execute([$rental_id, $company_id]);
@@ -115,12 +110,7 @@ if ($rental['total_amount']) {
         <th style="text-align:left; border:1px solid #ccc; padding:6px; width:22%"><?php echo __('client'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; width:28%"><?php echo htmlspecialchars($rental['client_name']); ?></td>
       </tr>
-      <tr>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('area'); ?></th>
-        <td style="border:1px solid #ccc; padding:6px;"><?php echo htmlspecialchars($rental['area_name'] . ' (' . $rental['area_code'] . ')'); ?></td>
-        <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('type_size'); ?></th>
-        <td style="border:1px solid #ccc; padding:6px;"><?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?><?php echo !empty($rental['size']) ? (' • ' . htmlspecialchars($rental['size'])) : ''; ?></td>
-      </tr>
+
       <tr>
         <th style="text-align:left; border:1px solid #ccc; padding:6px;"><?php echo __('start_date'); ?></th>
         <td style="border:1px solid #ccc; padding:6px; "><?php echo date('M j, Y', strtotime($rental['start_date'])); ?></td>
@@ -206,12 +196,6 @@ if ($rental['total_amount']) {
                             <p><strong><?php echo __('duration'); ?>:</strong> <?php echo htmlspecialchars($range_text . ' — ' . $duration_text); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong><?php echo __('area_name'); ?>:</strong> <?php echo htmlspecialchars($rental['area_name']); ?></p>
-                            <p><strong><?php echo __('area_code'); ?>:</strong> <?php echo htmlspecialchars($rental['area_code']); ?></p>
-                            <p><strong><?php echo __('area_type'); ?>:</strong> <?php echo ucfirst(htmlspecialchars($rental['area_type'])); ?></p>
-                            <?php if ($rental['size']): ?>
-                            <p><strong><?php echo __('area_size'); ?>:</strong> <?php echo htmlspecialchars($rental['size']); ?></p>
-                            <?php endif; ?>
                             <p><strong><?php echo __('status'); ?>:</strong> 
                                 <span class="badge badge-<?php echo $rental['status'] == 'active' ? 'success' : ($rental['status'] == 'completed' ? 'primary' : 'secondary'); ?>">
                                     <?php echo ucfirst(htmlspecialchars($rental['status'])); ?>
